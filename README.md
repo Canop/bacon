@@ -5,6 +5,10 @@ It's designed for minimal interaction so that you can jut let it running, side t
 
 ## FAQ
 
+### Can I use it ?
+
+It's not ready ! I've just started making it !
+
 ### What does it do ?
 
 It watches the content of your src directory and launches `cargo check` on changes.
