@@ -1,4 +1,4 @@
-#![ allow( dead_code, unused_imports ) ]
+#![allow(dead_code, unused_imports)]
 
 mod app;
 mod cli;
@@ -6,17 +6,8 @@ mod computer;
 mod item;
 mod report;
 mod state;
-mod watcher;
 
-pub use {
-    app::*,
-    cli::*,
-    computer::*,
-    item::*,
-    report::*,
-    state::*,
-    watcher::*,
-};
+pub use {app::*, cli::*, computer::*, item::*, report::*, state::*};
 
 #[macro_use]
 extern crate log;
@@ -33,7 +24,6 @@ use {
         str::FromStr,
     },
 };
-
 
 /// configure the application log according to env variable.
 ///

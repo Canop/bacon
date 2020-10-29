@@ -1,23 +1,9 @@
 use {
     crate::*,
     anyhow::*,
-    crossbeam::channel::{
-        bounded,
-        Receiver,
-        Sender,
-        select,
-        unbounded,
-    },
-    inotify::{
-        Inotify,
-        WatchMask,
-    },
-    std::{
-        env,
-        thread,
-    },
+    crossbeam::channel::{bounded, select, unbounded, Receiver, Sender},
+    std::{env, thread},
 };
-
 
 pub struct Computer {
     pub task_sender: Sender<()>,
@@ -51,5 +37,3 @@ impl Computer {
         })
     }
 }
-
-

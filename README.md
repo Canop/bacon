@@ -21,9 +21,11 @@ The rendering is adapted to the dimensions of the terminal to ensure you get a p
 
 Errors are priviledged: by default warnings are only displayed when there's no error.
 
-### Does it work on Windows?
+### What are the supported platforms ?
 
-Not yet.
+It should work on most unix systems, including linux and Mac OSX.
+
+It should work on a decent terminal on Windows 11+ but I didn't test.
 
 ### Why "bacon" ?
 

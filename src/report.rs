@@ -1,14 +1,11 @@
-
-
 use {
     crate::*,
     anyhow::Result,
     std::{
         convert::TryFrom,
-        io::{self, Read, BufRead},
+        io::{self, BufRead, Read},
     },
 };
-
 
 #[derive(Debug)]
 pub struct Report {
@@ -23,7 +20,6 @@ static WARNING: &'static str = "\u{1b}[0m\u{1b}[1m\u{1b}[33mwarning\u{1b}[0m\u{1
 static ERROR: &'static str = "\u{1b}[0m\u{1b}[1m\u{1b}[38;5;9merror\u{1b}[0m\u{1b}[0m\u{1b}[1m: ";
 
 impl Report {
-
     pub fn try_from(stderr: &Vec<u8>) -> Result<Report> {
         let mut warnings = Vec::new();
         let mut errors = Vec::new();
@@ -54,20 +50,17 @@ impl Report {
                 event.lines.push(line);
             }
         }
-        Ok(Report {
-            warnings,
-            errors,
-        })
+        Ok(Report { warnings, errors })
     }
 
     pub fn compute() -> Result<Report> {
         debug!("starting cargo check");
         let output = Command::new("cargo")
-             .arg("check")
-             .arg("--color")
-             .arg("always")
-             .output()
-             .context("Failed to run_cargo_check")?;
+            .arg("check")
+            .arg("--color")
+            .arg("always")
+            .output()
+            .context("Failed to run_cargo_check")?;
         debug!("cargo check finished");
         debug!("status: {:?}", &output.status);
         // println!("stdout:");
@@ -75,9 +68,11 @@ impl Report {
         // println!("stderr:");
         // io::stderr().write_all(&output.stderr)?;
         let report = Report::try_from(&output.stderr)?;
-        debug!("report: {} warnings and {} errors", report.warnings.len(), report.errors.len());
+        debug!(
+            "report: {} warnings and {} errors",
+            report.warnings.len(),
+            report.errors.len()
+        );
         Ok(report)
     }
 }
-
-

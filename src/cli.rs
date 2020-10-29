@@ -1,8 +1,7 @@
 use {
     crate::*,
     crossterm::{
-        self,
-        cursor,
+        self, cursor,
         event::{DisableMouseCapture, EnableMouseCapture},
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
         QueueableCommand,

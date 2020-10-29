@@ -1,14 +1,20 @@
 [package]
 name = "bacon"
 version = "0.1.0"
-authors = ["dys <cano.petrole@gmail.com>"]
+authors = ["dystroy <denys.seguret@gmail.com>"]
+repository = "https://github.com/Canop/bacon"
+description = "a background compiler for rust"
 edition = "2018"
+keywords = ["cli", "background", "compiler"]
+license = "MIT"
+categories = ["command-line-utilities", "development-tools"]
+readme = "README.md"
 
 [dependencies]
 anyhow = "1.0"
 crossbeam = "0.7"
 crossterm = "0.17.7"
-inotify = "0.8"
+notify = "5.0.0-pre.3"
 log = "0.4"
 regex = "1.3"
 simplelog = "0.7"

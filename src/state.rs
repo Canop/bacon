@@ -1,26 +1,15 @@
 use {
     crate::*,
     anyhow::*,
-    crossbeam::channel::{
-        Receiver,
-        Sender,
-        select,
-        unbounded,
-    },
+    crossbeam::channel::{select, unbounded, Receiver, Sender},
     crossterm::{
         cursor,
-        execute,
-        ExecutableCommand,
         event::KeyModifiers,
-        QueueableCommand,
+        execute,
         style::{Colorize, Styler},
-        terminal,
+        terminal, ExecutableCommand, QueueableCommand,
     },
-    std::{
-        env,
-        io::Write,
-        path::PathBuf,
-    },
+    std::{env, io::Write, path::PathBuf},
     termimad::{Event, EventSource},
 };
 
@@ -35,7 +24,11 @@ pub struct AppState {
 impl AppState {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            name: env::current_dir()?.file_name().unwrap().to_string_lossy().to_string(),
+            name: env::current_dir()?
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .to_string(),
             report: None,
             screen: termimad::terminal_size(),
             computing: true,
@@ -45,31 +38,50 @@ impl AppState {
 }
 
 fn goto(w: &mut W, y: u16) -> Result<()> {
-    execute!(w, cursor::MoveTo(0, y), terminal::Clear(terminal::ClearType::CurrentLine))?;
+    execute!(
+        w,
+        cursor::MoveTo(0, y),
+        terminal::Clear(terminal::ClearType::CurrentLine)
+    )?;
     Ok(())
 }
 
 impl AppState {
-    pub fn draw(
-        &self,
-        w: &mut W,
-    ) -> Result<()> {
+    pub fn draw(&self, w: &mut W) -> Result<()> {
         let width = self.screen.0 as usize;
         goto(w, 1)?;
         if self.computing {
             // todo: maybe show the current line of the computed report ?
-            eprint!("{}",
-                format!("{:^w$}", "computing...", w=width).white().on_dark_grey()
+            eprint!(
+                "{}",
+                format!("{:^w$}", "computing...", w = width)
+                    .white()
+                    .on_dark_grey()
             );
         }
         if let Some(report) = &self.report {
             goto(w, 0)?;
-            eprint!("{} ", format!(" {} ", &self.name).white().bold().on_dark_grey());
+            eprint!(
+                "{} ",
+                format!(" {} ", &self.name).white().bold().on_dark_grey()
+            );
             if !report.warnings.is_empty() {
-                eprint!("{} ", format!(" {} warnings ", report.warnings.len()).black().bold().on_yellow());
+                eprint!(
+                    "{} ",
+                    format!(" {} warnings ", report.warnings.len())
+                        .black()
+                        .bold()
+                        .on_yellow()
+                );
             }
             if !report.errors.is_empty() {
-                eprint!("{} ", format!(" {} errors ", report.errors.len()).white().bold().on_red());
+                eprint!(
+                    "{} ",
+                    format!(" {} errors ", report.errors.len())
+                        .white()
+                        .bold()
+                        .on_red()
+                );
             }
             if report.warnings.is_empty() && report.errors.is_empty() {
                 eprint!("{} ", " pass! ".white().bold().on_dark_green());
@@ -119,10 +131,12 @@ impl AppState {
             }
         }
         goto(w, self.screen.1)?;
-        eprint!("{}",
-            format!(" {:<w$}", "hit q to quit", w=width-1).white().on_dark_grey()
+        eprint!(
+            "{}",
+            format!(" {:<w$}", "hit q to quit", w = width - 1)
+                .white()
+                .on_dark_grey()
         );
         Ok(())
     }
 }
-
