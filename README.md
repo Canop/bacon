@@ -25,7 +25,7 @@ The screen isn't cleaned until the compilation is finished to prevent flickering
 
 Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report.
 
-Errors are priviledged: by default warnings are only displayed when there's no error.
+Errors are priviledged: by default warnings are only displayed below errors.
 
 ### What are the supported platforms ?
 
