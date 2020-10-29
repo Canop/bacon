@@ -1,0 +1,15 @@
+[package]
+name = "bacon"
+version = "0.1.0"
+authors = ["dys <cano.petrole@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+crossbeam = "0.7"
+crossterm = "0.17.7"
+inotify = "0.8"
+log = "0.4"
+regex = "1.3"
+simplelog = "0.7"
+termimad = "0.8.28"
