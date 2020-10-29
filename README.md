@@ -1,5 +1,5 @@
 
-**bacon** is a **bac**kground **com**piler.
+**bacon** is a background rust code checker.
 
 It's designed for minimal interaction so that you can jut let it running, side to your editor, and be notified of warnings and errors in your Rust code.
 
@@ -35,4 +35,5 @@ It should work on a decent terminal on Windows 11+ but I didn't test.
 
 ### Why "bacon" ?
 
-It comes from France and, as you know, France is bacon.
+* It's a **bac**kground **com**piler.
+* It comes from France and, as you know, France is bacon.
