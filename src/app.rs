@@ -23,7 +23,8 @@ pub fn run(w: &mut W) -> Result<()> {
     state.computing = false;
     state.draw(w)?;
 
-    let src_dir = env::current_dir()?.join("src");
+    let root_dir = env::current_dir()?;
+    let src_dir = root_dir.join("src");
     if !src_dir.exists() {
         return Err(anyhow!("src directory not found"));
     }
@@ -38,6 +39,7 @@ pub fn run(w: &mut W) -> Result<()> {
         Err(e) => warn!("watch error: {:?}", e),
     })?;
     watcher.watch(src_dir, RecursiveMode::Recursive)?;
+    watcher.watch(root_dir.join("Cargo.toml"), RecursiveMode::NonRecursive)?;
 
     let computer = Computer::new()?;
 

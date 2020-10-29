@@ -3,11 +3,17 @@
 
 It's designed for minimal interaction so that you can jut let it running, side to your editor, and be notified of warnings and errors in your Rust code.
 
+![screenshot](doc/screenshot.png)
+
+## Installation
+
+    cargo install bacon
+
+## Usage
+
+Launch `bacon` in a terminal you keep visible
+
 ## FAQ
-
-### Can I use it ?
-
-It's not ready ! I've just started making it !
 
 ### What does it do ?
 
@@ -17,7 +23,7 @@ Watching and computations are done on background threads to prevent any blocking
 
 The screen isn't cleaned until the compilation is finished to prevent flickering.
 
-The rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report.
+Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report.
 
 Errors are priviledged: by default warnings are only displayed when there's no error.
 

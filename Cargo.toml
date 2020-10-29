@@ -1,11 +1,11 @@
 [package]
 name = "bacon"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/bacon"
-description = "a background compiler for rust"
+description = "background rust compiler"
 edition = "2018"
-keywords = ["cli", "background", "compiler"]
+keywords = ["rust", "background", "compiler", "watch", "inotify"]
 license = "MIT"
 categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
