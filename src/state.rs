@@ -6,25 +6,33 @@ use {
         cursor,
         event::KeyModifiers,
         execute,
-        style::{Colorize, Styler},
+        style::{Color::*, Colorize, Styler},
         terminal, ExecutableCommand, QueueableCommand,
     },
-    std::{env, io::Write, path::PathBuf},
-    termimad::{Event, EventSource},
+    minimad::{Alignment, Composite},
+    std::{
+        env,
+        io::Write,
+        path::{Path, PathBuf},
+    },
+    termimad::{CompoundStyle, Event, EventSource, MadSkin},
 };
 
-#[derive(Debug)]
 pub struct AppState {
     pub name: String,
     pub report: Option<Report>,
     pub screen: (u16, u16),
     pub computing: bool,
     pub summary: bool,
+    pub status_skin: MadSkin,
 }
 impl AppState {
-    pub fn new() -> Result<Self> {
+    pub fn new(root_dir: &Path) -> Result<Self> {
+        let mut status_skin = MadSkin::default();
+        status_skin.paragraph.set_bg(DarkGrey);
+        status_skin.italic = CompoundStyle::with_fg(Yellow);
         Ok(Self {
-            name: env::current_dir()?
+            name: root_dir
                 .file_name()
                 .unwrap()
                 .to_string_lossy()
@@ -33,6 +41,7 @@ impl AppState {
             screen: termimad::terminal_size(),
             computing: true,
             summary: false,
+            status_skin,
         })
     }
 }
@@ -45,6 +54,7 @@ fn goto(w: &mut W, y: u16) -> Result<()> {
     )?;
     Ok(())
 }
+
 
 impl AppState {
     pub fn draw(&self, w: &mut W) -> Result<()> {
@@ -87,56 +97,62 @@ impl AppState {
                 eprint!("{} ", " pass! ".white().bold().on_dark_green());
             }
             let mut y = 2;
-            let mut w_idx = 0;
-            let mut e_idx = 0;
             let h = self.screen.1 - 1;
+            let mut idx = 1;
+            let mut errors = report.errors.iter();
+            let mut warnings = report.warnings.iter();
             while y < h {
                 goto(w, y)?;
-                if let Some(ref error) = report.errors.get(e_idx) {
+                if let Some(ref error) = errors.next() {
                     eprint!(
                         "{} {}",
-                        format!("{:>2} ", e_idx + 1).black().bold().on_red(),
+                        format!("{:>2} ", idx).black().bold().on_red(),
                         &error.lines[0],
                     );
-                    if !self.summary {
-                        for line in &error.lines[1..] {
-                            if y >= h - 1 {
-                                break;
-                            }
-                            y += 1;
-                            goto(w, y)?;
-                            eprint!(" {}", &line);
-                        }
+                    let mut n = error.lines.len();
+                    if self.summary {
+                        n = n.min(2);
                     }
-                    e_idx += 1;
-                } else if let Some(ref warning) = report.warnings.get(w_idx) {
+                    for line in &error.lines[1..n] {
+                        if y >= h - 1 {
+                            break;
+                        }
+                        y += 1;
+                        goto(w, y)?;
+                        eprint!(" {}", &line);
+                    }
+                    idx += 1;
+                } else if let Some(ref warning) = warnings.next() {
                     eprint!(
                         "{} {}",
-                        format!("{:>2} ", w_idx + 1).black().bold().on_yellow(),
+                        format!("{:>2} ", idx).black().bold().on_yellow(),
                         &warning.lines[0],
                     );
-                    if !self.summary {
-                        for line in &warning.lines[1..] {
-                            if y >= h - 1 {
-                                break;
-                            }
-                            y += 1;
-                            goto(w, y)?;
-                            eprint!(" {}", &line);
-                        }
+                    let mut n = warning.lines.len();
+                    if self.summary {
+                        n = n.min(2);
                     }
-                    w_idx += 1;
+                    for line in &warning.lines[1..n] {
+                        if y >= h - 1 {
+                            break;
+                        }
+                        y += 1;
+                        goto(w, y)?;
+                        eprint!(" {}", &line);
+                    }
+                    idx += 1;
                 }
                 y += 1;
             }
         }
         goto(w, self.screen.1)?;
-        eprint!(
-            "{}",
-            format!(" {:<w$}", "hit q to quit", w = width - 1)
-                .white()
-                .on_dark_grey()
-        );
+        let status =  "hit *q* to quit, *s* to toggle summary mode";
+        self.status_skin.write_composite_fill(
+            w,
+            Composite::from_inline(status),
+            width,
+            Alignment::Left,
+        )?;
         Ok(())
     }
 }

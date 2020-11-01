@@ -2,7 +2,11 @@ use {
     crate::*,
     anyhow::*,
     crossbeam::channel::{bounded, select, unbounded, Receiver, Sender},
-    std::{env, thread},
+    std::{
+        env,
+        path::PathBuf,
+        thread,
+    },
 };
 
 pub struct Computer {
@@ -11,13 +15,13 @@ pub struct Computer {
 }
 
 impl Computer {
-    pub fn new() -> Result<Self> {
+    pub fn new(root_dir: PathBuf) -> Result<Self> {
         let (task_sender, task_receiver) = bounded(0);
         let (report_sender, report_receiver) = bounded(1);
         thread::spawn(move || {
             for _ in task_receiver {
                 debug!("COMPILER got task");
-                match Report::compute() {
+                match Report::compute(&root_dir) {
                     Ok(report) => {
                         if let Err(e) = report_sender.send(report) {
                             debug!("error when sending report: {}", e);

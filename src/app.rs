@@ -10,20 +10,30 @@ use {
         terminal, ExecutableCommand, QueueableCommand,
     },
     notify::{RecommendedWatcher, RecursiveMode, Watcher},
-    std::{env, io::Write, path::PathBuf},
+    std::{
+        env,
+        fs,
+        io::Write,
+        path::PathBuf,
+    },
     termimad::{Event, EventSource},
 };
 
-pub fn run(w: &mut W) -> Result<()> {
-    let mut state = AppState::new()?;
+pub fn run(w: &mut W, args: Args) -> Result<()> {
+    let root_dir = args.root.unwrap_or_else(||env::current_dir().unwrap());
+    let root_dir: PathBuf = fs::canonicalize(&root_dir)?;
+    debug!("root_dir: {:?}", &root_dir);
+    let mut state = AppState::new(&root_dir)?;
+    if args.summary {
+        state.summary = true;
+    }
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
     state.draw(w)?;
-    state.report = Some(Report::compute()?);
+    state.report = Some(Report::compute(&root_dir)?);
     state.computing = false;
     state.draw(w)?;
 
-    let root_dir = env::current_dir()?;
     let src_dir = root_dir.join("src");
     if !src_dir.exists() {
         return Err(anyhow!("src directory not found"));
@@ -41,7 +51,7 @@ pub fn run(w: &mut W) -> Result<()> {
     watcher.watch(src_dir, RecursiveMode::Recursive)?;
     watcher.watch(root_dir.join("Cargo.toml"), RecursiveMode::NonRecursive)?;
 
-    let computer = Computer::new()?;
+    let computer = Computer::new(root_dir)?;
 
     loop {
         select! {
@@ -51,11 +61,20 @@ pub fn run(w: &mut W) -> Result<()> {
                         state.screen = (width, height);
                         state.draw(w)?;
                     }
+
                     Event::Key(KeyEvent{ code, modifiers }) => {
                         match (code, modifiers) {
-                            (Char('q'), KeyModifiers::NONE) | (Char('c'), KeyModifiers::CONTROL) => {
+                            (Char('q'), KeyModifiers::NONE)
+                                | (Char('c'), KeyModifiers::CONTROL)
+                                | (Char('q'), KeyModifiers::CONTROL)
+                            => {
                                 debug!("user requests quit");
                                 break;
+                            }
+                            (Char('s'), KeyModifiers::NONE) => {
+                                debug!("user toggles summary mode");
+                                state.summary ^= true;
+                                state.draw(w)?;
                             }
                             _ => {
                                 debug!("ignored key event: {:?}", user_event);
