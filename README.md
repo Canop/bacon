@@ -1,3 +1,13 @@
+# Bacon
+
+[![Latest Version][s1]][l1] [![Chat on Miaou][s2]][l2]
+
+[s1]: https://img.shields.io/crates/v/bacon.svg
+[l1]: https://crates.io/crates/bacon
+
+[s2]: https://miaou.dystroy.org/static/shields/room.svg
+[l2]: https://miaou.dystroy.org/3768?rust
+
 
 **bacon** is a background rust code checker.
 
@@ -5,7 +15,7 @@ It's designed for minimal interaction so that you can jut let it running, side t
 
 ![screenshot](doc/screenshot.png)
 
-**WARNING: This is in early development stage, it's not really ready for use**
+**WARNING: This is in early development stage**
 
 ## Installation
 
@@ -27,7 +37,7 @@ The screen isn't cleaned until the compilation is finished to prevent flickering
 
 Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report.
 
-Errors are priviledged: by default warnings are only displayed below errors.
+Errors are displayed before warnings.
 
 ### What are the supported platforms ?
 
