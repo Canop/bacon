@@ -39,9 +39,7 @@ Errors are displayed before warnings.
 
 ### What are the supported platforms ?
 
-It should work on most unix systems, including linux and Mac OSX.
-
-It should work on a decent terminal on Windows 11+ but I didn't test.
+It works on all decent terminals on linux, Max OSX and Windows.
 
 ### Why "bacon" ?
 
