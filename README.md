@@ -23,6 +23,8 @@ It's designed for minimal interaction so that you can jut let it running, side t
 
 Launch `bacon` in a terminal you keep visible
 
+If you do `bacon --clippy`, it runs `cargo clippy` instead of `cargo check`.
+
 ## FAQ
 
 ### What does it do ?
