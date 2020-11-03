@@ -75,25 +75,25 @@ impl AppState {
                 "{} ",
                 format!(" {} ", &self.name).white().bold().on_dark_grey()
             );
-            if !report.warnings.is_empty() {
-                eprint!(
-                    "{} ",
-                    format!(" {} warnings ", report.warnings.len())
-                        .black()
-                        .bold()
-                        .on_yellow()
-                );
+            let w_count = report.warnings.len();
+            let e_count = report.errors.len();
+            if w_count > 0 {
+                let s = if w_count == 1 {
+                    " 1 warning ".to_string()
+                } else {
+                    format!(" {} warnings ", w_count)
+                };
+                eprint!("{} ", s.black().bold().on_yellow());
             }
-            if !report.errors.is_empty() {
-                eprint!(
-                    "{} ",
-                    format!(" {} errors ", report.errors.len())
-                        .white()
-                        .bold()
-                        .on_red()
-                );
+            if e_count > 0 {
+                let s = if e_count == 1 {
+                    " 1 error ".to_string()
+                } else {
+                    format!(" {} errors ", e_count)
+                };
+                eprint!("{} ", s.black().bold().on_red());
             }
-            if report.warnings.is_empty() && report.errors.is_empty() {
+            if w_count == 0 && e_count == 0 {
                 eprint!("{} ", " pass! ".white().bold().on_dark_green());
             }
             let mut y = 2;
