@@ -15,13 +15,13 @@ pub struct Report {
 }
 
 /// "warning" in bold yellow, followed by a bold colon
-static WARNING: &'static str = "\u{1b}[0m\u{1b}[1m\u{1b}[33mwarning\u{1b}[0m\u{1b}[0m\u{1b}[1m: ";
+static WARNING: &str = "\u{1b}[0m\u{1b}[1m\u{1b}[33mwarning\u{1b}[0m\u{1b}[0m\u{1b}[1m: ";
 
 /// "error" in bold red
-static ERROR: &'static str = "\u{1b}[0m\u{1b}[1m\u{1b}[38;5;9merror";
+static ERROR: &str = "\u{1b}[0m\u{1b}[1m\u{1b}[38;5;9merror";
 
 impl Report {
-    pub fn try_from(stderr: &Vec<u8>) -> Result<Report> {
+    pub fn try_from(stderr: &[u8]) -> Result<Report> {
         let mut warnings = Vec::new();
         let mut errors = Vec::new();
         let mut cur_event: Option<Item> = None;
