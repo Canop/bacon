@@ -15,8 +15,6 @@ It's designed for minimal interaction so that you can jut let it running, side t
 
 ![screenshot](doc/screenshot.png)
 
-**WARNING: This is in early development stage**
-
 ## Installation
 
     cargo install bacon
