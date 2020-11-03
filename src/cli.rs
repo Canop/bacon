@@ -35,7 +35,6 @@ pub struct Args {
 }
 
 /// the type used by all GUI writing functions
-//pub type W = std::io::BufWriter<std::io::Stderr>;
 pub type W = std::io::Stderr;
 
 /// return the writer used by the application
@@ -53,11 +52,9 @@ pub fn run() -> Result<()> {
     debug!("args: {:?}", &args);
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
-    w.queue(cursor::DisableBlinking)?;
     w.queue(cursor::Hide)?;
     let r = app::run(&mut w, args);
     w.queue(cursor::Show)?;
-    w.queue(cursor::EnableBlinking)?;
     w.queue(LeaveAlternateScreen)?;
     w.flush()?;
     r

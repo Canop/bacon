@@ -60,7 +60,6 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
     watcher.watch(cargo_toml_file, RecursiveMode::NonRecursive)?;
 
     let computer = Computer::new(root_dir)?;
-
     loop {
         select! {
             recv(user_events) -> user_event => {
@@ -69,7 +68,6 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
                         state.screen = (width, height);
                         state.draw(w)?;
                     }
-
                     Event::Key(KeyEvent{ code, modifiers }) => {
                         match (code, modifiers) {
                             (Char('q'), KeyModifiers::NONE)
@@ -89,8 +87,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
                             }
                         }
                     }
-                    _ => {
-                    }
+                    _ => {}
                 }
                 event_source.unblock(false);
             }

@@ -55,7 +55,6 @@ fn goto(w: &mut W, y: u16) -> Result<()> {
     Ok(())
 }
 
-
 impl AppState {
     pub fn draw(&self, w: &mut W) -> Result<()> {
         let width = self.screen.0 as usize;

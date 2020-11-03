@@ -27,7 +27,6 @@ impl Report {
         let mut cur_event: Option<Item> = None;
         for line in stderr.lines() {
             let line = line?;
-            //debug!("line {}", line);
             let new_kind = if line.starts_with(WARNING) {
                 Some(Kind::Warning)
             } else if line.starts_with(ERROR) {
@@ -35,7 +34,6 @@ impl Report {
             } else {
                 None
             };
-            //debug!("  event type: {:?}", new_kind);
             if let Some(kind) = new_kind {
                 if let Some(event) = cur_event.take() {
                     match event.kind {
