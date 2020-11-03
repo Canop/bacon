@@ -15,13 +15,13 @@ pub struct Computer {
 }
 
 impl Computer {
-    pub fn new(root_dir: PathBuf) -> Result<Self> {
+    pub fn new(root_dir: PathBuf, use_clippy: bool) -> Result<Self> {
         let (task_sender, task_receiver) = bounded(0);
         let (report_sender, report_receiver) = bounded(1);
         thread::spawn(move || {
             for _ in task_receiver {
                 debug!("COMPILER got task");
-                match Report::compute(&root_dir) {
+                match Report::compute(&root_dir, use_clippy) {
                     Ok(report) => {
                         if let Err(e) = report_sender.send(report) {
                             debug!("error when sending report: {}", e);

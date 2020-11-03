@@ -52,16 +52,17 @@ impl Report {
         Ok(Report { warnings, errors })
     }
 
-    pub fn compute(root_dir: &Path) -> Result<Report> {
-        debug!("starting cargo check");
+    pub fn compute(root_dir: &Path, use_clippy: bool) -> Result<Report> {
+        let command = if use_clippy { "clippy" } else { "check" };
+        debug!("starting cargo {}", command);
         let output = Command::new("cargo")
-            .arg("check")
+            .arg(command)
             .arg("--color")
             .arg("always")
             .current_dir(root_dir)
             .output()
-            .context("Failed to run_cargo_check")?;
-        debug!("cargo check finished");
+            .with_context(|| format!("Failed to run cargo {}", command))?;
+        debug!("cargo {} finished", command);
         debug!("status: {:?}", &output.status);
         let report = Report::try_from(&output.stderr)?;
         debug!(
