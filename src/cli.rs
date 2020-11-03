@@ -55,13 +55,7 @@ pub fn run() -> Result<()> {
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::DisableBlinking)?;
     w.queue(cursor::Hide)?;
-    // if !config.disable_mouse_capture {
-    //     w.queue(EnableMouseCapture)?;
-    // }
     let r = app::run(&mut w, args);
-    // if !config.disable_mouse_capture {
-    //     w.queue(DisableMouseCapture)?;
-    // }
     w.queue(cursor::Show)?;
     w.queue(cursor::EnableBlinking)?;
     w.queue(LeaveAlternateScreen)?;
