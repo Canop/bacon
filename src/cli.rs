@@ -29,6 +29,10 @@ pub struct Args {
     #[argh(switch, short = 's')]
     pub summary: bool,
 
+    /// whether to run `cargo clippy` instead of `cargo check`
+    #[argh(switch, short = 'c')]
+    pub clippy: bool,
+
     #[argh(positional)]
     /// path to the root folder of the Rust project
     pub root: Option<PathBuf>,

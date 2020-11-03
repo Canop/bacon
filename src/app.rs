@@ -42,7 +42,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
     state.draw(w)?;
-    state.report = Some(Report::compute(&root_dir)?);
+    state.report = Some(Report::compute(&root_dir, args.clippy)?);
     state.computing = false;
     state.draw(w)?;
 
@@ -59,7 +59,8 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
     watcher.watch(src_dir, RecursiveMode::Recursive)?;
     watcher.watch(cargo_toml_file, RecursiveMode::NonRecursive)?;
 
-    let computer = Computer::new(root_dir)?;
+    let computer = Computer::new(root_dir, args.clippy)?;
+
     loop {
         select! {
             recv(user_events) -> user_event => {
