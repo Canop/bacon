@@ -43,5 +43,5 @@ It works on all decent terminals on linux, Max OSX and Windows.
 
 ### Why "bacon" ?
 
-* It's a **bac**kground **com**piler.
+* It's a **bac**kground **con**piler.
 * It comes from France and, as you know, France is bacon.

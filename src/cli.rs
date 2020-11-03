@@ -16,7 +16,7 @@ use {
 };
 
 #[derive(Debug, FromArgs)]
-/// watches your source and run cargo check in background
+/// watches your source and run cargo check in background.
 ///
 ///
 /// Source at https://github.com/Canop/bacon
