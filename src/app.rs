@@ -10,14 +10,8 @@ use {
         terminal, ExecutableCommand, QueueableCommand,
     },
     notify::{RecommendedWatcher, RecursiveMode, Watcher},
-    std::{
-        env,
-        fs,
-        io::Write,
-        path::PathBuf,
-        process::Command
-    },
-    serde::{Serialize, Deserialize},
+    serde::{Deserialize, Serialize},
+    std::{env, fs, io::Write, path::PathBuf, process::Command},
     termimad::{Event, EventSource},
 };
 
@@ -92,24 +86,32 @@ pub struct Target {
     required_features: Option<Vec<String>>,
 }
 
-fn find_folders_to_watch(root_dir:&PathBuf)->Result<Vec<PathBuf>>{
-
-    let output = Command::new("cargo").current_dir(root_dir).arg("metadata").arg("--format-version").arg("1").output()?;
+fn find_folders_to_watch(root_dir: &PathBuf) -> Result<Vec<PathBuf>> {
+    let output = Command::new("cargo")
+        .current_dir(root_dir)
+        .arg("metadata")
+        .arg("--format-version")
+        .arg("1")
+        .output()?;
 
     let output_string = String::from_utf8(output.stdout)?;
-    let metadata:CargoMetadata = serde_json::from_str(&output_string)?;
+    let metadata: CargoMetadata = serde_json::from_str(&output_string)?;
 
     let mut folders_to_watch = vec![];
-    for item in metadata.packages{
-        if item.source.is_none(){
+    for item in metadata.packages {
+        if item.source.is_none() {
             // We're only concerned with items where the source is None
-            for target in item.targets{
-                if target.src_path.ends_with("lib.rs") || target.src_path.ends_with("main.rs"){
+            for target in item.targets {
+                if target.src_path.ends_with("lib.rs") || target.src_path.ends_with("main.rs") {
                     // targets can contain the build script as well, so we need to eliminate them.
 
                     let target_folder = PathBuf::from_str(&target.src_path)?;
-                    let target_folder_parent = PathBuf::from(target_folder.parent().expect("parent of target is a root folder."));
-                    if target_folder_parent.ends_with("src"){
+                    let target_folder_parent = PathBuf::from(
+                        target_folder
+                            .parent()
+                            .expect("parent of target is a root folder."),
+                    );
+                    if target_folder_parent.ends_with("src") {
                         // to ensure misc binaries are not counted, such as
                         // src/binaries/foo_main.rs
                         folders_to_watch.push(target_folder_parent)
@@ -122,8 +124,7 @@ fn find_folders_to_watch(root_dir:&PathBuf)->Result<Vec<PathBuf>>{
 }
 
 pub fn run(w: &mut W, args: Args) -> Result<()> {
-
-    let root_dir = args.root.unwrap_or_else(||env::current_dir().unwrap());
+    let root_dir = args.root.unwrap_or_else(|| env::current_dir().unwrap());
     let root_dir: PathBuf = fs::canonicalize(&root_dir)?;
     let src_dirs = find_folders_to_watch(&root_dir).unwrap();
     debug!("root_dir: {:?}", &root_dir);
@@ -160,7 +161,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
         Err(e) => warn!("watch error: {:?}", e),
     })?;
 
-    for src_dir in src_dirs.iter(){
+    for src_dir in src_dirs.iter() {
         watcher.watch(src_dir, RecursiveMode::Recursive)?;
     }
     watcher.watch(cargo_toml_file, RecursiveMode::NonRecursive)?;

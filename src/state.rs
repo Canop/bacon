@@ -32,11 +32,7 @@ impl AppState {
         status_skin.paragraph.set_bg(DarkGrey);
         status_skin.italic = CompoundStyle::with_fg(Yellow);
         Ok(Self {
-            name: root_dir
-                .file_name()
-                .unwrap()
-                .to_string_lossy()
-                .to_string(),
+            name: root_dir.file_name().unwrap().to_string_lossy().to_string(),
             report: None,
             screen: termimad::terminal_size(),
             computing: true,
@@ -145,7 +141,7 @@ impl AppState {
             }
         }
         goto(w, self.screen.1)?;
-        let status =  "hit *q* to quit, *s* to toggle summary mode";
+        let status = "hit *q* to quit, *s* to toggle summary mode";
         self.status_skin.write_composite_fill(
             w,
             Composite::from_inline(status),
