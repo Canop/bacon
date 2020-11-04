@@ -80,14 +80,13 @@ version = "0.2.3"
 dependencies = [
  "anyhow",
  "argh",
+ "cargo_metadata",
  "crossbeam",
  "crossterm",
  "log",
  "minimad",
  "notify",
  "regex",
- "serde",
- "serde_json",
  "simplelog",
  "termimad",
 ]
@@ -113,6 +112,17 @@ dependencies = [
  "arrayref",
  "arrayvec",
  "constant_time_eq",
+]
+
+[[package]]
+name = "cargo_metadata"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d5a5f7b42f606b7f23674f6f4d877628350682bc40687d3fae65679a58d55345"
+dependencies = [
+ "semver",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -595,6 +605,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "pest"
+version = "2.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10f4872ae94d7b90ae48754df22fd42ad52ce740b8f370b03da4835417403e53"
+dependencies = [
+ "ucd-trie",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -679,6 +698,25 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+
+[[package]]
+name = "semver"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
+dependencies = [
+ "semver-parser",
+ "serde",
+]
+
+[[package]]
+name = "semver-parser"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "42ef146c2ad5e5f4b037cd6ce2ebb775401729b19a82040c1beac9d36c7d1428"
+dependencies = [
+ "pest",
+]
 
 [[package]]
 name = "serde"
@@ -840,6 +878,12 @@ dependencies = [
  "wasi 0.10.0+wasi-snapshot-preview1",
  "winapi 0.3.9",
 ]
+
+[[package]]
+name = "ucd-trie"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56dee185309b50d1f11bfedef0fe6d036842e3fb77413abef29f8f8d1c5d4c1c"
 
 [[package]]
 name = "unicode-segmentation"
