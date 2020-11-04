@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::*,
+    cargo_metadata::{Metadata, MetadataCommand},
     crossbeam::channel::{bounded, select, unbounded, Receiver, Sender},
     crossterm::{
         cursor,
@@ -12,30 +13,24 @@ use {
     notify::{RecommendedWatcher, RecursiveMode, Watcher},
     std::{env, fs, io::Write, path::PathBuf, process::Command},
     termimad::{Event, EventSource},
-    cargo_metadata::{Metadata, MetadataCommand}
 };
 
-
 fn find_folders_to_watch(cargo_filepath: &PathBuf) -> Result<Vec<PathBuf>> {
-    let metadata = MetadataCommand::new().manifest_path(cargo_filepath).exec()?;
+    let metadata = MetadataCommand::new()
+        .manifest_path(cargo_filepath)
+        .exec()?;
 
     let mut folders_to_watch = vec![];
 
     for item in metadata.packages {
         if item.source.is_none() {
-            // We're only concerned with items where the source is None
-            for target in item.targets {
-                if target.src_path.ends_with("lib.rs") || target.src_path.ends_with("main.rs") {
-                    // targets can contain the build script as well, so we need to eliminate them.
-
-                    let target_folder = target.src_path.parent().expect("parent of a target folder is a root folder");
-                    if target_folder.ends_with("src") {
-                        // to ensure misc binaries are not counted, such as
-                        // src/binaries/foo_main.rs
-                        folders_to_watch.push(PathBuf::from(target_folder))
-                    }
-                }
-            }
+        let target_path = item
+            .manifest_path
+            .parent()
+            .expect("parent of a target folder is a root folder");
+        let mut target_pathbuf = PathBuf::from(target_path);
+        target_pathbuf.push("src");
+        folders_to_watch.push(target_pathbuf);
         }
     }
     Ok(folders_to_watch)
@@ -134,23 +129,4 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
         }
     }
     Ok(())
-}
-
-fn load_from_file(_filepath: &str)->Result<()>{
-    Ok(())
-}
-
-fn load_from_s3()->(){
-    ()
-}
-
-fn test(){
-    let maybe_config = Some("foo");
-
-    maybe_config.map(|path|{
-        load_from_file(path).ok()
-    }).flatten().or_else(||{
-        Some(load_from_s3())
-    });
-
 }
