@@ -1,5 +1,3 @@
-#![allow(dead_code, unused_imports)]
-
 mod app;
 mod cli;
 mod computer;
@@ -16,13 +14,7 @@ use {
     anyhow::*,
     log::LevelFilter,
     simplelog,
-    std::{
-        env,
-        fs::File,
-        io::{self, Write},
-        process::Command,
-        str::FromStr,
-    },
+    std::{env, fs::File, process::Command, str::FromStr},
 };
 
 /// configure the application log according to env variable.

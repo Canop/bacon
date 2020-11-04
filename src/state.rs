@@ -1,21 +1,14 @@
 use {
     crate::*,
     anyhow::*,
-    crossbeam::channel::{select, unbounded, Receiver, Sender},
     crossterm::{
-        cursor,
-        event::KeyModifiers,
-        execute,
+        cursor, execute,
         style::{Color::*, Colorize, Styler},
-        terminal, ExecutableCommand, QueueableCommand,
+        terminal,
     },
     minimad::{Alignment, Composite},
-    std::{
-        env,
-        io::Write,
-        path::{Path, PathBuf},
-    },
-    termimad::{CompoundStyle, Event, EventSource, MadSkin},
+    std::{io::Write, path::Path},
+    termimad::{CompoundStyle, MadSkin},
 };
 
 pub struct AppState {
@@ -32,11 +25,7 @@ impl AppState {
         status_skin.paragraph.set_bg(DarkGrey);
         status_skin.italic = CompoundStyle::with_fg(Yellow);
         Ok(Self {
-            name: root_dir
-                .file_name()
-                .unwrap()
-                .to_string_lossy()
-                .to_string(),
+            name: root_dir.file_name().unwrap().to_string_lossy().to_string(),
             report: None,
             screen: termimad::terminal_size(),
             computing: true,
@@ -145,7 +134,7 @@ impl AppState {
             }
         }
         goto(w, self.screen.1)?;
-        let status =  "hit *q* to quit, *s* to toggle summary mode";
+        let status = "hit *q* to quit, *s* to toggle summary mode";
         self.status_skin.write_composite_fill(
             w,
             Composite::from_inline(status),

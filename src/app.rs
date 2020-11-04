@@ -1,26 +1,15 @@
 use {
     crate::*,
     anyhow::*,
-    crossbeam::channel::{bounded, select, unbounded, Receiver, Sender},
-    crossterm::{
-        cursor,
-        event::{KeyCode::*, KeyEvent, KeyModifiers},
-        execute,
-        style::{Colorize, Styler},
-        terminal, ExecutableCommand, QueueableCommand,
-    },
+    crossbeam::channel::{bounded, select},
+    crossterm::event::{KeyCode::*, KeyEvent, KeyModifiers},
     notify::{RecommendedWatcher, RecursiveMode, Watcher},
-    std::{
-        env,
-        fs,
-        io::Write,
-        path::PathBuf,
-    },
+    std::{env, fs, path::PathBuf},
     termimad::{Event, EventSource},
 };
 
 pub fn run(w: &mut W, args: Args) -> Result<()> {
-    let root_dir = args.root.unwrap_or_else(||env::current_dir().unwrap());
+    let root_dir = args.root.unwrap_or_else(|| env::current_dir().unwrap());
     let root_dir: PathBuf = fs::canonicalize(&root_dir)?;
     debug!("root_dir: {:?}", &root_dir);
     let src_dir = root_dir.join("src");

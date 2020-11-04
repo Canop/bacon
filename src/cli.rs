@@ -3,16 +3,10 @@ use {
     argh::FromArgs,
     crossterm::{
         self, cursor,
-        event::{DisableMouseCapture, EnableMouseCapture},
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
         QueueableCommand,
     },
-    std::{
-        env,
-        io::{self, Write},
-        path::{Path, PathBuf},
-        str::FromStr,
-    },
+    std::{env, io::Write, path::PathBuf},
 };
 
 #[derive(Debug, FromArgs)]

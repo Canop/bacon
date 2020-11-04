@@ -1,12 +1,8 @@
 use {
     crate::*,
     anyhow::*,
-    crossbeam::channel::{bounded, select, unbounded, Receiver, Sender},
-    std::{
-        env,
-        path::PathBuf,
-        thread,
-    },
+    crossbeam::channel::{bounded, Receiver, Sender},
+    std::{path::PathBuf, thread},
 };
 
 pub struct Computer {
