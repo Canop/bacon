@@ -95,38 +95,36 @@ impl AppState {
                     eprint!(
                         "{} {}",
                         format!("{:>2} ", idx).black().bold().on_red(),
-                        &error.lines[0],
+                        &error.lines[0].content,
                     );
-                    let mut n = error.lines.len();
-                    if self.summary {
-                        n = n.min(2);
-                    }
-                    for line in &error.lines[1..n] {
+                    for line in &error.lines[1..error.lines.len()] {
+                        if self.summary && !line.summary {
+                            continue;
+                        }
                         if y >= h - 1 {
                             break;
                         }
                         y += 1;
                         goto(w, y)?;
-                        eprint!(" {}", &line);
+                        eprint!(" {}", &line.content);
                     }
                     idx += 1;
                 } else if let Some(ref warning) = warnings.next() {
                     eprint!(
                         "{} {}",
                         format!("{:>2} ", idx).black().bold().on_yellow(),
-                        &warning.lines[0],
+                        &warning.lines[0].content,
                     );
-                    let mut n = warning.lines.len();
-                    if self.summary {
-                        n = n.min(2);
-                    }
-                    for line in &warning.lines[1..n] {
+                    for line in &warning.lines[1..warning.lines.len()] {
+                        if self.summary && !line.summary {
+                            continue;
+                        }
                         if y >= h - 1 {
                             break;
                         }
                         y += 1;
                         goto(w, y)?;
-                        eprint!(" {}", &line);
+                        eprint!(" {}", &line.content);
                     }
                     idx += 1;
                 }
