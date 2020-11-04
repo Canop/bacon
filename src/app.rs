@@ -45,7 +45,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
     let root_dir = args.root.unwrap_or_else(|| env::current_dir().unwrap());
     let root_dir: PathBuf = fs::canonicalize(&root_dir)?;
     let cargo_toml_file = root_dir.join("Cargo.toml");
-    let src_dirs = find_folders_to_watch(&cargo_toml_file).unwrap();
+    let src_dirs = find_folders_to_watch(&cargo_toml_file).expect("Getting cargo metadata");
     debug!("root_dir: {:?}", &root_dir);
     if !cargo_toml_file.exists() {
         return Err(anyhow!(
