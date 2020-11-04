@@ -20,7 +20,7 @@ fn find_folders_to_watch(cargo_filepath: &PathBuf) -> Result<Vec<PathBuf>> {
         .manifest_path(cargo_filepath)
         .exec()?;
 
-    let mut folders_to_watch = vec![];
+    let mut paths_to_watch = vec![];
 
     for item in metadata.packages {
         if item.source.is_none() {
@@ -30,18 +30,21 @@ fn find_folders_to_watch(cargo_filepath: &PathBuf) -> Result<Vec<PathBuf>> {
             .expect("parent of a target folder is a root folder");
         let mut target_pathbuf = PathBuf::from(target_path);
         target_pathbuf.push("src");
-        folders_to_watch.push(target_pathbuf);
+        paths_to_watch.push(target_pathbuf); // the src directory
+        paths_to_watch.push(item.manifest_path); // the manifest_path
         }
     }
-    Ok(folders_to_watch)
+    Ok(paths_to_watch)
 }
 
 pub fn run(w: &mut W, args: Args) -> Result<()> {
     let root_dir = args.root.unwrap_or_else(|| env::current_dir().unwrap());
     let root_dir: PathBuf = fs::canonicalize(&root_dir)?;
-    let cargo_toml_file = root_dir.join("Cargo.toml");
-    let src_dirs = find_folders_to_watch(&cargo_toml_file).expect("Getting cargo metadata");
     debug!("root_dir: {:?}", &root_dir);
+
+    let cargo_toml_file = root_dir.join("Cargo.toml");
+    let paths_to_watch = find_folders_to_watch(&cargo_toml_file).expect("Getting cargo metadata");
+
     if !cargo_toml_file.exists() {
         return Err(anyhow!(
             "bacon must be launched either\n\
@@ -74,8 +77,9 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
         Err(e) => warn!("watch error: {:?}", e),
     })?;
 
-    for src_dir in src_dirs.iter() {
-        watcher.watch(src_dir, RecursiveMode::Recursive)?;
+    for path_ in paths_to_watch.iter() {
+        debug!("watching {:?}", path_);
+        watcher.watch(path_, RecursiveMode::Recursive)?;
     }
     watcher.watch(cargo_toml_file, RecursiveMode::NonRecursive)?;
 
