@@ -1,6 +1,6 @@
 [package]
 name = "bacon"
-version = "0.2.3"
+version = "0.3.0-dev"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/bacon"
 description = "background rust compiler"
@@ -18,6 +18,5 @@ crossterm = "0.17.7"
 minimad = "=0.6.7"
 notify = "5.0.0-pre.3"
 log = "0.4"
-regex = "1.3"
 simplelog = "0.7"
 termimad = "0.8.28"

@@ -1,11 +1,26 @@
 mod app;
 mod cli;
 mod computer;
-mod item;
+mod drawing;
+mod line;
+mod line_type;
 mod report;
+mod scroll;
 mod state;
+mod stats;
 
-pub use {app::*, cli::*, computer::*, item::*, report::*, state::*};
+pub use {
+    app::*,
+    cli::*,
+    computer::*,
+    drawing::*,
+    line::*,
+    line_type::*,
+    report::*,
+    scroll::*,
+    state::*,
+    stats::*,
+};
 
 #[macro_use]
 extern crate log;
@@ -23,7 +38,7 @@ use {
 ///  a valid log level (trace, debug, info, warn, error, off)
 /// Example:
 ///      BACON_LOG=info broot
-/// As bacon is a terminal application, we only log to a file (dev.log)
+/// As bacon is a terminal application, we only log to a file (bacon.log)
 fn configure_log() {
     let level = env::var("BACON_LOG").unwrap_or_else(|_| "off".to_string());
     if level == "off" {
@@ -33,7 +48,7 @@ fn configure_log() {
         simplelog::WriteLogger::init(
             level,
             simplelog::Config::default(),
-            File::create("dev.log").expect("Log file can't be created"),
+            File::create("bacon.log").expect("Log file can't be created"),
         )
         .expect("log initialization failed");
         info!(

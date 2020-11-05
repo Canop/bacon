@@ -31,7 +31,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
     state.draw(w)?;
-    state.report = Some(Report::compute(&root_dir, args.clippy)?);
+    state.set_report(Report::compute(&root_dir, args.clippy)?);
     state.computing = false;
     state.draw(w)?;
 
@@ -55,7 +55,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
             recv(user_events) -> user_event => {
                 match user_event? {
                     Event::Resize(width, height) => {
-                        state.screen = (width, height);
+                        state.resize(width, height);
                         state.draw(w)?;
                     }
                     Event::Key(KeyEvent{ code, modifiers }) => {
@@ -72,6 +72,12 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
                                 state.summary ^= true;
                                 state.draw(w)?;
                             }
+                            (Home, _) => { state.scroll(w, ScrollCommand::Top)?; }
+                            (End, _) => { state.scroll(w, ScrollCommand::Bottom)?; }
+                            (Up, _) => { state.scroll(w, ScrollCommand::Lines(-1))?; }
+                            (Down, _) => { state.scroll(w, ScrollCommand::Lines(1))?; }
+                            (PageUp, _) => { state.scroll(w, ScrollCommand::Pages(-1))?; }
+                            (PageDown, _) => { state.scroll(w, ScrollCommand::Pages(1))?; }
                             _ => {
                                 debug!("ignored key event: {:?}", user_event);
                             }
@@ -91,7 +97,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
                 }
             }
             recv(computer.report_receiver) -> report => {
-                state.report = Some(report?);
+                state.set_report(report?);
                 state.computing = false;
                 state.draw(w)?;
             }

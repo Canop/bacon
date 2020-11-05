@@ -4,63 +4,61 @@ use {
     std::{io::BufRead, path::Path},
 };
 
+/// the usable content of cargo watch's output,
+/// lightly analyzed
 #[derive(Debug)]
 pub struct Report {
-    pub warnings: Vec<Item>,
-    pub errors: Vec<Item>,
+    pub lines: Vec<Line>,
+    pub stats: Stats,
 }
-
-static STYLED_PREFIX: &str = "\u{1b}[0m";
-
-/// "warning" in bold yellow, followed by a bold colon
-static WARNING: &str = "\u{1b}[1m\u{1b}[33mwarning\u{1b}[0m\u{1b}[0m\u{1b}[1m: ";
-
-/// "error" in bold red
-static ERROR: &str = "\u{1b}[1m\u{1b}[38;5;9merror";
-
-/// a "-->" in bold blue
-static ARROW: &str = "\u{1b}[0m\u{1b}[0m\u{1b}[1m\u{1b}[38;5;12m--> \u{1b}[0m\u{1b}[0m";
 
 impl Report {
     pub fn try_from(stderr: &[u8]) -> Result<Report> {
+        // we first accumulate warnings and errors in separate vectors
         let mut warnings = Vec::new();
         let mut errors = Vec::new();
-        let mut cur_event: Option<Item> = None;
+        let mut cur_kind = None;
         for line in stderr.lines() {
             let content = line?;
-            let (new_kind, summary) = if let Some(styled) = content.strip_prefix(STYLED_PREFIX) {
-                let styled = styled.trim();
-                if styled.starts_with(WARNING) {
-                    (Some(Kind::Warning), true)
-                } else if styled.starts_with(ERROR) {
-                    (Some(Kind::Error), true)
-                } else if styled.starts_with(ARROW) {
-                    debug!(" ---> arrow");
-                    (None, true)
-                } else {
-                    (None, false)
+            let line_type = LineType::from(&content);
+            match line_type {
+                LineType::End => {
+                    // we're not interested in what follows
+                    break;
                 }
-            } else {
-                (None, false)
+                LineType::Title(kind) => {
+                    cur_kind = Some(kind);
+                }
+                _ => {}
+            }
+            let line = Line {
+                item_idx: 0, // will be filled later
+                line_type,
+                content,
             };
-
-            let line = Line { content, summary };
-            if let Some(kind) = new_kind {
-                if let Some(event) = cur_event.take() {
-                    match event.kind {
-                        Kind::Warning => warnings.push(event),
-                        Kind::Error => errors.push(event),
-                    }
-                }
-                cur_event = Some(Item {
-                    kind,
-                    lines: vec![line],
-                });
-            } else if let Some(event) = cur_event.as_mut() {
-                event.lines.push(line);
+            match cur_kind {
+                Some(Kind::Warning) => warnings.push(line),
+                Some(Kind::Error) => errors.push(line),
+                None => {} // before warnings and errors
             }
         }
-        Ok(Report { warnings, errors })
+        // we now build a common vector, with errors first
+        let mut lines = errors;
+        lines.append(&mut warnings);
+        // and we assign the indexes
+        let mut item_idx = 0;
+        for line in &mut lines {
+            if matches!(line.line_type, LineType::Title(_)) {
+                item_idx += 1;
+            }
+            line.item_idx = item_idx;
+        }
+        // we compute the stats at end because some lines may
+        // have been read but not added (at start or end)
+        Ok(Report {
+            stats: Stats::from(&lines),
+            lines,
+        })
     }
 
     pub fn compute(root_dir: &Path, use_clippy: bool) -> Result<Report> {
@@ -75,12 +73,6 @@ impl Report {
             .with_context(|| format!("Failed to run cargo {}", command))?;
         debug!("cargo {} finished", command);
         debug!("status: {:?}", &output.status);
-        let report = Report::try_from(&output.stderr)?;
-        debug!(
-            "report: {} warnings and {} errors",
-            report.warnings.len(),
-            report.errors.len()
-        );
-        Ok(report)
+        Report::try_from(&output.stderr)
     }
 }

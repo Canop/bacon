@@ -5,6 +5,12 @@ use {
     std::{path::PathBuf, thread},
 };
 
+/// a computer calling `cargo watch` in a separate
+/// thread when asked to and sending the results
+/// in a channel.
+///
+/// Channel sizes are designed to avoid useless
+/// computations.
 pub struct Computer {
     pub task_sender: Sender<()>,
     pub report_receiver: Receiver<Report>,
@@ -16,7 +22,6 @@ impl Computer {
         let (report_sender, report_receiver) = bounded(1);
         thread::spawn(move || {
             for _ in task_receiver {
-                debug!("COMPILER got task");
                 match Report::compute(&root_dir, use_clippy) {
                     Ok(report) => {
                         if let Err(e) = report_sender.send(report) {
