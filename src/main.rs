@@ -1,6 +1,6 @@
 mod app;
 mod cli;
-mod computer;
+mod executor;
 mod drawing;
 mod line;
 mod line_type;
@@ -12,7 +12,7 @@ mod stats;
 pub use {
     app::*,
     cli::*,
-    computer::*,
+    executor::*,
     drawing::*,
     line::*,
     line_type::*,

@@ -11,7 +11,7 @@ use {
 pub fn run(w: &mut W, args: Args) -> Result<()> {
     let root_dir = args.root.unwrap_or_else(|| env::current_dir().unwrap());
     let root_dir: PathBuf = fs::canonicalize(&root_dir)?;
-    debug!("root_dir: {:?}", &root_dir);
+    info!("root_dir: {:?}", &root_dir);
     let src_dir = root_dir.join("src");
     let cargo_toml_file = root_dir.join("Cargo.toml");
     if !src_dir.exists() || !cargo_toml_file.exists() {
@@ -28,11 +28,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
     if args.summary {
         state.summary = true;
     }
-    let event_source = EventSource::new()?;
-    let user_events = event_source.receiver();
-    state.draw(w)?;
-    state.set_report(Report::compute(&root_dir, args.clippy)?);
-    state.computing = false;
+    state.computing = true;
     state.draw(w)?;
 
     let (watch_sender, watch_receiver) = bounded(0);
@@ -48,8 +44,11 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
     watcher.watch(src_dir, RecursiveMode::Recursive)?;
     watcher.watch(cargo_toml_file, RecursiveMode::NonRecursive)?;
 
-    let computer = Computer::new(root_dir, args.clippy)?;
+    let executor = Executor::new(root_dir, args.clippy)?;
+    executor.task_sender.send(())?; // first computation
 
+    let event_source = EventSource::new()?;
+    let user_events = event_source.receiver();
     loop {
         select! {
             recv(user_events) -> user_event => {
@@ -89,16 +88,33 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
             }
             recv(watch_receiver) -> _ => {
                 debug!("got a watcher event");
-                if let Err(e) = computer.task_sender.try_send(()) {
+                if let Err(e) = executor.task_sender.try_send(()) {
                     debug!("error sending task: {}", e);
                 } else {
                     state.computing = true;
                     state.draw(w)?;
                 }
             }
-            recv(computer.report_receiver) -> report => {
-                state.set_report(report?);
-                state.computing = false;
+            recv(executor.line_receiver) -> line => {
+                match line? {
+                    Ok(Some(line)) => {
+                        state.add_line(line);
+                    }
+                    Ok(None) => {
+                        // computation finished
+                        if let Some(lines) = state.take_lines() {
+                            state.set_report(Report::from_err_lines(lines)?);
+                        } else {
+                            warn!("a computation finished but didn't start?");
+                        }
+                        state.computing = false;
+                    }
+                    Err(e) => {
+                        warn!("error in computation: {}", e);
+                        state.computing = false;
+                        break;
+                    }
+                }
                 state.draw(w)?;
             }
         }

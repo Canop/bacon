@@ -14,14 +14,26 @@ use {
 /// contains the currently rendered state of the application,
 /// including scroll level and the current report (if any)
 pub struct AppState {
+    /// project name
     pub name: String,
+    /// the raw lines of a computation in progress
+    lines: Option<Vec<String>>,
+    /// a totally computed report
     report: Option<Report>,
+    /// screen width
     width: u16,
+    /// screen height
     height: u16,
+    /// whether a computation is in progress
     pub computing: bool,
+    /// whether we should display only titles and locations
     pub summary: bool,
+    /// colors and styles used for status bar
     status_skin: MadSkin,
+    /// number of lines hidden on top due to scroll
     scroll: usize,
+    /// there was at least a scroll operation
+    scrolled: bool,
 }
 impl AppState {
     pub fn new(root_dir: &Path) -> Result<Self> {
@@ -31,6 +43,7 @@ impl AppState {
         let (width, height) = termimad::terminal_size();
         Ok(Self {
             name: root_dir.file_name().unwrap().to_string_lossy().to_string(),
+            lines: None,
             report: None,
             width,
             height,
@@ -38,14 +51,34 @@ impl AppState {
             summary: false,
             status_skin,
             scroll: 0,
+            scrolled: false,
         })
     }
 }
 
 impl AppState {
+    pub fn add_line(&mut self, line: String) {
+        self.lines.get_or_insert_with(Vec::new).push(line);
+        if !self.scrolled {
+            // if the user never scrolled, we'll stick to the bottom
+            self.apply_scroll_command(ScrollCommand::Bottom);
+        }
+    }
+    pub fn take_lines(&mut self) -> Option<Vec<String>> {
+        self.lines.take()
+    }
     pub fn set_report(&mut self, report: Report) {
         self.scroll = 0;
         self.report = Some(report);
+    }
+    fn content_height(&self) -> usize {
+        if let Some(report) = &self.report {
+            report.stats.lines(self.summary)
+        } else if let Some(lines) = &self.lines {
+            lines.len()
+        } else {
+            0
+        }
     }
     fn page_height(&self) -> usize {
         self.height.max(3) as usize - 3
@@ -54,16 +87,15 @@ impl AppState {
         self.width = width;
         self.height = height;
     }
-    pub fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
-        if let Some(report) = &self.report {
-            self.scroll = cmd.apply(
-                self.scroll,
-                report.stats.lines(self.summary),
-                self.page_height(),
-            );
-        }
+    fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
+        self.scroll = cmd.apply(
+            self.scroll,
+            self.content_height(),
+            self.page_height(),
+        );
     }
     pub fn scroll(&mut self, w: &mut W, cmd: ScrollCommand) -> Result<()> {
+        self.scrolled = true;
         self.apply_scroll_command(cmd);
         self.draw(w)
     }
@@ -79,31 +111,21 @@ impl AppState {
         }
         Ok(())
     }
+    /// draw the state on the whole terminal
     pub fn draw(&mut self, w: &mut W) -> Result<()> {
         let width = self.width as usize;
-        goto(w, 1)?;
-        if self.computing {
-            eprint!(
-                "{}",
-                format!("{:^w$}", "computing...", w = width)
-                    .white()
-                    .on_dark_grey()
-            );
-        }
+        goto(w, 0)?;
+        //// colored badges on top
+        write!(w, "{} ", format!(" {} ", &self.name).white().bold().on_dark_grey())?;
         if let Some(report) = &self.report {
             let stats = &report.stats;
-            goto(w, 0)?;
-            eprint!(
-                "{} ",
-                format!(" {} ", &self.name).white().bold().on_dark_grey()
-            );
             if stats.errors > 0 {
                 let s = if stats.errors == 1 {
                     " 1 error ".to_string()
                 } else {
                     format!(" {} errors ", stats.errors)
                 };
-                eprint!("{} ", s.black().bold().on_red());
+                write!(w, "{} ", s.black().bold().on_red())?;
             }
             if stats.warnings > 0 {
                 let s = if stats.warnings == 1 {
@@ -111,20 +133,29 @@ impl AppState {
                 } else {
                     format!(" {} warnings ", stats.warnings)
                 };
-                eprint!("{} ", s.black().bold().on_yellow());
+                write!(w, "{} ", s.black().bold().on_yellow())?;
             }
             if stats.items() == 0 {
-                eprint!("{} ", " pass! ".white().bold().on_dark_green());
+                write!(w, "{} ", " pass! ".white().bold().on_dark_green())?;
             }
-            if self.height < 4 {
-                return self.draw_status(w, "terminal too small");
-            }
-            let mut area = Area::new(0, 2, self.width, self.page_height() as u16);
-            let content_height = report.stats.lines(self.summary);
-            let scrollbar = area.scrollbar(self.scroll as i32, content_height as i32);
-            if scrollbar.is_some() {
-                area.width -= 1;
-            }
+        }
+        //// computing...
+        goto(w, 1)?;
+        if self.computing {
+            write!(w, "{}", format!("{:^w$}", "computing...", w = width).white().on_dark_grey())?;
+        }
+        //// content
+        if self.height < 4 {
+            return self.draw_status(w, "terminal too small");
+        }
+        let mut area = Area::new(0, 2, self.width, self.page_height() as u16);
+        let content_height = self.content_height();
+        let scrollbar = area.scrollbar(self.scroll as i32, content_height as i32);
+        if scrollbar.is_some() {
+            area.width -= 1;
+        }
+        if let Some(report) = &self.report {
+            // a totally computed report
             let mut lines = report
                 .lines
                 .iter()
@@ -141,21 +172,23 @@ impl AppState {
                 {
                     match line_type {
                         LineType::Title(Kind::Error) => {
-                            eprint!(
+                            write!(
+                                w,
                                 "{} {}",
                                 format!("{:>2} ", item_idx).black().bold().on_red(),
                                 &content,
-                            );
+                            )?;
                         }
                         LineType::Title(Kind::Warning) => {
-                            eprint!(
+                            write!(
+                                w,
                                 "{} {}",
                                 format!("{:>2} ", item_idx).black().bold().on_yellow(),
                                 &content,
-                            );
+                            )?;
                         }
                         _ => {
-                            eprint!(" {}", &content);
+                            write!(w, " {}", &content)?;
                         }
                     }
                     if is_thumb(row_idx.into(), scrollbar) {
@@ -163,7 +196,25 @@ impl AppState {
                     }
                 }
             }
+        } else if let Some(lines) = &self.lines {
+            // initial computation
+            for row_idx in 0..area.height {
+                let y = row_idx + area.top;
+                goto(w, y)?;
+                if let Some(line) = lines.get(row_idx as usize + self.scroll) {
+                    write!(w, "{}", line)?;
+                }
+                if is_thumb(row_idx.into(), scrollbar) {
+                    execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                }
+            }
         }
-        self.draw_status(w, "hit *q* to quit, *s* to toggle summary mode")
+        //// Status bar
+        let status = if self.report.is_some() {
+            "hit *q* to quit, *s* to toggle summary mode"
+        } else {
+            "hit *q* to quit"
+        };
+        self.draw_status(w, status)
     }
 }

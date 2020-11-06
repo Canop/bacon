@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::Result,
-    std::{io::BufRead, path::Path},
+    std::{
+        io::BufRead,
+        path::Path,
+    },
 };
 
 /// the usable content of cargo watch's output,
@@ -13,13 +16,22 @@ pub struct Report {
 }
 
 impl Report {
-    pub fn try_from(stderr: &[u8]) -> Result<Report> {
+    /// compute the report from the sderr of `cargo watch`
+    pub fn from_bytes(stderr: &[u8]) -> Result<Report> {
+        let mut lines = Vec::new();
+        for line in stderr.lines() {
+            lines.push(line?);
+        }
+        Self::from_err_lines(lines)
+    }
+
+    /// compute the report from the lines of stderr of `cargo watch`
+    pub fn from_err_lines(err_lines: Vec<String>) -> Result<Report> {
         // we first accumulate warnings and errors in separate vectors
         let mut warnings = Vec::new();
         let mut errors = Vec::new();
         let mut cur_kind = None;
-        for line in stderr.lines() {
-            let content = line?;
+        for content in err_lines {
             let line_type = LineType::from(&content);
             match line_type {
                 LineType::End => {
@@ -61,18 +73,26 @@ impl Report {
         })
     }
 
-    pub fn compute(root_dir: &Path, use_clippy: bool) -> Result<Report> {
-        let command = if use_clippy { "clippy" } else { "check" };
-        debug!("starting cargo {}", command);
-        let output = Command::new("cargo")
-            .arg(command)
+    /// build (and doesn't call) the external command which
+    /// will be used for the report
+    pub fn get_command(root_dir: &Path, use_clippy: bool) -> Command {
+        let sub_command = if use_clippy { "clippy" } else { "check" };
+        let mut command = Command::new("cargo");
+        command
+            .arg(sub_command)
             .arg("--color")
             .arg("always")
-            .current_dir(root_dir)
-            .output()
-            .with_context(|| format!("Failed to run cargo {}", command))?;
-        debug!("cargo {} finished", command);
-        debug!("status: {:?}", &output.status);
-        Report::try_from(&output.stderr)
+            .current_dir(root_dir);
+        command
     }
+
+    /// compute the whole report in one go
+    ///
+    /// (not used today but might be in the future)
+    pub fn compute(root_dir: &Path, use_clippy: bool) -> Result<Report> {
+        let output = Self::get_command(root_dir, use_clippy)
+            .output()?;
+        Report::from_bytes(&output.stderr)
+    }
+
 }
