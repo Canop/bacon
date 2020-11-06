@@ -68,7 +68,12 @@ impl AppState {
         self.lines.take()
     }
     pub fn set_report(&mut self, report: Report) {
-        self.scroll = 0;
+        if self.report.as_ref()
+            .map_or(true, |old_report| old_report.lines.len() != report.lines.len())
+        {
+            // we keep the scroll when the number of lines didn't change
+            self.scroll = 0;
+        }
         self.report = Some(report);
     }
     fn content_height(&self) -> usize {
