@@ -27,7 +27,7 @@ pub struct AppState {
     /// whether a computation is in progress
     pub computing: bool,
     /// whether we should display only titles and locations
-    pub summary: bool,
+    summary: bool,
     /// colors and styles used for status bar
     status_skin: MadSkin,
     /// number of lines hidden on top due to scroll
@@ -76,6 +76,44 @@ impl AppState {
         }
         self.report = Some(report);
     }
+    fn fix_scroll(&mut self) {
+        self.scroll = fix_scroll(self.scroll, self.content_height(), self.page_height());
+    }
+    pub fn get_current_top_item_idx(&self) -> Option<usize> {
+        self.report.as_ref()
+            .and_then(|report| {
+                report.lines
+                    .iter()
+                    .filter(|line| !(self.summary && line.line_type == LineType::Normal))
+                    .skip(self.scroll)
+                    .next()
+            })
+            .map(|line| line.item_idx)
+    }
+    fn try_set_top_item(&mut self, item_idx: usize) {
+        if self.get_current_top_item_idx() != Some(item_idx) {
+            if let Some(report) = self.report.as_ref() {
+                let lines = report.lines
+                    .iter()
+                    .filter(|line| !(self.summary && line.line_type == LineType::Normal))
+                    .enumerate();
+                for (row_idx, line) in lines {
+                    if line.item_idx == item_idx {
+                        self.scroll = row_idx;
+                        break;
+                    }
+                }
+            }
+        }
+        self.fix_scroll();
+    }
+    pub fn toggle_summary_mode(&mut self) {
+        let item_idx = self.get_current_top_item_idx();
+        self.summary ^= true;
+        if let Some(item_idx) = item_idx {
+            self.try_set_top_item(item_idx);
+        }
+    }
     fn content_height(&self) -> usize {
         if let Some(report) = &self.report {
             report.stats.lines(self.summary)
@@ -89,8 +127,12 @@ impl AppState {
         self.height.max(3) as usize - 3
     }
     pub fn resize(&mut self, width: u16, height: u16) {
+        let item_idx = self.get_current_top_item_idx();
         self.width = width;
         self.height = height;
+        if let Some(item_idx) = item_idx {
+            self.try_set_top_item(item_idx);
+        }
     }
     fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
         self.scroll = cmd.apply(
@@ -100,6 +142,7 @@ impl AppState {
         );
     }
     pub fn scroll(&mut self, w: &mut W, cmd: ScrollCommand) -> Result<()> {
+        debug!("user scroll command: {:?}", cmd);
         self.scrolled = true;
         self.apply_scroll_command(cmd);
         self.draw(w)

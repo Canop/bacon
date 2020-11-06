@@ -1,4 +1,9 @@
 
+<a name="v0.3.1"></a>
+### v0.3.1 - 2020/11/06
+* better scroll position after toggling summary mode or resizing
+* space now usable for page down
+
 <a name="v0.3.0"></a>
 ### v0.3.0 - 2020/11/06
 * keep lines with location in summary mode - Fix #11

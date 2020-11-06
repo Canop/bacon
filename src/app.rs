@@ -26,7 +26,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
 
     let mut state = AppState::new(&root_dir)?;
     if args.summary {
-        state.summary = true;
+        state.toggle_summary_mode();
     }
     state.computing = true;
     state.draw(w)?;
@@ -68,7 +68,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
                             }
                             (Char('s'), KeyModifiers::NONE) => {
                                 debug!("user toggles summary mode");
-                                state.summary ^= true;
+                                state.toggle_summary_mode();
                                 state.draw(w)?;
                             }
                             (Home, _) => { state.scroll(w, ScrollCommand::Top)?; }
@@ -77,6 +77,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
                             (Down, _) => { state.scroll(w, ScrollCommand::Lines(1))?; }
                             (PageUp, _) => { state.scroll(w, ScrollCommand::Pages(-1))?; }
                             (PageDown, _) => { state.scroll(w, ScrollCommand::Pages(1))?; }
+                            (Char(' '), _) => { state.scroll(w, ScrollCommand::Pages(1))?; }
                             _ => {
                                 debug!("ignored key event: {:?}", user_event);
                             }

@@ -29,3 +29,9 @@ pub fn is_thumb(y: usize, scrollbar: Option<(u16, u16)>) -> bool {
         sctop <= y && y <= scbottom
     })
 }
+
+pub fn fix_scroll(scroll: usize, content_height: usize, page_height: usize) -> usize {
+    (scroll as i32)
+        .min(content_height as i32 - page_height as i32)
+        .max(0) as usize
+}
