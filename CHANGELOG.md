@@ -1,3 +1,5 @@
+### next
+* kill `cargo check` if running when quitting
 
 <a name="v0.3.1"></a>
 ### v0.3.1 - 2020/11/06

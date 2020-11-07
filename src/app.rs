@@ -45,7 +45,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
     watcher.watch(cargo_toml_file, RecursiveMode::NonRecursive)?;
 
     let executor = Executor::new(root_dir, args.clippy)?;
-    executor.task_sender.send(())?; // first computation
+    executor.start()?; // first computation
 
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
@@ -64,6 +64,8 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
                                 | (Char('q'), KeyModifiers::CONTROL)
                             => {
                                 debug!("user requests quit");
+                                executor.die()?;
+                                debug!("executor dead");
                                 break;
                             }
                             (Char('s'), KeyModifiers::NONE) => {
@@ -89,7 +91,7 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
             }
             recv(watch_receiver) -> _ => {
                 debug!("got a watcher event");
-                if let Err(e) = executor.task_sender.try_send(()) {
+                if let Err(e) = executor.start() {
                     debug!("error sending task: {}", e);
                 } else {
                     state.computing = true;
