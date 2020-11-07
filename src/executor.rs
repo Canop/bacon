@@ -24,13 +24,14 @@ pub struct Executor {
 
 impl Executor {
     pub fn new(root_dir: PathBuf, use_clippy: bool) -> Result<Self> {
-        let (task_sender, task_receiver) = bounded(0);
+        let (task_sender, task_receiver) = bounded(1);
         let (stop_sender, stop_receiver) = bounded(0);
         let (line_sender, line_receiver) = unbounded();
         let thread = thread::spawn(move || {
             loop {
                 select! {
                     recv(task_receiver) -> _ => {
+                        debug!("starting task");
                         let child = Report::get_command(&root_dir, use_clippy)
                             .stderr(Stdio::piped())
                             .spawn();
@@ -83,7 +84,7 @@ impl Executor {
         })
     }
     pub fn start(&self) -> Result<()> {
-        self.task_sender.send(())?;
+        self.task_sender.try_send(())?;
         Ok(())
     }
     pub fn die(self) -> Result<()> {
