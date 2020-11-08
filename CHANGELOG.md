@@ -1,5 +1,6 @@
-### next
-* kill `cargo check` if running when quitting
+<a name="v0.3.2"></a>
+### v0.3.2 - 2020/11/08
+* when quitting bacon, kill `cargo check` if running
 
 <a name="v0.3.1"></a>
 ### v0.3.1 - 2020/11/06
