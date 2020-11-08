@@ -4,7 +4,6 @@ use {
     crossbeam::channel::{bounded, unbounded, select, Receiver, Sender},
     std::{
         io::{BufRead, BufReader},
-        path::PathBuf,
         process::Stdio,
         thread,
     },
@@ -23,7 +22,7 @@ pub struct Executor {
 }
 
 impl Executor {
-    pub fn new(root_dir: PathBuf, use_clippy: bool) -> Result<Self> {
+    pub fn new(mut command: Command) -> Result<Self> {
         let (task_sender, task_receiver) = bounded(1);
         let (stop_sender, stop_receiver) = bounded(0);
         let (line_sender, line_receiver) = unbounded();
@@ -32,7 +31,7 @@ impl Executor {
                 select! {
                     recv(task_receiver) -> _ => {
                         debug!("starting task");
-                        let child = Report::get_command(&root_dir, use_clippy)
+                        let child = command
                             .stderr(Stdio::piped())
                             .spawn();
                         let mut child = match child {

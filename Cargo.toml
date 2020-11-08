@@ -1,6 +1,6 @@
 [package]
 name = "bacon"
-version = "0.3.2"
+version = "0.4.0-dev"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/bacon"
 description = "background rust compiler"
@@ -13,6 +13,7 @@ readme = "README.md"
 [dependencies]
 argh = "0.1.3"
 anyhow = "1.0"
+cargo_metadata = "0.12"
 crossbeam = "0.7"
 crossterm = "0.17.7"
 minimad = "=0.6.7"

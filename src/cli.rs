@@ -28,7 +28,7 @@ pub struct Args {
     pub clippy: bool,
 
     #[argh(positional)]
-    /// path to the root folder of the Rust project
+    /// path to the folder to watch or to the Rust repository
     pub root: Option<PathBuf>,
 }
 
@@ -47,11 +47,13 @@ pub fn run() -> Result<()> {
         println!("bacon {}", env!("CARGO_PKG_VERSION"));
         return Ok(());
     }
-    debug!("args: {:?}", &args);
+    debug!("args: {:#?}", &args);
+    let mission = Mission::from(args)?;
+    debug!("mission: {:#?}", &mission);
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
-    let r = app::run(&mut w, args);
+    let r = app::run(&mut w, mission);
     w.queue(cursor::Show)?;
     w.queue(LeaveAlternateScreen)?;
     w.flush()?;

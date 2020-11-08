@@ -3,7 +3,6 @@ use {
     anyhow::Result,
     std::{
         io::BufRead,
-        path::Path,
     },
 };
 
@@ -71,28 +70,6 @@ impl Report {
             stats: Stats::from(&lines),
             lines,
         })
-    }
-
-    /// build (and doesn't call) the external command which
-    /// will be used for the report
-    pub fn get_command(root_dir: &Path, use_clippy: bool) -> Command {
-        let sub_command = if use_clippy { "clippy" } else { "check" };
-        let mut command = Command::new("cargo");
-        command
-            .arg(sub_command)
-            .arg("--color")
-            .arg("always")
-            .current_dir(root_dir);
-        command
-    }
-
-    /// compute the whole report in one go
-    ///
-    /// (not used today but might be in the future)
-    pub fn compute(root_dir: &Path, use_clippy: bool) -> Result<Report> {
-        let output = Self::get_command(root_dir, use_clippy)
-            .output()?;
-        Report::from_bytes(&output.stderr)
     }
 
 }

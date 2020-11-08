@@ -1,9 +1,11 @@
 mod app;
 mod cli;
 mod executor;
+mod display_settings;
 mod drawing;
 mod line;
 mod line_type;
+mod mission;
 mod report;
 mod scroll;
 mod state;
@@ -12,10 +14,12 @@ mod stats;
 pub use {
     app::*,
     cli::*,
+    display_settings::*,
     executor::*,
     drawing::*,
     line::*,
     line_type::*,
+    mission::*,
     report::*,
     scroll::*,
     state::*,

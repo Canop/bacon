@@ -6,7 +6,7 @@ use {
         style::{Color::*, Colorize, Print, Styler},
     },
     minimad::{Alignment, Composite},
-    std::{io::Write, path::Path},
+    std::io::Write,
     termimad::{Area, CompoundStyle, MadSkin},
 };
 
@@ -36,19 +36,19 @@ pub struct AppState {
     auto_scroll: bool,
 }
 impl AppState {
-    pub fn new(root_dir: &Path) -> Result<Self> {
+    pub fn new(mission: &Mission) -> Result<Self> {
         let mut status_skin = MadSkin::default();
         status_skin.paragraph.set_bg(DarkGrey);
         status_skin.italic = CompoundStyle::with_fg(Yellow);
         let (width, height) = termimad::terminal_size();
         Ok(Self {
-            name: root_dir.file_name().unwrap().to_string_lossy().to_string(),
+            name: mission.name.clone(),
             lines: None,
             report: None,
             width,
             height,
             computing: true,
-            summary: false,
+            summary: mission.display_settings.summary,
             status_skin,
             scroll: 0,
             auto_scroll: true,

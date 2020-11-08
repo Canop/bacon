@@ -3,31 +3,12 @@ use {
     anyhow::*,
     crossbeam::channel::{bounded, select},
     crossterm::event::{KeyCode::*, KeyEvent, KeyModifiers},
-    notify::{RecommendedWatcher, RecursiveMode, Watcher},
-    std::{env, fs, path::PathBuf},
+    notify::{RecommendedWatcher, Watcher},
     termimad::{Event, EventSource},
 };
 
-pub fn run(w: &mut W, args: Args) -> Result<()> {
-    let root_dir = args.root.unwrap_or_else(|| env::current_dir().unwrap());
-    let root_dir: PathBuf = fs::canonicalize(&root_dir)?;
-    info!("root_dir: {:?}", &root_dir);
-    let src_dir = root_dir.join("src");
-    let cargo_toml_file = root_dir.join("Cargo.toml");
-    if !src_dir.exists() || !cargo_toml_file.exists() {
-        return Err(anyhow!(
-            "bacon must be launched either\n\
-            * in a rust project directory\n\
-            * or with a rust project directory given in argument\n\
-            (the rust project directory is the one with the Cargo.toml file and the src directory)\n\
-            "
-        ));
-    }
-
-    let mut state = AppState::new(&root_dir)?;
-    if args.summary {
-        state.toggle_summary_mode();
-    }
+pub fn run(w: &mut W, mission: Mission) -> Result<()> {
+    let mut state = AppState::new(&mission)?;
     state.computing = true;
     state.draw(w)?;
 
@@ -41,10 +22,9 @@ pub fn run(w: &mut W, args: Args) -> Result<()> {
         }
         Err(e) => warn!("watch error: {:?}", e),
     })?;
-    watcher.watch(src_dir, RecursiveMode::Recursive)?;
-    watcher.watch(cargo_toml_file, RecursiveMode::NonRecursive)?;
+    mission.add_watchs(&mut watcher)?;
 
-    let executor = Executor::new(root_dir, args.clippy)?;
+    let executor = Executor::new(mission.get_command())?;
     executor.start()?; // first computation
 
     let event_source = EventSource::new()?;
