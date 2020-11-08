@@ -32,8 +32,8 @@ pub struct AppState {
     status_skin: MadSkin,
     /// number of lines hidden on top due to scroll
     scroll: usize,
-    /// there was at least a scroll operation
-    scrolled: bool,
+    /// auto-scroll to bottom on line addition
+    auto_scroll: bool,
 }
 impl AppState {
     pub fn new(root_dir: &Path) -> Result<Self> {
@@ -51,7 +51,7 @@ impl AppState {
             summary: false,
             status_skin,
             scroll: 0,
-            scrolled: false,
+            auto_scroll: true,
         })
     }
 }
@@ -59,7 +59,7 @@ impl AppState {
 impl AppState {
     pub fn add_line(&mut self, line: String) {
         self.lines.get_or_insert_with(Vec::new).push(line);
-        if !self.scrolled {
+        if self.auto_scroll {
             // if the user never scrolled, we'll stick to the bottom
             self.apply_scroll_command(ScrollCommand::Bottom);
         }
@@ -75,6 +75,7 @@ impl AppState {
             self.scroll = 0;
         }
         self.report = Some(report);
+        self.auto_scroll = false;
     }
     fn fix_scroll(&mut self) {
         self.scroll = fix_scroll(self.scroll, self.content_height(), self.page_height());
@@ -143,7 +144,7 @@ impl AppState {
     }
     pub fn scroll(&mut self, w: &mut W, cmd: ScrollCommand) -> Result<()> {
         debug!("user scroll command: {:?}", cmd);
-        self.scrolled = true;
+        self.auto_scroll = false;
         self.apply_scroll_command(cmd);
         self.draw(w)
     }
