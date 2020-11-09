@@ -1,0 +1,42 @@
+<?xml
+    version="1.0"
+    encoding="UTF-8"
+    standalone="no"
+?>
+<!--
+    Copyright (C) 2020 Peter Varo <hello@petervaro.com>
+    This work is licensed under a Creative Commons Attribution-ShareAlike 4.0
+    International License. (CC-BY-SA) For more information about the license
+    visit <https://creativecommons.org/licenses/by-sa/4.0>
+-->
+<!DOCTYPE
+    svg
+    PUBLIC
+    "-//W3C//DTD SVG 1.1//EN"
+    "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"
+>
+<svg
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xml:space="preserve"
+    width="100%"
+    height="100%"
+    viewBox="0 0 64 64"
+>
+    <path
+        id="nose"
+        style="fill:#ff8080"
+        d="M 0,32.500007 C 0,49.879314 14.342957,64 31.945662,64 49.439716,64 64.000002,49.879314 64.000002,32.934489 64.000002,15.012074 49.983021,1 31.837014,1 14.342957,1 0,15.229312 0,32.500007 Z"
+    />
+    <path
+        id="left-nostril"
+        style="fill:#000000"
+        d="m 27.302771,32.499999 a 5.2881084,8.5635345 0 0 1 -5.288103,8.563532 5.2881084,8.5635345 0 0 1 -5.288106,-8.563532 5.2881084,8.5635345 0 0 1 5.288106,-8.563536 5.2881084,8.5635345 0 0 1 5.288103,8.563536 z"
+    />
+    <path
+        id="right-nostril"
+        style="fill:#000000;stroke-width:0.999976"
+        d="m 47.273421,32.499999 a 5.2881084,8.5635345 0 0 1 -5.288109,8.563532 5.2881084,8.5635345 0 0 1 -5.288112,-8.563532 5.2881084,8.5635345 0 0 1 5.288112,-8.563536 5.2881084,8.5635345 0 0 1 5.288109,8.563536 z"
+    />
+</svg>
