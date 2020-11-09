@@ -3,7 +3,7 @@ use {
     anyhow::*,
     crossterm::{
         cursor, execute,
-        style::{Color::*, Colorize, Print, Styler},
+        style::{Attribute, Color::*, Colorize, Print, Styler},
     },
     minimad::{Alignment, Composite},
     std::io::Write,
@@ -20,12 +20,15 @@ pub struct AppState {
     lines: Option<Vec<String>>,
     /// a totally computed report
     report: Option<Report>,
+    wrapped_report: Option<WrappedReport>,
     /// screen width
     width: u16,
     /// screen height
     height: u16,
     /// whether a computation is in progress
     pub computing: bool,
+    /// whether the user wants wrapped lines
+    pub wrap: bool,
     /// whether we should display only titles and locations
     summary: bool,
     /// colors and styles used for status bar
@@ -34,24 +37,30 @@ pub struct AppState {
     scroll: usize,
     /// auto-scroll to bottom on line addition
     auto_scroll: bool,
+    /// item_idx of the item which was on top on last draw
+    top_item_idx: usize,
 }
 impl AppState {
     pub fn new(mission: &Mission) -> Result<Self> {
         let mut status_skin = MadSkin::default();
-        status_skin.paragraph.set_bg(DarkGrey);
-        status_skin.italic = CompoundStyle::with_fg(Yellow);
+        status_skin.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
+        //status_skin.italic = CompoundStyle::with_fg(AnsiValue(204));
+        status_skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
         let (width, height) = termimad::terminal_size();
         Ok(Self {
             name: mission.name.clone(),
             lines: None,
             report: None,
+            wrapped_report: None,
             width,
             height,
             computing: true,
             summary: mission.display_settings.summary,
+            wrap: mission.display_settings.wrap,
             status_skin,
             scroll: 0,
             auto_scroll: true,
+            top_item_idx: 0,
         })
     }
 }
@@ -73,46 +82,55 @@ impl AppState {
         {
             // we keep the scroll when the number of lines didn't change
             self.scroll = 0;
+            self.top_item_idx = 0;
         }
         self.report = Some(report);
+        self.wrapped_report = None;
         self.auto_scroll = false;
     }
     fn fix_scroll(&mut self) {
         self.scroll = fix_scroll(self.scroll, self.content_height(), self.page_height());
     }
-    pub fn get_current_top_item_idx(&self) -> Option<usize> {
-        self.report.as_ref()
-            .and_then(|report| {
-                report.lines
+    fn get_last_item_scroll(&self) -> usize {
+        if let Some(report) = self.report.as_ref() {
+            if let Some(wrapped_report) = self.wrapped_report.as_ref() {
+                let sub_lines = wrapped_report.sub_lines
                     .iter()
-                    .filter(|line| !(self.summary && line.line_type == LineType::Normal))
-                    .skip(self.scroll)
-                    .next()
-            })
-            .map(|line| line.item_idx)
-    }
-    fn try_set_top_item(&mut self, item_idx: usize) {
-        if self.get_current_top_item_idx() != Some(item_idx) {
-            if let Some(report) = self.report.as_ref() {
+                    .filter(|line| {
+                        !(self.summary && line.src_line_type(report) == LineType::Normal)
+                    })
+                    .enumerate();
+                for (row_idx, sub_line) in sub_lines {
+                    if sub_line.src_line(&report).item_idx == self.top_item_idx {
+                        return row_idx;
+                    }
+                }
+            } else {
                 let lines = report.lines
                     .iter()
                     .filter(|line| !(self.summary && line.line_type == LineType::Normal))
                     .enumerate();
                 for (row_idx, line) in lines {
-                    if line.item_idx == item_idx {
-                        self.scroll = row_idx;
-                        break;
+                    if line.item_idx == self.top_item_idx {
+                        return row_idx;
                     }
                 }
             }
         }
+        return 0;
+    }
+    fn try_scroll_to_last_top_item(&mut self) {
+        self.scroll = self.get_last_item_scroll();
         self.fix_scroll();
     }
     pub fn toggle_summary_mode(&mut self) {
-        let item_idx = self.get_current_top_item_idx();
         self.summary ^= true;
-        if let Some(item_idx) = item_idx {
-            self.try_set_top_item(item_idx);
+        self.try_scroll_to_last_top_item();
+    }
+    pub fn toggle_wrap_mode(&mut self) {
+        self.wrap ^= true;
+        if self.wrapped_report.is_some() {
+            self.try_scroll_to_last_top_item();
         }
     }
     fn content_height(&self) -> usize {
@@ -128,12 +146,12 @@ impl AppState {
         self.height.max(3) as usize - 3
     }
     pub fn resize(&mut self, width: u16, height: u16) {
-        let item_idx = self.get_current_top_item_idx();
+        if self.width != width {
+            self.wrapped_report = None;
+        }
         self.width = width;
         self.height = height;
-        if let Some(item_idx) = item_idx {
-            self.try_set_top_item(item_idx);
-        }
+        self.try_scroll_to_last_top_item();
     }
     fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
         self.scroll = cmd.apply(
@@ -160,12 +178,21 @@ impl AppState {
         }
         Ok(())
     }
+    fn draw_name(&self, w: &mut W) -> Result<()> {
+        // white on grey
+        //write!(w, "{} ", format!(" {} ", &self.name).white().bold().on_dark_grey())?;
+        // black over pink
+        write!(w, "\u{1b}[1m\u{1b}[38;5;235m\u{1b}[48;5;204m {} \u{1b}[0m ", &self.name)?;
+        // pink over grey
+        //write!(w, "\u{1b}[48;5;239m\u{1b}[1m\u{1b}[38;5;204m {} \u{1b}[0m ", &self.name)?;
+        Ok(())
+    }
     /// draw the state on the whole terminal
     pub fn draw(&mut self, w: &mut W) -> Result<()> {
         let width = self.width as usize;
         goto(w, 0)?;
         //// colored badges on top
-        write!(w, "{} ", format!(" {} ", &self.name).white().bold().on_dark_grey())?;
+        self.draw_name(w)?;
         if let Some(report) = &self.report {
             let stats = &report.stats;
             if stats.errors > 0 {
@@ -203,50 +230,66 @@ impl AppState {
         if scrollbar.is_some() {
             area.width -= 1;
         }
+        let mut top_item_idx = None;
         if let Some(report) = &self.report {
-            // a totally computed report
-            let mut lines = report
-                .lines
-                .iter()
-                .filter(|line| !(self.summary && line.line_type == LineType::Normal))
-                .skip(self.scroll);
-            for row_idx in 0..area.height {
-                let y = row_idx + area.top;
-                goto(w, y)?;
-                if let Some(Line {
-                    item_idx,
-                    line_type,
-                    content,
-                }) = lines.next()
-                {
-                    match line_type {
-                        LineType::Title(Kind::Error) => {
-                            write!(
-                                w,
-                                "{} {}",
-                                format!("{:>2} ", item_idx).black().bold().on_red(),
-                                &content,
-                            )?;
-                        }
-                        LineType::Title(Kind::Warning) => {
-                            write!(
-                                w,
-                                "{} {}",
-                                format!("{:>2} ", item_idx).black().bold().on_yellow(),
-                                &content,
-                            )?;
-                        }
-                        _ => {
-                            write!(w, " {}", &content)?;
+            if self.wrap {
+                if self.wrapped_report.is_none() {
+                    self.wrapped_report = Some(WrappedReport::new(&report, self.width));
+                    self.scroll = self.get_last_item_scroll();
+                }
+                // SAFETY: we just ensured it's here
+                // (will be cleaner when Option::insert is available in stable)
+                let wrapped_report = self.wrapped_report.as_ref().unwrap();
+                let mut sub_lines = wrapped_report
+                    .sub_lines
+                    .iter()
+                    .filter(|sub_line| {
+                        !(self.summary && sub_line.src_line_type(report) == LineType::Normal)
+                    })
+                    .skip(self.scroll);
+                for row_idx in 0..area.height {
+                    let y = row_idx + area.top;
+                    goto(w, y)?;
+                    if let Some(sub_line) = sub_lines.next() {
+                        top_item_idx.get_or_insert_with(|| {
+                            sub_line.src_line(&report).item_idx
+                        });
+                        sub_line.draw_line_type(w, &report)?;
+                        write!(w, " ")?;
+                        sub_line.draw(w, &report)?;
+                        if is_thumb(row_idx.into(), scrollbar) {
+                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                         }
                     }
-                    if is_thumb(row_idx.into(), scrollbar) {
-                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                }
+            } else {
+                let mut lines = report
+                    .lines
+                    .iter()
+                    .filter(|line| !(self.summary && line.line_type == LineType::Normal))
+                    .skip(self.scroll);
+                for row_idx in 0..area.height {
+                    let y = row_idx + area.top;
+                    goto(w, y)?;
+                    if let Some(Line {
+                        item_idx,
+                        line_type,
+                        content,
+                    }) = lines.next()
+                    {
+                        top_item_idx.get_or_insert(*item_idx);
+                        line_type.draw(w, *item_idx)?;
+                        write!(w, " ")?;
+                        content.draw(w)?;
+                        if is_thumb(row_idx.into(), scrollbar) {
+                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                        }
                     }
                 }
             }
+            self.top_item_idx = top_item_idx.unwrap_or(0);
         } else if let Some(lines) = &self.lines {
-            // initial computation
+            // initial computation - report hasn't yet been computed
             for row_idx in 0..area.height {
                 let y = row_idx + area.top;
                 goto(w, y)?;
@@ -260,7 +303,7 @@ impl AppState {
         }
         //// Status bar
         let status = if self.report.is_some() {
-            "hit *q* to quit, *s* to toggle summary mode"
+            "hit *q* to quit, *s* to toggle summary mode, *w* to toggle wrapping"
         } else {
             "hit *q* to quit"
         };

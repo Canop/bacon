@@ -1,17 +1,11 @@
-
-static STYLED_PREFIX: &str = "\u{1b}[0m";
-
-/// "warning" in bold yellow, followed by a bold colon
-static WARNING: &str = "\u{1b}[1m\u{1b}[33mwarning\u{1b}[0m\u{1b}[0m\u{1b}[1m: ";
-
-/// "error" in bold red
-static ERROR: &str = "\u{1b}[1m\u{1b}[38;5;9merror";
-
-/// "error: aborting"
-static ABORTING: &str = "\u{1b}[1m\u{1b}[38;5;9merror\u{1b}[0m\u{1b}[0m\u{1b}[1m: aborting";
-
-/// a "-->" in bold blue
-static ARROW: &str = "\u{1b}[0m\u{1b}[0m\u{1b}[1m\u{1b}[38;5;12m--> \u{1b}[0m\u{1b}[0m";
+use {
+    crate::*,
+    anyhow::*,
+    crossterm::{
+        style::{Colorize, Styler},
+    },
+    std::io::Write,
+};
 
 /// either Warning or Error
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -22,10 +16,42 @@ pub enum Kind {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum LineType {
+    /// the start of either an error or a warning
     Title(Kind),
+
+    /// a line locating the problem
     Location,
-    Normal,
+
+    /// this line marks the end of the interesting content
     End,
+
+    /// any other line
+    Normal,
+}
+
+impl LineType {
+    pub fn cols(self) -> usize {
+        match self {
+            Self::Title(_) => 3,
+            _ => 0,
+        }
+    }
+    pub fn draw(self, w: &mut W, item_idx:usize) -> Result<()> {
+        match self {
+            Self::Title(Kind::Error) => {
+                write!(w, "{}", format!("{:^3}", item_idx).black().bold().on_red())?;
+            }
+            Self::Title(Kind::Warning) => {
+                write!(w, "{}", format!("{:^3}", item_idx).black().bold().on_yellow())?;
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+}
+
+fn is_spaces(s: &str) -> bool {
+    s.chars().all(|c| c.is_ascii_whitespace())
 }
 
 /// check if the string starts with something like "15 warnings emitted"
@@ -49,31 +75,24 @@ fn is_n_warnings_emitted(s: &str) -> bool {
     false
 }
 
-impl From<&String> for LineType {
-    fn from(content: &String) -> Self {
-        // at some point we might have to import regex, or to look
-        // for some cargo API, but for now it looks like it works and
-        // avoids heavy dependencies
-        if let Some(styled) = content.strip_prefix(STYLED_PREFIX) {
-            let styled = styled.trim();
-            if let Some(warning) = styled.strip_prefix(WARNING) {
-                debug!("warning: {:?}", warning);
-                if is_n_warnings_emitted(warning) {
+impl From<&TLine> for LineType {
+    fn from(content: &TLine) -> Self {
+        if let (Some(ts1), Some(ts2)) = (content.strings.get(0), content.strings.get(1)) {
+            match (ts1.csi.as_ref(), ts1.raw.as_ref(), ts2.csi.as_ref(), ts2.raw.as_ref()) {
+                (crate::CSI_BOLD_RED, "error", CSI_BOLD, r2) if r2.starts_with(": aborting due to") => {
                     LineType::End
-                } else {
-                    LineType::Title(Kind::Warning)
                 }
-            } else if styled.starts_with(ABORTING) {
-                LineType::End
-            } else if styled.starts_with(ERROR) {
-                LineType::Title(Kind::Error)
-            } else if styled.starts_with(ARROW) {
-                LineType::Location
-            } else {
-                LineType::Normal
+                (crate::CSI_BOLD_RED, "error", CSI_BOLD, _) => LineType::Title(Kind::Error),
+                (crate::CSI_BOLD_YELLOW, "warning", _, r2) if is_n_warnings_emitted(&r2) => {
+                    LineType::End
+                }
+                (crate::CSI_BOLD_YELLOW, "warning", _, _) => LineType::Title(Kind::Warning),
+                ("", r1, crate::CSI_BOLD_BLUE, "--> ") if is_spaces(r1) => LineType::Location,
+                _ => LineType::Normal,
             }
         } else {
-            LineType::Normal
+            LineType::Normal // empty line
         }
     }
 }
+
