@@ -56,7 +56,9 @@ It works on all decent terminals on Linux, Max OSX and Windows.
 * It's a **bac**kground **con**piler.
 * It comes from France and, as you know, France is bacon.
 
-## Acknowledgements
+## Licences
+
+Bacon is licenced under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.en.html).
 
 The logo is designed by [Peter Varo][pv] and licensed under a
 [Creative Commons Attribution-ShareAlike 4.0 International License][cc-lic].

@@ -6,7 +6,7 @@ repository = "https://github.com/Canop/bacon"
 description = "background rust compiler"
 edition = "2018"
 keywords = ["rust", "background", "compiler", "watch", "inotify"]
-license = "MIT"
+license = "AGPL-3.0"
 categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
 
