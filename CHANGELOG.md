@@ -1,6 +1,6 @@
 <a name="v0.4.0"></a>
 ### v0.4.0 - not yet released
-* the passed directory (or the current one), when not a package directory (i.e. not containing a Cargo.toml file), will be the one watched (thus allowing to not watch everything)
+* make it possible to watch only par of the sources: the passed directory (or the current one), when not a package directory (i.e. not containing a Cargo.toml file), will be the one watched
 
 <a name="v0.3.2"></a>
 ### v0.3.2 - 2020/11/08
@@ -9,7 +9,7 @@
 <a name="v0.3.1"></a>
 ### v0.3.1 - 2020/11/06
 * better scroll position after toggling summary mode or resizing
-* space now usable for page down
+* space key now usable for page down
 
 <a name="v0.3.0"></a>
 ### v0.3.0 - 2020/11/06
