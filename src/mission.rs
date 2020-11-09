@@ -67,9 +67,18 @@ impl Mission {
                     .parent()
                     .expect("parent of a target folder is a root folder");
                 if add_all_src {
-                    directories_to_watch.push(item_path.join("src"));
+                    let src_dir = item_path.join("src");
+                    if src_dir.exists() {
+                        directories_to_watch.push(src_dir);
+                    } else {
+                        warn!("missing src dir: {:?}", src_dir);
+                    }
                 }
-                files_to_watch.push(item.manifest_path);
+                if item.manifest_path.exists() {
+                    files_to_watch.push(item.manifest_path);
+                } else {
+                    warn!("missing manifest file: {:?}", item.manifest_path);
+                }
             }
         }
 
