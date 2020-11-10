@@ -19,15 +19,15 @@ pub struct Args {
     #[argh(switch, short = 'v')]
     version: bool,
 
-    /// whether to start in summary mode
+    /// start in summary mode
     #[argh(switch, short = 's')]
     pub summary: bool,
 
-    /// whether to start with lines wrapped
+    /// start with lines wrapped
     #[argh(switch, short = 'w')]
     pub wrap: bool,
 
-    /// whether to run `cargo clippy` instead of `cargo check`
+    /// run `cargo clippy` instead of `cargo check`
     #[argh(switch, short = 'c')]
     pub clippy: bool,
 
