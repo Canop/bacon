@@ -87,6 +87,9 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                 match line? {
                     Ok(Some(line)) => {
                         state.add_line(line);
+                        if !state.has_report() {
+                            state.draw(w)?;
+                        }
                     }
                     Ok(None) => {
                         // computation finished
@@ -96,14 +99,15 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                             warn!("a computation finished but didn't start?");
                         }
                         state.computing = false;
+                        state.draw(w)?;
                     }
                     Err(e) => {
                         warn!("error in computation: {}", e);
                         state.computing = false;
+                        state.draw(w)?;
                         break;
                     }
                 }
-                state.draw(w)?;
             }
         }
     }

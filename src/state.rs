@@ -76,6 +76,9 @@ impl AppState {
     pub fn take_lines(&mut self) -> Option<Vec<String>> {
         self.lines.take()
     }
+    pub fn has_report(&self) -> bool {
+        self.report.is_some()
+    }
     pub fn set_report(&mut self, report: Report) {
         if self.report.as_ref()
             .map_or(true, |old_report| old_report.lines.len() != report.lines.len())
