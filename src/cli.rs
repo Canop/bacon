@@ -10,7 +10,7 @@ use {
 };
 
 #[derive(Debug, FromArgs)]
-/// watches your source and run cargo check in background.
+/// bacon watches your source and run code checks in background.
 ///
 ///
 /// Source at https://github.com/Canop/bacon

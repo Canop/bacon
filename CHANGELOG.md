@@ -1,7 +1,8 @@
 <a name="v0.4.0"></a>
 ### v0.4.0 - not yet released
 * make it possible to watch only part of the sources: the passed directory (or the current one), when not a package directory (i.e. not containing a Cargo.toml file), will be the one watched - Thanks @nikhilmitrax and @jyn514 for their help
-* a logo! - Thanks @petervaro
+* logo - Thanks @petervaro
+* line wrapping (and rewrapping on resize)
 
 <a name="v0.3.2"></a>
 ### v0.3.2 - 2020/11/08
