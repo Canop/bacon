@@ -52,6 +52,7 @@ impl Mission {
         };
 
         let add_all_src = intended_is_package;
+        debug!("cargo_toml_file: {:?}", &cargo_toml_file);
         let metadata = MetadataCommand::new()
             .manifest_path(&cargo_toml_file)
             .exec()?;
