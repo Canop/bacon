@@ -23,6 +23,10 @@ pub struct Args {
     #[argh(switch, short = 's')]
     pub summary: bool,
 
+    /// whether to start with lines wrapped
+    #[argh(switch, short = 'w')]
+    pub wrap: bool,
+
     /// whether to run `cargo clippy` instead of `cargo check`
     #[argh(switch, short = 'c')]
     pub clippy: bool,
@@ -44,7 +48,11 @@ pub fn writer() -> W {
 pub fn run() -> Result<()> {
     let args: Args = argh::from_env();
     if args.version {
-        println!("bacon {}", env!("CARGO_PKG_VERSION"));
+        println!(
+            "bac\u{1b}[38;5;204mo\u{1b}[0mn {}",
+            //"bac\u{1b}[38;5;204m\u{25cf}\u{1b}[0mn {}",
+            env!("CARGO_PKG_VERSION"),
+        );
         return Ok(());
     }
     debug!("args: {:#?}", &args);

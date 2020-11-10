@@ -53,6 +53,11 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                                 state.toggle_summary_mode();
                                 state.draw(w)?;
                             }
+                            (Char('w'), KeyModifiers::NONE) => {
+                                debug!("user toggles wrapping");
+                                state.toggle_wrap_mode();
+                                state.draw(w)?;
+                            }
                             (Home, _) => { state.scroll(w, ScrollCommand::Top)?; }
                             (End, _) => { state.scroll(w, ScrollCommand::Bottom)?; }
                             (Up, _) => { state.scroll(w, ScrollCommand::Lines(-1))?; }

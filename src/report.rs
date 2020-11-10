@@ -31,6 +31,7 @@ impl Report {
         let mut errors = Vec::new();
         let mut cur_kind = None;
         for content in err_lines {
+            let content = TLine::from_tty(&content);
             let line_type = LineType::from(&content);
             match line_type {
                 LineType::End => {

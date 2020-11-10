@@ -10,6 +10,8 @@ mod report;
 mod scroll;
 mod state;
 mod stats;
+mod tty;
+mod wrap;
 
 pub use {
     app::*,
@@ -24,6 +26,8 @@ pub use {
     scroll::*,
     state::*,
     stats::*,
+    tty::*,
+    wrap::*,
 };
 
 #[macro_use]
@@ -56,7 +60,7 @@ fn configure_log() {
         )
         .expect("log initialization failed");
         info!(
-            "Starting Bacon v{} with log level {}",
+            "Starting bacon v{} with log level {}",
             env!("CARGO_PKG_VERSION"),
             level
         );
