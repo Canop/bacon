@@ -36,9 +36,10 @@ impl Report {
             let line_type = LineType::from(&content);
             debug!(" ===> line_type: {:?}", line_type);
             match line_type {
-                LineType::End => {
-                    // we're not interested in what follows
-                    break;
+                LineType::Title(Kind::Sum) => {
+                    // we're not interested in this section
+                    info!("sum line: {:#?}", &content);
+                    cur_kind = None;
                 }
                 LineType::Title(kind) => {
                     cur_kind = Some(kind);
@@ -53,7 +54,7 @@ impl Report {
             match cur_kind {
                 Some(Kind::Warning) => warnings.push(line),
                 Some(Kind::Error) => errors.push(line),
-                None => {} // before warnings and errors
+                _ => {} // before warnings and errors, or in a sum
             }
         }
         // we now build a common vector, with errors first

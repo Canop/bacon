@@ -7,23 +7,26 @@ use {
     std::io::Write,
 };
 
-/// either Warning or Error
+/// a kind of section
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Kind {
+    /// a warning
     Warning,
+    /// an error
     Error,
+    /// a sum of errors and/or warnings, typically
+    /// occuring at the end of the compilation of
+    /// a package
+    Sum,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum LineType {
-    /// the start of either an error or a warning
+    /// the start of a section
     Title(Kind),
 
     /// a line locating the problem
     Location,
-
-    /// this line marks the end of the interesting content
-    End,
 
     /// any other line
     Normal,
@@ -82,13 +85,13 @@ impl From<&TLine> for LineType {
         if let (Some(ts1), Some(ts2)) = (content.strings.get(0), content.strings.get(1)) {
             match (ts1.csi.as_ref(), ts1.raw.as_ref(), ts2.csi.as_ref(), ts2.raw.as_ref()) {
                 (crate::CSI_BOLD_RED, "error", CSI_BOLD, r2) if r2.starts_with(": aborting due to") => {
-                    LineType::End
+                    LineType::Title(Kind::Sum)
                 }
                 (crate::CSI_BOLD_RED, r1, CSI_BOLD, _) if r1.starts_with("error") => {
                     LineType::Title(Kind::Error)
                 }
                 (crate::CSI_BOLD_YELLOW, "warning", _, r2) if is_n_warnings_emitted(&r2) => {
-                    LineType::End
+                    LineType::Title(Kind::Sum)
                 }
                 (crate::CSI_BOLD_YELLOW, "warning", _, _) => LineType::Title(Kind::Warning),
                 ("", r1, crate::CSI_BOLD_BLUE, "--> ") if is_spaces(r1) => LineType::Location,

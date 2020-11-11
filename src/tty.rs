@@ -11,7 +11,16 @@ pub const CSI_BOLD_RED: &str = "\u{1b}[1m\u{1b}[38;5;9m";
 pub const CSI_BOLD_YELLOW: &str = "\u{1b}[1m\u{1b}[33m";
 pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;12m";
 
-/// a simple representation of a colored and styled string
+/// a simple representation of a colored and styled string.
+///
+/// Note that this works because of a few properties of
+/// cargo's output:
+/// - styles and colors are always reset on changes
+/// - they're always in the same order (bold then fg color)
+/// A more generic parsing would have to:
+/// - parse the csi params (it's simple enough to map but takes code)
+/// - use a simple state machine to keep style (bold, italic, etc.),
+///    foreground color, and background color across tstrings
 #[derive(Debug, Default)]
 pub struct TString {
     pub csi: String,

@@ -1,3 +1,7 @@
+<a name="v0.4.3"></a>
+### v0.4.3 - 2020/11/11
+* fix report only taking the first package into account (for workspaces)
+
 <a name="v0.4.2"></a>
 ### v0.4.2 - 2020/11/11
 * fix some regressions in error and warning detection

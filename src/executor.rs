@@ -15,6 +15,7 @@ use {
 ///
 /// Channel sizes are designed to avoid useless computations.
 pub struct Executor {
+    /// receiver for the channel into which command output lines are sent
     pub line_receiver: Receiver<Result<Option<String>, String>>,
     task_sender: Sender<()>,
     stop_sender: Sender<()>, // signal for stopping the thread
@@ -82,6 +83,7 @@ impl Executor {
             thread,
         })
     }
+    /// notify the executor a computation is necessary
     pub fn start(&self) -> Result<()> {
         self.task_sender.try_send(())?;
         Ok(())
