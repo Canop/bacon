@@ -1,42 +1,19 @@
 use {
     crate::*,
-    argh::FromArgs,
     crossterm::{
         self, cursor,
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
         QueueableCommand,
     },
-    std::{env, io::Write, path::PathBuf},
+    std::{env, io::Write},
 };
 
-#[derive(Debug, FromArgs)]
-/// bacon watches your source and run code checks in background.
-///
-///
-/// Source at https://github.com/Canop/bacon
-pub struct Args {
-    /// print the version
-    #[argh(switch, short = 'v')]
-    version: bool,
-
-    /// start in summary mode
-    #[argh(switch, short = 's')]
-    pub summary: bool,
-
-    /// start with lines wrapped
-    #[argh(switch, short = 'w')]
-    pub wrap: bool,
-
-    /// run `cargo clippy` instead of `cargo check`
-    #[argh(switch, short = 'c')]
-    pub clippy: bool,
-
-    #[argh(positional)]
-    /// path to the folder to watch or to the Rust repository
-    pub root: Option<PathBuf>,
-}
-
 /// the type used by all GUI writing functions
+///
+/// Right now we use stderr, which has the advantage of letting
+/// us output something if we want (for a calling process) but
+/// as I'm not sure I'll even have something to output, I may
+/// switch to stdout which would allow buffering.
 pub type W = std::io::Stderr;
 
 /// return the writer used by the application

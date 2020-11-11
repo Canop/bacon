@@ -54,20 +54,22 @@ fn is_spaces(s: &str) -> bool {
     s.chars().all(|c| c.is_ascii_whitespace())
 }
 
-/// check if the string starts with something like "15 warnings emitted"
+/// check if the string starts with something like ": 15 warnings emitted"
 fn is_n_warnings_emitted(s: &str) -> bool {
     let mut tokens = s.split_ascii_whitespace();
-    if let Some(t) = tokens.next() {
-        if t.parse::<usize>().is_err() {
-            return false;
-        }
+    if let Some(":") = tokens.next() {
         if let Some(t) = tokens.next() {
-            if t != "warnings" && t != "warning" {
+            if t.parse::<usize>().is_err() {
                 return false;
             }
             if let Some(t) = tokens.next() {
-                if t.starts_with("emitted") {
-                    return true;
+                if t != "warnings" && t != "warning" {
+                    return false;
+                }
+                if let Some(t) = tokens.next() {
+                    if t.starts_with("emitted") {
+                        return true;
+                    }
                 }
             }
         }
@@ -82,7 +84,9 @@ impl From<&TLine> for LineType {
                 (crate::CSI_BOLD_RED, "error", CSI_BOLD, r2) if r2.starts_with(": aborting due to") => {
                     LineType::End
                 }
-                (crate::CSI_BOLD_RED, "error", CSI_BOLD, _) => LineType::Title(Kind::Error),
+                (crate::CSI_BOLD_RED, r1, CSI_BOLD, _) if r1.starts_with("error") => {
+                    LineType::Title(Kind::Error)
+                }
                 (crate::CSI_BOLD_YELLOW, "warning", _, r2) if is_n_warnings_emitted(&r2) => {
                     LineType::End
                 }

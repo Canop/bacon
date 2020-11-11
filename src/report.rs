@@ -32,7 +32,9 @@ impl Report {
         let mut cur_kind = None;
         for content in err_lines {
             let content = TLine::from_tty(&content);
+            debug!("content: {:#?}", &content);
             let line_type = LineType::from(&content);
+            debug!(" ===> line_type: {:?}", line_type);
             match line_type {
                 LineType::End => {
                     // we're not interested in what follows

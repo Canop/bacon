@@ -1,3 +1,7 @@
+<a name="v0.4.2"></a>
+### v0.4.2 - 2020/11/11
+* fix some regressions in error and warning detection
+
 <a name="v0.4.1"></a>
 ### v0.4.1 - 2020/11/10
 * reduce useless redraws during computation

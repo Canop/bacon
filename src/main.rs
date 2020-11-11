@@ -1,4 +1,5 @@
 mod app;
+mod args;
 mod cli;
 mod executor;
 mod display_settings;
@@ -15,6 +16,7 @@ mod wrap;
 
 pub use {
     app::*,
+    args::*,
     cli::*,
     display_settings::*,
     executor::*,
