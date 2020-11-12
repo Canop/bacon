@@ -1,3 +1,8 @@
+<a name="v0.5.0"></a>
+### v0.5.0 - 2020/11/12
+* `bacon --init` creates a default `bacon.toml` file which can be customized to add jobs or change the standard ones
+* bacon launch arguments changed to ease use of customized jobs
+
 <a name="v0.4.3"></a>
 ### v0.4.3 - 2020/11/11
 * fix report only taking the first package into account (for workspaces)

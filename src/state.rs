@@ -14,8 +14,11 @@ use {
 /// contains the currently rendered state of the application,
 /// including scroll level and the current report (if any)
 pub struct AppState {
-    /// project name
-    pub name: String,
+    /// project name: usually the name of the package directory
+    /// but might change
+    pub project_name: String,
+    /// "check", "clippy", "test", "check_windows", etc.
+    pub job_name: String,
     /// the raw lines of a computation in progress
     lines: Option<Vec<String>>,
     /// a totally computed report
@@ -48,7 +51,8 @@ impl AppState {
         status_skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
         let (width, height) = termimad::terminal_size();
         Ok(Self {
-            name: mission.name.clone(),
+            project_name: mission.package_name.clone(),
+            job_name: mission.job_name.clone(),
             lines: None,
             report: None,
             wrapped_report: None,
@@ -181,13 +185,13 @@ impl AppState {
         }
         Ok(())
     }
-    fn draw_name(&self, w: &mut W) -> Result<()> {
-        // white on grey
-        //write!(w, "{} ", format!(" {} ", &self.name).white().bold().on_dark_grey())?;
+    fn draw_project_name(&self, w: &mut W) -> Result<()> {
+        write!(w, "{} ", format!(" {} ", &self.project_name).white().bold().on_dark_grey())?;
+        Ok(())
+    }
+    fn draw_job_name(&self, w: &mut W) -> Result<()> {
         // black over pink
-        write!(w, "\u{1b}[1m\u{1b}[38;5;235m\u{1b}[48;5;204m {} \u{1b}[0m ", &self.name)?;
-        // pink over grey
-        //write!(w, "\u{1b}[48;5;239m\u{1b}[1m\u{1b}[38;5;204m {} \u{1b}[0m ", &self.name)?;
+        write!(w, "\u{1b}[1m\u{1b}[38;5;235m\u{1b}[48;5;204m {} \u{1b}[0m ", &self.job_name)?;
         Ok(())
     }
     /// draw the state on the whole terminal
@@ -195,7 +199,8 @@ impl AppState {
         let width = self.width as usize;
         goto(w, 0)?;
         //// colored badges on top
-        self.draw_name(w)?;
+        self.draw_project_name(w)?;
+        self.draw_job_name(w)?;
         if let Some(report) = &self.report {
             let stats = &report.stats;
             if stats.errors > 0 {
@@ -221,7 +226,8 @@ impl AppState {
         //// computing...
         goto(w, 1)?;
         if self.computing {
-            write!(w, "{}", format!("{:^w$}", "computing...", w = width).white().on_dark_grey())?;
+            //write!(w, "{}", format!("{:^w$}", "computing...", w = width).white().on_dark_grey())?;
+            write!(w, "\u{1b}[38;5;235m\u{1b}[48;5;204m{:^w$}\u{1b}[0m", "computing...", w = width)?;
         }
         //// content
         if self.height < 4 {
@@ -310,6 +316,8 @@ impl AppState {
         } else {
             "hit *q* to quit"
         };
-        self.draw_status(w, status)
+        self.draw_status(w, status)?;
+        w.flush()?;
+        Ok(())
     }
 }

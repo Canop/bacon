@@ -10,23 +10,19 @@ use {
     },
 };
 
-/// the description of the mission of bacon
-/// after analysis of the args, env, and surroundings
-#[derive(Debug)]
-pub struct Mission {
-    pub name: String,
-    cargo_execution_directory: PathBuf,
-    cargo_command_exe: String,
-    cargo_command_args: Vec<String>,
-    files_to_watch: Vec<PathBuf>,
-    directories_to_watch: Vec<PathBuf>,
-    pub display_settings: DisplaySettings,
+pub struct MissionLocation {
+    pub intended_dir: PathBuf,
+    pub package_directory: PathBuf,
+    pub cargo_toml_file: PathBuf,
+    pub intended_is_package: bool,
 }
 
-impl Mission {
-    pub fn from(args: Args) -> Result<Self> {
-        let display_settings = DisplaySettings::from(&args);
-        let intended_dir = args.root.unwrap_or_else(|| env::current_dir().unwrap());
+impl MissionLocation {
+    pub fn new(args: &Args) -> Result<Self> {
+        let intended_dir = args.path.as_ref().map_or_else(
+            || env::current_dir().unwrap(),
+            PathBuf::from,
+        );
         let intended_dir: PathBuf = fs::canonicalize(&intended_dir)?;
         let mut package_directory = intended_dir.clone();
         let mut intended_is_package = true;
@@ -50,16 +46,53 @@ impl Mission {
                 }
             };
         };
+        Ok(Self {
+            intended_dir,
+            package_directory,
+            cargo_toml_file,
+            intended_is_package,
+        })
+    }
+    pub fn package_name(&self) -> String {
+        self.package_directory.file_name().unwrap().to_string_lossy().to_string()
+    }
+    pub fn package_config_path(&self) -> PathBuf {
+        self.package_directory.join("bacon.toml")
+    }
+}
 
-        let add_all_src = intended_is_package;
-        debug!("cargo_toml_file: {:?}", &cargo_toml_file);
+/// the description of the mission of bacon
+/// after analysis of the args, env, and surroundings
+#[derive(Debug)]
+pub struct Mission {
+    pub package_name: String,
+    pub job_name: String,
+    cargo_execution_directory: PathBuf,
+    job: Job,
+    files_to_watch: Vec<PathBuf>,
+    directories_to_watch: Vec<PathBuf>,
+    pub display_settings: DisplaySettings,
+}
+
+impl Mission {
+    pub fn new(
+        location: MissionLocation,
+        package_config: &PackageConfig,
+        job_name: Option<&str>,
+        display_settings: DisplaySettings,
+    ) -> Result<Self> {
+        let add_all_src = location.intended_is_package;
+        let (job_name, job) = package_config
+            .get_job(job_name)
+            .map(|(n, j)| (n.to_string(), j.clone()))?;
+
         let metadata = MetadataCommand::new()
-            .manifest_path(&cargo_toml_file)
+            .manifest_path(&location.cargo_toml_file)
             .exec()?;
         let mut files_to_watch = Vec::new();
         let mut directories_to_watch = Vec::new();
-        if !intended_is_package {
-            directories_to_watch.push(intended_dir);
+        if !location.intended_is_package {
+            directories_to_watch.push(location.intended_dir.to_path_buf());
         }
         for item in metadata.packages {
             if item.source.is_none() {
@@ -83,20 +116,13 @@ impl Mission {
             }
         }
 
-        let cargo_execution_directory = package_directory.to_path_buf();
-        let name = package_directory.file_name().unwrap().to_string_lossy().to_string();
-        let cargo_command_exe = "cargo".to_string();
-        let sub_command = if args.clippy { "clippy" } else { "check" };
-        let cargo_command_args = vec![
-            sub_command.to_string(),
-            "--color".to_string(),
-            "always".to_string(),
-        ];
+        let cargo_execution_directory = location.package_directory.to_path_buf();
+        let package_name = location.package_name();
         Ok(Mission {
-            name,
+            package_name,
             cargo_execution_directory,
-            cargo_command_exe,
-            cargo_command_args,
+            job_name,
+            job,
             files_to_watch,
             directories_to_watch,
             display_settings,
@@ -116,8 +142,11 @@ impl Mission {
 
     /// build (and doesn't call) the external cargo command
     pub fn get_command(&self) -> Command {
-        let mut command = Command::new("cargo");
-        for arg in &self.cargo_command_args {
+        let mut tokens = self.job.command.iter();
+        let mut command = Command::new(
+            tokens.next().unwrap() // implies a check in the job
+        );
+        for arg in tokens {
             command.arg(arg);
         }
         command.current_dir(&self.cargo_execution_directory);

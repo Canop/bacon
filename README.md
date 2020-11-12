@@ -23,13 +23,50 @@ It's designed for minimal interaction so that you can jut let it running, side t
 
 ## Usage
 
-Launch `bacon` in a terminal you keep visible
+You launch `bacon` in a terminal you keep visible.
 
-If you do `bacon --clippy`, it runs `cargo clippy` instead of `cargo check`.
+### check the current project
+
+    bacon
+
+### check another project
+
+    bacon --path ../broot
+
+or
+
+    bacon ../broot
+
+### run clippy instead of cargo check
+
+    bacon --job clippy
+
+or
+
+    bacon clippy
+
+### define your own jobs
+
+First create a `bacon.toml` file by running
+
+    bacon --init
+
+This file already contains some standard jobs. Add your own, for example
+
+```
+[jobs.check-win]
+command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "always"]
+```
+
+(don't forget the `--color always` part: bacon use style information to recognize warnings and errors)
+
+and run
+
+    bacon check-win
 
 ## FAQ
 
-### What does it do ?
+### What does it exactly do ?
 
 It watches the content of your `src` directory and launches `cargo check` on changes.
 
@@ -40,6 +77,10 @@ The screen isn't cleaned until the compilation is finished to prevent flickering
 Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report.
 
 Errors are displayed before warnings.
+
+### Can I run several bacon in parallel ?
+
+It's perfectly OK and can be useful for example to check several compilation targets.
 
 ### Can I contribute ?
 

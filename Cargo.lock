@@ -67,7 +67,7 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "bacon"
-version = "0.4.3"
+version = "0.5.0"
 dependencies = [
  "anyhow",
  "argh",
@@ -77,8 +77,10 @@ dependencies = [
  "log",
  "minimad",
  "notify",
+ "serde",
  "simplelog",
  "termimad",
+ "toml",
  "unicode-width",
  "vte",
 ]
@@ -836,6 +838,15 @@ dependencies = [
  "libc",
  "wasi 0.10.0+wasi-snapshot-preview1",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "toml"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75cf45bb0bef80604d001caaec0d09da99611b3c0fd39d3080468875cdb65645"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

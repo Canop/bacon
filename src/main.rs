@@ -2,10 +2,13 @@ mod app;
 mod args;
 mod cli;
 mod executor;
+mod default_package_config;
 mod display_settings;
 mod drawing;
+mod job;
 mod line;
 mod line_type;
+mod package_config;
 mod mission;
 mod report;
 mod scroll;
@@ -18,12 +21,15 @@ pub use {
     app::*,
     args::*,
     cli::*,
+    default_package_config::*,
     display_settings::*,
     executor::*,
     drawing::*,
+    job::*,
     line::*,
     line_type::*,
     mission::*,
+    package_config::*,
     report::*,
     scroll::*,
     state::*,
@@ -72,6 +78,6 @@ fn configure_log() {
 fn main() -> Result<()> {
     configure_log();
     cli::run()?;
-    debug!("bye");
+    info!("bye");
     Ok(())
 }
