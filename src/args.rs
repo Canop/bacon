@@ -13,19 +13,31 @@ pub struct Args {
     #[argh(switch, short = 'v')]
     pub version: bool,
 
+    /// print the path to the prefs file, create it if it doesn't exist
+    #[argh(switch)]
+    pub prefs: bool,
+
     /// start in summary mode
     #[argh(switch, short = 's')]
     pub summary: bool,
+
+    /// start in full mode (not summary)
+    #[argh(switch, short = 'S')]
+    pub no_summary: bool,
 
     /// start with lines wrapped
     #[argh(switch, short = 'w')]
     pub wrap: bool,
 
+    /// start with lines not wrapped
+    #[argh(switch, short = 'W')]
+    pub no_wrap: bool,
+
     /// create a bacon.toml file, ready to be customized
     #[argh(switch)]
     pub init: bool,
 
-    /// the job to launch
+    /// job to launch ("check", "clippy", customized ones, ...)
     #[argh(option, short = 'j')]
     pub job: Option<String>,
 

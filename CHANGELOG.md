@@ -1,4 +1,8 @@
-### next
+
+<a name="v0.5.1"></a>
+### v0.5.1 - 2020/11/13
+* `bacon --prefs` shows or creates a prefs file which can be changed to defined default display settings
+(currently "summary" and "wrap")
 
 <a name="v0.5.0"></a>
 ### v0.5.0 - 2020/11/12
