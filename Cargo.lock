@@ -67,7 +67,7 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "bacon"
-version = "0.5.0"
+version = "0.5.1-dev"
 dependencies = [
  "anyhow",
  "argh",
@@ -798,15 +798,16 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.8.29"
+version = "0.8.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7645e0e5639e21f16e33030ac3ce9009cb0c25e7d04411eb0e7cab59066a2c9b"
+checksum = "a51afd77ab8afd6c5c62dc8edc9f4d0a8134116a298801042a0e14588385d120"
 dependencies = [
  "crossbeam",
  "crossterm",
  "lazy_static",
  "minimad",
  "thiserror",
+ "unicode-width",
 ]
 
 [[package]]

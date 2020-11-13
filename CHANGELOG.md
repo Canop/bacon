@@ -1,3 +1,5 @@
+### next
+
 <a name="v0.5.0"></a>
 ### v0.5.0 - 2020/11/12
 * `bacon --init` creates a default `bacon.toml` file which can be customized to add jobs or change the standard ones

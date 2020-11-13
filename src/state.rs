@@ -266,12 +266,13 @@ impl AppState {
                         sub_line.draw_line_type(w, &report)?;
                         write!(w, " ")?;
                         sub_line.draw(w, &report)?;
-                        if is_thumb(row_idx.into(), scrollbar) {
+                        if is_thumb(y.into(), scrollbar) {
                             execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                         }
                     }
                 }
             } else {
+                // unwrapped report
                 let mut lines = report
                     .lines
                     .iter()
@@ -289,8 +290,10 @@ impl AppState {
                         top_item_idx.get_or_insert(*item_idx);
                         line_type.draw(w, *item_idx)?;
                         write!(w, " ")?;
-                        content.draw(w)?;
-                        if is_thumb(row_idx.into(), scrollbar) {
+                        if width > line_type.cols() + 1 {
+                            content.draw_in(w, width - 1 - line_type.cols())?;
+                        }
+                        if is_thumb(y.into(), scrollbar) {
                             execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                         }
                     }
@@ -305,7 +308,7 @@ impl AppState {
                 if let Some(line) = lines.get(row_idx as usize + self.scroll) {
                     write!(w, "{}", line)?;
                 }
-                if is_thumb(row_idx.into(), scrollbar) {
+                if is_thumb(y.into(), scrollbar) {
                     execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                 }
             }

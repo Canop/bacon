@@ -2,6 +2,7 @@ use {
     crate::*,
     anyhow::*,
     std::io::Write,
+    termimad::StrFit,
     vte,
 };
 
@@ -52,6 +53,23 @@ impl TString {
         }
         Ok(())
     }
+    /// draw the string but without taking more than cols_max cols.
+    /// Return the number of cols written
+    pub fn draw_in(&self, w: &mut W, cols_max: usize) -> Result<usize> {
+        let fit = StrFit::make_cow(&self.raw, cols_max);
+        if self.csi.is_empty() {
+            write!(w, "{}", &fit.0)?;
+        } else {
+            write!(
+                w,
+                "{}{}{}",
+                &self.csi,
+                &fit.0,
+                CSI_RESET,
+            )?;
+        }
+        Ok(fit.1)
+    }
     pub fn starts_with(&self, csi: &str, raw: &str) -> bool {
         self.csi == csi && self.raw.starts_with(raw)
     }
@@ -89,6 +107,18 @@ impl TLine {
             ts.draw(w)?;
         }
         Ok(())
+    }
+    /// draw the line but without taking more than cols_max cols.
+    /// Return the number of cols written
+    pub fn draw_in(&self, w: &mut W, cols_max: usize) -> Result<usize> {
+        let mut cols = 0;
+        for ts in &self.strings {
+            if cols >= cols_max {
+                break;
+            }
+            cols += ts.draw_in(w, cols_max - cols)?;
+        }
+        Ok(cols)
     }
 }
 
