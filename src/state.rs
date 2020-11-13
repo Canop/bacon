@@ -98,9 +98,10 @@ impl AppState {
     fn fix_scroll(&mut self) {
         self.scroll = fix_scroll(self.scroll, self.content_height(), self.page_height());
     }
+    /// get the scroll value needed to go to the last item (if any)
     fn get_last_item_scroll(&self) -> usize {
         if let Some(report) = self.report.as_ref() {
-            if let Some(wrapped_report) = self.wrapped_report.as_ref() {
+            if let Some(wrapped_report) = self.wrapped_report.as_ref().filter(|_|self.wrap) {
                 let sub_lines = wrapped_report.sub_lines
                     .iter()
                     .filter(|line| {
