@@ -58,7 +58,7 @@ This file already contains some standard jobs. Add your own, for example
 command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "always"]
 ```
 
-(don't forget the `--color always` part: bacon use style information to recognize warnings and errors)
+*Don't forget the `--color always` part: bacon uses style information to recognize warnings and errors.*
 
 and run
 
@@ -68,15 +68,15 @@ and run
 
 ### What does it exactly do ?
 
-It watches the content of your `src` directory and launches `cargo check` on changes.
+It watches the content of your source directories and launches `cargo check` on changes.
 
 Watching and computations are done on background threads to prevent any blocking.
 
 The screen isn't cleaned until the compilation is finished to prevent flickering.
 
-Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report.
+Errors are displayed before warnings because you usually want to fix them first.
 
-Errors are displayed before warnings.
+Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report. And bacon manages rewrapping on resize.
 
 ### Can I run several bacon in parallel ?
 
@@ -84,7 +84,7 @@ It's perfectly OK and can be useful for example to check several compilation tar
 
 ### Can I contribute ?
 
-I'm very busy rewriting bacon to incorporate new features, some visible in issues, some not.
+I'm busy rewriting bacon to incorporate new features, some visible in issues, some not.
 
 I welcome issues, I welcome discussions in [chat](https://miaou.dystroy.org/3) or on GitHub, I welcome diagnostics and prototypes, but right now I won't try to merge pull requests and will probably, at best, consider their content as technical hints and research.
 

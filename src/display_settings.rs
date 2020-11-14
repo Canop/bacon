@@ -15,6 +15,9 @@ impl DisplaySettings {
         if let Some(b) = prefs.wrap {
             self.wrap = b;
         }
+        if let Some(b) = prefs.reverse {
+            self.reverse = b;
+        }
     }
     pub fn apply_args(&mut self, args: &Args) {
         if args.no_summary {
@@ -29,6 +32,12 @@ impl DisplaySettings {
         if args.wrap {
             self.wrap = true;
         }
+        if args.no_reverse {
+            self.reverse = false;
+        }
+        if args.reverse {
+            self.reverse = true;
+        }
     }
 }
 
@@ -37,7 +46,7 @@ impl Default for DisplaySettings {
         Self {
             summary: false,
             wrap: false,
-            reverse: true,
+            reverse: false,
         }
     }
 }

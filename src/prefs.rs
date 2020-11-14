@@ -15,12 +15,12 @@ use {
 pub struct Prefs {
     pub summary: Option<bool>,
     pub wrap: Option<bool>,
+    pub reverse: Option<bool>,
 }
 
 impl Prefs {
     pub fn from_path(path: &Path) -> Result<Self> {
-        let prefs = toml::from_str::<Prefs>(&fs::read_to_string(path)?)?;
-        Ok(prefs)
+        Ok(toml::from_str(&fs::read_to_string(path)?)?)
     }
 }
 

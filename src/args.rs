@@ -33,6 +33,14 @@ pub struct Args {
     #[argh(switch, short = 'W')]
     pub no_wrap: bool,
 
+    /// start with gui vertical order reversed
+    #[argh(switch)]
+    pub reverse: bool,
+
+    /// start with standard gui order (focus on top)
+    #[argh(switch)]
+    pub no_reverse: bool,
+
     /// create a bacon.toml file, ready to be customized
     #[argh(switch)]
     pub init: bool,

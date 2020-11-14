@@ -17,9 +17,13 @@ impl ScrollCommand {
     }
     /// compute the new scroll value
     pub fn apply(self, scroll: usize, content_height: usize, page_height: usize) -> usize {
-        (scroll as i32 + self.to_lines(content_height, page_height))
-            .min(content_height as i32 - page_height as i32)
-            .max(0) as usize
+        if content_height > page_height {
+            (scroll as i32 + self.to_lines(content_height, page_height))
+                .min((content_height - page_height - 1) as i32)
+                .max(0) as usize
+        } else {
+            0
+        }
     }
 }
 
@@ -31,7 +35,9 @@ pub fn is_thumb(y: usize, scrollbar: Option<(u16, u16)>) -> bool {
 }
 
 pub fn fix_scroll(scroll: usize, content_height: usize, page_height: usize) -> usize {
-    (scroll as i32)
-        .min(content_height as i32 - page_height as i32)
-        .max(0) as usize
+    if content_height > page_height {
+        scroll.min(content_height - page_height - 1)
+    } else {
+        0
+    }
 }

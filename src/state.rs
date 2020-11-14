@@ -76,7 +76,7 @@ impl AppState {
         self.lines.get_or_insert_with(Vec::new).push(line);
         if self.auto_scroll {
             // if the user never scrolled, we'll stick to the bottom
-            self.apply_scroll_command(ScrollCommand::Bottom);
+            self.scroll_to_bottom();
         }
     }
     pub fn take_lines(&mut self) -> Option<Vec<String>> {
@@ -89,16 +89,41 @@ impl AppState {
         if self.reverse {
             report.reverse();
         }
-        if self.report.as_ref()
-            .map_or(true, |old_report| old_report.lines.len() != report.lines.len())
-        {
-            // we keep the scroll when the number of lines didn't change
-            self.scroll = 0;
-            self.top_item_idx = 0; // won't work in reverse!
+        // if the last line is empty, we remove it, to
+        // avoid a useless empty line at the end
+        if report.lines.last().map_or(false, |line| line.content.is_blank()) {
+            report.lines.pop();
         }
+        // we keep the scroll when the number of lines didn't change
+        let reset_scroll = self.report.as_ref()
+            .map_or(true, |old_report| old_report.lines.len() != report.lines.len());
         self.report = Some(report);
         self.wrapped_report = None;
         self.auto_scroll = false;
+        if reset_scroll {
+            self.reset_scroll();
+        }
+    }
+    fn scroll_to_top(&mut self) {
+        self.scroll = 0;
+        self.top_item_idx = 0;
+    }
+    fn scroll_to_bottom(&mut self) {
+        let ch = self.content_height();
+        let ph  = self.page_height();
+        self.scroll = if ch > ph {
+            ch - ph - 1
+        } else {
+            0
+        };
+        // we don't set top_item_idx - does it matter?
+    }
+    fn reset_scroll(&mut self) {
+        if self.reverse {
+            self.scroll_to_bottom();
+        } else {
+            self.scroll_to_top();
+        }
     }
     fn fix_scroll(&mut self) {
         self.scroll = fix_scroll(self.scroll, self.content_height(), self.page_height());
@@ -181,7 +206,11 @@ impl AppState {
     }
     fn draw_status(&self, w: &mut W, y: u16) -> Result<()> {
         let status = if self.report.is_some() {
-            "hit *q* to quit, *s* to toggle summary mode, *w* to toggle wrapping"
+            if self.wrap {
+                "hit *q* to quit, *s* to toggle summary mode, *w* to not wrap lines"
+            } else {
+                "hit *q* to quit, *s* to toggle summary mode, *w* to wrap lines"
+            }
         } else {
             "hit *q* to quit"
         };
@@ -201,13 +230,13 @@ impl AppState {
         goto(w, y)?;
         let mut t_line = TLine::default();
         // white over grey
-        t_line.add_badge(TString::badge(&self.project_name, 254, 241));
+        t_line.add_badge(TString::badge(&self.project_name, 255, 240));
         // black over pink
         t_line.add_badge(TString::badge(&self.job_name, 235, 204));
         if let Some(report) = &self.report {
             let stats = &report.stats;
             if stats.errors > 0 {
-                t_line.add_badge(TString::num_badge(stats.errors, "error", 235, 160));
+                t_line.add_badge(TString::num_badge(stats.errors, "error", 235, 9));
             }
             if stats.warnings > 0 {
                 t_line.add_badge(TString::num_badge(stats.warnings, "warning", 235, 11));
@@ -288,17 +317,16 @@ impl AppState {
                         item_idx,
                         line_type,
                         content,
-                    }) = lines.next()
-                    {
+                    }) = lines.next() {
                         top_item_idx.get_or_insert(*item_idx);
                         line_type.draw(w, *item_idx)?;
                         write!(w, " ")?;
                         if width > line_type.cols() + 1 {
                             content.draw_in(w, width - 1 - line_type.cols())?;
                         }
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
-                        }
+                    }
+                    if is_thumb(y.into(), scrollbar) {
+                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                     }
                 }
             }

@@ -142,6 +142,10 @@ impl TLine {
         }
         Ok(cols)
     }
+    pub fn is_blank(&self) -> bool {
+        return self.strings.iter()
+            .all(|s| s.raw.trim().is_empty())
+    }
 }
 
 #[derive(Debug, Default)]

@@ -13,5 +13,10 @@ pub static DEFAULT_PREFS: &str = r#"
 #
 # wrap = true
 
+# In "reverse" mode, the focus is at the bottom, item
+# order is reversed, and the status bar is on top
+#
+# reverse = true
+
 "#;
 
