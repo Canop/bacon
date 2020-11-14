@@ -1,4 +1,8 @@
 
+<a name="v0.5.2"></a>
+### v0.5.2 - 2020/11/14
+* fix bacon ending with an error when prefs file is missing
+
 <a name="v0.5.1"></a>
 ### v0.5.1 - 2020/11/13
 * `bacon --prefs` shows or creates a prefs file which can be changed to defined default display settings
