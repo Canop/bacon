@@ -59,9 +59,11 @@ pub fn run() -> Result<()> {
             }
             return Ok(());
         }
-        let prefs = Prefs::from_path(&prefs_path)?;
-        info!("prefs: {:#?}", &prefs);
-        display_settings.apply_prefs(&prefs);
+        if prefs_path.exists() {
+            let prefs = Prefs::from_path(&prefs_path)?;
+            info!("prefs: {:#?}", &prefs);
+            display_settings.apply_prefs(&prefs);
+        }
     }
 
     let package_config_path = location.package_config_path();
