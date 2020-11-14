@@ -28,6 +28,21 @@ pub struct TString {
     pub raw: String,
 }
 impl TString {
+    /// colors are 8bits ansi values
+    pub fn badge(con: &str, fg: u8, bg: u8) -> Self {
+        Self {
+            csi: format!("\u{1b}[1m\u{1b}[38;5;{}m\u{1b}[48;5;{}m", fg, bg),
+            raw: format!(" {} ", con),
+        }
+    }
+    pub fn num_badge(num: usize, cat: &str, fg: u8, bg: u8) -> Self {
+        let raw = if num == 1 {
+            format!(" 1 {} ", cat)
+        } else {
+            format!(" {} {}s ", num, cat)
+        };
+        Self::badge(&raw, fg, bg)
+    }
     pub fn push_csi(&mut self, params: &[i64], action: char) {
         self.csi.push('\u{1b}');
         self.csi.push('[');
@@ -101,6 +116,13 @@ impl TLine {
             parser.advance(&mut builder, byte);
         }
         builder.to_tline()
+    }
+    pub fn add_badge(&mut self, badge: TString) {
+        self.strings.push(badge);
+        self.strings.push(TString {
+            csi: "".to_string(),
+            raw: " ".to_string(),
+        });
     }
     pub fn draw(&self, w: &mut W) -> Result<()> {
         for ts in &self.strings {

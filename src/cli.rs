@@ -19,13 +19,13 @@ use {
 /// us output something if we want (for a calling process) but
 /// as I'm not sure I'll even have something to output, I may
 /// switch to stdout which would allow buffering.
-pub type W = std::io::Stderr;
-//pub type W = std::io::BufWriter<std::io::Stdout>;
+//pub type W = std::io::Stderr;
+pub type W = std::io::BufWriter<std::io::Stdout>;
 
 /// return the writer used by the application
 pub fn writer() -> W {
-    std::io::stderr()
-    //std::io::BufWriter::new(std::io::stdout())
+    //std::io::stderr()
+    std::io::BufWriter::new(std::io::stdout())
 }
 
 pub fn run() -> Result<()> {

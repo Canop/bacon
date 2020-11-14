@@ -24,6 +24,12 @@ impl Report {
         Self::from_err_lines(lines)
     }
 
+    /// change the order of the lines so that items are in reverse order
+    /// (but keep the order of lines of a given item)
+    pub fn reverse(&mut self) {
+        self.lines.sort_by_key(|line| std::cmp::Reverse(line.item_idx));
+    }
+
     /// compute the report from the lines of stderr of `cargo watch`
     pub fn from_err_lines(err_lines: Vec<String>) -> Result<Report> {
         // we first accumulate warnings and errors in separate vectors
@@ -32,7 +38,7 @@ impl Report {
         let mut cur_kind = None;
         for content in err_lines {
             let content = TLine::from_tty(&content);
-            debug!("content: {:#?}", &content);
+            //debug!("content: {:#?}", &content);
             let line_type = LineType::from(&content);
             debug!(" ===> line_type: {:?}", line_type);
             match line_type {

@@ -3,7 +3,7 @@ use {
     anyhow::*,
     crossterm::{
         cursor, execute,
-        style::{Attribute, Color::*, Colorize, Print, Styler},
+        style::{Attribute, Color::*, Print},
     },
     minimad::{Alignment, Composite},
     std::io::Write,
@@ -34,6 +34,7 @@ pub struct AppState {
     pub wrap: bool,
     /// whether we should display only titles and locations
     summary: bool,
+    reverse: bool,
     /// colors and styles used for status bar
     status_skin: MadSkin,
     /// number of lines hidden on top due to scroll
@@ -61,6 +62,7 @@ impl AppState {
             computing: true,
             summary: mission.display_settings.summary,
             wrap: mission.display_settings.wrap,
+            reverse: mission.display_settings.reverse,
             status_skin,
             scroll: 0,
             auto_scroll: true,
@@ -83,13 +85,16 @@ impl AppState {
     pub fn has_report(&self) -> bool {
         self.report.is_some()
     }
-    pub fn set_report(&mut self, report: Report) {
+    pub fn set_report(&mut self, mut report: Report) {
+        if self.reverse {
+            report.reverse();
+        }
         if self.report.as_ref()
             .map_or(true, |old_report| old_report.lines.len() != report.lines.len())
         {
             // we keep the scroll when the number of lines didn't change
             self.scroll = 0;
-            self.top_item_idx = 0;
+            self.top_item_idx = 0; // won't work in reverse!
         }
         self.report = Some(report);
         self.wrapped_report = None;
@@ -174,9 +179,14 @@ impl AppState {
         self.apply_scroll_command(cmd);
         self.draw(w)
     }
-    fn draw_status(&self, w: &mut W, status: &str) -> Result<()> {
+    fn draw_status(&self, w: &mut W, y: u16) -> Result<()> {
+        let status = if self.report.is_some() {
+            "hit *q* to quit, *s* to toggle summary mode, *w* to toggle wrapping"
+        } else {
+            "hit *q* to quit"
+        };
         if self.height > 1 {
-            goto(w, self.height)?;
+            goto(w, y)?;
             self.status_skin.write_composite_fill(
                 w,
                 Composite::from_inline(status),
@@ -186,55 +196,47 @@ impl AppState {
         }
         Ok(())
     }
-    fn draw_project_name(&self, w: &mut W) -> Result<()> {
-        write!(w, "{} ", format!(" {} ", &self.project_name).white().bold().on_dark_grey())?;
-        Ok(())
-    }
-    fn draw_job_name(&self, w: &mut W) -> Result<()> {
+    /// draw the line of colored badges, usually on top
+    pub fn draw_badges(&mut self, w: &mut W, y: u16) -> Result<usize> {
+        goto(w, y)?;
+        let mut t_line = TLine::default();
+        // white over grey
+        t_line.add_badge(TString::badge(&self.project_name, 254, 241));
         // black over pink
-        write!(w, "\u{1b}[1m\u{1b}[38;5;235m\u{1b}[48;5;204m {} \u{1b}[0m ", &self.job_name)?;
-        Ok(())
-    }
-    /// draw the state on the whole terminal
-    pub fn draw(&mut self, w: &mut W) -> Result<()> {
-        let width = self.width as usize;
-        goto(w, 0)?;
-        //// colored badges on top
-        self.draw_project_name(w)?;
-        self.draw_job_name(w)?;
+        t_line.add_badge(TString::badge(&self.job_name, 235, 204));
         if let Some(report) = &self.report {
             let stats = &report.stats;
             if stats.errors > 0 {
-                let s = if stats.errors == 1 {
-                    " 1 error ".to_string()
-                } else {
-                    format!(" {} errors ", stats.errors)
-                };
-                write!(w, "{} ", s.black().bold().on_red())?;
+                t_line.add_badge(TString::num_badge(stats.errors, "error", 235, 160));
             }
             if stats.warnings > 0 {
-                let s = if stats.warnings == 1 {
-                    " 1 warning ".to_string()
-                } else {
-                    format!(" {} warnings ", stats.warnings)
-                };
-                write!(w, "{} ", s.black().bold().on_yellow())?;
+                t_line.add_badge(TString::num_badge(stats.warnings, "warning", 235, 11));
             }
             if stats.items() == 0 {
-                write!(w, "{} ", " pass! ".white().bold().on_dark_green())?;
+                t_line.add_badge(TString::badge("pass!", 254, 2));
             }
         }
-        //// computing...
-        goto(w, 1)?;
+        let width = self.width as usize;
+        t_line.draw_in(w, width)
+    }
+    /// draw either "computing..." or a blank line
+    pub fn draw_computing(&mut self, w: &mut W, y:u16) -> Result<()> {
+        goto(w, y)?;
         if self.computing {
+            let width = self.width as usize;
             //write!(w, "{}", format!("{:^w$}", "computing...", w = width).white().on_dark_grey())?;
             write!(w, "\u{1b}[38;5;235m\u{1b}[48;5;204m{:^w$}\u{1b}[0m", "computing...", w = width)?;
         }
-        //// content
+        Ok(())
+    }
+    /// draw the report or the lines of the current computation, between
+    /// y and self.page_height()
+    pub fn draw_content(&mut self, w: &mut W, y:u16) -> Result<()> {
         if self.height < 4 {
-            return self.draw_status(w, "terminal too small");
+            return Ok(());
         }
-        let mut area = Area::new(0, 2, self.width, self.page_height() as u16);
+        let width = self.width as usize;
+        let mut area = Area::new(0, y, self.width, self.page_height() as u16);
         let content_height = self.content_height();
         let scrollbar = area.scrollbar(self.scroll as i32, content_height as i32);
         if scrollbar.is_some() {
@@ -314,13 +316,21 @@ impl AppState {
                 }
             }
         }
-        //// Status bar
-        let status = if self.report.is_some() {
-            "hit *q* to quit, *s* to toggle summary mode, *w* to toggle wrapping"
+        Ok(())
+    }
+    /// draw the state on the whole terminal
+    pub fn draw(&mut self, w: &mut W) -> Result<()> {
+        if self.reverse {
+            self.draw_status(w, 0)?;
+            self.draw_content(w, 1)?;
+            self.draw_computing(w, self.height - 2)?;
+            self.draw_badges(w, self.height - 1)?;
         } else {
-            "hit *q* to quit"
-        };
-        self.draw_status(w, status)?;
+            self.draw_badges(w, 0)?;
+            self.draw_computing(w, 1)?;
+            self.draw_content(w, 2)?;
+            self.draw_status(w, self.height - 1)?;
+        }
         w.flush()?;
         Ok(())
     }

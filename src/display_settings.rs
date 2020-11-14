@@ -4,6 +4,7 @@ use crate::*;
 pub struct DisplaySettings {
     pub summary: bool,
     pub wrap: bool,
+    pub reverse: bool,
 }
 
 impl DisplaySettings {
@@ -36,6 +37,7 @@ impl Default for DisplaySettings {
         Self {
             summary: false,
             wrap: false,
+            reverse: true,
         }
     }
 }
