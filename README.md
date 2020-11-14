@@ -68,7 +68,7 @@ and run
 
 ### What does it exactly do ?
 
-It watches the content of your source directories and launches `cargo check` on changes.
+It watches the content of your source directories and launches `cargo check` or other commands on changes.
 
 Watching and computations are done on background threads to prevent any blocking.
 
