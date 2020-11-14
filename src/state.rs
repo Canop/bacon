@@ -244,7 +244,9 @@ impl AppState {
             }
         }
         let width = self.width as usize;
-        t_line.draw_in(w, width)
+        let cols = t_line.draw_in(w, width)?;
+        clear_line(w)?;
+        Ok(cols)
     }
     /// draw either "computing..." or a blank line
     pub fn draw_computing(&mut self, w: &mut W, y:u16) -> Result<()> {
@@ -253,6 +255,8 @@ impl AppState {
             let width = self.width as usize;
             //write!(w, "{}", format!("{:^w$}", "computing...", w = width).white().on_dark_grey())?;
             write!(w, "\u{1b}[38;5;235m\u{1b}[48;5;204m{:^w$}\u{1b}[0m", "computing...", w = width)?;
+        } else {
+            clear_line(w)?;
         }
         Ok(())
     }
@@ -296,9 +300,10 @@ impl AppState {
                         sub_line.draw_line_type(w, &report)?;
                         write!(w, " ")?;
                         sub_line.draw(w, &report)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
-                        }
+                    }
+                    clear_line(w)?;
+                    if is_thumb(y.into(), scrollbar) {
+                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                     }
                 }
             } else {
@@ -323,6 +328,7 @@ impl AppState {
                             content.draw_in(w, width - 1 - line_type.cols())?;
                         }
                     }
+                    clear_line(w)?;
                     if is_thumb(y.into(), scrollbar) {
                         execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                     }
@@ -337,6 +343,7 @@ impl AppState {
                 if let Some(line) = lines.get(row_idx as usize + self.scroll) {
                     write!(w, "{}", line)?;
                 }
+                clear_line(w)?;
                 if is_thumb(y.into(), scrollbar) {
                     execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                 }
