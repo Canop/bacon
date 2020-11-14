@@ -39,8 +39,6 @@ pub struct AppState {
     status_skin: MadSkin,
     /// number of lines hidden on top due to scroll
     scroll: usize,
-    /// auto-scroll to bottom on line addition
-    auto_scroll: bool,
     /// item_idx of the item which was on top on last draw
     top_item_idx: usize,
 }
@@ -65,7 +63,6 @@ impl AppState {
             reverse: mission.display_settings.reverse,
             status_skin,
             scroll: 0,
-            auto_scroll: true,
             top_item_idx: 0,
         })
     }
@@ -73,8 +70,9 @@ impl AppState {
 
 impl AppState {
     pub fn add_line(&mut self, line: String) {
+        let auto_scroll = self.is_scroll_at_bottom();
         self.lines.get_or_insert_with(Vec::new).push(line);
-        if self.auto_scroll {
+        if auto_scroll {
             // if the user never scrolled, we'll stick to the bottom
             self.scroll_to_bottom();
         }
@@ -99,7 +97,6 @@ impl AppState {
             .map_or(true, |old_report| old_report.lines.len() != report.lines.len());
         self.report = Some(report);
         self.wrapped_report = None;
-        self.auto_scroll = false;
         if reset_scroll {
             self.reset_scroll();
         }
@@ -110,13 +107,16 @@ impl AppState {
     }
     fn scroll_to_bottom(&mut self) {
         let ch = self.content_height();
-        let ph  = self.page_height();
+        let ph = self.page_height();
         self.scroll = if ch > ph {
             ch - ph - 1
         } else {
             0
         };
         // we don't set top_item_idx - does it matter?
+    }
+    fn is_scroll_at_bottom(&self) -> bool {
+        self.scroll + self.page_height() + 1 >= self.content_height()
     }
     fn reset_scroll(&mut self) {
         if self.reverse {
@@ -199,8 +199,6 @@ impl AppState {
         );
     }
     pub fn scroll(&mut self, w: &mut W, cmd: ScrollCommand) -> Result<()> {
-        debug!("user scroll command: {:?}", cmd);
-        self.auto_scroll = false;
         self.apply_scroll_command(cmd);
         self.draw(w)
     }

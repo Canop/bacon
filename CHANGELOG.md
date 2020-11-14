@@ -2,6 +2,7 @@
 <a name="v0.5.3"></a>
 ### v0.5.3 - not yet released
 * --reverse option allows having the focus on bottom - Fix #19
+* initial compilation autoscroll based on scroll position - Fix #22
 
 <a name="v0.5.2"></a>
 ### v0.5.2 - 2020/11/14
