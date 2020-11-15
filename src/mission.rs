@@ -152,5 +152,10 @@ impl Mission {
         command.current_dir(&self.cargo_execution_directory);
         command
     }
+
+    /// whether we need stdout and not just stderr
+    pub fn need_stdout(&self) -> bool {
+        self.job.need_stdout
+    }
 }
 

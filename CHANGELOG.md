@@ -1,4 +1,8 @@
 
+<a name="v0.6.0"></a>
+### v0.6.0 - 2020/11/15
+* `bacon test` shows test failures - Fix #3 - Note that you need to remove then rebuild your bacon.toml file to use this new job
+
 <a name="v0.5.3"></a>
 ### v0.5.3 - 2020/11/14
 * "reverse" option allows having the focus on bottom - Fix #19

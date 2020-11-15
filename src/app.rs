@@ -24,7 +24,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
     })?;
     mission.add_watchs(&mut watcher)?;
 
-    let executor = Executor::new(mission.get_command())?;
+    let executor = Executor::new(&mission)?;
     executor.start()?; // first computation
 
     let event_source = EventSource::new()?;
@@ -94,7 +94,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                     Ok(None) => {
                         // computation finished
                         if let Some(lines) = state.take_lines() {
-                            state.set_report(Report::from_err_lines(lines)?);
+                            state.set_report(Report::from_lines(lines)?);
                         } else {
                             warn!("a computation finished but didn't start?");
                         }

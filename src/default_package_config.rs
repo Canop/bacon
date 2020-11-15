@@ -10,8 +10,14 @@ default_job = "check"
 
 [jobs.check]
 command = ["cargo", "check", "--color", "always"]
+need_stdout = false
 
 [jobs.clippy]
 command = ["cargo", "clippy", "--color", "always"]
+need_stdout = false
+
+[jobs.test]
+command = ["cargo", "test", "--color", "always"]
+need_stdout = true
 
 "#;

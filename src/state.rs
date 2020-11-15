@@ -19,8 +19,8 @@ pub struct AppState {
     pub project_name: String,
     /// "check", "clippy", "test", "check_windows", etc.
     pub job_name: String,
-    /// the raw lines of a computation in progress
-    lines: Option<Vec<String>>,
+    /// the lines of a computation in progress
+    lines: Option<Vec<CommandOutputLine>>,
     /// a totally computed report
     report: Option<Report>,
     wrapped_report: Option<WrappedReport>,
@@ -69,7 +69,7 @@ impl AppState {
 }
 
 impl AppState {
-    pub fn add_line(&mut self, line: String) {
+    pub fn add_line(&mut self, line: CommandOutputLine) {
         let auto_scroll = self.is_scroll_at_bottom();
         self.lines.get_or_insert_with(Vec::new).push(line);
         if auto_scroll {
@@ -77,7 +77,7 @@ impl AppState {
             self.scroll_to_bottom();
         }
     }
-    pub fn take_lines(&mut self) -> Option<Vec<String>> {
+    pub fn take_lines(&mut self) -> Option<Vec<CommandOutputLine>> {
         self.lines.take()
     }
     pub fn has_report(&self) -> bool {
@@ -236,6 +236,9 @@ impl AppState {
             if stats.errors > 0 {
                 t_line.add_badge(TString::num_badge(stats.errors, "error", 235, 9));
             }
+            if stats.test_fails > 0 {
+                t_line.add_badge(TString::num_badge(stats.test_fails, "fail", 235, 208));
+            }
             if stats.warnings > 0 {
                 t_line.add_badge(TString::num_badge(stats.warnings, "warning", 235, 11));
             }
@@ -341,7 +344,7 @@ impl AppState {
                 let y = row_idx + area.top;
                 goto(w, y)?;
                 if let Some(line) = lines.get(row_idx as usize + self.scroll) {
-                    write!(w, "{}", line)?;
+                    line.content.draw_in(w, width)?;
                 }
                 clear_line(w)?;
                 if is_thumb(y.into(), scrollbar) {

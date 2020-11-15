@@ -15,15 +15,19 @@ use {
 ///
 /// Channel sizes are designed to avoid useless computations.
 pub struct Executor {
-    /// receiver for the channel into which command output lines are sent
-    pub line_receiver: Receiver<Result<Option<String>, String>>,
+    pub line_receiver: Receiver<Result<Option<CommandOutputLine>, String>>,
     task_sender: Sender<()>,
     stop_sender: Sender<()>, // signal for stopping the thread
     thread: thread::JoinHandle<()>,
 }
 
 impl Executor {
-    pub fn new(mut command: Command) -> Result<Self> {
+    /// launch the commands, sends the lines of its stderr on the
+    /// line channel.
+    /// If `with_stdout` captures and send also its stdout.
+    pub fn new(mission: &Mission) -> Result<Self> {
+        let mut command = mission.get_command();
+        let with_stdout = mission.need_stdout();
         let (task_sender, task_receiver) = bounded(1);
         let (stop_sender, stop_receiver) = bounded(0);
         let (line_sender, line_receiver) = unbounded();
@@ -32,9 +36,11 @@ impl Executor {
                 select! {
                     recv(task_receiver) -> _ => {
                         debug!("starting task");
-                        let child = command
-                            .stderr(Stdio::piped())
-                            .spawn();
+                        let mut command = command.stderr(Stdio::piped());
+                        if with_stdout {
+                            command = command.stdout(Stdio::piped());
+                        }
+                        let child = command.spawn();
                         let mut child = match child {
                             Ok(child) => child,
                             Err(e) => {
@@ -49,7 +55,40 @@ impl Executor {
                                 continue;
                             }
                         };
-                        for line in BufReader::new(stderr).lines() {
+                        // if we need stdout, we listen for in on a separate thread
+                        // (if somebody knows of an efficient and clean cross-platform way
+                        // to listen for both stderr and stdout on the same thread, please tell me)
+                        let out_thread = if with_stdout {
+                            let stdout = match child.stdout.take() {
+                                Some(stdout) => stdout,
+                                None => {
+                                    line_sender.send(Err("taking stdout failed".to_string())).unwrap();
+                                    continue;
+                                }
+                            };
+                            let line_sender = line_sender.clone();
+                            Some(thread::spawn(move|| {
+                                for line in BufReader::new(stdout).lines() {
+                                    let line = line
+                                        .map_err(|e| e.to_string())
+                                        .map(|l| {
+                                            Some(CommandOutputLine {
+                                                origin: CommandStream::StdOut,
+                                                content: TLine::from_tty(&l),
+                                            })
+                                        });
+                                    if let Err(e) = line_sender.send(line) {
+                                        debug!("error when sending stdout line: {}", e);
+                                        break;
+                                    }
+                                }
+                            }))
+                        } else {
+                            None
+                        };
+                        let mut buf = String::new();
+                        let mut buf_reader = BufReader::new(stderr);
+                        loop {
                             if let Ok(()) = stop_receiver.try_recv() {
                                 debug!("stopping during execution");
                                 match child.kill() {
@@ -58,16 +97,32 @@ impl Executor {
                                 }
                                 return;
                             }
-                            let line = line
-                                .map_err(|e| e.to_string())
-                                .map(|l| Some(l));
-                            if let Err(e) = line_sender.send(line) {
-                                debug!("error when sending line: {}", e);
+                            let r = match buf_reader.read_line(&mut buf) {
+                                Err(e) => Err(e.to_string()),
+                                Ok(0) => {
+                                    // finished
+                                    break;
+                                }
+                                Ok(_) => {
+                                    Ok(Some(CommandOutputLine {
+                                        origin: CommandStream::StdErr,
+                                        content: TLine::from_tty(buf.trim_end()),
+                                    }))
+                                }
+                            };
+                            if let Err(e) = line_sender.send(r) {
+                                debug!("error when sending stderr line: {}", e);
                                 break;
                             }
+                            buf.clear();
                         }
                         line_sender.send(Ok(None)).unwrap(); // <- "I finished" signal
                         debug!("finished command execution");
+                        if let Some(thread) = out_thread {
+                            debug!("waiting for out listening thread to join");
+                            thread.join().unwrap();
+                            debug!("out listening thread joined");
+                        }
                     }
                     recv(stop_receiver) -> _ => {
                         debug!("leaving thread");

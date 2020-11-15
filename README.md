@@ -45,6 +45,14 @@ or
 
     bacon clippy
 
+### run tests
+
+    bacon test
+
+![bacon test](doc/test.png)
+
+(this one is quite new and complex, please tell me whether it works for you)
+
 ### define your own jobs
 
 First create a `bacon.toml` file by running

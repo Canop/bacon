@@ -1,6 +1,7 @@
 mod app;
 mod args;
 mod cli;
+mod command_output;
 mod executor;
 mod default_package_config;
 mod default_prefs;
@@ -8,6 +9,7 @@ mod display_settings;
 mod drawing;
 mod job;
 mod line;
+mod line_analysis;
 mod line_type;
 mod package_config;
 mod mission;
@@ -23,6 +25,7 @@ pub use {
     app::*,
     args::*,
     cli::*,
+    command_output::*,
     default_package_config::*,
     default_prefs::*,
     display_settings::*,
@@ -30,6 +33,7 @@ pub use {
     drawing::*,
     job::*,
     line::*,
+    line_analysis::*,
     line_type::*,
     mission::*,
     package_config::*,

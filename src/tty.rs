@@ -9,8 +9,10 @@ use {
 pub const CSI_RESET: &str = "\u{1b}[0m\u{1b}[0m";
 pub const CSI_BOLD: &str = "\u{1b}[1m";
 pub const CSI_BOLD_RED: &str = "\u{1b}[1m\u{1b}[38;5;9m";
+pub const CSI_BOLD_ORANGE: &str = "\u{1b}[1m\u{1b}[38;5;208m";
 pub const CSI_BOLD_YELLOW: &str = "\u{1b}[1m\u{1b}[33m";
 pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;12m";
+pub const CSI_ITALIC: &str = "\u{1b}[3m";
 
 /// a simple representation of a colored and styled string.
 ///
@@ -22,7 +24,7 @@ pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;12m";
 /// - parse the csi params (it's simple enough to map but takes code)
 /// - use a simple state machine to keep style (bold, italic, etc.),
 ///    foreground color, and background color across tstrings
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct TString {
     pub csi: String,
     pub raw: String,
@@ -103,7 +105,7 @@ impl TString {
 /// terminal input or output.
 /// I recommend you to NOT try to reuse this hack in another
 /// project unless you perfectly understand it.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct TLine {
     pub strings: Vec<TString>,
 }
@@ -116,6 +118,44 @@ impl TLine {
             parser.advance(&mut builder, byte);
         }
         builder.to_tline()
+    }
+    pub fn from_raw(raw: String) -> Self {
+        Self {
+            strings: vec![TString {
+                csi: " ".to_string(),
+                raw,
+            }],
+        }
+    }
+    pub fn bold(raw: String) -> Self {
+        Self {
+            strings: vec![TString {
+                csi: CSI_BOLD.to_string(),
+                raw,
+            }],
+        }
+    }
+    pub fn italic(raw: String) -> Self {
+        Self {
+            strings: vec![TString {
+                csi: CSI_ITALIC.to_string(),
+                raw,
+            }],
+        }
+    }
+    pub fn failed(key: &str) -> Self {
+        Self {
+            strings: vec![
+                TString {
+                    csi: CSI_BOLD_ORANGE.to_string(),
+                    raw: "failed".to_string(),
+                },
+                TString {
+                    csi: CSI_BOLD.to_string(),
+                    raw: format!(": {}", key),
+                },
+            ],
+        }
     }
     pub fn add_badge(&mut self, badge: TString) {
         self.strings.push(badge);
@@ -145,6 +185,16 @@ impl TLine {
     pub fn is_blank(&self) -> bool {
         return self.strings.iter()
             .all(|s| s.raw.trim().is_empty())
+    }
+    // if this line has no style, return its content
+    pub fn if_unstyled(&self) -> Option<&str> {
+        if self.strings.len() == 1 {
+            self.strings.get(0)
+                .filter(|s| s.csi.is_empty())
+                .map(|s| s.raw.as_str())
+        } else {
+            None
+        }
     }
 }
 
