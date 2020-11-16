@@ -10,7 +10,6 @@ use {
     termimad::{Area, CompoundStyle, MadSkin},
 };
 
-
 /// contains the currently rendered state of the application,
 /// including scroll level and the current report (if any)
 pub struct AppState {
@@ -277,6 +276,16 @@ impl AppState {
             area.width -= 1;
         }
         let mut top_item_idx = None;
+        let top = if self.reverse && self.page_height() > content_height {
+            self.page_height() - content_height + 1
+        } else {
+            0
+        };
+        let top = area.top + top as u16;
+        for y in area.top..top {
+            goto(w, y)?;
+            clear_line(w)?;
+        };
         if let Some(report) = &self.report {
             if self.wrap {
                 if self.wrapped_report.is_none() {
@@ -294,7 +303,7 @@ impl AppState {
                     })
                     .skip(self.scroll);
                 for row_idx in 0..area.height {
-                    let y = row_idx + area.top;
+                    let y = row_idx + top;
                     goto(w, y)?;
                     if let Some(sub_line) = sub_lines.next() {
                         top_item_idx.get_or_insert_with(|| {
@@ -317,7 +326,7 @@ impl AppState {
                     .filter(|line| !(self.summary && line.line_type == LineType::Normal))
                     .skip(self.scroll);
                 for row_idx in 0..area.height {
-                    let y = row_idx + area.top;
+                    let y = row_idx + top;
                     goto(w, y)?;
                     if let Some(Line {
                         item_idx,
@@ -341,7 +350,7 @@ impl AppState {
         } else if let Some(lines) = &self.lines {
             // initial computation - report hasn't yet been computed
             for row_idx in 0..area.height {
-                let y = row_idx + area.top;
+                let y = row_idx + top;
                 goto(w, y)?;
                 if let Some(line) = lines.get(row_idx as usize + self.scroll) {
                     line.content.draw_in(w, width)?;
