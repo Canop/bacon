@@ -80,7 +80,7 @@ It watches the content of your source directories and launches `cargo check` or 
 
 Watching and computations are done on background threads to prevent any blocking.
 
-The screen isn't cleaned until the compilation is finished to prevent flickering.
+The screen isn't cleaned until the compilation is finished to prevent useful information from being replaced by the lines of an unfinished computation.
 
 Errors are displayed before warnings because you usually want to fix them first.
 
