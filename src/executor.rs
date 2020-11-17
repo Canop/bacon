@@ -9,10 +9,9 @@ use {
     },
 };
 
-/// an executor calling `cargo watch` in a separate
-/// thread when asked to and sending the lines of
-/// output in a channel, and finishing by None.
-///
+/// an executor calling a cargo (or similar) command in a separate
+/// thread when asked to and sending the lines of output in a channel,
+/// and finishing by None.
 /// Channel sizes are designed to avoid useless computations.
 pub struct Executor {
     pub line_receiver: Receiver<Result<Option<CommandOutputLine>, String>>,
@@ -36,10 +35,9 @@ impl Executor {
                 select! {
                     recv(task_receiver) -> _ => {
                         debug!("starting task");
-                        let mut command = command.stderr(Stdio::piped());
-                        if with_stdout {
-                            command = command.stdout(Stdio::piped());
-                        }
+                        command
+                            .stderr(Stdio::piped())
+                            .stdout(if with_stdout { Stdio::piped() } else { Stdio::null() });
                         let child = command.spawn();
                         let mut child = match child {
                             Ok(child) => child,
@@ -68,19 +66,28 @@ impl Executor {
                             };
                             let line_sender = line_sender.clone();
                             Some(thread::spawn(move|| {
-                                for line in BufReader::new(stdout).lines() {
-                                    let line = line
-                                        .map_err(|e| e.to_string())
-                                        .map(|l| {
-                                            Some(CommandOutputLine {
+                                let mut buf = String::new();
+                                let mut buf_reader = BufReader::new(stdout);
+                                loop {
+                                    let r = match buf_reader.read_line(&mut buf) {
+                                        Err(e) => Err(e.to_string()),
+                                        Ok(0) => {
+                                            // finished
+                                            break;
+                                        }
+                                        Ok(_) => {
+                                            debug!("STDOUT : {:?}", &buf);
+                                            Ok(Some(CommandOutputLine {
                                                 origin: CommandStream::StdOut,
-                                                content: TLine::from_tty(&l),
-                                            })
-                                        });
-                                    if let Err(e) = line_sender.send(line) {
+                                                content: TLine::from_tty(buf.trim_end()),
+                                            }))
+                                        }
+                                    };
+                                    if let Err(e) = line_sender.send(r) {
                                         debug!("error when sending stdout line: {}", e);
                                         break;
                                     }
+                                    buf.clear();
                                 }
                             }))
                         } else {
@@ -104,6 +111,7 @@ impl Executor {
                                     break;
                                 }
                                 Ok(_) => {
+                                    debug!("STDERR : {:?}", &buf);
                                     Ok(Some(CommandOutputLine {
                                         origin: CommandStream::StdErr,
                                         content: TLine::from_tty(buf.trim_end()),

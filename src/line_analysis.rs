@@ -1,8 +1,6 @@
 use crate::*;
 
-/// This is the result of the "parsing" of the line,
-/// which will tell us what we need to know about its
-/// content
+/// result of the "parsing" of the line
 #[derive(Debug, Clone)]
 pub struct LineAnalysis {
     pub line_type: LineType,

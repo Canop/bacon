@@ -14,8 +14,8 @@ use {
 /// along a `Cargo.toml` file
 #[derive(Debug, Clone, Deserialize)]
 pub struct PackageConfig {
-    pub default_job: String,
-    pub jobs: HashMap<String, Job>,
+    default_job: String,
+    jobs: HashMap<String, Job>,
 }
 
 impl PackageConfig {

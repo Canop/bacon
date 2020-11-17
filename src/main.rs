@@ -53,7 +53,7 @@ use {
     anyhow::*,
     log::LevelFilter,
     simplelog,
-    std::{env, fs::File, process::Command, str::FromStr},
+    std::{env, fs::File, str::FromStr},
 };
 
 /// configure the application log according to env variable.

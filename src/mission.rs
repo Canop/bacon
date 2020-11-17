@@ -7,6 +7,7 @@ use {
         env,
         fs,
         path::PathBuf,
+        process::Command,
     },
 };
 

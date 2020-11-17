@@ -27,5 +27,8 @@ toml = "0.5"
 unicode-width = "0.1.8"
 vte = "0.8"
 
+[profile.release]
+lto = true
+
 [patch.crates-io]
 # termimad = { path = "../termimad" }

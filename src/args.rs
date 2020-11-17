@@ -63,7 +63,6 @@ impl Args {
     /// allowing to skip writing `-j`, `-p`, or both.
     /// To be used, they must be copied to the `job` or
     /// `path` values.
-    ///
     pub fn fix(&mut self) -> Result<()> {
         let mut args = self.args.drain(..);
         match (args.next(), args.next(), self.job.is_none(), self.path.is_none()) {
