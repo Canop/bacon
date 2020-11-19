@@ -33,7 +33,8 @@ pub fn run() -> Result<()> {
     args.fix()?;
     if args.version {
         println!(
-            "bac\u{1b}[38;5;204mo\u{1b}[0mn {}",
+            //"bac\u{1b}[38;5;204mo\u{1b}[0mn {}",
+            "bac\u{1b}[1m\u{1b}[38;5;204m⚉\u{1b}[0mn {}",
             env!("CARGO_PKG_VERSION"),
         );
         return Ok(());

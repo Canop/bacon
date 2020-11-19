@@ -1,4 +1,8 @@
 
+<a name="v1.0.0"></a>
+### v1.0.0 - 2020/11/19
+* nothing new... so it's stable enough to be tagged 1.0
+
 <a name="v0.6.0"></a>
 ### v0.6.0 - 2020/11/15
 * `bacon test` shows test failures - Fix #3 - Note that you need to remove then rebuild your bacon.toml file to use this new job
