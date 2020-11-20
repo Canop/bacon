@@ -90,12 +90,6 @@ Rendering is adapted to the dimensions of the terminal to ensure you get a prope
 
 It's perfectly OK and can be useful for example to check several compilation targets.
 
-### Can I contribute ?
-
-I'm busy rewriting bacon to incorporate new features, some visible in issues, some not.
-
-I welcome issues, I welcome discussions in [chat](https://miaou.dystroy.org/3) or on GitHub, I welcome diagnostics and prototypes, but right now I won't try to merge pull requests and will probably, at best, consider their content as technical hints and research.
-
 ### What are the supported platforms ?
 
 It works on all decent terminals on Linux, Max OSX and Windows.
