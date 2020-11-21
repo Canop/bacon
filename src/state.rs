@@ -41,6 +41,7 @@ pub struct AppState {
     /// item_idx of the item which was on top on last draw
     top_item_idx: usize,
 }
+
 impl AppState {
     pub fn new(mission: &Mission) -> Result<Self> {
         let mut status_skin = MadSkin::default();
@@ -57,9 +58,9 @@ impl AppState {
             width,
             height,
             computing: true,
-            summary: mission.display_settings.summary,
-            wrap: mission.display_settings.wrap,
-            reverse: mission.display_settings.reverse,
+            summary: mission.settings.summary,
+            wrap: mission.settings.wrap,
+            reverse: mission.settings.reverse,
             status_skin,
             scroll: 0,
             top_item_idx: 0,

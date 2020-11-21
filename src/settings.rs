@@ -1,13 +1,14 @@
 use crate::*;
 
 #[derive(Debug, Clone, Copy)]
-pub struct DisplaySettings {
+pub struct Settings {
     pub summary: bool,
     pub wrap: bool,
     pub reverse: bool,
+    pub vim_keys: bool,
 }
 
-impl DisplaySettings {
+impl Settings {
     pub fn apply_prefs(&mut self, prefs: &Prefs) {
         if let Some(b) = prefs.summary {
             self.summary = b;
@@ -17,6 +18,9 @@ impl DisplaySettings {
         }
         if let Some(b) = prefs.reverse {
             self.reverse = b;
+        }
+        if let Some(b) = prefs.vim_keys {
+            self.vim_keys = b;
         }
     }
     pub fn apply_args(&mut self, args: &Args) {
@@ -41,12 +45,13 @@ impl DisplaySettings {
     }
 }
 
-impl Default for DisplaySettings {
+impl Default for Settings {
     fn default() -> Self {
         Self {
             summary: false,
             wrap: false,
             reverse: false,
+            vim_keys: false,
         }
     }
 }

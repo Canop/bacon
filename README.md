@@ -94,6 +94,16 @@ It's perfectly OK and can be useful for example to check several compilation tar
 
 It works on all decent terminals on Linux, Max OSX and Windows.
 
+### Are there settings
+
+Yes, you can for example enable vim-like key bindings, or always start in summary mode or with lines wrapped.
+
+To create a default preferences file, use `bacon --prefs`.
+
+Shortcut:
+
+    $EDITOR $(bacon --prefs)
+
 ### Why "bacon" ?
 
 * It's a **bac**kground **con**piler.

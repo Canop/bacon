@@ -16,6 +16,7 @@ pub struct Prefs {
     pub summary: Option<bool>,
     pub wrap: Option<bool>,
     pub reverse: Option<bool>,
+    pub vim_keys: Option<bool>,
 }
 
 impl Prefs {

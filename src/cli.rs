@@ -43,44 +43,35 @@ pub fn run() -> Result<()> {
     let location = MissionLocation::new(&args)?;
     debug!("cargo_toml_file: {:?}", &location.cargo_toml_file);
 
-    let mut display_settings = DisplaySettings::default();
+    let mut settings = Settings::default();
 
     if let Some(project_dir) = ProjectDirs::from("org", "dystroy", "bacon") {
         let prefs_path = project_dir.config_dir().join("prefs.toml");
         if args.prefs {
-            if prefs_path.exists() {
-                println!("bacon prefs are at\n{:?}", &prefs_path);
-            } else {
+            if !prefs_path.exists() {
                 fs::create_dir_all(prefs_path.parent().unwrap())?;
                 fs::write(&prefs_path, DEFAULT_PREFS)?;
-                println!(
-                    "{:?} file written.\nYou can modify it.",
-                    &prefs_path,
-                );
+                // written to stderr to allow initialization with commands like
+                //  $EDITOR "$(bacon --prefs)"
+                eprintln!("Preferences file written.");
             }
+            println!("{}", prefs_path.to_string_lossy());
             return Ok(());
         }
         if prefs_path.exists() {
             let prefs = Prefs::from_path(&prefs_path)?;
             info!("prefs: {:#?}", &prefs);
-            display_settings.apply_prefs(&prefs);
+            settings.apply_prefs(&prefs);
         }
     }
 
     let package_config_path = location.package_config_path();
     if args.init {
-        if package_config_path.exists() {
-            eprintln!(
-                "{:?} already exists.\nPlease remove it before running bacon --init",
-                &package_config_path,
-            );
-        } else {
+        if !package_config_path.exists() {
             fs::write(&package_config_path, DEFAULT_PACKAGE_CONFIG)?;
-            println!(
-                "{:?} file written.\nYou can modify it.",
-                &package_config_path,
-            );
+            eprintln!("bacon project configuration file written.");
         }
+        println!("{}", package_config_path.to_string_lossy());
         return Ok(())
     }
     let package_config = if package_config_path.exists() {
@@ -90,13 +81,13 @@ pub fn run() -> Result<()> {
     };
 
     // args are applied after prefs, so that they can override them
-    display_settings.apply_args(&args);
+    settings.apply_args(&args);
 
     let mission = Mission::new(
         location,
         &package_config,
         args.job.as_deref(),
-        display_settings,
+        settings,
     )?;
     info!("mission: {:#?}", &mission);
     let mut w = writer();

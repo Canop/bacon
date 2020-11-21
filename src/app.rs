@@ -29,6 +29,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
 
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
+    let vim_keys = mission.settings.vim_keys;
     loop {
         select! {
             recv(user_events) -> user_event => {
@@ -65,8 +66,22 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                             (PageUp, _) => { state.scroll(w, ScrollCommand::Pages(-1))?; }
                             (PageDown, _) => { state.scroll(w, ScrollCommand::Pages(1))?; }
                             (Char(' '), _) => { state.scroll(w, ScrollCommand::Pages(1))?; }
+
+                            (Char('g'), KeyModifiers::NONE) if vim_keys => {
+                                state.scroll(w, ScrollCommand::Top)?;
+                            }
+                            (Char('G'), KeyModifiers::SHIFT) if vim_keys => {
+                                state.scroll(w, ScrollCommand::Bottom)?;
+                            }
+                            (Char('k'), KeyModifiers::NONE) if vim_keys => {
+                                state.scroll(w, ScrollCommand::Lines(-1))?;
+                            }
+                            (Char('j'), KeyModifiers::NONE) if vim_keys => {
+                                state.scroll(w, ScrollCommand::Lines(1))?;
+                            }
+
                             _ => {
-                                debug!("ignored key event: {:?}", user_event);
+                                info!("ignored key event: {:?}", user_event);
                             }
                         }
                     }

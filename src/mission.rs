@@ -72,7 +72,7 @@ pub struct Mission {
     job: Job,
     files_to_watch: Vec<PathBuf>,
     directories_to_watch: Vec<PathBuf>,
-    pub display_settings: DisplaySettings,
+    pub settings: Settings,
 }
 
 impl Mission {
@@ -80,7 +80,7 @@ impl Mission {
         location: MissionLocation,
         package_config: &PackageConfig,
         job_name: Option<&str>,
-        display_settings: DisplaySettings,
+        settings: Settings,
     ) -> Result<Self> {
         let add_all_src = location.intended_is_package;
         let (job_name, job) = package_config
@@ -126,7 +126,7 @@ impl Mission {
             job,
             files_to_watch,
             directories_to_watch,
-            display_settings,
+            settings,
         })
     }
 

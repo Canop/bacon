@@ -1,4 +1,7 @@
 
+### next version
+* vim key bindings can be enabled in prefs
+
 <a name="v1.0.0"></a>
 ### v1.0.0 - 2020/11/19
 * nothing new... so it's stable enough to be tagged 1.0

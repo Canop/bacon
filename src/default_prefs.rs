@@ -18,5 +18,10 @@ pub static DEFAULT_PREFS: &str = r#"
 #
 # reverse = true
 
+# Uncomment to enable vim like navigation
+# with g, G, j, k
+#
+# vim_keys = true
+
 "#;
 

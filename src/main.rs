@@ -5,7 +5,7 @@ mod command_output;
 mod executor;
 mod default_package_config;
 mod default_prefs;
-mod display_settings;
+mod settings;
 mod drawing;
 mod job;
 mod line;
@@ -28,7 +28,7 @@ pub use {
     command_output::*,
     default_package_config::*,
     default_prefs::*,
-    display_settings::*,
+    settings::*,
     executor::*,
     drawing::*,
     job::*,
