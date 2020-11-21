@@ -13,7 +13,7 @@
 
 **bacon** is a background rust code checker.
 
-It's designed for minimal interaction so that you can jut let it running, side to your editor, and be notified of warnings and errors in your Rust code.
+It's designed for minimal interaction so that you can just let it running, side to your editor, and be notified of warnings and errors in your Rust code.
 
 ![screenshot](doc/screenshot.png)
 
@@ -51,8 +51,6 @@ or
 
 ![bacon test](doc/test.png)
 
-(this one is quite new and complex, please tell me whether it works for you)
-
 ### define your own jobs
 
 First create a `bacon.toml` file by running
@@ -88,15 +86,17 @@ Rendering is adapted to the dimensions of the terminal to ensure you get a prope
 
 ### Can I run several bacon in parallel ?
 
-It's perfectly OK and can be useful for example to check several compilation targets.
+It's perfectly OK and can be useful to check several compilation targets.
+
+Similarly you don't have to stop bacon when you want to use cargo to build the application.
 
 ### What are the supported platforms ?
 
 It works on all decent terminals on Linux, Max OSX and Windows.
 
-### Are there settings
+### Are there settings ?
 
-Yes, you can for example enable vim-like key bindings, or always start in summary mode or with lines wrapped.
+Yes, they let you enable vim-like key bindings, or always start in summary mode or with lines wrapped.
 
 To create a default preferences file, use `bacon --prefs`.
 

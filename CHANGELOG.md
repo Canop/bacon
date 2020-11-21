@@ -1,6 +1,8 @@
 
-### next version
+<a name="v1.0.1"></a>
+### v1.0.1 - 2020/11/21
 * vim key bindings can be enabled in prefs
+* default job is now `cargo check --tests` to check the code for tests compiles too (without running them)
 
 <a name="v1.0.0"></a>
 ### v1.0.0 - 2020/11/19
