@@ -70,6 +70,23 @@ and run
 
     bacon check-win
 
+### configure clippy lints
+
+You can change the clippy job in the `bacon.toml` file:
+
+```
+[jobs.clippy]
+command = [
+	"cargo", "clippy",
+	"--color", "always",
+	"--",
+	"-A", "clippy::match_like_matches_macro",
+	"-A", "clippy::collapsible_if",
+	"-A", "clippy::module_inception",
+]
+need_stdout = false
+```
+
 ## FAQ
 
 ### What does it exactly do ?

@@ -33,6 +33,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
     loop {
         select! {
             recv(user_events) -> user_event => {
+                debug!("key event: {:?}", user_event);
                 match user_event? {
                     Event::Resize(width, height) => {
                         state.resize(width, height);
@@ -79,10 +80,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                             (Char('j'), KeyModifiers::NONE) if vim_keys => {
                                 state.scroll(w, ScrollCommand::Lines(1))?;
                             }
-
-                            _ => {
-                                info!("ignored key event: {:?}", user_event);
-                            }
+                            _ => {}
                         }
                     }
                     _ => {}
