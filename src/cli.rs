@@ -6,11 +6,7 @@ use {
         QueueableCommand,
     },
     directories_next::ProjectDirs,
-    std::{
-        env,
-        fs,
-        io::Write,
-    },
+    std::{env, fs, io::Write},
 };
 
 /// the type used by all GUI writing functions
@@ -72,7 +68,7 @@ pub fn run() -> Result<()> {
             eprintln!("bacon project configuration file written.");
         }
         println!("{}", package_config_path.to_string_lossy());
-        return Ok(())
+        return Ok(());
     }
     let package_config = if package_config_path.exists() {
         PackageConfig::from_path(&package_config_path)?
@@ -83,12 +79,7 @@ pub fn run() -> Result<()> {
     // args are applied after prefs, so that they can override them
     settings.apply_args(&args);
 
-    let mission = Mission::new(
-        location,
-        &package_config,
-        args.job.as_deref(),
-        settings,
-    )?;
+    let mission = Mission::new(location, &package_config, args.job.as_deref(), settings)?;
     info!("mission: {:#?}", &mission);
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;

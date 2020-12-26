@@ -1,7 +1,7 @@
 use {
     crate::*,
     anyhow::*,
-    crossbeam::channel::{bounded, unbounded, select, Receiver, Sender},
+    crossbeam::channel::{bounded, select, unbounded, Receiver, Sender},
     std::{
         io::{BufRead, BufReader},
         process::Stdio,
@@ -14,7 +14,7 @@ use {
 /// and finishing by None.
 /// Channel sizes are designed to avoid useless computations.
 pub struct Executor {
-    pub line_receiver: Receiver<Result<Option<CommandOutputLine>, String>>,
+    pub line_receiver: Receiver<CommandExecInfo>,
     task_sender: Sender<()>,
     stop_sender: Sender<()>, // signal for stopping the thread
     thread: thread::JoinHandle<()>,
@@ -42,14 +42,18 @@ impl Executor {
                         let mut child = match child {
                             Ok(child) => child,
                             Err(e) => {
-                                line_sender.send(Err(format!("command launch failed: {}", e))).unwrap();
+                                line_sender.send(CommandExecInfo::Error(
+                                    format!("command launch failed: {}", e)
+                                )).unwrap();
                                 continue;
                             }
                         };
                         let stderr = match child.stderr.take() {
                             Some(stderr) => stderr,
                             None => {
-                                line_sender.send(Err("taking stderr failed".to_string())).unwrap();
+                                line_sender.send(CommandExecInfo::Error(
+                                    "taking stderr failed".to_string()
+                                )).unwrap();
                                 continue;
                             }
                         };
@@ -60,7 +64,9 @@ impl Executor {
                             let stdout = match child.stdout.take() {
                                 Some(stdout) => stdout,
                                 None => {
-                                    line_sender.send(Err("taking stdout failed".to_string())).unwrap();
+                                    line_sender.send(CommandExecInfo::Error(
+                                        "taking stdout failed".to_string()
+                                    )).unwrap();
                                     continue;
                                 }
                             };
@@ -70,17 +76,17 @@ impl Executor {
                                 let mut buf_reader = BufReader::new(stdout);
                                 loop {
                                     let r = match buf_reader.read_line(&mut buf) {
-                                        Err(e) => Err(e.to_string()),
+                                        Err(e) => CommandExecInfo::Error(e.to_string()),
                                         Ok(0) => {
                                             // finished
                                             break;
                                         }
                                         Ok(_) => {
-                                            debug!("STDOUT : {:?}", &buf);
-                                            Ok(Some(CommandOutputLine {
+                                            // debug!("STDOUT : {:?}", &buf);
+                                            CommandExecInfo::Line(CommandOutputLine {
                                                 origin: CommandStream::StdOut,
                                                 content: TLine::from_tty(buf.trim_end()),
-                                            }))
+                                            })
                                         }
                                     };
                                     if let Err(e) = line_sender.send(r) {
@@ -105,17 +111,17 @@ impl Executor {
                                 return;
                             }
                             let r = match buf_reader.read_line(&mut buf) {
-                                Err(e) => Err(e.to_string()),
+                                Err(e) => CommandExecInfo::Error(e.to_string()),
                                 Ok(0) => {
                                     // finished
                                     break;
                                 }
                                 Ok(_) => {
-                                    debug!("STDERR : {:?}", &buf);
-                                    Ok(Some(CommandOutputLine {
+                                    // debug!("STDERR : {:?}", &buf);
+                                    CommandExecInfo::Line(CommandOutputLine {
                                         origin: CommandStream::StdErr,
                                         content: TLine::from_tty(buf.trim_end()),
-                                    }))
+                                    })
                                 }
                             };
                             if let Err(e) = line_sender.send(r) {
@@ -124,7 +130,17 @@ impl Executor {
                             }
                             buf.clear();
                         }
-                        line_sender.send(Ok(None)).unwrap(); // <- "I finished" signal
+                        let status = match child.wait() {
+                            Ok(exit_status) => {
+                                debug!("exit_status: {:?}", &exit_status);
+                                Some(exit_status)
+                            }
+                            Err(e) => {
+                                warn!("error in child: {:?}", e);
+                                None
+                            }
+                        };
+                        line_sender.send(CommandExecInfo::End { status }).unwrap();
                         debug!("finished command execution");
                         if let Some(thread) = out_thread {
                             debug!("waiting for out listening thread to join");

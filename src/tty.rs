@@ -60,13 +60,7 @@ impl TString {
         if self.csi.is_empty() {
             write!(w, "{}", &self.raw)?;
         } else {
-            write!(
-                w,
-                "{}{}{}",
-                &self.csi,
-                &self.raw,
-                CSI_RESET,
-            )?;
+            write!(w, "{}{}{}", &self.csi, &self.raw, CSI_RESET,)?;
         }
         Ok(())
     }
@@ -77,13 +71,7 @@ impl TString {
         if self.csi.is_empty() {
             write!(w, "{}", &fit.0)?;
         } else {
-            write!(
-                w,
-                "{}{}{}",
-                &self.csi,
-                &fit.0,
-                CSI_RESET,
-            )?;
+            write!(w, "{}{}{}", &self.csi, &fit.0, CSI_RESET,)?;
         }
         Ok(fit.1)
     }
@@ -183,13 +171,13 @@ impl TLine {
         Ok(cols)
     }
     pub fn is_blank(&self) -> bool {
-        return self.strings.iter()
-            .all(|s| s.raw.trim().is_empty())
+        return self.strings.iter().all(|s| s.raw.trim().is_empty());
     }
     // if this line has no style, return its content
     pub fn if_unstyled(&self) -> Option<&str> {
         if self.strings.len() == 1 {
-            self.strings.get(0)
+            self.strings
+                .get(0)
                 .filter(|s| s.csi.is_empty())
                 .map(|s| s.raw.as_str())
         } else {
@@ -215,10 +203,7 @@ impl TLineBuilder {
 }
 impl vte::Perform for TLineBuilder {
     fn print(&mut self, c: char) {
-        self.cur
-            .get_or_insert_with(TString::default)
-            .raw
-            .push(c);
+        self.cur.get_or_insert_with(TString::default).raw.push(c);
     }
     fn csi_dispatch(&mut self, params: &[i64], _intermediates: &[u8], _ignore: bool, action: char) {
         if *params == [0] {
@@ -247,4 +232,3 @@ impl vte::Perform for TLineBuilder {
     fn osc_dispatch(&mut self, _params: &[&[u8]], _bell_terminated: bool) {}
     fn esc_dispatch(&mut self, _intermediates: &[u8], _ignore: bool, _byte: u8) {}
 }
-

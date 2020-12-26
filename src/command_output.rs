@@ -1,4 +1,7 @@
-use crate::*;
+use {
+    crate::*,
+    std::process::ExitStatus,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CommandStream {
@@ -13,3 +16,17 @@ pub struct CommandOutputLine {
     pub origin: CommandStream,
 }
 
+/// a piece of information about the execution of a command
+pub enum CommandExecInfo {
+    /// Command ended
+    End { status: Option<ExitStatus> },
+
+    /// Bacon killed the command
+    Interruption,
+
+    /// Execution failed
+    Error(String),
+
+    /// Here's a line of output (coming from stderr or stdout)
+    Line(CommandOutputLine),
+}

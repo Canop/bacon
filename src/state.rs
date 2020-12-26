@@ -20,15 +20,16 @@ pub struct AppState {
     pub job_name: String,
     /// the lines of a computation in progress
     lines: Option<Vec<CommandOutputLine>>,
-    /// a totally computed report
-    report: Option<Report>,
+    /// result of a command, hopefully a report
+    cmd_result: CommandResult,
+    /// a report wrapped for the size of the console
     wrapped_report: Option<WrappedReport>,
     /// screen width
     width: u16,
     /// screen height
     height: u16,
     /// whether a computation is in progress
-    pub computing: bool,
+    computing: bool,
     /// whether the user wants wrapped lines
     pub wrap: bool,
     /// whether we should display only titles and locations
@@ -45,15 +46,16 @@ pub struct AppState {
 impl AppState {
     pub fn new(mission: &Mission) -> Result<Self> {
         let mut status_skin = MadSkin::default();
-        status_skin.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
-        //status_skin.italic = CompoundStyle::with_fg(AnsiValue(204));
+        status_skin
+            .paragraph
+            .set_fgbg(AnsiValue(252), AnsiValue(239));
         status_skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
         let (width, height) = termimad::terminal_size();
         Ok(Self {
             project_name: mission.package_name.clone(),
             job_name: mission.job_name.clone(),
             lines: None,
-            report: None,
+            cmd_result: CommandResult::None,
             wrapped_report: None,
             width,
             height,
@@ -81,25 +83,48 @@ impl AppState {
         self.lines.take()
     }
     pub fn has_report(&self) -> bool {
-        self.report.is_some()
+        matches!(self.cmd_result, CommandResult::Report(_))
     }
-    pub fn set_report(&mut self, mut report: Report) {
+    pub fn set_result(&mut self, mut cmd_result: CommandResult) {
         if self.reverse {
-            report.reverse();
+            cmd_result.reverse();
         }
-        // if the last line is empty, we remove it, to
-        // avoid a useless empty line at the end
-        if report.lines.last().map_or(false, |line| line.content.is_blank()) {
-            report.lines.pop();
+        match &cmd_result {
+            CommandResult::Report(_) => {
+                debug!("GOT REPORT");
+            }
+            CommandResult::Failure(_) => {
+                debug!("GOT FAILURE");
+            }
+            CommandResult::None => {
+                debug!("GOT NONE ???");
+            }
+        }
+        if let CommandResult::Report(ref mut report) = cmd_result {
+            // if the last line is empty, we remove it, to
+            // avoid a useless empty line at the end
+            if report
+                .lines
+                .last()
+                .map_or(false, |line| line.content.is_blank())
+            {
+                report.lines.pop();
+            }
         }
         // we keep the scroll when the number of lines didn't change
-        let reset_scroll = self.report.as_ref()
-            .map_or(true, |old_report| old_report.lines.len() != report.lines.len());
-        self.report = Some(report);
+        let reset_scroll = self.cmd_result.lines_len() != cmd_result.lines_len();
         self.wrapped_report = None;
+        self.cmd_result = cmd_result;
+        self.computing = false;
         if reset_scroll {
             self.reset_scroll();
         }
+    }
+    pub fn computation_starts(&mut self) {
+        self.computing = true;
+    }
+    pub fn computation_stops(&mut self) {
+        self.computing = false;
     }
     fn scroll_to_top(&mut self) {
         self.scroll = 0;
@@ -108,11 +133,7 @@ impl AppState {
     fn scroll_to_bottom(&mut self) {
         let ch = self.content_height();
         let ph = self.page_height();
-        self.scroll = if ch > ph {
-            ch - ph - 1
-        } else {
-            0
-        };
+        self.scroll = if ch > ph { ch - ph - 1 } else { 0 };
         // we don't set top_item_idx - does it matter?
     }
     fn is_scroll_at_bottom(&self) -> bool {
@@ -130,9 +151,10 @@ impl AppState {
     }
     /// get the scroll value needed to go to the last item (if any)
     fn get_last_item_scroll(&self) -> usize {
-        if let Some(report) = self.report.as_ref() {
-            if let Some(wrapped_report) = self.wrapped_report.as_ref().filter(|_|self.wrap) {
-                let sub_lines = wrapped_report.sub_lines
+        if let CommandResult::Report(ref report) = self.cmd_result {
+            if let Some(wrapped_report) = self.wrapped_report.as_ref().filter(|_| self.wrap) {
+                let sub_lines = wrapped_report
+                    .sub_lines
                     .iter()
                     .filter(|line| {
                         !(self.summary && line.src_line_type(report) == LineType::Normal)
@@ -144,7 +166,8 @@ impl AppState {
                     }
                 }
             } else {
-                let lines = report.lines
+                let lines = report
+                    .lines
                     .iter()
                     .filter(|line| !(self.summary && line.line_type == LineType::Normal))
                     .enumerate();
@@ -172,7 +195,7 @@ impl AppState {
         }
     }
     fn content_height(&self) -> usize {
-        if let Some(report) = &self.report {
+        if let CommandResult::Report(report) = &self.cmd_result {
             report.stats.lines(self.summary)
         } else if let Some(lines) = &self.lines {
             lines.len()
@@ -192,18 +215,14 @@ impl AppState {
         self.try_scroll_to_last_top_item();
     }
     fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
-        self.scroll = cmd.apply(
-            self.scroll,
-            self.content_height(),
-            self.page_height(),
-        );
+        self.scroll = cmd.apply(self.scroll, self.content_height(), self.page_height());
     }
     pub fn scroll(&mut self, w: &mut W, cmd: ScrollCommand) -> Result<()> {
         self.apply_scroll_command(cmd);
         self.draw(w)
     }
     fn draw_status(&self, w: &mut W, y: u16) -> Result<()> {
-        let status = if self.report.is_some() {
+        let status = if matches!(self.cmd_result, CommandResult::Report(_)) {
             if self.wrap {
                 "hit *q* to quit, *s* to toggle summary mode, *w* to not wrap lines"
             } else {
@@ -231,7 +250,7 @@ impl AppState {
         t_line.add_badge(TString::badge(&self.project_name, 255, 240));
         // black over pink
         t_line.add_badge(TString::badge(&self.job_name, 235, 204));
-        if let Some(report) = &self.report {
+        if let CommandResult::Report(report) = &self.cmd_result {
             let stats = &report.stats;
             if stats.errors > 0 {
                 t_line.add_badge(TString::num_badge(stats.errors, "error", 235, 9));
@@ -245,19 +264,30 @@ impl AppState {
             if stats.items() == 0 {
                 t_line.add_badge(TString::badge("pass!", 254, 2));
             }
+        } else if let CommandResult::Failure(failure) = &self.cmd_result {
+            t_line.add_badge(TString::badge(
+                &format!("Command error code: {}", failure.error_code),
+                235,
+                9,
+            ));
         }
         let width = self.width as usize;
         let cols = t_line.draw_in(w, width)?;
         clear_line(w)?;
         Ok(cols)
     }
-    /// draw either "computing..." or a blank line
-    pub fn draw_computing(&mut self, w: &mut W, y:u16) -> Result<()> {
+    /// draw "computing...", the error code if any, or a blank line
+    pub fn draw_computing(&mut self, w: &mut W, y: u16) -> Result<()> {
         goto(w, y)?;
+        let width = self.width as usize;
         if self.computing {
-            let width = self.width as usize;
             //write!(w, "{}", format!("{:^w$}", "computing...", w = width).white().on_dark_grey())?;
-            write!(w, "\u{1b}[38;5;235m\u{1b}[48;5;204m{:^w$}\u{1b}[0m", "computing...", w = width)?;
+            write!(
+                w,
+                "\u{1b}[38;5;235m\u{1b}[48;5;204m{:^w$}\u{1b}[0m",
+                "computing...",
+                w = width
+            )?;
         } else {
             clear_line(w)?;
         }
@@ -265,7 +295,7 @@ impl AppState {
     }
     /// draw the report or the lines of the current computation, between
     /// y and self.page_height()
-    pub fn draw_content(&mut self, w: &mut W, y:u16) -> Result<()> {
+    pub fn draw_content(&mut self, w: &mut W, y: u16) -> Result<()> {
         if self.height < 4 {
             return Ok(());
         }
@@ -286,8 +316,8 @@ impl AppState {
         for y in area.top..top {
             goto(w, y)?;
             clear_line(w)?;
-        };
-        if let Some(report) = &self.report {
+        }
+        if let CommandResult::Report(report) = &self.cmd_result {
             if self.wrap {
                 if self.wrapped_report.is_none() {
                     self.wrapped_report = Some(WrappedReport::new(&report, self.width));
@@ -307,9 +337,7 @@ impl AppState {
                     let y = row_idx + top;
                     goto(w, y)?;
                     if let Some(sub_line) = sub_lines.next() {
-                        top_item_idx.get_or_insert_with(|| {
-                            sub_line.src_line(&report).item_idx
-                        });
+                        top_item_idx.get_or_insert_with(|| sub_line.src_line(&report).item_idx);
                         sub_line.draw_line_type(w, &report)?;
                         write!(w, " ")?;
                         sub_line.draw(w, &report)?;
@@ -333,7 +361,8 @@ impl AppState {
                         item_idx,
                         line_type,
                         content,
-                    }) = lines.next() {
+                    }) = lines.next()
+                    {
                         top_item_idx.get_or_insert(*item_idx);
                         line_type.draw(w, *item_idx)?;
                         write!(w, " ")?;
@@ -348,17 +377,23 @@ impl AppState {
                 }
             }
             self.top_item_idx = top_item_idx.unwrap_or(0);
-        } else if let Some(lines) = &self.lines {
-            // initial computation - report hasn't yet been computed
-            for row_idx in 0..area.height {
-                let y = row_idx + top;
-                goto(w, y)?;
-                if let Some(line) = lines.get(row_idx as usize + self.scroll) {
-                    line.content.draw_in(w, width)?;
-                }
-                clear_line(w)?;
-                if is_thumb(y.into(), scrollbar) {
-                    execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+        } else {
+            // report hasn't yet been computed or there was an error in command
+            let lines = match &self.cmd_result {
+                CommandResult::Failure(failure) => Some(&failure.lines),
+                _ => self.lines.as_ref(),
+            };
+            if let Some(lines) = lines {
+                for row_idx in 0..area.height {
+                    let y = row_idx + top;
+                    goto(w, y)?;
+                    if let Some(line) = lines.get(row_idx as usize + self.scroll) {
+                        line.content.draw_in(w, width)?;
+                    }
+                    clear_line(w)?;
+                    if is_thumb(y.into(), scrollbar) {
+                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                    }
                 }
             }
         }

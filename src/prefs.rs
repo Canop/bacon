@@ -1,11 +1,8 @@
 use {
-    anyhow::*,
     crate::*,
+    anyhow::*,
     serde::Deserialize,
-    std::{
-        fs,
-        path::Path,
-    },
+    std::{fs, path::Path},
     toml,
 };
 
@@ -30,5 +27,3 @@ impl Default for Prefs {
         toml::from_str(DEFAULT_PREFS).unwrap()
     }
 }
-
-

@@ -2,20 +2,22 @@ mod app;
 mod args;
 mod cli;
 mod command_output;
-mod executor;
+mod command_result;
 mod default_package_config;
 mod default_prefs;
-mod settings;
 mod drawing;
+mod executor;
+mod failure;
 mod job;
 mod line;
 mod line_analysis;
 mod line_type;
-mod package_config;
 mod mission;
+mod package_config;
 mod prefs;
 mod report;
 mod scroll;
+mod settings;
 mod state;
 mod stats;
 mod tty;
@@ -26,11 +28,12 @@ pub use {
     args::*,
     cli::*,
     command_output::*,
+    command_result::*,
     default_package_config::*,
     default_prefs::*,
-    settings::*,
-    executor::*,
     drawing::*,
+    executor::*,
+    failure::*,
     job::*,
     line::*,
     line_analysis::*,
@@ -40,6 +43,7 @@ pub use {
     prefs::*,
     report::*,
     scroll::*,
+    settings::*,
     state::*,
     stats::*,
     tty::*,
@@ -83,6 +87,7 @@ fn configure_log() {
     }
 }
 
+/// Knowledge is power
 fn main() -> Result<()> {
     configure_log();
     cli::run()?;

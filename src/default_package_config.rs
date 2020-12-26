@@ -1,4 +1,3 @@
-
 pub static DEFAULT_PACKAGE_CONFIG: &str = r#"
 # This is a configuration file for the bacon tool
 # More info at https://github.com/Canop/bacon

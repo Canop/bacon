@@ -38,10 +38,9 @@ pub struct SubLine {
 
 impl SubLine {
     pub fn is_continuation(&self) -> bool {
-        self.sub_strings.get(0)
-            .map_or(false, |sub_string| {
-                sub_string.string_idx != 0 || sub_string.byte_start != 0
-            })
+        self.sub_strings.get(0).map_or(false, |sub_string| {
+            sub_string.string_idx != 0 || sub_string.byte_start != 0
+        })
     }
     pub fn src_line<'r>(&self, report: &'r Report) -> &'r Line {
         &report.lines[self.line_idx]
@@ -57,7 +56,8 @@ impl SubLine {
         }
     }
     pub fn draw_line_type(&self, w: &mut W, report: &Report) -> Result<()> {
-        self.line_type(report).draw(w, report.lines[self.line_idx].item_idx)?;
+        self.line_type(report)
+            .draw(w, report.lines[self.line_idx].item_idx)?;
         Ok(())
     }
     pub fn draw(&self, w: &mut W, report: &Report) -> Result<()> {
@@ -85,7 +85,10 @@ impl WrappedReport {
         let lines = &report.lines;
         let mut sub_lines = Vec::new();
         for line_idx in 0..lines.len() {
-            sub_lines.push(SubLine { line_idx, sub_strings: Vec::new() });
+            sub_lines.push(SubLine {
+                line_idx,
+                sub_strings: Vec::new(),
+            });
             let mut sub_cols = lines[line_idx].line_type.cols();
             let strings = &lines[line_idx].content.strings;
             for string_idx in 0..strings.len() {
@@ -98,16 +101,20 @@ impl WrappedReport {
                 for (byte_idx, c) in string.raw.char_indices() {
                     let char_cols = c.width().unwrap_or(0);
                     if sub_cols + char_cols > cols && sub_cols > 0 {
-                        sub_lines.last_mut().unwrap()
-                            .sub_strings.last_mut().unwrap()
+                        sub_lines
+                            .last_mut()
+                            .unwrap()
+                            .sub_strings
+                            .last_mut()
+                            .unwrap()
                             .byte_end = byte_idx;
                         sub_lines.push(SubLine {
                             line_idx,
-                            sub_strings: vec![ SubString {
+                            sub_strings: vec![SubString {
                                 string_idx,
                                 byte_start: byte_idx,
                                 byte_end: string.raw.len(), // may be changed later on cut
-                            } ],
+                            }],
                         });
                         sub_cols = char_cols;
                     } else {

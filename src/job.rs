@@ -1,12 +1,8 @@
-use {
-    serde::Deserialize,
-};
-
+use serde::Deserialize;
 
 /// One of the possible job that bacon can run
 #[derive(Debug, Clone, Deserialize)]
 pub struct Job {
-
     /// The tokens making the command to execute (first one
     /// is the executable).
     /// This vector is guaranteed not empty

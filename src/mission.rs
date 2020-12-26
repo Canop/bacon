@@ -20,10 +20,10 @@ pub struct MissionLocation {
 
 impl MissionLocation {
     pub fn new(args: &Args) -> Result<Self> {
-        let intended_dir = args.path.as_ref().map_or_else(
-            || env::current_dir().unwrap(),
-            PathBuf::from,
-        );
+        let intended_dir = args
+            .path
+            .as_ref()
+            .map_or_else(|| env::current_dir().unwrap(), PathBuf::from);
         let intended_dir: PathBuf = fs::canonicalize(&intended_dir)?;
         let mut package_directory = intended_dir.clone();
         let mut intended_is_package = true;
@@ -55,7 +55,11 @@ impl MissionLocation {
         })
     }
     pub fn package_name(&self) -> String {
-        self.package_directory.file_name().unwrap().to_string_lossy().to_string()
+        self.package_directory
+            .file_name()
+            .unwrap()
+            .to_string_lossy()
+            .to_string()
     }
     pub fn package_config_path(&self) -> PathBuf {
         self.package_directory.join("bacon.toml")
@@ -86,7 +90,6 @@ impl Mission {
         let (job_name, job) = package_config
             .get_job(job_name)
             .map(|(n, j)| (n.to_string(), j.clone()))?;
-
         let metadata = MetadataCommand::new()
             .manifest_path(&location.cargo_toml_file)
             .exec()?;
@@ -133,9 +136,11 @@ impl Mission {
     /// configure the watcher with files and directories to watch
     pub fn add_watchs(&self, watcher: &mut RecommendedWatcher) -> Result<()> {
         for file in &self.files_to_watch {
+            debug!("add watch file {:?}", file);
             watcher.watch(file, RecursiveMode::NonRecursive)?;
         }
         for dir in &self.directories_to_watch {
+            debug!("add watch dir {:?}", dir);
             watcher.watch(dir, RecursiveMode::Recursive)?;
         }
         Ok(())
@@ -145,7 +150,7 @@ impl Mission {
     pub fn get_command(&self) -> Command {
         let mut tokens = self.job.command.iter();
         let mut command = Command::new(
-            tokens.next().unwrap() // implies a check in the job
+            tokens.next().unwrap(), // implies a check in the job
         );
         for arg in tokens {
             command.arg(arg);
@@ -159,4 +164,3 @@ impl Mission {
         self.job.need_stdout
     }
 }
-

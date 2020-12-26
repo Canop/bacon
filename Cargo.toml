@@ -1,6 +1,6 @@
 [package]
 name = "bacon"
-version = "1.0.2-dev"
+version = "1.1.0"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/bacon"
 description = "background rust compiler"
@@ -18,7 +18,7 @@ crossbeam = "0.7"
 crossterm = "0.17.7"
 directories-next = "2.0"
 minimad = "=0.6.7"
-notify = "5.0.0-pre.3"
+notify = "5.0.0-pre.4"
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 simplelog = "0.7"

@@ -1,12 +1,8 @@
 use {
-    anyhow::*,
     crate::*,
+    anyhow::*,
     serde::Deserialize,
-    std::{
-        collections::HashMap,
-        fs,
-        path::Path,
-    },
+    std::{collections::HashMap, fs, path::Path},
     toml,
 };
 
@@ -32,14 +28,22 @@ impl PackageConfig {
         }
         for (name, job) in &conf.jobs {
             if name.is_empty() || name.contains('.') || name.contains('/') {
-                return Err(anyhow!("Invalid bacon.toml : Illegal job name : {:?}", name));
+                return Err(anyhow!(
+                    "Invalid bacon.toml : Illegal job name : {:?}",
+                    name
+                ));
             }
             if job.command.is_empty() {
-                return Err(anyhow!("Invalid bacon.toml : empty command for job {:?}", name));
+                return Err(anyhow!(
+                    "Invalid bacon.toml : empty command for job {:?}",
+                    name
+                ));
             }
         }
         if !conf.jobs.contains_key(&conf.default_job) {
-            return Err(anyhow!("Invalid bacon.toml : default job not found in jobs"));
+            return Err(anyhow!(
+                "Invalid bacon.toml : default job not found in jobs"
+            ));
         }
         Ok(conf)
     }
@@ -50,4 +54,3 @@ impl Default for PackageConfig {
         toml::from_str(DEFAULT_PACKAGE_CONFIG).unwrap()
     }
 }
-

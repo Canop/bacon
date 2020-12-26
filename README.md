@@ -121,6 +121,16 @@ Shortcut:
 
     $EDITOR $(bacon --prefs)
 
+### Why is bacon sometimes not recomputing when I'm using (neo)vim ?
+
+The default write strategy of vim makes successive savings of same file not always detectable by inotify.
+
+A solution is to add this to your init.vim file:
+
+	set nowritebackup
+
+(this doesn't prevent vim from keeping copies during editions, it just changes the behavior of the write operation)
+
 ### Why "bacon" ?
 
 * It's a **bac**kground **con**piler.

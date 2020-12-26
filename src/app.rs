@@ -9,7 +9,7 @@ use {
 
 pub fn run(w: &mut W, mission: Mission) -> Result<()> {
     let mut state = AppState::new(&mission)?;
-    state.computing = true;
+    state.computation_starts();
     state.draw(w)?;
 
     let (watch_sender, watch_receiver) = bounded(0);
@@ -92,33 +92,38 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                 if let Err(e) = executor.start() {
                     debug!("error sending task: {}", e);
                 } else {
-                    state.computing = true;
+                    state.computation_starts();
                     state.draw(w)?;
                 }
             }
-            recv(executor.line_receiver) -> line => {
-                match line? {
-                    Ok(Some(line)) => {
+            recv(executor.line_receiver) -> info => {
+                match info? {
+                    CommandExecInfo::Line(line) => {
                         state.add_line(line);
                         if !state.has_report() {
                             state.draw(w)?;
                         }
                     }
-                    Ok(None) => {
+                    CommandExecInfo::End { status } => {
+                        info!("execution finished with status: {:?}", status);
                         // computation finished
                         if let Some(lines) = state.take_lines() {
-                            state.set_report(Report::from_lines(lines)?);
+                            let cmd_result = CommandResult::new(lines, status)?;
+                            state.set_result(cmd_result);
                         } else {
                             warn!("a computation finished but didn't start?");
+                            state.computation_stops();
                         }
-                        state.computing = false;
                         state.draw(w)?;
                     }
-                    Err(e) => {
+                    CommandExecInfo::Error(e) => {
                         warn!("error in computation: {}", e);
-                        state.computing = false;
+                        state.computation_stops();
                         state.draw(w)?;
                         break;
+                    }
+                    CommandExecInfo::Interruption => {
+                        debug!("command was interrupted (by us)");
                     }
                 }
             }

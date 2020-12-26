@@ -1,3 +1,6 @@
+<a name="v1.1.0"></a>
+### v1.1.0 - 2020/12/26
+ if the job's command returns an error code and no error was read in the output, bacon now displays the output and the error code instead of letting the user think there's no error
 
 <a name="v1.0.1"></a>
 ### v1.0.1 - 2020/11/21

@@ -1,9 +1,7 @@
 use {
     crate::*,
     anyhow::Result,
-    std::{
-        collections::HashSet,
-    },
+    std::collections::HashSet,
 };
 
 /// the usable content of cargo watch's output,
@@ -15,18 +13,18 @@ pub struct Report {
 }
 
 impl Report {
-
     /// change the order of the lines so that items are in reverse order
     /// (but keep the order of lines of a given item)
     pub fn reverse(&mut self) {
-        self.lines.sort_by_key(|line| std::cmp::Reverse(line.item_idx));
+        self.lines
+            .sort_by_key(|line| std::cmp::Reverse(line.item_idx));
     }
 
     /// compute the report from the lines of stderr of `cargo watch`.
     ///
     /// We assume errors and warnings come in the stderr stream while
     ///  test failures come in stdout
-    pub fn from_lines(cmd_lines: Vec<CommandOutputLine>) -> Result<Report> {
+    pub fn from_lines(cmd_lines: &Vec<CommandOutputLine>) -> Result<Report> {
         // we first accumulate warnings, test fails and errors in separate vectors
         let mut warnings = Vec::new();
         let mut errors = Vec::new();
@@ -36,12 +34,12 @@ impl Report {
         let mut cur_err_kind = None; // the current kind among stderr lines
         let mut is_in_out_fail = false;
         for cmd_line in cmd_lines {
-            let line_analysis = LineAnalysis::from(&cmd_line);
+            let line_analysis = LineAnalysis::from(cmd_line);
             let line_type = line_analysis.line_type;
             let mut line = Line {
                 item_idx: 0, // will be filled later
                 line_type,
-                content: cmd_line.content,
+                content: cmd_line.content.clone(),
             };
             match cmd_line.origin {
                 CommandStream::StdErr => {
@@ -127,10 +125,6 @@ impl Report {
         // have been read but not added (at start or end)
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
-        Ok(Report {
-            stats,
-            lines,
-        })
+        Ok(Report { stats, lines })
     }
-
 }

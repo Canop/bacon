@@ -1,4 +1,3 @@
-
 pub static DEFAULT_PREFS: &str = r#"
 # This is a preferences file for the bacon tool
 # More info at https://github.com/Canop/bacon
@@ -24,4 +23,3 @@ pub static DEFAULT_PREFS: &str = r#"
 # vim_keys = true
 
 "#;
-

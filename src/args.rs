@@ -65,7 +65,12 @@ impl Args {
     /// `path` values.
     pub fn fix(&mut self) -> Result<()> {
         let mut args = self.args.drain(..);
-        match (args.next(), args.next(), self.job.is_none(), self.path.is_none()) {
+        match (
+            args.next(),
+            args.next(),
+            self.job.is_none(),
+            self.path.is_none(),
+        ) {
             (Some(a), b, true, true) => {
                 if a.contains('.') || a.contains('/') {
                     // a is a path, it can't be job
