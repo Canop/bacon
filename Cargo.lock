@@ -61,11 +61,12 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "bacon"
-version = "1.1.0"
+version = "1.1.1-dev"
 dependencies = [
  "anyhow",
  "argh",
  "cargo_metadata",
+ "cli-log",
  "crossbeam",
  "crossterm",
  "directories-next",
@@ -171,6 +172,16 @@ dependencies = [
  "num-traits",
  "time",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "cli-log"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f47673f2992075892b3e983499410c92af91a7d7cee72cf55ec4caea278de6cf"
+dependencies = [
+ "chrono",
+ "log",
 ]
 
 [[package]]

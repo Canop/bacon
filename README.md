@@ -107,6 +107,8 @@ It's perfectly OK and can be useful to check several compilation targets.
 
 Similarly you don't have to stop bacon when you want to use cargo to build the application.
 
+Bacon is efficient and doesn't work when there's no notification.
+
 ### What are the supported platforms ?
 
 It works on all decent terminals on Linux, Max OSX and Windows.
@@ -123,13 +125,13 @@ Shortcut:
 
 ### Why is bacon sometimes not recomputing when I'm using (neo)vim ?
 
-The default write strategy of vim makes successive savings of same file not always detectable by inotify.
+The default write strategy of vim makes successive savings of the same file not always detectable by inotify.
 
 A solution is to add this to your init.vim file:
 
 	set nowritebackup
 
-(this doesn't prevent vim from keeping copies during editions, it just changes the behavior of the write operation)
+This doesn't prevent vim from keeping copies during editions, it just changes the behavior of the write operation.
 
 ### Why "bacon" ?
 

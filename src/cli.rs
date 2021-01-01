@@ -24,7 +24,7 @@ pub fn writer() -> W {
     std::io::BufWriter::new(std::io::stdout())
 }
 
-pub fn run() -> Result<()> {
+pub fn run() -> anyhow::Result<()> {
     let mut args: Args = argh::from_env();
     args.fix()?;
     if args.version {

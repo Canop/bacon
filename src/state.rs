@@ -178,7 +178,7 @@ impl AppState {
                 }
             }
         }
-        return 0;
+        0
     }
     fn try_scroll_to_last_top_item(&mut self) {
         self.scroll = self.get_last_item_scroll();
@@ -281,7 +281,6 @@ impl AppState {
         goto(w, y)?;
         let width = self.width as usize;
         if self.computing {
-            //write!(w, "{}", format!("{:^w$}", "computing...", w = width).white().on_dark_grey())?;
             write!(
                 w,
                 "\u{1b}[38;5;235m\u{1b}[48;5;204m{:^w$}\u{1b}[0m",

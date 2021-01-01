@@ -24,7 +24,7 @@ impl Report {
     ///
     /// We assume errors and warnings come in the stderr stream while
     ///  test failures come in stdout
-    pub fn from_lines(cmd_lines: &Vec<CommandOutputLine>) -> Result<Report> {
+    pub fn from_lines(cmd_lines: &[CommandOutputLine]) -> Result<Report> {
         // we first accumulate warnings, test fails and errors in separate vectors
         let mut warnings = Vec::new();
         let mut errors = Vec::new();
