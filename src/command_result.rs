@@ -19,7 +19,7 @@ impl CommandResult {
         let error_code = exit_status.and_then(|s| s.code()).filter(|&c| c != 0);
         let report = Report::from_lines(&lines)?;
         if let Some(error_code) = error_code {
-            if report.stats.errors == 0 {
+            if report.stats.errors + report.stats.test_fails == 0 {
                 // report shows no error while the command exe reported
                 // an error, so the report can't be trusted
                 return Ok(Self::Failure(Failure { error_code, lines }));
