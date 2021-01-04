@@ -19,7 +19,9 @@ It's designed for minimal interaction so that you can just let it running, side 
 
 ## Installation
 
+```default
     cargo install bacon
+```
 
 ## Usage
 
@@ -59,7 +61,7 @@ First create a `bacon.toml` file by running
 
 This file already contains some standard jobs. Add your own, for example
 
-```
+```toml
 [jobs.check-win]
 command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "always"]
 ```
@@ -74,7 +76,7 @@ and run
 
 You can change the clippy job in the `bacon.toml` file:
 
-```
+```toml
 [jobs.clippy]
 command = [
 	"cargo", "clippy",
