@@ -20,7 +20,7 @@ It's designed for minimal interaction so that you can just let it running, side 
 ## Installation
 
 ```default
-    cargo install bacon
+cargo install bacon
 ```
 
 ## Usage
