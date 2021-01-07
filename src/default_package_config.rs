@@ -7,6 +7,10 @@ default_job = "check"
 [jobs]
 
 [jobs.check]
+command = ["cargo", "check", "--color", "always"]
+need_stdout = false
+
+[jobs.check-all]
 command = ["cargo", "check", "--tests", "--color", "always"]
 need_stdout = false
 

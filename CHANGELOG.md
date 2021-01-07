@@ -1,3 +1,7 @@
+<a name="v1.1.2"></a>
+### v1.1.2 - 2021/01/05
+Revert standard job to ignore tests because compilation with them is too slow. A new default job is added.
+
 <a name="v1.1.1"></a>
 ### v1.1.1 - 2021/01/03
 Don't consider test fails as command fails (ie display the count of test fails in `bacon test` instead of command error)
