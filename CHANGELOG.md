@@ -1,3 +1,6 @@
+### next
+`check-all` target now checks all. Fix #27
+
 <a name="v1.1.2"></a>
 ### v1.1.2 - 2021/01/05
 Revert standard job to ignore tests because compilation with them is too slow. A new default job is added.
