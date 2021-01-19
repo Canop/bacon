@@ -1,6 +1,5 @@
 use {
     crate::*,
-    anyhow::anyhow,
     crossterm::{
         self, cursor,
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
@@ -68,7 +67,7 @@ pub fn run() -> anyhow::Result<()> {
             fs::write(&package_config_path, DEFAULT_PACKAGE_CONFIG)?;
             eprintln!("bacon project configuration file written.");
         } else {
-            return Err(anyhow!("{} already exists, refusing to overwrite", package_config_path.display()).into());
+            eprintln!("bacon configuration file already exists.");
         }
         println!("{}", package_config_path.to_string_lossy());
         return Ok(());
