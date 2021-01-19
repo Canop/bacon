@@ -1,11 +1,13 @@
 use crate::*;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     pub summary: bool,
     pub wrap: bool,
     pub reverse: bool,
     pub vim_keys: bool,
+    pub no_default_features: bool,
+    pub features: Option<String>, // comma separated list
 }
 
 impl Settings {
@@ -42,6 +44,12 @@ impl Settings {
         if args.reverse {
             self.reverse = true;
         }
+        if args.no_default_features {
+            self.no_default_features = true;
+        }
+        if args.features.is_some() {
+            self.features = args.features.clone();
+        }
     }
 }
 
@@ -52,6 +60,8 @@ impl Default for Settings {
             wrap: false,
             reverse: false,
             vim_keys: false,
+            no_default_features: false,
+            features: None,
         }
     }
 }

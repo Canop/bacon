@@ -49,6 +49,15 @@ pub struct Args {
     #[argh(option, short = 'j')]
     pub job: Option<String>,
 
+    /// ignore features of both the package and the bacon job
+    #[argh(switch)]
+    pub no_default_features: bool,
+
+    /// comma separated list of features to ask cargo to compile with
+    /// (if the job defines some, they're merged)
+    #[argh(option)]
+    pub features: Option<String>,
+
     /// path to watch (must be a rust directory or inside)
     #[argh(option, short = 'p')]
     pub path: Option<String>,

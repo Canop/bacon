@@ -4,6 +4,7 @@ use {
     cargo_metadata::MetadataCommand,
     notify::{RecommendedWatcher, RecursiveMode, Watcher},
     std::{
+        collections::HashSet,
         env,
         fs,
         path::PathBuf,
@@ -152,10 +153,51 @@ impl Mission {
         let mut command = Command::new(
             tokens.next().unwrap(), // implies a check in the job
         );
+        let mut no_default_features_done = false;
+        let mut features_done = false;
+        let mut last_is_features = false;
         for arg in tokens {
+            let mut arg = arg.to_string();
+            if last_is_features {
+                // arg is expected there to be the list of features
+                features_done = true;
+                match (&self.settings.features, self.settings.no_default_features) {
+                    (Some(features), false) => {
+                        // we take the features of both the job and the args
+                        arg = merge_features(&arg, &features);
+                    }
+                    (Some(features), true) => {
+                        // arg add features and remove the job ones
+                        arg = features.clone();
+                    }
+                    (None, true) => {
+                        // arg just remove the job features
+                        arg = "".to_string()
+                    }
+                    (None, false) => {
+                        // nothing to change
+                    }
+                }
+                last_is_features = false;
+            } else if arg == "--no-default-features" {
+                no_default_features_done = true;
+                last_is_features = false;
+            } else if arg == "--features" {
+                last_is_features = true;
+            }
             command.arg(arg);
         }
+        if self.settings.no_default_features && !no_default_features_done {
+            command.arg("--no-default-features");
+        }
+        if !features_done {
+            if let Some(features) = &self.settings.features {
+                command.arg("--features");
+                command.arg(features);
+            }
+        }
         command.current_dir(&self.cargo_execution_directory);
+        debug!("command: {:#?}", &command);
         command
     }
 
@@ -163,4 +205,15 @@ impl Mission {
     pub fn need_stdout(&self) -> bool {
         self.job.need_stdout
     }
+}
+
+fn merge_features(a: &str, b: &str) -> String {
+    let mut features = HashSet::new();
+    for feature in a.split(',') {
+        features.insert(feature);
+    }
+    for feature in b.split(',') {
+        features.insert(feature);
+    }
+    features.iter().map(|&s|s).collect::<Vec<&str>>().join(",")
 }

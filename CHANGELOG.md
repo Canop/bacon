@@ -1,5 +1,6 @@
 ### next
-`check-all` target now checks all. Fix #27
+* `check-all` target now checks all - Fix #27
+* `--no-default-features` and `--features` - Fix #31
 
 <a name="v1.1.2"></a>
 ### v1.1.2 - 2021/01/05
