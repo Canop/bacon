@@ -121,6 +121,11 @@ impl Mission {
         }
 
         let cargo_execution_directory = location.package_directory.to_path_buf();
+        let bacon_toml = cargo_execution_directory.join("bacon.toml");
+        if bacon_toml.exists() {
+            directories_to_watch.push(bacon_toml);
+        }
+
         let package_name = location.package_name();
         Ok(Mission {
             package_name,
