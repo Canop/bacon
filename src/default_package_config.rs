@@ -11,7 +11,7 @@ command = ["cargo", "check", "--color", "always"]
 need_stdout = false
 
 [jobs.check-all]
-command = ["cargo", "check", "--tests", "--color", "always"]
+command = ["cargo", "check", "--all-targets", "--color", "always"]
 need_stdout = false
 
 [jobs.light]
