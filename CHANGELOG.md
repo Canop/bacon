@@ -1,4 +1,5 @@
-### next
+<a name="v1.1.3"></a>
+### v1.1.3 - 2021/01/29
 * `check-all` target now checks all - Fix #27
 * `--no-default-features` and `--features` - Fix #31
 

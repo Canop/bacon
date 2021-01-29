@@ -14,11 +14,3 @@ pub struct Job {
     #[serde(default)]
     pub need_stdout: bool,
 }
-
-//impl Job {
-//    pub fn modified_command(&self, settings: &Settings) -> (String, Vec<String>) {
-//        let tokens = command.iter();
-//        let exec = tokens.next().unwrap(); // SAFETY: warranty in Job
-//
-//    }
-//}
