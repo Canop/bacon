@@ -39,6 +39,14 @@ or
 
     bacon ../broot
 
+### check all targets (tests, examples, etc)
+
+    bacon --job check-all
+
+or
+
+    bacon check-all
+
 ### run clippy instead of cargo check
 
     bacon --job clippy
