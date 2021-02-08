@@ -112,6 +112,12 @@ impl Mission {
                     } else {
                         warn!("missing src dir: {:?}", src_dir);
                     }
+                    let examples_dir = item_path.join("examples");
+                    if examples_dir.exists() {
+                        directories_to_watch.push(examples_dir);
+                    } else {
+                        debug!("missing examples dir: {:?}", examples_dir);
+                    }
                 }
                 if item.manifest_path.exists() {
                     files_to_watch.push(item.manifest_path);
