@@ -9,6 +9,12 @@ pub struct Job {
     /// by the PackageConfig::from_path loader
     pub command: Vec<String>,
 
+    /// A list of directories that will be watched if the job
+    /// is run on a package.
+    /// src is implicitly included.
+    #[serde(default)]
+    pub watch: Vec<String>,
+
     /// whether we need to capture stdout too (stderr is
     /// always captured)
     #[serde(default)]

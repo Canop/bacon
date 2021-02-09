@@ -7,6 +7,7 @@ use {
         collections::HashSet,
         env,
         fs,
+        iter,
         path::PathBuf,
         process::Command,
     },
@@ -106,11 +107,15 @@ impl Mission {
                     .parent()
                     .expect("parent of a target folder is a root folder");
                 if add_all_src {
-                    let src_dir = item_path.join("src");
-                    if src_dir.exists() {
-                        directories_to_watch.push(src_dir);
-                    } else {
-                        warn!("missing src dir: {:?}", src_dir);
+                    let src_watch_iter = iter::once("str");
+                    let other_watch_iter = job.watch.iter().map(String::as_ref);
+                    for dir in src_watch_iter.chain(other_watch_iter) {
+                        let full_path = item_path.join(dir);
+                        if full_path.exists() {
+                            directories_to_watch.push(full_path);
+                        } else {
+                            warn!("missing {} dir: {:?}", dir, full_path);
+                        }
                     }
                 }
                 if item.manifest_path.exists() {

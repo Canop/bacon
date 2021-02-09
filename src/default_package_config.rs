@@ -13,6 +13,7 @@ need_stdout = false
 [jobs.check-all]
 command = ["cargo", "check", "--all-targets", "--color", "always"]
 need_stdout = false
+watch = ["tests", "benches", "examples"]
 
 [jobs.light]
 command = ["cargo", "check", "--color", "always"]
@@ -25,5 +26,6 @@ need_stdout = false
 [jobs.test]
 command = ["cargo", "test", "--color", "always"]
 need_stdout = true
+watch = ["tests"]
 
 "#;
