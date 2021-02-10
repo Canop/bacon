@@ -1,3 +1,7 @@
+<a name="v1.1.4"></a>
+### v1.1.4 - 2021/02/10
+It's possible to define directories to watch in the bacon.toml config file. For example, by default the `test` job watches the `tests` directory if it exists - Thanks @SafariMonkey
+
 <a name="v1.1.3"></a>
 ### v1.1.3 - 2021/01/29
 * `check-all` target now checks all - Fix #27

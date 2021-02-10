@@ -88,7 +88,7 @@ and run
 
     bacon check-win
 
-The `bacon.toml` file should may evolve with the features and settings of your project and should be added to source control.
+The `bacon.toml` file may evolve with the features and settings of your project and should be added to source control.
 
 ### configure clippy lints
 
