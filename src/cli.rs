@@ -45,7 +45,7 @@ pub fn run() -> anyhow::Result<()> {
         if args.prefs {
             if !prefs_path.exists() {
                 fs::create_dir_all(prefs_path.parent().unwrap())?;
-                fs::write(&prefs_path, DEFAULT_PREFS)?;
+                fs::write(&prefs_path, DEFAULT_PREFS.trim_start())?;
                 // written to stderr to allow initialization with commands like
                 //  $EDITOR "$(bacon --prefs)"
                 eprintln!("Preferences file written.");
@@ -63,7 +63,7 @@ pub fn run() -> anyhow::Result<()> {
     let package_config_path = location.package_config_path();
     if args.init {
         if !package_config_path.exists() {
-            fs::write(&package_config_path, DEFAULT_PACKAGE_CONFIG)?;
+            fs::write(&package_config_path, DEFAULT_PACKAGE_CONFIG.trim_start())?;
             eprintln!("bacon project configuration file written.");
         } else {
             eprintln!("bacon configuration file already exists.");

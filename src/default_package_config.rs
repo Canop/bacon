@@ -15,10 +15,6 @@ command = ["cargo", "check", "--all-targets", "--color", "always"]
 need_stdout = false
 watch = ["tests", "benches", "examples"]
 
-[jobs.light]
-command = ["cargo", "check", "--color", "always"]
-need_stdout = false
-
 [jobs.clippy]
 command = ["cargo", "clippy", "--color", "always"]
 need_stdout = false
