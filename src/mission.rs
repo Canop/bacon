@@ -107,7 +107,7 @@ impl Mission {
                     .parent()
                     .expect("parent of a target folder is a root folder");
                 if add_all_src {
-                    let src_watch_iter = iter::once("str");
+                    let src_watch_iter = iter::once("src");
                     let other_watch_iter = job.watch.iter().map(String::as_ref);
                     for dir in src_watch_iter.chain(other_watch_iter) {
                         let full_path = item_path.join(dir);
