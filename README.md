@@ -153,6 +153,12 @@ A solution is to add this to your init.vim file:
 
 This doesn't prevent vim from keeping copies during editions, it just changes the behavior of the write operation.
 
+### Can I get backtraces in tests ?
+
+To have the backtrace displayed when a test panics, run
+
+	RUST_BACKTRACE=1 bacon test
+
 ### Why "bacon" ?
 
 * It's a **bac**kground **con**piler.
