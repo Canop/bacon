@@ -3,8 +3,7 @@ mod args;
 mod cli;
 mod command_output;
 mod command_result;
-mod default_package_config;
-mod default_prefs;
+mod defaults;
 mod drawing;
 mod executor;
 mod failure;
@@ -29,8 +28,7 @@ pub use {
     cli::*,
     command_output::*,
     command_result::*,
-    default_package_config::*,
-    default_prefs::*,
+    defaults::*,
     drawing::*,
     executor::*,
     failure::*,
@@ -50,12 +48,12 @@ pub use {
     wrap::*,
 };
 
-#[macro_use]
-extern crate log;
+#[macro_use] extern crate log;
+#[macro_use] extern crate cli_log;
 
 /// Knowledge is power
 fn main() -> anyhow::Result<()> {
-    cli_log::init("bacon");
+    init_cli_log!();
     cli::run()?;
     info!("bye");
     Ok(())

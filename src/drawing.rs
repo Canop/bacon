@@ -2,7 +2,6 @@ use {
     crate::*,
     anyhow::*,
     crossterm::{cursor, execute, terminal},
-    std::io::Write,
 };
 
 pub fn goto(w: &mut W, y: u16) -> Result<()> {
