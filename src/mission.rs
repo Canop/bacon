@@ -3,14 +3,7 @@ use {
     anyhow::*,
     cargo_metadata::MetadataCommand,
     notify::{RecommendedWatcher, RecursiveMode, Watcher},
-    std::{
-        collections::HashSet,
-        env,
-        fs,
-        iter,
-        path::PathBuf,
-        process::Command,
-    },
+    std::{collections::HashSet, env, fs, iter, path::PathBuf, process::Command},
 };
 
 pub struct MissionLocation {
@@ -64,7 +57,14 @@ impl MissionLocation {
             .to_string()
     }
     pub fn package_config_path(&self) -> PathBuf {
-        self.package_directory.join("bacon.toml")
+        let local_path = self.package_directory.join("bacon.toml");
+        let remote_path = dirs::config_dir().unwrap().join("bacon.toml");
+
+        match (local_path.exists(), remote_path.exists()) {
+            (true, _) => local_path,
+            (false, true) => remote_path,
+            (_, _) => local_path,
+        }
     }
 }
 
@@ -220,5 +220,5 @@ fn merge_features(a: &str, b: &str) -> String {
     for feature in b.split(',') {
         features.insert(feature);
     }
-    features.iter().map(|&s|s).collect::<Vec<&str>>().join(",")
+    features.iter().map(|&s| s).collect::<Vec<&str>>().join(",")
 }

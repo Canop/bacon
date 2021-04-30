@@ -26,6 +26,7 @@ termimad = "0.10.0"
 toml = "0.5"
 unicode-width = "0.1.8"
 vte = "0.8"
+dirs = "3.0.2"
 
 [profile.release]
 lto = true
