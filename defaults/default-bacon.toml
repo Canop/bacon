@@ -22,3 +22,7 @@ need_stdout = false
 command = ["cargo", "test", "--color", "always"]
 need_stdout = true
 watch = ["tests"]
+
+[jobs.doc]
+command = ["cargo", "doc", "--color", "always", "--no-deps"]
+need_stdout = false
