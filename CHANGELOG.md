@@ -1,3 +1,6 @@
+### next
+- the default conf now contains a [doc] job
+
 <a name="v1.1.5"></a>
 ### v1.1.5 - 2021/02/27
 - fix wrong version number in bacon.log
