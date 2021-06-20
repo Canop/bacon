@@ -156,9 +156,9 @@ impl Executor {
             }
         });
         Ok(Self {
+            line_receiver,
             task_sender,
             stop_sender,
-            line_receiver,
             thread,
         })
     }

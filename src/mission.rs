@@ -38,14 +38,14 @@ impl MissionLocation {
             package_directory = match package_directory.parent() {
                 Some(dir) => dir.to_path_buf(),
                 None => {
-                    return Err(anyhow!(
+                    bail!(
                         "Cargo.toml file not found.\n\
                         bacon must be launched \n\
                         * in a rust project directory\n\
                         * or with a rust project directory given in argument\n\
                         (a rust project directory contains a Cargo.toml file or has such parent)\n\
                         "
-                    ));
+                    );
                 }
             };
         };
@@ -88,6 +88,7 @@ impl Mission {
         job_name: Option<&str>,
         settings: Settings,
     ) -> Result<Self> {
+        let package_name = location.package_name();
         let add_all_src = location.intended_is_package;
         let (job_name, job) = package_config
             .get_job(job_name)
@@ -126,12 +127,11 @@ impl Mission {
             }
         }
 
-        let cargo_execution_directory = location.package_directory.to_path_buf();
-        let package_name = location.package_name();
+        let cargo_execution_directory = location.package_directory;
         Ok(Mission {
             package_name,
-            cargo_execution_directory,
             job_name,
+            cargo_execution_directory,
             job,
             files_to_watch,
             directories_to_watch,
@@ -162,43 +162,58 @@ impl Mission {
         let mut features_done = false;
         let mut last_is_features = false;
         for arg in tokens {
-            let mut arg = arg.to_string();
             if last_is_features {
-                // arg is expected there to be the list of features
-                features_done = true;
-                match (&self.settings.features, self.settings.no_default_features) {
-                    (Some(features), false) => {
-                        // we take the features of both the job and the args
-                        arg = merge_features(&arg, &features);
-                    }
-                    (Some(features), true) => {
-                        // arg add features and remove the job ones
-                        arg = features.clone();
-                    }
-                    (None, true) => {
-                        // arg just remove the job features
-                        arg = "".to_string()
-                    }
-                    (None, false) => {
-                        // nothing to change
+                if self.settings.all_features {
+                    debug!("ignoring features given along --all-features");
+                } else {
+                    features_done = true;
+                    // arg is expected there to be the list of features
+                    match (&self.settings.features, self.settings.no_default_features) {
+                        (Some(features), false) => {
+                            // we take the features of both the job and the args
+                            command.arg("--features");
+                            command.arg(merge_features(arg, &features));
+                        }
+                        (Some(features), true) => {
+                            // arg add features and remove the job ones
+                            command.arg("--features");
+                            command.arg(&features);
+                        }
+                        (None, true) => {
+                            // we pass no feature
+                        }
+                        (None, false) => {
+                            // nothing to change
+                            command.arg("--features");
+                            command.arg(arg);
+                        }
                     }
                 }
                 last_is_features = false;
             } else if arg == "--no-default-features" {
                 no_default_features_done = true;
                 last_is_features = false;
+                command.arg(arg);
             } else if arg == "--features" {
                 last_is_features = true;
+            } else {
+                command.arg(arg);
             }
-            command.arg(arg);
         }
         if self.settings.no_default_features && !no_default_features_done {
             command.arg("--no-default-features");
         }
+        if self.settings.all_features {
+            command.arg("--all-features");
+        }
         if !features_done {
             if let Some(features) = &self.settings.features {
-                command.arg("--features");
-                command.arg(features);
+                if self.settings.all_features {
+                    debug!("not using features because of --all-features");
+                } else {
+                    command.arg("--features");
+                    command.arg(features);
+                }
             }
         }
         command.current_dir(&self.cargo_execution_directory);
@@ -220,5 +235,5 @@ fn merge_features(a: &str, b: &str) -> String {
     for feature in b.split(',') {
         features.insert(feature);
     }
-    features.iter().map(|&s|s).collect::<Vec<&str>>().join(",")
+    features.iter().copied().collect::<Vec<&str>>().join(",")
 }

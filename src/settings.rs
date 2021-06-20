@@ -7,6 +7,7 @@ pub struct Settings {
     pub reverse: bool,
     pub vim_keys: bool,
     pub no_default_features: bool,
+    pub all_features: bool,
     pub features: Option<String>, // comma separated list
 }
 
@@ -47,6 +48,9 @@ impl Settings {
         if args.no_default_features {
             self.no_default_features = true;
         }
+        if args.all_features {
+            self.all_features = true;
+        }
         if args.features.is_some() {
             self.features = args.features.clone();
         }
@@ -61,6 +65,7 @@ impl Default for Settings {
             reverse: false,
             vim_keys: false,
             no_default_features: false,
+            all_features: false,
             features: None,
         }
     }

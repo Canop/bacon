@@ -125,6 +125,6 @@ impl Report {
         // have been read but not added (at start or end)
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
-        Ok(Report { stats, lines })
+        Ok(Report { lines, stats })
     }
 }

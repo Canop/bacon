@@ -53,6 +53,10 @@ pub struct Args {
     #[argh(switch)]
     pub no_default_features: bool,
 
+    /// activate all available features
+    #[argh(switch)]
+    pub all_features: bool,
+
     /// comma separated list of features to ask cargo to compile with
     /// (if the job defines some, they're merged)
     #[argh(option)]
@@ -91,7 +95,7 @@ impl Args {
                 }
             }
             (Some(_), Some(_), _, _) => {
-                return Err(anyhow!("Too many arguments"));
+                bail!("Too many arguments");
             }
             (Some(a), None, true, false) => {
                 self.job = Some(a);
@@ -100,7 +104,7 @@ impl Args {
                 self.path = Some(a);
             }
             (Some(a), None, false, false) => {
-                return Err(anyhow!("Unexpected argument {:?}", a));
+                bail!("Unexpected argument {:?}", a);
             }
             _ => {}
         }
