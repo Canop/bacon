@@ -1,5 +1,7 @@
-### next
+<a name="v1.1.6"></a>
+### v1.1.6 - 2021/06/22
 - the default conf now contains a [doc] job
+- `--all-features` launch option
 
 <a name="v1.1.5"></a>
 ### v1.1.5 - 2021/02/27
