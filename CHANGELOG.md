@@ -1,3 +1,7 @@
+### next
+- recognize doc test output - Fix #49
+- display 4 spaces for tabs - Fix #50
+
 <a name="v1.1.6"></a>
 ### v1.1.6 - 2021/06/22
 - the default conf now contains a [doc] job

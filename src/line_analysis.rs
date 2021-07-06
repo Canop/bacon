@@ -1,4 +1,7 @@
-use crate::*;
+use {
+    crate::*,
+    lazy_regex::*,
+};
 
 /// result of the "parsing" of the line
 #[derive(Debug, Clone)]
@@ -74,47 +77,39 @@ fn is_spaces(s: &str) -> bool {
 
 /// check if the string starts with something like ": 15 warnings emitted"
 fn is_n_warnings_emitted(s: &str) -> bool {
-    let mut tokens = s.split_ascii_whitespace();
-    if let Some(":") = tokens.next() {
-        if let Some(t) = tokens.next() {
-            if t.parse::<usize>().is_err() {
-                return false;
-            }
-            if let Some(t) = tokens.next() {
-                if t != "warnings" && t != "warning" {
-                    return false;
-                }
-                if let Some(t) = tokens.next() {
-                    if t.starts_with("emitted") {
-                        return true;
-                    }
-                }
-            }
+    regex_is_match!(r#"^: \d+ warnings? emitted"#, s)
+}
+
+fn test_outcome<'a, 'b>((_, key, outcome): (&'b str, &'a str, &'b str)) -> Option<(&'a str, bool)> {
+    match outcome {
+        "ok" => Some((key, true)),
+        "FAILED" => Some((key, false)),
+        other => {
+            warn!("unrecognized doctest outcome: {:?}", other);
+            None
         }
     }
-    false
 }
 
 /// return Some when the line is the non detailled
 /// result of a test, for example
+///
 ///  "test str_fit::fitting_count_tests::test_count_fitting ... FAILED"
 /// or
 ///  "test wrap::wrap_tests::check_space_removing ... ok"
+/// or
+///  "test src/lib.rs - (line 6) ... FAILED"
+/// or
+///  "test src/lib.rs - (line 10) ... ok"
+///
 fn as_test_result(s: &str) -> Option<(&str, bool)> {
-    let mut tokens = s.split_ascii_whitespace();
-    match (tokens.next(), tokens.next(), tokens.next(), tokens.next()) {
-        (Some("test"), Some(key), Some("..."), Some("ok")) => Some((key, true)),
-        (Some("test"), Some(key), Some("..."), Some("FAILED")) => Some((key, false)),
-        _ => None,
-    }
+    regex_captures!(r#"^test\s+(.+)\s+...\s+(\w+)$"#, s)
+        .and_then(test_outcome)
 }
 
 /// return Some(key) when the line is like this:
 /// "---- key stdout ----"
 fn as_fail_result_title(s: &str) -> Option<&str> {
-    let mut tokens = s.split_ascii_whitespace();
-    match (tokens.next(), tokens.next(), tokens.next(), tokens.next()) {
-        (Some("----"), Some(key), Some("stdout"), Some("----")) => Some(key),
-        _ => None,
-    }
+    regex_captures!(r#"^---- (.+) stdout ----$"#, s)
+        .map(|(_, key)| key)
 }
