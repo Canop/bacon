@@ -14,6 +14,8 @@ pub const CSI_BOLD_YELLOW: &str = "\u{1b}[1m\u{1b}[33m";
 pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;12m";
 pub const CSI_ITALIC: &str = "\u{1b}[3m";
 
+static TAB_REPLACEMENT: &str = "    ";
+
 /// a simple representation of a colored and styled string.
 ///
 /// Note that this works because of a few properties of
@@ -88,7 +90,7 @@ impl TString {
 
 /// a simple representation of a line made of homogeneous parts.
 ///
-/// Note that this does only manages CSI and SGR components
+/// Note that this only manages CSI and SGR components
 /// and isn't a suitable representation for an arbitrary
 /// terminal input or output.
 /// I recommend you to NOT try to reuse this hack in another
@@ -100,6 +102,13 @@ pub struct TLine {
 
 impl TLine {
     pub fn from_tty(tty: &str) -> Self {
+        let tty_str: String;
+        let tty = if tty.contains('\t') {
+            tty_str = tty.replace('\t', TAB_REPLACEMENT);
+            &tty_str
+        } else {
+            tty
+        };
         let mut parser = vte::Parser::new();
         let mut builder = TLineBuilder::default();
         for byte in tty.bytes() {
