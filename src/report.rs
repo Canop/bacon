@@ -34,7 +34,9 @@ impl Report {
         let mut cur_err_kind = None; // the current kind among stderr lines
         let mut is_in_out_fail = false;
         for cmd_line in cmd_lines {
+            debug!("cmd_line={:?}", &cmd_line);
             let line_analysis = LineAnalysis::from(cmd_line);
+            debug!("line_analysis={:?}", &line_analysis);
             let line_type = line_analysis.line_type;
             let mut line = Line {
                 item_idx: 0, // will be filled later
@@ -76,16 +78,22 @@ impl Report {
                                 line.content = TLine::failed(&key);
                                 fails.push(line);
                                 is_in_out_fail = true;
+                                cur_err_kind = Some(Kind::TestFail);
                             } else {
                                 warn!("unexpected test result: {:?}", &key);
                             }
                         }
                         (LineType::Normal, None) => {
-                            if line.content.is_blank() {
+                            if line.content.is_blank() && cur_err_kind != Some(Kind::TestFail) {
                                 is_in_out_fail = false;
                             } else if is_in_out_fail {
                                 fails.push(line);
                             }
+                        }
+                        (LineType::Title(Kind::Sum), None) => {
+                            // we're not interested in this section
+                            cur_err_kind = None;
+                            is_in_out_fail = false;
                         }
                         _ => {
                             // TODO add normal if not broken with blank line

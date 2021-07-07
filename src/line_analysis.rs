@@ -27,6 +27,9 @@ impl From<&CommandOutputLine> for LineAnalysis {
                     } else if let Some(k) = as_fail_result_title(content) {
                         key = Some(k.to_string());
                         LineType::Title(Kind::TestFail)
+                    } else if regex_is_match!("^failures:$", content) {
+                        // this isn't very discriminant...
+                        LineType::Title(Kind::Sum)
                     } else {
                         LineType::Normal
                     }
@@ -80,17 +83,6 @@ fn is_n_warnings_emitted(s: &str) -> bool {
     regex_is_match!(r#"^: \d+ warnings? emitted"#, s)
 }
 
-fn test_outcome<'a, 'b>((_, key, outcome): (&'b str, &'a str, &'b str)) -> Option<(&'a str, bool)> {
-    match outcome {
-        "ok" => Some((key, true)),
-        "FAILED" => Some((key, false)),
-        other => {
-            warn!("unrecognized doctest outcome: {:?}", other);
-            None
-        }
-    }
-}
-
 /// return Some when the line is the non detailled
 /// result of a test, for example
 ///
@@ -104,7 +96,16 @@ fn test_outcome<'a, 'b>((_, key, outcome): (&'b str, &'a str, &'b str)) -> Optio
 ///
 fn as_test_result(s: &str) -> Option<(&str, bool)> {
     regex_captures!(r#"^test\s+(.+)\s+...\s+(\w+)$"#, s)
-        .and_then(test_outcome)
+        .and_then(|(_, key, outcome)| {
+            match outcome {
+                "ok" => Some((key, true)),
+                "FAILED" => Some((key, false)),
+                other => {
+                    warn!("unrecognized doctest outcome: {:?}", other);
+                    None
+                }
+            }
+        })
 }
 
 /// return Some(key) when the line is like this:
@@ -113,3 +114,4 @@ fn as_fail_result_title(s: &str) -> Option<&str> {
     regex_captures!(r#"^---- (.+) stdout ----$"#, s)
         .map(|(_, key)| key)
 }
+
