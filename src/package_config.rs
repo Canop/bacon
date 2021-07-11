@@ -3,7 +3,6 @@ use {
     anyhow::*,
     serde::Deserialize,
     std::{collections::HashMap, fs, path::Path},
-    toml,
 };
 
 /// the configuration item which may be stored as `bacon.toml`

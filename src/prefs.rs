@@ -3,7 +3,6 @@ use {
     anyhow::*,
     serde::Deserialize,
     std::{fs, path::Path},
-    toml,
 };
 
 /// the configuration item which may be stored as `prefs.toml`

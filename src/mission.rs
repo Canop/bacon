@@ -99,7 +99,7 @@ impl Mission {
         let mut files_to_watch = Vec::new();
         let mut directories_to_watch = Vec::new();
         if !location.intended_is_package {
-            directories_to_watch.push(location.intended_dir.to_path_buf());
+            directories_to_watch.push(location.intended_dir);
         }
         for item in metadata.packages {
             if item.source.is_none() {

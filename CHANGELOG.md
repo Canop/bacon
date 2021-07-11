@@ -1,4 +1,5 @@
-### next
+<a name="v1.1.7"></a>
+### v1.1.7 - 2021/07/11
 - recognize doc test output - Fix #49
 - display 4 spaces for tabs - Fix #50
 

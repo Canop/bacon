@@ -3,7 +3,6 @@ use {
     anyhow::*,
     std::io::Write,
     termimad::StrFit,
-    vte,
 };
 
 pub const CSI_RESET: &str = "\u{1b}[0m\u{1b}[0m";
@@ -114,7 +113,7 @@ impl TLine {
         for byte in tty.bytes() {
             parser.advance(&mut builder, byte);
         }
-        builder.to_tline()
+        builder.into_tline()
     }
     pub fn from_raw(raw: String) -> Self {
         Self {
@@ -201,7 +200,7 @@ pub struct TLineBuilder {
     strings: Vec<TString>,
 }
 impl TLineBuilder {
-    pub fn to_tline(mut self) -> TLine {
+    pub fn into_tline(mut self) -> TLine {
         if let Some(cur) = self.cur {
             self.strings.push(cur);
         }
