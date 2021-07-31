@@ -1,4 +1,5 @@
-### next
+<a name="v1.1.8"></a>
+### v1.1.8 - 2021/07/31
 - move to more recent versions of some crates - Fix #51
 - `bacon --list-jobs` (or `bacon -l`) lists all available jobs
 
