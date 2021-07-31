@@ -3,7 +3,6 @@ use {
     anyhow::*,
     crossbeam::channel::{bounded, select},
     crossterm::event::{KeyCode::*, KeyEvent, KeyModifiers},
-    notify::{RecommendedWatcher, Watcher},
     termimad::{Event, EventSource},
 };
 
@@ -13,7 +12,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
     state.draw(w)?;
 
     let (watch_sender, watch_receiver) = bounded(0);
-    let mut watcher: RecommendedWatcher = Watcher::new_immediate(move |res| match res {
+    let mut watcher = notify::recommended_watcher(move |res| match res {
         Ok(_) => {
             debug!("notify event received");
             if let Err(e) = watch_sender.send(()) {

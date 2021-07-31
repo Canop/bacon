@@ -11,6 +11,7 @@ mod job;
 mod line;
 mod line_analysis;
 mod line_type;
+mod list_jobs;
 mod mission;
 mod package_config;
 mod prefs;
@@ -36,6 +37,7 @@ pub use {
     line::*,
     line_analysis::*,
     line_type::*,
+    list_jobs::*,
     mission::*,
     package_config::*,
     prefs::*,
@@ -48,7 +50,6 @@ pub use {
     wrap::*,
 };
 
-#[macro_use] extern crate log;
 #[macro_use] extern crate cli_log;
 
 /// Knowledge is power

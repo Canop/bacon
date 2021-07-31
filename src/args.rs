@@ -41,6 +41,10 @@ pub struct Args {
     #[argh(switch)]
     pub no_reverse: bool,
 
+    /// list available jobs
+    #[argh(switch, short = 'l')]
+    pub list_jobs: bool,
+
     /// create a bacon.toml file, ready to be customized
     #[argh(switch)]
     pub init: bool,

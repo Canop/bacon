@@ -80,6 +80,11 @@ pub fn run() -> anyhow::Result<()> {
     // args are applied after prefs, so that they can override them
     settings.apply_args(&args);
 
+    if args.list_jobs {
+        print_jobs(&package_config);
+        return Ok(());
+    }
+
     let mission = Mission::new(location, &package_config, args.job.as_deref(), settings)?;
     info!("mission: {:#?}", &mission);
     let mut w = writer();

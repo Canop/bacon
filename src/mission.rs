@@ -96,7 +96,7 @@ impl Mission {
         let metadata = MetadataCommand::new()
             .manifest_path(&location.cargo_toml_file)
             .exec()?;
-        let mut files_to_watch = Vec::new();
+        let mut files_to_watch: Vec<PathBuf> = Vec::new();
         let mut directories_to_watch = Vec::new();
         if !location.intended_is_package {
             directories_to_watch.push(location.intended_dir);
@@ -113,14 +113,14 @@ impl Mission {
                     for dir in src_watch_iter.chain(other_watch_iter) {
                         let full_path = item_path.join(dir);
                         if full_path.exists() {
-                            directories_to_watch.push(full_path);
+                            directories_to_watch.push(full_path.into());
                         } else {
                             warn!("missing {} dir: {:?}", dir, full_path);
                         }
                     }
                 }
                 if item.manifest_path.exists() {
-                    files_to_watch.push(item.manifest_path);
+                    files_to_watch.push(item.manifest_path.into());
                 } else {
                     warn!("missing manifest file: {:?}", item.manifest_path);
                 }
@@ -172,7 +172,7 @@ impl Mission {
                         (Some(features), false) => {
                             // we take the features of both the job and the args
                             command.arg("--features");
-                            command.arg(merge_features(arg, &features));
+                            command.arg(merge_features(arg, features));
                         }
                         (Some(features), true) => {
                             // arg add features and remove the job ones

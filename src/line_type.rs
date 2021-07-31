@@ -1,7 +1,7 @@
 use {
     crate::*,
     anyhow::*,
-    crossterm::style::{Colorize, Styler},
+    crossterm::style::Stylize,
     std::io::Write,
 };
 

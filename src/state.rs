@@ -161,7 +161,7 @@ impl AppState {
                     })
                     .enumerate();
                 for (row_idx, sub_line) in sub_lines {
-                    if sub_line.src_line(&report).item_idx == self.top_item_idx {
+                    if sub_line.src_line(report).item_idx == self.top_item_idx {
                         return row_idx;
                     }
                 }
@@ -319,7 +319,7 @@ impl AppState {
         if let CommandResult::Report(report) = &self.cmd_result {
             if self.wrap {
                 if self.wrapped_report.is_none() {
-                    self.wrapped_report = Some(WrappedReport::new(&report, self.width));
+                    self.wrapped_report = Some(WrappedReport::new(report, self.width));
                     self.scroll = self.get_last_item_scroll();
                 }
                 // SAFETY: we just ensured it's here
@@ -336,10 +336,10 @@ impl AppState {
                     let y = row_idx + top;
                     goto(w, y)?;
                     if let Some(sub_line) = sub_lines.next() {
-                        top_item_idx.get_or_insert_with(|| sub_line.src_line(&report).item_idx);
-                        sub_line.draw_line_type(w, &report)?;
+                        top_item_idx.get_or_insert_with(|| sub_line.src_line(report).item_idx);
+                        sub_line.draw_line_type(w, report)?;
                         write!(w, " ")?;
-                        sub_line.draw(w, &report)?;
+                        sub_line.draw(w, report)?;
                     }
                     clear_line(w)?;
                     if is_thumb(y.into(), scrollbar) {

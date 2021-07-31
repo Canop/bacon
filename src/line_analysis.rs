@@ -55,7 +55,7 @@ impl From<&CommandOutputLine> for LineAnalysis {
                             LineType::Title(Kind::Error)
                         }
                         (crate::CSI_BOLD_YELLOW, "warning", _, r2)
-                            if is_n_warnings_emitted(&r2) =>
+                            if is_n_warnings_emitted(r2) =>
                         {
                             LineType::Title(Kind::Sum)
                         }

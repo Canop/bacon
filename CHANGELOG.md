@@ -1,3 +1,7 @@
+### next
+- move to more recent versions of some crates - Fix #51
+- `bacon --list-jobs` (or `bacon -l`) lists all available jobs
+
 <a name="v1.1.7"></a>
 ### v1.1.7 - 2021/07/11
 - recognize doc test output - Fix #49
