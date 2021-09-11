@@ -54,6 +54,12 @@ pub struct Args {
     #[clap(long = "no-default-features")]
     pub no_default_features: bool,
 
+    /// check all members in the workspace.
+    ///
+    /// Equivalent to `cargo check --workspace`
+    #[argh(switch)]
+    pub workspace: bool,
+
     /// activate all available features
     #[clap(long = "all-features")]
     pub all_features: bool,

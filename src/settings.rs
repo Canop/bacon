@@ -16,6 +16,7 @@ pub struct Settings {
     pub wrap: bool,
     pub reverse: bool,
     pub no_default_features: bool,
+    pub workspace: bool,
     pub all_features: bool,
     pub features: Option<String>, // comma separated list
     pub keybindings: KeyBindings,
@@ -76,5 +77,8 @@ impl Settings {
             self.features = args.features.clone();
         }
         self.additional_job_args = args.additional_job_args.clone();
+        if args.workspace {
+            self.workspace = true;
+        }
     }
 }

@@ -158,6 +158,9 @@ impl<'s> Mission<'s> {
                 }
             }
         }
+        if self.settings.workspace {
+            command.arg("--workspace");
+        }
         command.current_dir(&self.cargo_execution_directory);
         debug!("command: {:#?}", &command);
         command
