@@ -24,7 +24,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
     mission.add_watchs(&mut watcher)?;
 
     let executor = Executor::new(&mission)?;
-    executor.start()?; // first computation
+    executor.start(state.new_task())?; // first computation
 
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
@@ -59,6 +59,16 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                                 state.toggle_wrap_mode();
                                 state.draw(w)?;
                             }
+                            (Char('t'), KeyModifiers::NONE) => {
+                                debug!("user toggles backtraces");
+                                state.toggle_backtrace();
+                                if let Err(e) = executor.start(state.new_task()) {
+                                    debug!("error sending task: {}", e);
+                                } else {
+                                    state.computation_starts();
+                                }
+                                state.draw(w)?;
+                            }
                             (Home, _) => { state.scroll(w, ScrollCommand::Top)?; }
                             (End, _) => { state.scroll(w, ScrollCommand::Bottom)?; }
                             (Up, _) => { state.scroll(w, ScrollCommand::Lines(-1))?; }
@@ -88,7 +98,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
             }
             recv(watch_receiver) -> _ => {
                 debug!("got a watcher event");
-                if let Err(e) = executor.start() {
+                if let Err(e) = executor.start(state.new_task()) {
                     debug!("error sending task: {}", e);
                 } else {
                     state.computation_starts();
