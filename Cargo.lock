@@ -60,7 +60,7 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "bacon"
-version = "1.1.8"
+version = "1.1.9-dev"
 dependencies = [
  "anyhow",
  "argh",
@@ -218,9 +218,9 @@ dependencies = [
 
 [[package]]
 name = "crossterm"
-version = "0.20.0"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0ebde6a9dd5e331cd6c6f48253254d117642c31653baa475e394657c59c1f7d"
+checksum = "486d44227f71a1ef39554c0dc47e44b9f4139927c75043312690c3f476d1d788"
 dependencies = [
  "bitflags",
  "crossterm_winapi",
@@ -713,9 +713,9 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.14.0"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72cc07d71829847df3a04fe2341f0598676b1faf377d0965c48cb922241273d7"
+checksum = "e3a60170e04bc337ab4a1a3182c4a1e012ce946d109031024c2a64d47b995ae3"
 dependencies = [
  "crossbeam",
  "crossterm",

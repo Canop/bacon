@@ -30,6 +30,9 @@ pub enum LineType {
     /// the line saying if a test was passed
     TestResult(bool),
 
+    /// a suggestion to try with backtrace
+    BacktraceSuggestion,
+
     /// any other line
     Normal,
 }

@@ -32,6 +32,8 @@ pub struct AppState {
     computing: bool,
     /// whether the user wants wrapped lines
     pub wrap: bool,
+    /// whether the user wants backtraces
+    pub backtrace: bool,
     /// whether we should display only titles and locations
     summary: bool,
     reverse: bool,
@@ -62,6 +64,7 @@ impl AppState {
             computing: true,
             summary: mission.settings.summary,
             wrap: mission.settings.wrap,
+            backtrace: false,
             reverse: mission.settings.reverse,
             status_skin,
             scroll: 0,
@@ -77,6 +80,11 @@ impl AppState {
         if auto_scroll {
             // if the user never scrolled, we'll stick to the bottom
             self.scroll_to_bottom();
+        }
+    }
+    pub fn new_task(&self) -> Task {
+        Task {
+            backtrace: self.backtrace,
         }
     }
     pub fn take_lines(&mut self) -> Option<Vec<CommandOutputLine>> {
@@ -188,6 +196,9 @@ impl AppState {
         self.summary ^= true;
         self.try_scroll_to_last_top_item();
     }
+    pub fn toggle_backtrace(&mut self) {
+        self.backtrace ^= true;
+    }
     pub fn toggle_wrap_mode(&mut self) {
         self.wrap ^= true;
         if self.wrapped_report.is_some() {
@@ -222,20 +233,25 @@ impl AppState {
         self.draw(w)
     }
     fn draw_status(&self, w: &mut W, y: u16) -> Result<()> {
-        let status = if matches!(self.cmd_result, CommandResult::Report(_)) {
-            if self.wrap {
-                "hit *q* to quit, *s* to toggle summary mode, *w* to not wrap lines"
+        let mut parts = vec!["hit *q* to quit"];
+        if let CommandResult::Report(report) = &self.cmd_result {
+            if report.suggest_backtrace {
+                parts.push("*t* to toggle backtraces");
             } else {
-                "hit *q* to quit, *s* to toggle summary mode, *w* to wrap lines"
+                parts.push("*s* to toggle summary mode");
+                if self.wrap {
+                    parts.push("*w* to not wrap lines");
+                } else {
+                    parts.push("*w* to wrap lines");
+                }
             }
-        } else {
-            "hit *q* to quit"
-        };
+        }
+        let status = parts.join(", ");
         if self.height > 1 {
             goto(w, y)?;
             self.status_skin.write_composite_fill(
                 w,
-                Composite::from_inline(status),
+                Composite::from_inline(&status),
                 self.width.into(),
                 Alignment::Left,
             )?;
@@ -301,7 +317,7 @@ impl AppState {
         let width = self.width as usize;
         let mut area = Area::new(0, y, self.width, self.page_height() as u16);
         let content_height = self.content_height();
-        let scrollbar = area.scrollbar(self.scroll as i32, content_height as i32);
+        let scrollbar = area.scrollbar(self.scroll, content_height);
         if scrollbar.is_some() {
             area.width -= 1;
         }

@@ -39,7 +39,7 @@ or
 
     bacon ../broot
 
-### check all targets (tests, examples, etc)
+### check all targets (tests, examples, benches, etc)
 
     bacon --job check-all
 
@@ -129,6 +129,16 @@ Similarly you don't have to stop bacon when you want to use cargo to build the a
 
 Bacon is efficient and doesn't work when there's no notification.
 
+### Can I have all code always checked, including tests, benches and examples ?
+
+You can set the dedicated `check-all` job as as default in the bacon.toml file:
+
+```TOML
+default_job = "check-all"
+```
+
+Similarly, if your test units are fast enough, you may run them as default, either by editing the default job, by pointing to a new default job, or by creating a new one.
+
 ### What are the supported platforms ?
 
 It works on all decent terminals on Linux, Max OSX and Windows.
@@ -151,7 +161,7 @@ A solution is to add this to your init.vim file:
 
 	set nowritebackup
 
-This doesn't prevent vim from keeping copies during editions, it just changes the behavior of the write operation.
+This doesn't prevent vim from keeping copies during editions, it just changes the behavior of the write operation and has no practical downside.
 
 ### Can I get backtraces in tests ?
 

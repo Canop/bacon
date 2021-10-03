@@ -15,9 +15,14 @@ use {
 /// Channel sizes are designed to avoid useless computations.
 pub struct Executor {
     pub line_receiver: Receiver<CommandExecInfo>,
-    task_sender: Sender<()>,
+    task_sender: Sender<Task>,
     stop_sender: Sender<()>, // signal for stopping the thread
     thread: thread::JoinHandle<()>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Task {
+    pub backtrace: bool,
 }
 
 impl Executor {
@@ -27,17 +32,22 @@ impl Executor {
     pub fn new(mission: &Mission) -> Result<Self> {
         let mut command = mission.get_command();
         let with_stdout = mission.need_stdout();
-        let (task_sender, task_receiver) = bounded(1);
+        let (task_sender, task_receiver) = bounded::<Task>(1);
         let (stop_sender, stop_receiver) = bounded(0);
         let (line_sender, line_receiver) = unbounded();
+        command
+            .stderr(Stdio::piped())
+            .stdout(if with_stdout { Stdio::piped() } else { Stdio::null() });
         let thread = thread::spawn(move || {
             loop {
                 select! {
-                    recv(task_receiver) -> _ => {
-                        debug!("starting task");
-                        command
-                            .stderr(Stdio::piped())
-                            .stdout(if with_stdout { Stdio::piped() } else { Stdio::null() });
+                    recv(task_receiver) -> task => {
+                        let task = task.unwrap();
+                        debug!("starting task {:?}", task);
+                        command.env(
+                            "RUST_BACKTRACE",
+                            if task.backtrace { "1" } else { "0" },
+                        );
                         let child = command.spawn();
                         let mut child = match child {
                             Ok(child) => child,
@@ -163,8 +173,8 @@ impl Executor {
         })
     }
     /// notify the executor a computation is necessary
-    pub fn start(&self) -> Result<()> {
-        self.task_sender.try_send(())?;
+    pub fn start(&self, task: Task) -> Result<()> {
+        self.task_sender.try_send(task)?;
         Ok(())
     }
     pub fn die(self) -> Result<()> {

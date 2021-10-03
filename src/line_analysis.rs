@@ -30,6 +30,8 @@ impl From<&CommandOutputLine> for LineAnalysis {
                     } else if regex_is_match!("^failures:$", content) {
                         // this isn't very discriminant...
                         LineType::Title(Kind::Sum)
+                    } else if regex_is_match!("^note: run with `RUST_BACKTRACE=", content) {
+                        LineType::BacktraceSuggestion
                     } else {
                         LineType::Normal
                     }

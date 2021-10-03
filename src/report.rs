@@ -10,6 +10,7 @@ use {
 pub struct Report {
     pub lines: Vec<Line>,
     pub stats: Stats,
+    pub suggest_backtrace: bool,
 }
 
 impl Report {
@@ -33,6 +34,7 @@ impl Report {
         let mut passed_tests = 0;
         let mut cur_err_kind = None; // the current kind among stderr lines
         let mut is_in_out_fail = false;
+        let mut suggest_backtrace = false;
         for cmd_line in cmd_lines {
             debug!("cmd_line={:?}", &cmd_line);
             let line_analysis = LineAnalysis::from(cmd_line);
@@ -95,6 +97,9 @@ impl Report {
                             cur_err_kind = None;
                             is_in_out_fail = false;
                         }
+                        (LineType::BacktraceSuggestion, _) => {
+                            suggest_backtrace = true;
+                        }
                         _ => {
                             // TODO add normal if not broken with blank line
                             warn!("unexpected line: {:#?}", &line);
@@ -133,6 +138,6 @@ impl Report {
         // have been read but not added (at start or end)
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
-        Ok(Report { lines, stats })
+        Ok(Report { lines, stats, suggest_backtrace })
     }
 }
