@@ -301,7 +301,7 @@ impl AppState {
         let width = self.width as usize;
         let mut area = Area::new(0, y, self.width, self.page_height() as u16);
         let content_height = self.content_height();
-        let scrollbar = area.scrollbar(self.scroll as i32, content_height as i32);
+        let scrollbar = area.scrollbar(self.scroll, content_height);
         if scrollbar.is_some() {
             area.width -= 1;
         }
