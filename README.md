@@ -165,9 +165,9 @@ This doesn't prevent vim from keeping copies during editions, it just changes th
 
 ### Can I get backtraces in tests ?
 
-To have the backtrace displayed when a test panics, run
+When bacon finds a suggestion to run cargo with backtrace, it suggests you in the status line to toggle backtraces.
 
-	RUST_BACKTRACE=1 bacon test
+Hit <kbd>t</kbd> to have the backtrace of the error.
 
 ### Why "bacon" ?
 
