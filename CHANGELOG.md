@@ -1,4 +1,5 @@
-### next
+<a name="v1.2.1"></a>
+### v1.2.1 - 2021/10/03
 - propose to toggle backtraces when suggestion is found in cargo's output
 
 <a name="v1.1.8"></a>
