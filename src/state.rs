@@ -5,9 +5,11 @@ use {
         cursor, execute,
         style::{Attribute, Color::*, Print},
     },
-    minimad::{Alignment, Composite},
     std::io::Write,
-    termimad::{Area, CompoundStyle, MadSkin},
+    termimad::{
+        minimad::{Alignment, Composite},
+        Area, CompoundStyle, MadSkin,
+    },
 };
 
 /// contains the currently rendered state of the application,
