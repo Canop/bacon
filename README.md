@@ -55,6 +55,14 @@ or
 
     bacon clippy
 
+### run clippy instead of cargo check and run against all targets (tests, examples, benches etc)
+
+    bacon --job clippy-all
+
+or
+
+    bacon clippy-all
+
 ### run tests
 
     bacon test
