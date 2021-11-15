@@ -16,7 +16,9 @@ pub fn print_jobs(package_config: &PackageConfig) {
     default job: ${default_job}
     "#;
     let mut expander = OwningTemplateExpander::new();
-    for (name, job) in &package_config.jobs {
+    let mut jobs: Vec<_> = package_config.jobs.iter().collect();
+    jobs.sort_by_key(|(name, _)| name.to_string());
+    for (name, job) in &jobs {
         expander.sub("jobs")
             .set("job_name", name)
             .set("job_command", job.command.join(" "));
