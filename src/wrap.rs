@@ -84,15 +84,14 @@ impl WrappedReport {
         let cols = width as usize - 1; // -1 for the probable scrollbar
         let lines = &report.lines;
         let mut sub_lines = Vec::new();
-        for line_idx in 0..lines.len() {
+        for (line_idx, line) in lines.iter().enumerate() {
             sub_lines.push(SubLine {
                 line_idx,
                 sub_strings: Vec::new(),
             });
-            let mut sub_cols = lines[line_idx].line_type.cols();
-            let strings = &lines[line_idx].content.strings;
-            for string_idx in 0..strings.len() {
-                let string = &strings[string_idx];
+            let mut sub_cols = line.line_type.cols();
+            let strings = &line.content.strings;
+            for (string_idx, string) in strings.iter().enumerate() {
                 sub_lines.last_mut().unwrap().sub_strings.push(SubString {
                     string_idx,
                     byte_start: 0,
