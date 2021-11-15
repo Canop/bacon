@@ -1,3 +1,7 @@
+### next
+- add the "clippy-all" default job - Thanks @rukai
+- alpha sort the table outputted by `bacon --list-jobs`
+
 <a name="v1.2.2"></a>
 ### v1.2.2 - 2021/10/18
 - solve a dependency build problem - Fix #55
