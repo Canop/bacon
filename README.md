@@ -43,23 +43,15 @@ or
 
     bacon --job check-all
 
-or
+When there's no ambiguity, you may ommit the `--job` part:
 
     bacon check-all
 
 ### run clippy instead of cargo check
 
-    bacon --job clippy
-
-or
-
     bacon clippy
 
-### run clippy instead of cargo check and run against all targets (tests, examples, benches etc)
-
-    bacon --job clippy-all
-
-or
+or, if you want it to run against all targets (tests, examples, benches etc):
 
     bacon clippy-all
 
@@ -95,6 +87,10 @@ watch = ["examples"] # src is implicitly included
 and run
 
     bacon check-win
+
+or
+
+    bacon check-examples
 
 The `bacon.toml` file may evolve with the features and settings of your project and should be added to source control.
 
