@@ -1,6 +1,7 @@
-### next
+<a name="v1.2.3"></a>
+### v1.2.3 - 2021/11/15
 - add the "clippy-all" default job - Thanks @rukai
-- alpha sort the table outputted by `bacon --list-jobs`
+- alpha sort the table outputted by `bacon --list-jobs` - Thanks @rukai
 
 <a name="v1.2.2"></a>
 ### v1.2.2 - 2021/10/18
