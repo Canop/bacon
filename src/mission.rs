@@ -18,6 +18,7 @@ pub struct MissionLocation {
     pub package_directory: PathBuf,
     pub cargo_toml_file: PathBuf,
     pub intended_is_package: bool,
+    pub packages: Vec<cargo_metadata::Package>,
 }
 
 impl MissionLocation {
@@ -26,34 +27,39 @@ impl MissionLocation {
             .path
             .as_ref()
             .map_or_else(|| env::current_dir().unwrap(), PathBuf::from);
-        let intended_dir: PathBuf = fs::canonicalize(&intended_dir)?;
-        let mut package_directory = intended_dir.clone();
-        let mut intended_is_package = true;
-        let cargo_toml_file = loop {
-            let cargo_toml_file = package_directory.join("Cargo.toml");
-            if cargo_toml_file.exists() {
-                break cargo_toml_file;
-            }
-            intended_is_package = false;
-            package_directory = match package_directory.parent() {
-                Some(dir) => dir.to_path_buf(),
-                None => {
-                    bail!(
-                        "Cargo.toml file not found.\n\
-                        bacon must be launched \n\
-                        * in a rust project directory\n\
-                        * or with a rust project directory given in argument\n\
-                        (a rust project directory contains a Cargo.toml file or has such parent)\n\
-                        "
-                    );
-                }
-            };
-        };
+        let metadata = MetadataCommand::new()
+            .current_dir(&intended_dir)
+            .exec()?;
+        let resolve = metadata
+            .resolve
+            .expect("cargo metadata should resolve workspace without --no-deps");
+        let cargo_toml_file;
+        let package_directory;
+        if let Some(resolved_root) = resolve.root {
+            // resolved to a single package
+            cargo_toml_file = metadata
+                .packages
+                .iter()
+                .find(|p| p.id == resolved_root)
+                .map(|p| p.manifest_path.as_std_path().to_path_buf())
+                .expect("resolved manifest was not in package list");
+            package_directory = cargo_toml_file
+                .parent()
+                .expect("file has no parent")
+                .to_path_buf();
+        } else {
+            // resolved to a virtual manifest (of a workspace)
+            package_directory = metadata.workspace_root.as_std_path().to_path_buf();
+            cargo_toml_file = package_directory.join("Cargo.toml");
+        }
+        let intended_is_package =
+            fs::canonicalize(&intended_dir)? == fs::canonicalize(&package_directory)?;
         Ok(Self {
             intended_dir,
             package_directory,
             cargo_toml_file,
             intended_is_package,
+            packages: metadata.packages,
         })
     }
     pub fn package_name(&self) -> String {
@@ -93,15 +99,12 @@ impl Mission {
         let (job_name, job) = package_config
             .get_job(job_name)
             .map(|(n, j)| (n.to_string(), j.clone()))?;
-        let metadata = MetadataCommand::new()
-            .manifest_path(&location.cargo_toml_file)
-            .exec()?;
         let mut files_to_watch: Vec<PathBuf> = Vec::new();
         let mut directories_to_watch = Vec::new();
         if !location.intended_is_package {
             directories_to_watch.push(location.intended_dir);
         }
-        for item in metadata.packages {
+        for item in location.packages {
             if item.source.is_none() {
                 let item_path = item
                     .manifest_path
