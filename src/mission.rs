@@ -27,9 +27,20 @@ impl MissionLocation {
             .path
             .as_ref()
             .map_or_else(|| env::current_dir().unwrap(), PathBuf::from);
-        let metadata = MetadataCommand::new()
-            .current_dir(&intended_dir)
-            .exec()?;
+        let metadata = match MetadataCommand::new().current_dir(&intended_dir).exec() {
+            Ok(m) => m,
+            Err(cargo_metadata::Error::CargoMetadata { stderr }) if cargo_manifest_not_found(&stderr) => {
+                bail!(
+                    "Cargo.toml file not found.\n\
+                    bacon must be launched \n\
+                    * in a rust project directory\n\
+                    * or with a rust project directory given in argument\n\
+                    (a rust project directory contains a Cargo.toml file or has such parent)\n\
+                    "
+                );
+            }
+            Err(other) => bail!(other),
+        };
         let resolve = metadata
             .resolve
             .expect("cargo metadata should resolve workspace without --no-deps");
@@ -72,6 +83,10 @@ impl MissionLocation {
     pub fn package_config_path(&self) -> PathBuf {
         self.package_directory.join("bacon.toml")
     }
+}
+
+fn cargo_manifest_not_found(err: &str) -> bool {
+    err.starts_with("error: could not find `Cargo.toml`")
 }
 
 /// the description of the mission of bacon
