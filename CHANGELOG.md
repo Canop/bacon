@@ -1,3 +1,6 @@
+### next
+- fix inability to deal with some inter-member dependencies on Windows - Fix #59 - Thanks @jDomantas
+
 <a name="v1.2.3"></a>
 ### v1.2.3 - 2021/11/15
 - add the "clippy-all" default job - Thanks @rukai
