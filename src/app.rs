@@ -29,12 +29,20 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
     let vim_keys = mission.settings.vim_keys;
+    #[allow(unused_mut)]
     loop {
         select! {
             recv(user_events) -> user_event => {
                 debug!("key event: {:?}", user_event);
                 match user_event? {
-                    Event::Resize(width, height) => {
+                    Event::Resize(mut width, mut height) => {
+                        // I don't know why but Crossterm seems to always report an
+                        // understimated size on Windows
+                        #[cfg(windows)]
+                        {
+                            width += 1;
+                            height += 1;
+                        }
                         state.resize(width, height);
                         state.draw(w)?;
                     }
