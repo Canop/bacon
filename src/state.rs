@@ -56,7 +56,7 @@ impl AppState {
         status_skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
         let (width, height) = termimad::terminal_size();
         Ok(Self {
-            project_name: mission.package_name.clone(),
+            project_name: mission.location_name.clone(),
             job_name: mission.job_name.clone(),
             lines: None,
             cmd_result: CommandResult::None,

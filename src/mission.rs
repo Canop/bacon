@@ -73,10 +73,10 @@ impl MissionLocation {
             packages: metadata.packages,
         })
     }
-    pub fn package_name(&self) -> String {
+    pub fn name(&self) -> String {
         self.package_directory
             .file_name()
-            .unwrap()
+            .unwrap_or(self.package_directory.as_os_str())
             .to_string_lossy()
             .to_string()
     }
@@ -93,7 +93,7 @@ fn cargo_manifest_not_found(err: &str) -> bool {
 /// after analysis of the args, env, and surroundings
 #[derive(Debug)]
 pub struct Mission {
-    pub package_name: String,
+    pub location_name: String,
     pub job_name: String,
     cargo_execution_directory: PathBuf,
     job: Job,
@@ -109,7 +109,7 @@ impl Mission {
         job_name: Option<&str>,
         settings: Settings,
     ) -> Result<Self> {
-        let package_name = location.package_name();
+        let location_name = location.name();
         let add_all_src = location.intended_is_package;
         let (job_name, job) = package_config
             .get_job(job_name)
@@ -147,7 +147,7 @@ impl Mission {
 
         let cargo_execution_directory = location.package_directory;
         Ok(Mission {
-            package_name,
+            location_name,
             job_name,
             cargo_execution_directory,
             job,
