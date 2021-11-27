@@ -1,4 +1,5 @@
-### next
+<a name="v1.2.4"></a>
+### v1.2.4 - 2021/11/27
 - fix inability to deal with some inter-member dependencies on Windows - Fix #59 - Thanks @jDomantas
 - fix compilation broken due to change in anyhow 1.0.49 - Fix #63
 
