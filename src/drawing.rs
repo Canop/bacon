@@ -1,6 +1,6 @@
 use {
     crate::*,
-    anyhow::*,
+    anyhow::Result,
     crossterm::{cursor, execute, terminal},
 };
 

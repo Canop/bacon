@@ -1,6 +1,6 @@
 use {
     crate::*,
-    anyhow::*,
+    anyhow::{bail, Result},
     cargo_metadata::MetadataCommand,
     notify::{RecommendedWatcher, RecursiveMode, Watcher},
     std::{

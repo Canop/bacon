@@ -1,6 +1,6 @@
 use {
     crate::*,
-    anyhow::*,
+    anyhow::Result,
     crossbeam::channel::{bounded, select, unbounded, Receiver, Sender},
     std::{
         io::{BufRead, BufReader},

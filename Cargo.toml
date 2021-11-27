@@ -12,13 +12,13 @@ readme = "README.md"
 
 [dependencies]
 argh = "0.1.6"
-anyhow = "1.0.44"
+anyhow = "1.0.49"
 cargo_metadata = "0.14.0"
 cli-log = "2.0.0"
 crossbeam = "0.8.1"
 crossterm = "0.21.0"
 directories-next = "2.0.0"
-notify = "5.0.0-pre.11"
+notify = "=5.0.0-pre.13"
 lazy-regex = "2.2.1"
 log = "0.4.14"
 serde = { version = "1.0.130", features = ["derive"] }

@@ -1,5 +1,5 @@
 use {
-    anyhow::*,
+    anyhow::{bail, Result},
     argh::FromArgs,
 };
 

@@ -1,6 +1,6 @@
 use {
     crate::*,
-    anyhow::*,
+    anyhow::Result,
     crossbeam::channel::{bounded, select},
     crossterm::event::{KeyCode::*, KeyEvent, KeyModifiers},
     termimad::{Event, EventSource},
