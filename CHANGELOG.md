@@ -1,3 +1,6 @@
+### next
+- fix missing output of "no_run" doctests - Fix #64
+
 <a name="v1.2.4"></a>
 ### v1.2.4 - 2021/11/27
 - fix inability to deal with some inter-member dependencies on Windows - Fix #59 - Thanks @jDomantas

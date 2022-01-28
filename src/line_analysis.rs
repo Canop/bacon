@@ -95,9 +95,11 @@ fn is_n_warnings_emitted(s: &str) -> bool {
 ///  "test src/lib.rs - (line 6) ... FAILED"
 /// or
 ///  "test src/lib.rs - (line 10) ... ok"
-///
+/// or
+/// "test src/mode.rs - mode::Mode::new (line 121) - compile ... FAILED"
+/// (in this case, the " - compile" part isn't in the key, see #64)
 fn as_test_result(s: &str) -> Option<(&str, bool)> {
-    regex_captures!(r#"^test\s+(.+)\s+...\s+(\w+)$"#, s)
+    regex_captures!(r#"^test\s+(.+?)(?: - compile\s*)?\s+...\s+(\w+)$"#, s)
         .and_then(|(_, key, outcome)| {
             match outcome {
                 "ok" => Some((key, true)),

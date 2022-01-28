@@ -82,7 +82,11 @@ impl Report {
                                 is_in_out_fail = true;
                                 cur_err_kind = Some(Kind::TestFail);
                             } else {
-                                warn!("unexpected test result: {:?}", &key);
+                                warn!(
+                                    "unexpected test result failure_names={:?}, key={:?}",
+                                    &failure_names,
+                                    &key,
+                                );
                             }
                         }
                         (LineType::Normal, None) => {
