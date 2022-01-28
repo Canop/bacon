@@ -2,8 +2,8 @@ use {
     crate::*,
     anyhow::Result,
     crossbeam::channel::{bounded, select},
-    crossterm::event::{KeyCode::*, KeyEvent, KeyModifiers},
-    termimad::{Event, EventSource},
+    crossterm::event::{Event, KeyCode::*, KeyEvent, KeyModifiers},
+    termimad::EventSource,
 };
 
 pub fn run(w: &mut W, mission: Mission) -> Result<()> {
@@ -34,7 +34,7 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
         select! {
             recv(user_events) -> user_event => {
                 debug!("key event: {:?}", user_event);
-                match user_event? {
+                match user_event?.event {
                     Event::Resize(mut width, mut height) => {
                         // I don't know why but Crossterm seems to always report an
                         // understimated size on Windows

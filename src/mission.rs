@@ -76,7 +76,7 @@ impl MissionLocation {
     pub fn name(&self) -> String {
         self.package_directory
             .file_name()
-            .unwrap_or(self.package_directory.as_os_str())
+            .unwrap_or_else(|| self.package_directory.as_os_str())
             .to_string_lossy()
             .to_string()
     }

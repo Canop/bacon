@@ -57,6 +57,7 @@ impl Settings {
     }
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for Settings {
     fn default() -> Self {
         Self {
