@@ -1,5 +1,7 @@
-### next
+<a name="v1.5.2"></a>
+### v1.5.2 - 2022/01/29
 - fix missing output of "no_run" doctests - Fix #64
+- restrict naming of jobs to [\w-]+ regex (you were unlikely to use other chars due to the TOML format anyway)
 
 <a name="v1.2.4"></a>
 ### v1.2.4 - 2021/11/27

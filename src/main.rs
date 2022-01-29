@@ -13,6 +13,7 @@ mod line_analysis;
 mod line_type;
 mod list_jobs;
 mod mission;
+mod mission_location;
 mod package_config;
 mod prefs;
 mod report;
@@ -39,6 +40,7 @@ pub use {
     line_type::*,
     list_jobs::*,
     mission::*,
+    mission_location::*,
     package_config::*,
     prefs::*,
     report::*,

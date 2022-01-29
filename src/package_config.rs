@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::*,
+    lazy_regex::regex_is_match,
     serde::Deserialize,
     std::{collections::HashMap, fs, path::Path},
 };
@@ -26,7 +27,7 @@ impl PackageConfig {
             bail!("Invalid bacon.toml : no job found");
         }
         for (name, job) in &conf.jobs {
-            if name.is_empty() || name.contains('.') || name.contains('/') {
+            if !regex_is_match!(r#"^[\w-]+$"#, name) {
                 bail!(
                     "Invalid bacon.toml : Illegal job name : {:?}",
                     name
