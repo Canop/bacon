@@ -12,12 +12,15 @@ pub struct Prefs {
     pub summary: Option<bool>,
     pub wrap: Option<bool>,
     pub reverse: Option<bool>,
-    pub vim_keys: Option<bool>,
+    pub vim_keys: Option<bool>, // deprecated thanks to keybindings
+    pub keybindings: Option<KeyBindings>,
 }
 
 impl Prefs {
     pub fn from_path(path: &Path) -> Result<Self> {
-        Ok(toml::from_str(&fs::read_to_string(path)?)?)
+        let prefs = toml::from_str(&fs::read_to_string(path)?)
+            .with_context(|| format!("Failed to parse preference file at {:?}", path))?;
+        Ok(prefs)
     }
 }
 

@@ -1,9 +1,33 @@
-#[derive(Debug, Clone, Copy)]
+use {
+    lazy_regex::*,
+    std::fmt,
+};
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ScrollCommand {
     Top,
     Bottom,
     Lines(i32),
     Pages(i32),
+}
+
+impl fmt::Display for ScrollCommand {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Top => write!(f, "scroll to top"),
+            Self::Bottom => write!(f, "scroll to bottom"),
+            Self::Lines(lines) => if *lines > 0 {
+                write!(f, "scroll {lines} lines down")
+            } else {
+                write!(f, "scroll {lines} lines up")
+            }
+            Self::Pages(pages) => if *pages > 0 {
+                write!(f, "scroll {pages} pages down")
+            } else {
+                write!(f, "scroll {pages} pages up")
+            }
+        }
+    }
 }
 
 impl ScrollCommand {
@@ -23,6 +47,25 @@ impl ScrollCommand {
                 .max(0) as usize
         } else {
             0
+        }
+    }
+}
+
+impl std::str::FromStr for ScrollCommand {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, ()> {
+        if s == "scroll-to-top" {
+            Ok(Self::Top)
+        } else if s == "scroll-to-bottom" {
+            Ok(Self::Bottom)
+        } else if let Some((_, lines)) = regex_captures!(r#"^scroll-lines?\(([+-]?\d{1,4})\)$"#, s) {
+            let lines = lines.parse().unwrap(); // can't fail
+            Ok(Self::Lines(lines))
+        } else if let Some((_, pages)) = regex_captures!(r#"^scroll-pages?\(([+-]?\d{1,4})\)$"#, s) {
+            let pages = pages.parse().unwrap(); // can't fail
+            Ok(Self::Pages(pages))
+        } else {
+            Err(())
         }
     }
 }

@@ -1,3 +1,4 @@
+mod action;
 mod app;
 mod args;
 mod cli;
@@ -7,7 +8,10 @@ mod defaults;
 mod drawing;
 mod executor;
 mod failure;
+mod help_line;
+mod internal;
 mod job;
+mod keybindings;
 mod line;
 mod line_analysis;
 mod line_type;
@@ -25,6 +29,7 @@ mod tty;
 mod wrap;
 
 pub use {
+    action::*,
     app::*,
     args::*,
     cli::*,
@@ -34,7 +39,10 @@ pub use {
     drawing::*,
     executor::*,
     failure::*,
+    help_line::*,
+    internal::*,
     job::*,
+    keybindings::*,
     line::*,
     line_analysis::*,
     line_type::*,

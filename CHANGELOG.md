@@ -1,5 +1,8 @@
-<a name="v1.5.2"></a>
-### v1.5.2 - 2022/01/29
+### next
+Major feature: it's now possible to configure key bindings in the prefs.toml file.
+
+<a name="v1.2.5"></a>
+### v1.2.5 - 2022/01/29
 - fix missing output of "no_run" doctests - Fix #64
 - restrict naming of jobs to [\w-]+ regex (you were unlikely to use other chars due to the TOML format anyway)
 

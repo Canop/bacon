@@ -23,7 +23,7 @@ pub struct AppState {
     /// the lines of a computation in progress
     lines: Option<Vec<CommandOutputLine>>,
     /// result of a command, hopefully a report
-    cmd_result: CommandResult,
+    pub cmd_result: CommandResult,
     /// a report wrapped for the size of the console
     wrapped_report: Option<WrappedReport>,
     /// screen width
@@ -38,6 +38,7 @@ pub struct AppState {
     pub backtrace: bool,
     /// whether we should display only titles and locations
     summary: bool,
+    /// whether we display the gui bottom-to-top
     reverse: bool,
     /// colors and styles used for status bar
     status_skin: MadSkin,
@@ -45,6 +46,8 @@ pub struct AppState {
     scroll: usize,
     /// item_idx of the item which was on top on last draw
     top_item_idx: usize,
+    /// the tool building the help line
+    help_line: HelpLine,
 }
 
 impl AppState {
@@ -71,6 +74,7 @@ impl AppState {
             status_skin,
             scroll: 0,
             top_item_idx: 0,
+            help_line: HelpLine::new(&mission.settings),
         })
     }
 }
@@ -234,26 +238,14 @@ impl AppState {
         self.apply_scroll_command(cmd);
         self.draw(w)
     }
-    fn draw_status(&self, w: &mut W, y: u16) -> Result<()> {
-        let mut parts = vec!["hit *q* to quit"];
-        if let CommandResult::Report(report) = &self.cmd_result {
-            if report.suggest_backtrace {
-                parts.push("*t* to toggle backtraces");
-            } else {
-                parts.push("*s* to toggle summary mode");
-                if self.wrap {
-                    parts.push("*w* to not wrap lines");
-                } else {
-                    parts.push("*w* to wrap lines");
-                }
-            }
-        }
-        let status = parts.join(", ");
+    /// draw the grey line containing the keybindings indications
+    fn draw_help_line(&self, w: &mut W, y: u16) -> Result<()> {
+        let markdown = self.help_line.markdown(self);
         if self.height > 1 {
             goto(w, y)?;
             self.status_skin.write_composite_fill(
                 w,
-                Composite::from_inline(&status),
+                Composite::from_inline(&markdown),
                 self.width.into(),
                 Alignment::Left,
             )?;
@@ -336,13 +328,14 @@ impl AppState {
         }
         if let CommandResult::Report(report) = &self.cmd_result {
             if self.wrap {
-                if self.wrapped_report.is_none() {
-                    self.wrapped_report = Some(WrappedReport::new(report, self.width));
-                    self.scroll = self.get_last_item_scroll();
-                }
-                // SAFETY: we just ensured it's here
-                // (will be cleaner when Option::insert is available in stable)
-                let wrapped_report = self.wrapped_report.as_ref().unwrap();
+                let wrapped_report = match self.wrapped_report.as_mut() {
+                    None => {
+                        let wr = WrappedReport::new(report, self.width);
+                        self.scroll = self.get_last_item_scroll();
+                        self.wrapped_report.insert(wr)
+                    }
+                    Some(wr) => wr,
+                };
                 let mut sub_lines = wrapped_report
                     .sub_lines
                     .iter()
@@ -419,7 +412,7 @@ impl AppState {
     /// draw the state on the whole terminal
     pub fn draw(&mut self, w: &mut W) -> Result<()> {
         if self.reverse {
-            self.draw_status(w, 0)?;
+            self.draw_help_line(w, 0)?;
             self.draw_content(w, 1)?;
             self.draw_computing(w, self.height - 2)?;
             self.draw_badges(w, self.height - 1)?;
@@ -427,7 +420,7 @@ impl AppState {
             self.draw_badges(w, 0)?;
             self.draw_computing(w, 1)?;
             self.draw_content(w, 2)?;
-            self.draw_status(w, self.height - 1)?;
+            self.draw_help_line(w, self.height - 1)?;
         }
         w.flush()?;
         Ok(())

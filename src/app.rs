@@ -2,7 +2,7 @@ use {
     crate::*,
     anyhow::Result,
     crossbeam::channel::{bounded, select},
-    crossterm::event::{Event, KeyCode::*, KeyEvent, KeyModifiers},
+    crossterm::event::Event,
     termimad::EventSource,
 };
 
@@ -28,7 +28,6 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
 
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
-    let vim_keys = mission.settings.vim_keys;
     #[allow(unused_mut)]
     loop {
         select! {
@@ -46,58 +45,36 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                         state.resize(width, height);
                         state.draw(w)?;
                     }
-                    Event::Key(KeyEvent{ code, modifiers }) => {
-                        match (code, modifiers) {
-                            (Char('q'), KeyModifiers::NONE)
-                                | (Char('c'), KeyModifiers::CONTROL)
-                                | (Char('q'), KeyModifiers::CONTROL)
-                            => {
-                                debug!("user requests quit");
-                                executor.die()?;
-                                debug!("executor dead");
-                                break;
-                            }
-                            (Char('s'), KeyModifiers::NONE) => {
-                                debug!("user toggles summary mode");
-                                state.toggle_summary_mode();
-                                state.draw(w)?;
-                            }
-                            (Char('w'), KeyModifiers::NONE) => {
-                                debug!("user toggles wrapping");
-                                state.toggle_wrap_mode();
-                                state.draw(w)?;
-                            }
-                            (Char('t'), KeyModifiers::NONE) => {
-                                debug!("user toggles backtraces");
-                                state.toggle_backtrace();
-                                if let Err(e) = executor.start(state.new_task()) {
-                                    debug!("error sending task: {}", e);
-                                } else {
-                                    state.computation_starts();
+                    Event::Key(key_event) => {
+                        if let Some(action) = mission.settings.keybindings.get(key_event) {
+                            debug!("requested action: {:?}", action);
+                            let Action::Internal(internal) = action;
+                            match internal {
+                                Internal::Quit => {
+                                    executor.die()?;
+                                    break;
                                 }
-                                state.draw(w)?;
+                                Internal::ToggleSummary => {
+                                    state.toggle_summary_mode();
+                                    state.draw(w)?;
+                                }
+                                Internal::ToggleWrap => {
+                                    state.toggle_wrap_mode();
+                                    state.draw(w)?;
+                                }
+                                Internal::ToggleBacktrace => {
+                                    state.toggle_backtrace();
+                                    if let Err(e) = executor.start(state.new_task()) {
+                                        debug!("error sending task: {}", e);
+                                    } else {
+                                        state.computation_starts();
+                                    }
+                                    state.draw(w)?;
+                                }
+                                Internal::Scroll(scroll_command) => {
+                                    state.scroll(w, *scroll_command)?;
+                                }
                             }
-                            (Home, _) => { state.scroll(w, ScrollCommand::Top)?; }
-                            (End, _) => { state.scroll(w, ScrollCommand::Bottom)?; }
-                            (Up, _) => { state.scroll(w, ScrollCommand::Lines(-1))?; }
-                            (Down, _) => { state.scroll(w, ScrollCommand::Lines(1))?; }
-                            (PageUp, _) => { state.scroll(w, ScrollCommand::Pages(-1))?; }
-                            (PageDown, _) => { state.scroll(w, ScrollCommand::Pages(1))?; }
-                            (Char(' '), _) => { state.scroll(w, ScrollCommand::Pages(1))?; }
-
-                            (Char('g'), KeyModifiers::NONE) if vim_keys => {
-                                state.scroll(w, ScrollCommand::Top)?;
-                            }
-                            (Char('G'), KeyModifiers::SHIFT) if vim_keys => {
-                                state.scroll(w, ScrollCommand::Bottom)?;
-                            }
-                            (Char('k'), KeyModifiers::NONE) if vim_keys => {
-                                state.scroll(w, ScrollCommand::Lines(-1))?;
-                            }
-                            (Char('j'), KeyModifiers::NONE) if vim_keys => {
-                                state.scroll(w, ScrollCommand::Lines(1))?;
-                            }
-                            _ => {}
                         }
                     }
                     _ => {}

@@ -69,12 +69,13 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "bacon"
-version = "1.2.5"
+version = "1.2.6-dev"
 dependencies = [
  "anyhow",
  "argh",
  "cargo_metadata",
  "cli-log",
+ "crokey",
  "crossbeam",
  "crossterm",
  "directories-next",
@@ -170,6 +171,29 @@ checksum = "b78645ef095d812eecfa830f67e35394314e31be71fdba59543274542c950013"
 dependencies = [
  "ansi_colours",
  "crossterm",
+]
+
+[[package]]
+name = "crokey"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4219688ddf851f784c11c8be2da562bcc911e20919119cb03f10fda27d231ef"
+dependencies = [
+ "crokey-proc_macros",
+ "crossterm",
+ "once_cell",
+ "serde",
+]
+
+[[package]]
+name = "crokey-proc_macros"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d4832efaa2189caf3fbcf30a96e1f614503140712f7da8da4032ac1c841ac78"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

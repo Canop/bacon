@@ -1,14 +1,14 @@
 use crate::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Settings {
     pub summary: bool,
     pub wrap: bool,
     pub reverse: bool,
-    pub vim_keys: bool,
     pub no_default_features: bool,
     pub all_features: bool,
     pub features: Option<String>, // comma separated list
+    pub keybindings: KeyBindings,
 }
 
 impl Settings {
@@ -22,8 +22,11 @@ impl Settings {
         if let Some(b) = prefs.reverse {
             self.reverse = b;
         }
-        if let Some(b) = prefs.vim_keys {
-            self.vim_keys = b;
+        if prefs.vim_keys == Some(true) {
+            self.keybindings.add_vim_keys();
+        }
+        if let Some(pref_keybindings) = prefs.keybindings.as_ref() {
+            self.keybindings.add_all(pref_keybindings);
         }
     }
     pub fn apply_args(&mut self, args: &Args) {
@@ -57,17 +60,17 @@ impl Settings {
     }
 }
 
-#[allow(clippy::derivable_impls)]
-impl Default for Settings {
-    fn default() -> Self {
-        Self {
-            summary: false,
-            wrap: false,
-            reverse: false,
-            vim_keys: false,
-            no_default_features: false,
-            all_features: false,
-            features: None,
-        }
-    }
-}
+//#[allow(clippy::derivable_impls)]
+//impl Default for Settings {
+//    fn default() -> Self {
+//        Self {
+//            summary: false,
+//            wrap: false,
+//            reverse: false,
+//            vim_keys: false,
+//            no_default_features: false,
+//            all_features: false,
+//            features: None,
+//        }
+//    }
+//}

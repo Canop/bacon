@@ -22,7 +22,8 @@ impl PackageConfig {
             .ok_or_else(|| anyhow!("Invalid bacon.toml : job not found: {:?}", key))
     }
     pub fn from_path(path: &Path) -> Result<Self> {
-        let conf = toml::from_str::<PackageConfig>(&fs::read_to_string(path)?)?;
+        let conf = toml::from_str::<PackageConfig>(&fs::read_to_string(path)?)
+            .with_context(|| format!("Failed to parse configuration file at {:?}", path))?;
         if conf.jobs.is_empty() {
             bail!("Invalid bacon.toml : no job found");
         }
