@@ -6,8 +6,13 @@ use {
     termimad::EventSource,
 };
 
-pub fn run(w: &mut W, mission: Mission) -> Result<()> {
-    let mut state = AppState::new(&mission)?;
+/// Run the mission and return the reference to the next
+/// job to run, if any
+pub fn run(
+    w: &mut W,
+    mission: &Mission,
+) -> Result<Option<JobRef>> {
+    let mut state = AppState::new(mission)?;
     state.computation_starts();
     state.draw(w)?;
 
@@ -23,11 +28,12 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
     })?;
     mission.add_watchs(&mut watcher)?;
 
-    let executor = Executor::new(&mission)?;
+    let executor = Executor::new(mission)?;
     executor.start(state.new_task())?; // first computation
 
     let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
+    let mut next_job: Option<JobRef> = None;
     #[allow(unused_mut)]
     loop {
         select! {
@@ -48,31 +54,38 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
                     Event::Key(key_event) => {
                         if let Some(action) = mission.settings.keybindings.get(key_event) {
                             debug!("requested action: {:?}", action);
-                            let Action::Internal(internal) = action;
-                            match internal {
-                                Internal::Quit => {
-                                    executor.die()?;
-                                    break;
-                                }
-                                Internal::ToggleSummary => {
-                                    state.toggle_summary_mode();
-                                    state.draw(w)?;
-                                }
-                                Internal::ToggleWrap => {
-                                    state.toggle_wrap_mode();
-                                    state.draw(w)?;
-                                }
-                                Internal::ToggleBacktrace => {
-                                    state.toggle_backtrace();
-                                    if let Err(e) = executor.start(state.new_task()) {
-                                        debug!("error sending task: {}", e);
-                                    } else {
-                                        state.computation_starts();
+                            match action {
+                                Action::Internal(internal) => {
+                                    match internal {
+                                        Internal::Quit => {
+                                            executor.die()?;
+                                            break;
+                                        }
+                                        Internal::ToggleSummary => {
+                                            state.toggle_summary_mode();
+                                            state.draw(w)?;
+                                        }
+                                        Internal::ToggleWrap => {
+                                            state.toggle_wrap_mode();
+                                            state.draw(w)?;
+                                        }
+                                        Internal::ToggleBacktrace => {
+                                            state.toggle_backtrace();
+                                            if let Err(e) = executor.start(state.new_task()) {
+                                                debug!("error sending task: {}", e);
+                                            } else {
+                                                state.computation_starts();
+                                            }
+                                            state.draw(w)?;
+                                        }
+                                        Internal::Scroll(scroll_command) => {
+                                            state.scroll(w, *scroll_command)?;
+                                        }
                                     }
-                                    state.draw(w)?;
                                 }
-                                Internal::Scroll(scroll_command) => {
-                                    state.scroll(w, *scroll_command)?;
+                                Action::Job(job_name) => {
+                                    next_job = Some(JobRef::from_internal(job_name));
+                                    break;
                                 }
                             }
                         }
@@ -123,5 +136,5 @@ pub fn run(w: &mut W, mission: Mission) -> Result<()> {
             }
         }
     }
-    Ok(())
+    Ok(next_job)
 }

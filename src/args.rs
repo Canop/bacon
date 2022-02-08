@@ -7,7 +7,7 @@ use {
 /// bacon watches your source and run code checks in background.
 ///
 ///
-/// Source at https://github.com/Canop/bacon
+/// Source at <https://github.com/Canop/bacon>
 pub struct Args {
     /// print the version
     #[argh(switch, short = 'v')]

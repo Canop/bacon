@@ -12,14 +12,18 @@ use {
 pub struct PackageConfig {
     pub default_job: String,
     pub jobs: HashMap<String, Job>,
+    pub keybindings: Option<KeyBindings>,
 }
 
 impl PackageConfig {
-    pub fn get_job(&self, name: Option<&str>) -> Result<(&String, &Job)> {
-        let key = name.unwrap_or(&self.default_job);
+    pub fn get_job(&self, job_ref: &JobRef) -> Result<(&String, &Job)> {
+        let key = match job_ref {
+            JobRef::Default => &self.default_job,
+            JobRef::Name(name) => name,
+        };
         self.jobs
             .get_key_value(key)
-            .ok_or_else(|| anyhow!("Invalid bacon.toml : job not found: {:?}", key))
+            .ok_or_else(|| anyhow!("job not found: {:?}", key))
     }
     pub fn from_path(path: &Path) -> Result<Self> {
         let conf = toml::from_str::<PackageConfig>(&fs::read_to_string(path)?)

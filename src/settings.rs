@@ -1,5 +1,13 @@
 use crate::*;
 
+/// The settings used in the application.
+///
+/// They're made from default, overriden (in order)
+/// by the general prefs (global prefs.toml file), by
+/// the package config (bacon.toml file in the project
+/// directory) and by the launch arguments.
+///
+/// They're immutable during the execution of the missions.
 #[derive(Debug, Clone, Default)]
 pub struct Settings {
     pub summary: bool,
@@ -27,6 +35,11 @@ impl Settings {
         }
         if let Some(pref_keybindings) = prefs.keybindings.as_ref() {
             self.keybindings.add_all(pref_keybindings);
+        }
+    }
+    pub fn apply_package_config(&mut self, package_config: &PackageConfig) {
+        if let Some(keybindings) = package_config.keybindings.as_ref() {
+            self.keybindings.add_all(keybindings);
         }
     }
     pub fn apply_args(&mut self, args: &Args) {
@@ -59,18 +72,3 @@ impl Settings {
         }
     }
 }
-
-//#[allow(clippy::derivable_impls)]
-//impl Default for Settings {
-//    fn default() -> Self {
-//        Self {
-//            summary: false,
-//            wrap: false,
-//            reverse: false,
-//            vim_keys: false,
-//            no_default_features: false,
-//            all_features: false,
-//            features: None,
-//        }
-//    }
-//}

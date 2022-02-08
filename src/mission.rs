@@ -13,34 +13,34 @@ use {
 /// the description of the mission of bacon
 /// after analysis of the args, env, and surroundings
 #[derive(Debug)]
-pub struct Mission {
+pub struct Mission<'s> {
     pub location_name: String,
     pub job_name: String,
     cargo_execution_directory: PathBuf,
     job: Job,
     files_to_watch: Vec<PathBuf>,
     directories_to_watch: Vec<PathBuf>,
-    pub settings: Settings,
+    pub settings: &'s Settings,
 }
 
-impl Mission {
+impl<'s> Mission<'s> {
     pub fn new(
-        location: MissionLocation,
+        location: &MissionLocation,
         package_config: &PackageConfig,
-        job_name: Option<&str>,
-        settings: Settings,
+        job_ref: JobRef,
+        settings: &'s Settings,
     ) -> Result<Self> {
         let location_name = location.name();
         let add_all_src = location.intended_is_package;
         let (job_name, job) = package_config
-            .get_job(job_name)
+            .get_job(&job_ref)
             .map(|(n, j)| (n.to_string(), j.clone()))?;
         let mut files_to_watch: Vec<PathBuf> = Vec::new();
         let mut directories_to_watch = Vec::new();
         if !location.intended_is_package {
-            directories_to_watch.push(location.intended_dir);
+            directories_to_watch.push(location.intended_dir.clone());
         }
-        for item in location.packages {
+        for item in &location.packages {
             if item.source.is_none() {
                 let item_path = item
                     .manifest_path
@@ -59,14 +59,14 @@ impl Mission {
                     }
                 }
                 if item.manifest_path.exists() {
-                    files_to_watch.push(item.manifest_path.into());
+                    files_to_watch.push(item.manifest_path.clone().into());
                 } else {
                     warn!("missing manifest file: {:?}", item.manifest_path);
                 }
             }
         }
 
-        let cargo_execution_directory = location.package_directory;
+        let cargo_execution_directory = location.package_directory.clone();
         Ok(Mission {
             location_name,
             job_name,

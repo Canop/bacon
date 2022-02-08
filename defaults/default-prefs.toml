@@ -16,26 +16,22 @@
 #
 # reverse = true
 
-# Uncomment to enable vim like navigation
-# with g, G, j, k
-#
-# vim_keys = true
 # Uncomment and change the key-bindings you want to define
 [keybindings]
-ctrl-c = "internal:quit"
-ctrl-q = "internal:quit"
-q = "internal:quit"
-s = "internal:toggle-summary"
-w = "internal:toggle-wrap"
-t = "internal:toggle-backtrace"
-Home = "internal:scroll-to-top"
-End = "internal:scroll-to-bottom"
-Up = "internal:scroll-lines(-1)"
-Down = "internal:scroll-lines(1)"
-PageUp = "internal:scroll-pages(-1)"
-PageDown = "internal:scroll-pages(1)"
-Space = "internal:scroll-pages(1)"
-g = "internal:scroll-to-top"
-shift-g = "internal:scroll-to-bottom"
-k = "internal:scroll-lines(-1)"
-j = "internal:scroll-lines(1)"
+# ctrl-c = "internal:quit"
+# ctrl-q = "internal:quit"
+# q = "internal:quit"
+# s = "internal:toggle-summary"
+# w = "internal:toggle-wrap"
+# t = "internal:toggle-backtrace"
+# Home = "internal:scroll-to-top"
+# End = "internal:scroll-to-bottom"
+# Up = "internal:scroll-lines(-1)"
+# Down = "internal:scroll-lines(1)"
+# PageUp = "internal:scroll-pages(-1)"
+# PageDown = "internal:scroll-pages(1)"
+# Space = "internal:scroll-pages(1)"
+# g = "internal:scroll-to-top"
+# shift-g = "internal:scroll-to-bottom"
+# k = "internal:scroll-lines(-1)"
+# j = "internal:scroll-lines(1)"

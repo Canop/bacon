@@ -74,7 +74,7 @@ impl AppState {
             status_skin,
             scroll: 0,
             top_item_idx: 0,
-            help_line: HelpLine::new(&mission.settings),
+            help_line: HelpLine::new(mission.settings),
         })
     }
 }

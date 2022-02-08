@@ -11,6 +11,7 @@ mod failure;
 mod help_line;
 mod internal;
 mod job;
+mod job_ref;
 mod keybindings;
 mod line;
 mod line_analysis;
@@ -42,6 +43,7 @@ pub use {
     help_line::*,
     internal::*,
     job::*,
+    job_ref::*,
     keybindings::*,
     line::*,
     line_analysis::*,

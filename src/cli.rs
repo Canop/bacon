@@ -76,8 +76,9 @@ pub fn run() -> anyhow::Result<()> {
     } else {
         PackageConfig::default()
     };
+    settings.apply_package_config(&package_config);
 
-    // args are applied after prefs, so that they can override them
+    // args are applied after prefs, and package config so that they can override them
     settings.apply_args(&args);
 
     if args.list_jobs {
@@ -85,14 +86,25 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let mission = Mission::new(location, &package_config, args.job.as_deref(), settings)?;
-    info!("mission: {:#?}", &mission);
+    let mut next_job: Option<JobRef> = Some(JobRef::from_app_arg(&args.job));
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
-    let r = app::run(&mut w, mission);
+    let mut result = Ok(());
+    while let Some(job_ref) = next_job.take() {
+        let r = Mission::new(&location, &package_config, job_ref, &settings)
+            .and_then(|mission| app::run(&mut w, &mission));
+        match r {
+            Ok(returned_next_job) => {
+                next_job = returned_next_job;
+            }
+            Err(e) => {
+                result = Err(e);
+            }
+        }
+    }
     w.queue(cursor::Show)?;
     w.queue(LeaveAlternateScreen)?;
     w.flush()?;
-    r
+    result
 }

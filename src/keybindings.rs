@@ -1,9 +1,5 @@
 use {
-    crate::{
-        Action,
-        Internal,
-        ScrollCommand,
-    },
+    crate::*,
     crokey::*,
     serde::Deserialize,
     std::collections::HashMap,
@@ -33,6 +29,7 @@ impl Default for KeyBindings {
         bindings.set(key!(PageUp), Internal::Scroll(ScrollCommand::Pages(-1)));
         bindings.set(key!(PageDown), Internal::Scroll(ScrollCommand::Pages(1)));
         bindings.set(key!(Space), Internal::Scroll(ScrollCommand::Pages(1)));
+        bindings.set(key!(esc), JobRef::Default);
         bindings
     }
 }

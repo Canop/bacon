@@ -42,7 +42,10 @@ impl Executor {
             loop {
                 select! {
                     recv(task_receiver) -> task => {
-                        let task = task.unwrap();
+                        let task = match task {
+                            Ok(task) => task,
+                            _ => { break; }
+                        };
                         debug!("starting task {:?}", task);
                         command.env(
                             "RUST_BACKTRACE",

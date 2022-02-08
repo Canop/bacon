@@ -12,6 +12,7 @@ use {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Action {
     Internal(Internal),
+    Job(String),
 }
 
 #[derive(Debug)]
@@ -42,13 +43,15 @@ impl std::error::Error for ParseActionError {}
 impl FromStr for Action {
     type Err = ParseActionError;
     fn from_str(s: &str) -> Result<Self, ParseActionError> {
-        if let Some((_, cat, con)) = regex_captures!(r#"^(\w+):(.+)$"#, s) {
+        if let Some((_, cat, con)) = regex_captures!(r#"^(\w+)\s*:\s*(\S+)$"#, s) {
             if cat == "internal" {
                 if let Ok(internal) = Internal::from_str(con) {
                     Ok(Self::Internal(internal))
                 } else {
                     Err(ParseActionError::UnknownInternal(con.to_string()))
                 }
+            } else if cat == "job" {
+                Ok(Self::Job(con.to_string()))
             } else {
                 Err(ParseActionError::UnknowCategory(cat.to_string()))
             }
@@ -61,6 +64,16 @@ impl FromStr for Action {
 impl From<Internal> for Action {
     fn from(i: Internal) -> Self {
         Self::Internal(i)
+    }
+}
+
+impl From<JobRef> for Action {
+    fn from(jr: JobRef) -> Self {
+        let name = match jr {
+            JobRef::Default => "default".to_string(),
+            JobRef::Name(name) => name,
+        };
+        Self::Job(name)
     }
 }
 
