@@ -86,14 +86,14 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let mut next_job: Option<JobRef> = Some(JobRef::from_app_arg(&args.job));
+    let mut next_job: Option<JobRef> = Some(JobRef::Initial);
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
     let mut result = Ok(());
     while let Some(job_ref) = next_job.take() {
         let r = Mission::new(&location, &package_config, job_ref, &settings)
-            .and_then(|mission| app::run(&mut w, &mission));
+            .and_then(|mission| app::run(&mut w, mission));
         match r {
             Ok(returned_next_job) => {
                 next_job = returned_next_job;

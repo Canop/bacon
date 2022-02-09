@@ -3,8 +3,10 @@ use {
     std::fmt,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Internal {
+    Back,
+    Help,
     Quit,
     Scroll(ScrollCommand),
     ToggleBacktrace,
@@ -15,6 +17,8 @@ pub enum Internal {
 impl fmt::Display for Internal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Self::Back => write!(f, "back to previous page or initial job"),
+            Self::Help => write!(f, "help"),
             Self::Quit => write!(f, "quit"),
             Self::Scroll(scroll_command) => scroll_command.fmt(f),
             Self::ToggleBacktrace => write!(f, "toggle backtrace"),
@@ -31,6 +35,8 @@ impl std::str::FromStr for Internal {
             return Ok(Self::Scroll(scroll_command));
         }
         match s {
+            "back" => Ok(Self::Back),
+            "help" => Ok(Self::Help),
             "quit" => Ok(Self::Quit),
             "toggle-backtrace" => Ok(Self::ToggleBacktrace),
             "toggle-summary" => Ok(Self::ToggleSummary),

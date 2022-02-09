@@ -33,7 +33,7 @@ impl<'s> Mission<'s> {
         let location_name = location.name();
         let add_all_src = location.intended_is_package;
         let (job_name, job) = package_config
-            .get_job(&job_ref)
+            .get_job(&job_ref, &settings.arg_job_name)
             .map(|(n, j)| (n.to_string(), j.clone()))?;
         let mut files_to_watch: Vec<PathBuf> = Vec::new();
         let mut directories_to_watch = Vec::new();

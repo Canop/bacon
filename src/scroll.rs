@@ -3,7 +3,7 @@ use {
     std::fmt,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ScrollCommand {
     Top,
     Bottom,
@@ -13,18 +13,22 @@ pub enum ScrollCommand {
 
 impl fmt::Display for ScrollCommand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn txt(n: i32, thing: &str, way: &str, f: &mut fmt::Formatter) -> fmt::Result {
+            let p = if n > 1 { "s" } else { "" };
+            write!(f, "scroll {n} {thing}{p} {way}")
+        }
         match self {
             Self::Top => write!(f, "scroll to top"),
             Self::Bottom => write!(f, "scroll to bottom"),
             Self::Lines(lines) => if *lines > 0 {
-                write!(f, "scroll {lines} lines down")
+                txt(*lines, "line", "down", f)
             } else {
-                write!(f, "scroll {lines} lines up")
+                txt(-lines, "line", "up", f)
             }
             Self::Pages(pages) => if *pages > 0 {
-                write!(f, "scroll {pages} pages down")
+                txt(*pages, "page", "down", f)
             } else {
-                write!(f, "scroll {pages} pages up")
+                txt(-pages, "page", "up", f)
             }
         }
     }

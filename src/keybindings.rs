@@ -2,7 +2,7 @@ use {
     crate::*,
     crokey::*,
     serde::Deserialize,
-    std::collections::HashMap,
+    std::collections::{HashMap, hash_map},
 };
 
 #[derive(Debug, Clone, Deserialize)]
@@ -16,6 +16,7 @@ impl Default for KeyBindings {
         let mut bindings = Self {
             map: HashMap::default(),
         };
+        bindings.set(key!('?'), Internal::Help);
         bindings.set(key!(ctrl-c), Internal::Quit);
         bindings.set(key!(ctrl-q), Internal::Quit);
         bindings.set(key!(q), Internal::Quit);
@@ -29,7 +30,8 @@ impl Default for KeyBindings {
         bindings.set(key!(PageUp), Internal::Scroll(ScrollCommand::Pages(-1)));
         bindings.set(key!(PageDown), Internal::Scroll(ScrollCommand::Pages(1)));
         bindings.set(key!(Space), Internal::Scroll(ScrollCommand::Pages(1)));
-        bindings.set(key!(esc), JobRef::Default);
+        bindings.set(key!(esc), Internal::Back);
+        bindings.set(key!(ctrl-d), JobRef::Default);
         bindings
     }
 }
@@ -68,6 +70,24 @@ impl KeyBindings {
             }
         }
         shortest
+    }
+    /// build and return a map from actions to all the possible shortcuts
+    pub fn build_reverse_map(&self) -> HashMap<&Action, Vec<CroKey>> {
+        let mut reverse_map = HashMap::new();
+        for (ck, action) in &self.map {
+            reverse_map
+                .entry(action).or_insert_with(Vec::new)
+                .push(*ck);
+        }
+        reverse_map
+    }
+}
+
+impl<'a> IntoIterator for &'a KeyBindings {
+    type Item = (&'a CroKey, &'a Action);
+    type IntoIter = hash_map::Iter<'a, CroKey, Action>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.map.iter()
     }
 }
 

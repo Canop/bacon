@@ -1,21 +1,30 @@
+use {
+    std::fmt,
+};
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum JobRef {
     Default,
-    Name(String),
+    Initial,
+    Name(String), // should be neither "initial" or "default"
 }
 
-impl JobRef {
-    pub fn from_app_arg(arg: &Option<String>) -> Self {
-        match arg {
-            Some(job_name) => Self::Name(job_name.clone()),
-            None => Self::Default,
+impl fmt::Display for JobRef {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Default => write!(f, "default"),
+            Self::Initial => write!(f, "initial"),
+            Self::Name(name) => write!(f, "{name:?}"),
         }
     }
-    pub fn from_internal(name: &str) -> Self {
-        if name == "default" {
-            Self::Default
-        } else {
-            Self::Name(name.to_string())
+}
+
+impl From<&str> for JobRef {
+    fn from(name: &str) -> Self {
+        match name {
+            "default" => Self::Default,
+            "initial" => Self::Initial,
+            _ => Self::Name(name.to_string()),
         }
     }
 }

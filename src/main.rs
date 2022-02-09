@@ -9,6 +9,7 @@ mod drawing;
 mod executor;
 mod failure;
 mod help_line;
+mod help_page;
 mod internal;
 mod job;
 mod job_ref;
@@ -41,6 +42,7 @@ pub use {
     executor::*,
     failure::*,
     help_line::*,
+    help_page::*,
     internal::*,
     job::*,
     job_ref::*,

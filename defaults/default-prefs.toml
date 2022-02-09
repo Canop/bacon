@@ -17,7 +17,9 @@
 # reverse = true
 
 # Uncomment and change the key-bindings you want to define
+# (some of those ones are the defaults)
 [keybindings]
+# esc = "internal:back"
 # ctrl-c = "internal:quit"
 # ctrl-q = "internal:quit"
 # q = "internal:quit"
@@ -35,3 +37,7 @@
 # shift-g = "internal:scroll-to-bottom"
 # k = "internal:scroll-lines(-1)"
 # j = "internal:scroll-lines(1)"
+# c = "job:clippy"
+# d = "job:doc-open"
+# alt-i = "job:initial"
+# alt-d = "job:default"

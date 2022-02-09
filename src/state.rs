@@ -13,13 +13,10 @@ use {
 };
 
 /// contains the currently rendered state of the application,
-/// including scroll level and the current report (if any)
-pub struct AppState {
-    /// project name: usually the name of the package directory
-    /// but might change
-    pub project_name: String,
-    /// "check", "clippy", "test", "check_windows", etc.
-    pub job_name: String,
+/// including scroll position and the current report (if any)
+pub struct AppState<'s> {
+    /// the mission to run, with settings
+    pub mission: Mission<'s>,
     /// the lines of a computation in progress
     lines: Option<Vec<CommandOutputLine>>,
     /// result of a command, hopefully a report
@@ -48,19 +45,21 @@ pub struct AppState {
     top_item_idx: usize,
     /// the tool building the help line
     help_line: HelpLine,
+    /// the help page displayed over the rest, if any
+    help_page: Option<HelpPage>,
 }
 
-impl AppState {
-    pub fn new(mission: &Mission) -> Result<Self> {
+impl<'s> AppState<'s> {
+
+    pub fn new(mission: Mission<'s>) -> Result<Self> {
         let mut status_skin = MadSkin::default();
         status_skin
             .paragraph
             .set_fgbg(AnsiValue(252), AnsiValue(239));
         status_skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
         let (width, height) = termimad::terminal_size();
+        let help_line = HelpLine::new(mission.settings);
         Ok(Self {
-            project_name: mission.location_name.clone(),
-            job_name: mission.job_name.clone(),
             lines: None,
             cmd_result: CommandResult::None,
             wrapped_report: None,
@@ -74,12 +73,12 @@ impl AppState {
             status_skin,
             scroll: 0,
             top_item_idx: 0,
-            help_line: HelpLine::new(mission.settings),
+            help_line,
+            help_page: None,
+            mission,
         })
     }
-}
 
-impl AppState {
     pub fn add_line(&mut self, line: CommandOutputLine) {
         let auto_scroll = self.is_scroll_at_bottom();
         self.lines.get_or_insert_with(Vec::new).push(line);
@@ -194,9 +193,31 @@ impl AppState {
         }
         0
     }
+    pub fn keybindings(&self) -> &KeyBindings {
+        &self.mission.settings.keybindings
+    }
     fn try_scroll_to_last_top_item(&mut self) {
         self.scroll = self.get_last_item_scroll();
         self.fix_scroll();
+    }
+    /// close the help and return true if it was open,
+    /// return false otherwise
+    pub fn close_help(&mut self) -> bool {
+        if self.help_page.is_some() {
+            self.help_page = None;
+            true
+        } else {
+            false
+        }
+    }
+    pub fn is_help(&self) -> bool {
+        self.help_page.is_some()
+    }
+    pub fn toggle_help(&mut self) {
+        self.help_page = match self.help_page {
+            Some(_) => None,
+            None => Some(HelpPage::new(self.mission.settings)),
+        };
     }
     pub fn toggle_summary_mode(&mut self) {
         self.summary ^= true;
@@ -231,12 +252,12 @@ impl AppState {
         self.height = height;
         self.try_scroll_to_last_top_item();
     }
-    fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
-        self.scroll = cmd.apply(self.scroll, self.content_height(), self.page_height());
-    }
-    pub fn scroll(&mut self, w: &mut W, cmd: ScrollCommand) -> Result<()> {
-        self.apply_scroll_command(cmd);
-        self.draw(w)
+    pub fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
+        if let Some(help_page) = self.help_page.as_mut() {
+            help_page.apply_scroll_command(cmd);
+        } else {
+            self.scroll = cmd.apply(self.scroll, self.content_height(), self.page_height());
+        }
     }
     /// draw the grey line containing the keybindings indications
     fn draw_help_line(&self, w: &mut W, y: u16) -> Result<()> {
@@ -257,9 +278,10 @@ impl AppState {
         goto(w, y)?;
         let mut t_line = TLine::default();
         // white over grey
-        t_line.add_badge(TString::badge(&self.project_name, 255, 240));
+        let project_name = &self.mission.location_name;
+        t_line.add_badge(TString::badge(project_name, 255, 240));
         // black over pink
-        t_line.add_badge(TString::badge(&self.job_name, 235, 204));
+        t_line.add_badge(TString::badge(&self.mission.job_name, 235, 204));
         if let CommandResult::Report(report) = &self.cmd_result {
             let stats = &report.stats;
             if stats.errors > 0 {
@@ -413,13 +435,21 @@ impl AppState {
     pub fn draw(&mut self, w: &mut W) -> Result<()> {
         if self.reverse {
             self.draw_help_line(w, 0)?;
-            self.draw_content(w, 1)?;
-            self.draw_computing(w, self.height - 2)?;
-            self.draw_badges(w, self.height - 1)?;
+            if let Some(help_page) = self.help_page.as_mut() {
+                help_page.draw(w, Area::new(0, 1, self.width, self.height-1))?;
+            } else {
+                self.draw_content(w, 1)?;
+                self.draw_computing(w, self.height - 2)?;
+                self.draw_badges(w, self.height - 1)?;
+            }
         } else {
-            self.draw_badges(w, 0)?;
-            self.draw_computing(w, 1)?;
-            self.draw_content(w, 2)?;
+            if let Some(help_page) = self.help_page.as_mut() {
+                help_page.draw(w, Area::new(0, 0, self.width, self.height-1))?;
+            } else {
+                self.draw_badges(w, 0)?;
+                self.draw_computing(w, 1)?;
+                self.draw_content(w, 2)?;
+            }
             self.draw_help_line(w, self.height - 1)?;
         }
         w.flush()?;

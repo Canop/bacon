@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::Result,
+    crokey::CroKey,
     crossbeam::channel::{bounded, select},
     crossterm::event::Event,
     termimad::EventSource,
@@ -10,12 +11,10 @@ use {
 /// job to run, if any
 pub fn run(
     w: &mut W,
-    mission: &Mission,
+    mission: Mission,
 ) -> Result<Option<JobRef>> {
-    let mut state = AppState::new(mission)?;
-    state.computation_starts();
-    state.draw(w)?;
 
+    let keybindings = mission.settings.keybindings.clone();
     let (watch_sender, watch_receiver) = bounded(0);
     let mut watcher = notify::recommended_watcher(move |res| match res {
         Ok(_) => {
@@ -28,7 +27,12 @@ pub fn run(
     })?;
     mission.add_watchs(&mut watcher)?;
 
-    let executor = Executor::new(mission)?;
+    let executor = Executor::new(&mission)?;
+
+    let mut state = AppState::new(mission)?;
+    state.computation_starts();
+    state.draw(w)?;
+
     executor.start(state.new_task())?; // first computation
 
     let event_source = EventSource::new()?;
@@ -38,7 +42,6 @@ pub fn run(
     loop {
         select! {
             recv(user_events) -> user_event => {
-                debug!("key event: {:?}", user_event);
                 match user_event?.event {
                     Event::Resize(mut width, mut height) => {
                         // I don't know why but Crossterm seems to always report an
@@ -52,22 +55,30 @@ pub fn run(
                         state.draw(w)?;
                     }
                     Event::Key(key_event) => {
-                        if let Some(action) = mission.settings.keybindings.get(key_event) {
-                            debug!("requested action: {:?}", action);
+                        if let Some(action) = keybindings.get(key_event) {
+                            debug!("key pressed: {}", CroKey::from(key_event));
+                            debug!("requested action: {action:?}");
                             match action {
                                 Action::Internal(internal) => {
                                     match internal {
+                                        Internal::Back => {
+                                            if !state.close_help() {
+                                                next_job = Some(JobRef::Initial);
+                                                break;
+                                            }
+                                        }
+                                        Internal::Help => {
+                                            state.toggle_help();
+                                        }
                                         Internal::Quit => {
                                             executor.die()?;
                                             break;
                                         }
                                         Internal::ToggleSummary => {
                                             state.toggle_summary_mode();
-                                            state.draw(w)?;
                                         }
                                         Internal::ToggleWrap => {
                                             state.toggle_wrap_mode();
-                                            state.draw(w)?;
                                         }
                                         Internal::ToggleBacktrace => {
                                             state.toggle_backtrace();
@@ -76,15 +87,15 @@ pub fn run(
                                             } else {
                                                 state.computation_starts();
                                             }
-                                            state.draw(w)?;
                                         }
                                         Internal::Scroll(scroll_command) => {
-                                            state.scroll(w, *scroll_command)?;
+                                            state.apply_scroll_command(*scroll_command);
                                         }
                                     }
+                                    state.draw(w)?;
                                 }
-                                Action::Job(job_name) => {
-                                    next_job = Some(JobRef::from_internal(job_name));
+                                Action::Job(job_ref) => {
+                                    next_job = Some((*job_ref).clone());
                                     break;
                                 }
                             }

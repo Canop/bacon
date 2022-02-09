@@ -9,10 +9,10 @@ use {
 };
 
 /// an action that can be mapped to a key
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Action {
     Internal(Internal),
-    Job(String),
+    Job(JobRef),
 }
 
 #[derive(Debug)]
@@ -51,7 +51,7 @@ impl FromStr for Action {
                     Err(ParseActionError::UnknownInternal(con.to_string()))
                 }
             } else if cat == "job" {
-                Ok(Self::Job(con.to_string()))
+                Ok(Self::Job(con.into()))
             } else {
                 Err(ParseActionError::UnknowCategory(cat.to_string()))
             }
@@ -69,11 +69,7 @@ impl From<Internal> for Action {
 
 impl From<JobRef> for Action {
     fn from(jr: JobRef) -> Self {
-        let name = match jr {
-            JobRef::Default => "default".to_string(),
-            JobRef::Name(name) => name,
-        };
-        Self::Job(name)
+        Self::Job(jr)
     }
 }
 

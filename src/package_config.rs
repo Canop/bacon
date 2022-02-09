@@ -16,10 +16,21 @@ pub struct PackageConfig {
 }
 
 impl PackageConfig {
-    pub fn get_job(&self, job_ref: &JobRef) -> Result<(&String, &Job)> {
+    pub fn get_job(
+        &self,
+        job_ref: &JobRef,
+        arg_job: &Option<String>, // the name provided in launch args
+    ) -> Result<(&String, &Job)> {
         let key = match job_ref {
             JobRef::Default => &self.default_job,
             JobRef::Name(name) => name,
+            JobRef::Initial => {
+                if let Some(name) = arg_job {
+                    name
+                } else {
+                    &self.default_job
+                }
+            }
         };
         self.jobs
             .get_key_value(key)

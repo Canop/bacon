@@ -10,6 +10,7 @@ use crate::*;
 /// They're immutable during the execution of the missions.
 #[derive(Debug, Clone, Default)]
 pub struct Settings {
+    pub arg_job_name: Option<String>,
     pub summary: bool,
     pub wrap: bool,
     pub reverse: bool,
@@ -43,6 +44,9 @@ impl Settings {
         }
     }
     pub fn apply_args(&mut self, args: &Args) {
+        if let Some(job_name) = &args.job {
+            self.arg_job_name = Some(job_name.clone());
+        }
         if args.no_summary {
             self.summary = false;
         }
