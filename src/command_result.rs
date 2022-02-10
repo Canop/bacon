@@ -28,6 +28,16 @@ impl CommandResult {
         // report looks valid
         Ok(Self::Report(report))
     }
+    /// return true when the report has been computed and there's been no
+    /// error, warning, or test failures
+    pub fn is_success(&self) -> bool {
+        match self {
+            Self::Report(report) => {
+                report.stats.errors + report.stats.warnings + report.stats.test_fails == 0
+            }
+            _ => false,
+        }
+    }
     pub fn reverse(&mut self) {
         match self {
             Self::Report(report) => {

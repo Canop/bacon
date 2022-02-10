@@ -28,7 +28,8 @@ impl HelpLine {
             .map(|k| format!("*{k}* to toggle backtraces"));
         let help = kb.shortest_internal_key(Internal::Help)
             .map(|k| format!("*{k}* for help"));
-        let close_help = kb.shortest_internal_key(Internal::Help)
+        let close_help = kb.shortest_internal_key(Internal::Back)
+            .or(kb.shortest_internal_key(Internal::Help))
             .map(|k| format!("*{k}* to close this help"));
         Self { quit, toggle_summary, wrap, not_wrap, toggle_backtrace, help, close_help }
     }

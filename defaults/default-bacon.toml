@@ -35,12 +35,14 @@ need_stdout = false
 [jobs.doc-open]
 command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
 need_stdout = false
-
+end_on_success = true
 
 # You may define here keybindings that would be specific to
-# a project, for example a shortcut to lauchn a specific job.
+# a project, for example a shortcut to launch a specific job.
 # Shortcuts to internal functions (scrolling, toggling, etc.)
 # should go in your personal prefs.toml file instead.
 [keybindings]
-alt-c = "job:clippy"
+i = "job:initial"
+c = "job:clippy"
 d = "job:doc-open"
+t = "job:test"

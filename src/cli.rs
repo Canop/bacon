@@ -86,23 +86,35 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let mut next_job: Option<JobRef> = Some(JobRef::Initial);
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
+
+    let mut job_stack = JobStack::new(&package_config, &settings);
+    let mut next_job = JobRef::Initial;
     let mut result = Ok(());
-    while let Some(job_ref) = next_job.take() {
-        let r = Mission::new(&location, &package_config, job_ref, &settings)
+    #[allow(clippy::while_let_loop)]
+    loop {
+        let (job_name, job) = match job_stack.pick_job(&next_job)? {
+            Some(t) => t,
+            None => { break; }
+        };
+        let r = Mission::new(&location, job_name, job, &settings)
             .and_then(|mission| app::run(&mut w, mission));
         match r {
-            Ok(returned_next_job) => {
-                next_job = returned_next_job;
+            Ok(Some(job_ref)) => {
+                next_job = job_ref;
+            }
+            Ok(None) => {
+                break;
             }
             Err(e) => {
                 result = Err(e);
+                break;
             }
         }
     }
+
     w.queue(cursor::Show)?;
     w.queue(LeaveAlternateScreen)?;
     w.flush()?;

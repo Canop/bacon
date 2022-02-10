@@ -19,4 +19,9 @@ pub struct Job {
     /// always captured)
     #[serde(default)]
     pub need_stdout: bool,
+
+    /// whether we should end the mission when there's no
+    /// error, warning or test failures
+    #[serde(default)]
+    pub end_on_success: bool,
 }

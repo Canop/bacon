@@ -55,18 +55,24 @@ impl Executor {
                         let mut child = match child {
                             Ok(child) => child,
                             Err(e) => {
-                                line_sender.send(CommandExecInfo::Error(
+                                if let Err(e) = line_sender.send(CommandExecInfo::Error(
                                     format!("command launch failed: {}", e)
-                                )).unwrap();
+                                )) {
+                                    debug!("error when sending launch error: {}", e);
+                                    break;
+                                }
                                 continue;
                             }
                         };
                         let stderr = match child.stderr.take() {
                             Some(stderr) => stderr,
                             None => {
-                                line_sender.send(CommandExecInfo::Error(
+                                if let Err(e) = line_sender.send(CommandExecInfo::Error(
                                     "taking stderr failed".to_string()
-                                )).unwrap();
+                                )) {
+                                    debug!("error when sending stderr error: {}", e);
+                                    break;
+                                }
                                 continue;
                             }
                         };
@@ -77,9 +83,12 @@ impl Executor {
                             let stdout = match child.stdout.take() {
                                 Some(stdout) => stdout,
                                 None => {
-                                    line_sender.send(CommandExecInfo::Error(
+                                    if let Err(e) = line_sender.send(CommandExecInfo::Error(
                                         "taking stdout failed".to_string()
-                                    )).unwrap();
+                                    )) {
+                                        debug!("error when sending stdout error: {}", e);
+                                        break;
+                                    }
                                     continue;
                                 }
                             };
@@ -153,7 +162,10 @@ impl Executor {
                                 None
                             }
                         };
-                        line_sender.send(CommandExecInfo::End { status }).unwrap();
+                        if let Err(e) = line_sender.send(CommandExecInfo::End { status }) {
+                            debug!("error when sending line: {}", e);
+                            break;
+                        }
                         debug!("finished command execution");
                         if let Some(thread) = out_thread {
                             debug!("waiting for out listening thread to join");

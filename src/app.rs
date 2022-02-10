@@ -63,7 +63,7 @@ pub fn run(
                                     match internal {
                                         Internal::Back => {
                                             if !state.close_help() {
-                                                next_job = Some(JobRef::Initial);
+                                                next_job = Some(JobRef::Previous);
                                                 break;
                                             }
                                         }
@@ -128,6 +128,13 @@ pub fn run(
                         if let Some(lines) = state.take_lines() {
                             let cmd_result = CommandResult::new(lines, status)?;
                             state.set_result(cmd_result);
+                            if state.should_end() {
+                                info!("mission ends on success");
+                                next_job = Some(JobRef::Previous);
+                                break;
+                            } else {
+                                debug!("no end");
+                            }
                         } else {
                             warn!("a computation finished but didn't start?");
                             state.computation_stops();

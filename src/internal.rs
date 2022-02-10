@@ -17,7 +17,7 @@ pub enum Internal {
 impl fmt::Display for Internal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Back => write!(f, "back to previous page or initial job"),
+            Self::Back => write!(f, "back to previous page or job"),
             Self::Help => write!(f, "help"),
             Self::Quit => write!(f, "quit"),
             Self::Scroll(scroll_command) => scroll_command.fmt(f),

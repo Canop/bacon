@@ -22,7 +22,7 @@ impl Default for KeyBindings {
         bindings.set(key!(q), Internal::Quit);
         bindings.set(key!(s), Internal::ToggleSummary);
         bindings.set(key!(w), Internal::ToggleWrap);
-        bindings.set(key!(t), Internal::ToggleBacktrace);
+        bindings.set(key!(b), Internal::ToggleBacktrace);
         bindings.set(key!(Home), Internal::Scroll(ScrollCommand::Top));
         bindings.set(key!(End), Internal::Scroll(ScrollCommand::Bottom));
         bindings.set(key!(Up), Internal::Scroll(ScrollCommand::Lines(-1)));
@@ -103,6 +103,7 @@ fn test_deserialize_keybindings(){
     Ctrl-U = "internal:scroll-pages(-2)"
     Ctrl-d = "internal:scroll-page(1)"
     alt-q = "internal:quit"
+    alt-p = "job:previous"
     "#;
     let conf = toml::from_str::<Config>(toml).unwrap();
     assert_eq!(
@@ -120,6 +121,11 @@ fn test_deserialize_keybindings(){
     assert_eq!(
         conf.keybindings.get(key!(alt-q)),
         Some(&Action::Internal(Internal::Quit)),
+    );
+
+    assert_eq!(
+        conf.keybindings.get(key!(alt-p)),
+        Some(&Action::Job(JobRef::Previous)),
     );
 
 }

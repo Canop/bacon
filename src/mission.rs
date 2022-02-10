@@ -26,15 +26,12 @@ pub struct Mission<'s> {
 impl<'s> Mission<'s> {
     pub fn new(
         location: &MissionLocation,
-        package_config: &PackageConfig,
-        job_ref: JobRef,
+        job_name: String,
+        job: Job,
         settings: &'s Settings,
     ) -> Result<Self> {
         let location_name = location.name();
         let add_all_src = location.intended_is_package;
-        let (job_name, job) = package_config
-            .get_job(&job_ref, &settings.arg_job_name)
-            .map(|(n, j)| (n.to_string(), j.clone()))?;
         let mut files_to_watch: Vec<PathBuf> = Vec::new();
         let mut directories_to_watch = Vec::new();
         if !location.intended_is_package {
@@ -76,6 +73,11 @@ impl<'s> Mission<'s> {
             directories_to_watch,
             settings,
         })
+    }
+
+    /// should end on success
+    pub fn end_on_success(&self) -> bool {
+        self.job.end_on_success
     }
 
     /// configure the watcher with files and directories to watch

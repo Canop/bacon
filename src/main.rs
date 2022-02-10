@@ -13,6 +13,7 @@ mod help_page;
 mod internal;
 mod job;
 mod job_ref;
+mod job_stack;
 mod keybindings;
 mod line;
 mod line_analysis;
@@ -46,6 +47,7 @@ pub use {
     internal::*,
     job::*,
     job_ref::*,
+    job_stack::*,
     keybindings::*,
     line::*,
     line_analysis::*,

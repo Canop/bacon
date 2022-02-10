@@ -324,6 +324,10 @@ impl<'s> AppState<'s> {
         }
         Ok(())
     }
+    ///
+    pub fn should_end(&mut self) -> bool {
+        self.cmd_result.is_success() && self.mission.end_on_success()
+    }
     /// draw the report or the lines of the current computation, between
     /// y and self.page_height()
     pub fn draw_content(&mut self, w: &mut W, y: u16) -> Result<()> {
