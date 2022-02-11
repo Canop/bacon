@@ -1,5 +1,9 @@
 ### next
-Major feature (Work In Progress): it's now possible to configure key bindings in the prefs.toml file. Those key bingings can trigger internal actions (scrolling, toggling, quitting) or jobs. - Fix #52
+Major features:
+- It's now possible to configure key bindings in the prefs.toml file. Those key bingings can trigger internal actions (scrolling, toggling, quitting) or jobs. - Fix #52
+- help page, listing all key-bindings
+Minor features:
+- fix character being lost behind scrollbar on wrapping
 
 <a name="v1.2.5"></a>
 ### v1.2.5 - 2022/01/29

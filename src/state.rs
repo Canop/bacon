@@ -356,7 +356,7 @@ impl<'s> AppState<'s> {
             if self.wrap {
                 let wrapped_report = match self.wrapped_report.as_mut() {
                     None => {
-                        let wr = WrappedReport::new(report, self.width);
+                        let wr = WrappedReport::new(report, area.width);
                         self.scroll = self.get_last_item_scroll();
                         self.wrapped_report.insert(wr)
                     }
@@ -460,3 +460,4 @@ impl<'s> AppState<'s> {
         Ok(())
     }
 }
+
