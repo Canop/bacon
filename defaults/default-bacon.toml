@@ -32,17 +32,27 @@ watch = ["tests"]
 command = ["cargo", "doc", "--color", "always", "--no-deps"]
 need_stdout = false
 
+# if the doc compiles, then it opens in your browser and bacon switches
+# to the previous job
 [jobs.doc-open]
 command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
 need_stdout = false
-end_on_success = true
+on_success = "internal:back" # so that we don't open the browser at each change
+
+# You can run your application and have the result displayed in bacon,
+# *if* it makes sense for this crate
+[jobs.run]
+command = ["cargo", "run"]
+need_stdout = true
 
 # You may define here keybindings that would be specific to
 # a project, for example a shortcut to launch a specific job.
 # Shortcuts to internal functions (scrolling, toggling, etc.)
 # should go in your personal prefs.toml file instead.
 [keybindings]
+a = "job:check-all"
 i = "job:initial"
 c = "job:clippy"
 d = "job:doc-open"
 t = "job:test"
+r = "job:run"

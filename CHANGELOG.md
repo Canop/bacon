@@ -1,8 +1,10 @@
 ### next
 Major features:
-- It's now possible to configure key bindings in the prefs.toml file. Those key bingings can trigger internal actions (scrolling, toggling, quitting) or jobs. - Fix #52
+- It's now possible to configure key bindings in the prefs.toml file. Those key bingings can trigger internal actions (scrolling, toggling, quitting) or jobs (for example you can launch `cargo test` on the `t` key. - Fix #52
 - help page, listing all key-bindings
-Minor features:
+- a job is said to be *successful* when there's no error, test failure or warning. When a job is successful, its output is displayed by bacon. This makes it possible to have a `cargo run` job, for example.
+- it's possible to define an *action* to run when a job is successful. For example you can launch a `cargo doc --open` job on a key, and have bacon switch to the previous job with the `on_success = "internal:back` trigger so that you don't open a browser page on every change
+Minor changes:
 - fix character being lost behind scrollbar on wrapping
 
 <a name="v1.2.5"></a>

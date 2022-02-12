@@ -7,6 +7,7 @@ use {
     },
     directories_next::ProjectDirs,
     std::{env, fs, io::Write},
+    termimad::EventSource,
 };
 
 /// the type used by all GUI writing functions
@@ -90,17 +91,22 @@ pub fn run() -> anyhow::Result<()> {
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
 
+    let event_source = EventSource::new()?;
     let mut job_stack = JobStack::new(&package_config, &settings);
     let mut next_job = JobRef::Initial;
     let mut result = Ok(());
     #[allow(clippy::while_let_loop)]
     loop {
-        let (job_name, job) = match job_stack.pick_job(&next_job)? {
-            Some(t) => t,
-            None => { break; }
+        let (job_name, job) = match job_stack.pick_job(&next_job) {
+            Err(e) => {
+                result = Err(e);
+                break;
+            }
+            Ok(Some(t)) => t,
+            Ok(None) => { break; }
         };
         let r = Mission::new(&location, job_name, job, &settings)
-            .and_then(|mission| app::run(&mut w, mission));
+            .and_then(|mission| app::run(&mut w, mission, &event_source));
         match r {
             Ok(Some(job_ref)) => {
                 next_job = job_ref;

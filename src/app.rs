@@ -12,6 +12,7 @@ use {
 pub fn run(
     w: &mut W,
     mission: Mission,
+    event_source: &EventSource,
 ) -> Result<Option<JobRef>> {
 
     let keybindings = mission.settings.keybindings.clone();
@@ -35,11 +36,11 @@ pub fn run(
 
     executor.start(state.new_task())?; // first computation
 
-    let event_source = EventSource::new()?;
     let user_events = event_source.receiver();
     let mut next_job: Option<JobRef> = None;
     #[allow(unused_mut)]
     loop {
+        let mut action: Option<&Action> = None;
         select! {
             recv(user_events) -> user_event => {
                 match user_event?.event {
@@ -52,54 +53,10 @@ pub fn run(
                             height += 1;
                         }
                         state.resize(width, height);
-                        state.draw(w)?;
                     }
                     Event::Key(key_event) => {
-                        if let Some(action) = keybindings.get(key_event) {
-                            debug!("key pressed: {}", CroKey::from(key_event));
-                            debug!("requested action: {action:?}");
-                            match action {
-                                Action::Internal(internal) => {
-                                    match internal {
-                                        Internal::Back => {
-                                            if !state.close_help() {
-                                                next_job = Some(JobRef::Previous);
-                                                break;
-                                            }
-                                        }
-                                        Internal::Help => {
-                                            state.toggle_help();
-                                        }
-                                        Internal::Quit => {
-                                            executor.die()?;
-                                            break;
-                                        }
-                                        Internal::ToggleSummary => {
-                                            state.toggle_summary_mode();
-                                        }
-                                        Internal::ToggleWrap => {
-                                            state.toggle_wrap_mode();
-                                        }
-                                        Internal::ToggleBacktrace => {
-                                            state.toggle_backtrace();
-                                            if let Err(e) = executor.start(state.new_task()) {
-                                                debug!("error sending task: {}", e);
-                                            } else {
-                                                state.computation_starts();
-                                            }
-                                        }
-                                        Internal::Scroll(scroll_command) => {
-                                            state.apply_scroll_command(*scroll_command);
-                                        }
-                                    }
-                                    state.draw(w)?;
-                                }
-                                Action::Job(job_ref) => {
-                                    next_job = Some((*job_ref).clone());
-                                    break;
-                                }
-                            }
-                        }
+                        debug!("key pressed: {}", CroKey::from(key_event));
+                        action = keybindings.get(key_event);
                     }
                     _ => {}
                 }
@@ -111,16 +68,12 @@ pub fn run(
                     debug!("error sending task: {}", e);
                 } else {
                     state.computation_starts();
-                    state.draw(w)?;
                 }
             }
             recv(executor.line_receiver) -> info => {
                 match info? {
                     CommandExecInfo::Line(line) => {
                         state.add_line(line);
-                        if !state.has_report() {
-                            state.draw(w)?;
-                        }
                     }
                     CommandExecInfo::End { status } => {
                         info!("execution finished with status: {:?}", status);
@@ -128,23 +81,15 @@ pub fn run(
                         if let Some(lines) = state.take_lines() {
                             let cmd_result = CommandResult::new(lines, status)?;
                             state.set_result(cmd_result);
-                            if state.should_end() {
-                                info!("mission ends on success");
-                                next_job = Some(JobRef::Previous);
-                                break;
-                            } else {
-                                debug!("no end");
-                            }
+                            action = state.action();
                         } else {
                             warn!("a computation finished but didn't start?");
                             state.computation_stops();
                         }
-                        state.draw(w)?;
                     }
                     CommandExecInfo::Error(e) => {
                         warn!("error in computation: {}", e);
                         state.computation_stops();
-                        state.draw(w)?;
                         break;
                     }
                     CommandExecInfo::Interruption => {
@@ -153,6 +98,54 @@ pub fn run(
                 }
             }
         }
+        if let Some(action) = action.take() {
+            debug!("requested action: {action:?}");
+            match action {
+                Action::Internal(internal) => {
+                    match internal {
+                        Internal::Back => {
+                            if !state.close_help() {
+                                next_job = Some(JobRef::Previous);
+                                break;
+                            }
+                        }
+                        Internal::Help => {
+                            state.toggle_help();
+                        }
+                        Internal::Quit => {
+                            executor.die()?;
+                            break;
+                        }
+                        Internal::RawOutput => {
+                            state.set_raw_output();
+                        }
+                        Internal::ToggleSummary => {
+                            state.toggle_summary_mode();
+                        }
+                        Internal::ToggleWrap => {
+                            state.toggle_wrap_mode();
+                        }
+                        Internal::ToggleBacktrace => {
+                            state.toggle_backtrace();
+                            if let Err(e) = executor.start(state.new_task()) {
+                                debug!("error sending task: {}", e);
+                            } else {
+                                state.computation_starts();
+                            }
+                        }
+                        Internal::Scroll(scroll_command) => {
+                            let scroll_command = *scroll_command;
+                            state.apply_scroll_command(scroll_command);
+                        }
+                    }
+                }
+                Action::Job(job_ref) => {
+                    next_job = Some((*job_ref).clone());
+                    break;
+                }
+            }
+        }
+        state.draw(w)?;
     }
     Ok(next_job)
 }

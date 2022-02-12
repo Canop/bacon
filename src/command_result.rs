@@ -17,7 +17,7 @@ pub enum CommandResult {
 impl CommandResult {
     pub fn new(lines: Vec<CommandOutputLine>, exit_status: Option<ExitStatus>) -> Result<Self> {
         let error_code = exit_status.and_then(|s| s.code()).filter(|&c| c != 0);
-        let report = Report::from_lines(&lines)?;
+        let mut report = Report::from_lines(&lines)?;
         if let Some(error_code) = error_code {
             if report.stats.errors + report.stats.test_fails == 0 {
                 // report shows no error while the command exe reported
@@ -25,9 +25,18 @@ impl CommandResult {
                 return Ok(Self::Failure(Failure { error_code, lines }));
             }
         }
+        report.cmd_lines = lines; // We could do more elegantly, probably
         // report looks valid
         Ok(Self::Report(report))
     }
+
+    pub fn report(&self) -> Option<&Report> {
+        match self {
+            Self::Report(report) => Some(report),
+            _ => None,
+        }
+    }
+
     /// return true when the report has been computed and there's been no
     /// error, warning, or test failures
     pub fn is_success(&self) -> bool {
@@ -38,6 +47,7 @@ impl CommandResult {
             _ => false,
         }
     }
+
     pub fn reverse(&mut self) {
         match self {
             Self::Report(report) => {

@@ -47,6 +47,8 @@ pub struct AppState<'s> {
     help_line: HelpLine,
     /// the help page displayed over the rest, if any
     help_page: Option<HelpPage>,
+    /// display the raw output instead of the report
+    raw_output: bool,
 }
 
 impl<'s> AppState<'s> {
@@ -76,6 +78,7 @@ impl<'s> AppState<'s> {
             help_line,
             help_page: None,
             mission,
+            raw_output: false,
         })
     }
 
@@ -97,6 +100,9 @@ impl<'s> AppState<'s> {
     }
     pub fn has_report(&self) -> bool {
         matches!(self.cmd_result, CommandResult::Report(_))
+    }
+    pub fn set_raw_output(&mut self) {
+        self.raw_output = true;
     }
     pub fn set_result(&mut self, mut cmd_result: CommandResult) {
         if self.reverse {
@@ -132,6 +138,7 @@ impl<'s> AppState<'s> {
         if reset_scroll {
             self.reset_scroll();
         }
+        self.raw_output = false;
     }
     pub fn computation_starts(&mut self) {
         self.computing = true;
@@ -234,7 +241,11 @@ impl<'s> AppState<'s> {
     }
     fn content_height(&self) -> usize {
         if let CommandResult::Report(report) = &self.cmd_result {
-            report.stats.lines(self.summary)
+            if report.is_success() || self.raw_output {
+                report.cmd_lines.len()
+            } else {
+                report.stats.lines(self.summary)
+            }
         } else if let Some(lines) = &self.lines {
             lines.len()
         } else {
@@ -324,9 +335,12 @@ impl<'s> AppState<'s> {
         }
         Ok(())
     }
-    ///
-    pub fn should_end(&mut self) -> bool {
-        self.cmd_result.is_success() && self.mission.end_on_success()
+    /// the action to execute now
+    pub fn action(&self) -> Option<&Action> {
+        self.mission
+            .on_success()
+            .as_ref()
+            .filter(|_| self.cmd_result.is_success())
     }
     /// draw the report or the lines of the current computation, between
     /// y and self.page_height()
@@ -352,7 +366,11 @@ impl<'s> AppState<'s> {
             goto(w, y)?;
             clear_line(w)?;
         }
-        if let CommandResult::Report(report) = &self.cmd_result {
+        let report_to_draw = self.cmd_result
+            .report()
+            .filter(|_| !self.raw_output)
+            .filter(|report| !report.is_success());
+        if let Some(report) = report_to_draw {
             if self.wrap {
                 let wrapped_report = match self.wrapped_report.as_mut() {
                     None => {
@@ -414,9 +432,11 @@ impl<'s> AppState<'s> {
             }
             self.top_item_idx = top_item_idx.unwrap_or(0);
         } else {
-            // report hasn't yet been computed or there was an error in command
             let lines = match &self.cmd_result {
                 CommandResult::Failure(failure) => Some(&failure.lines),
+                CommandResult::Report(report) => {
+                    Some(&report.cmd_lines)
+                }
                 _ => self.lines.as_ref(),
             };
             if let Some(lines) = lines {

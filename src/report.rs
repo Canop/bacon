@@ -11,6 +11,7 @@ pub struct Report {
     pub lines: Vec<Line>,
     pub stats: Stats,
     pub suggest_backtrace: bool,
+    pub cmd_lines: Vec<CommandOutputLine>,
 }
 
 impl Report {
@@ -20,8 +21,13 @@ impl Report {
         self.lines
             .sort_by_key(|line| std::cmp::Reverse(line.item_idx));
     }
-
-    /// compute the report from the lines of stderr of `cargo watch`.
+    /// A successful report is one with nothing to tell: no warning,
+    /// no error, no test failure
+    pub fn is_success(&self) -> bool {
+        self.stats.errors + self.stats.warnings + self.stats.test_fails == 0
+    }
+    /// compute the report from the lines of stdout and/or stderr of the
+    /// `cargo` command.
     ///
     /// We assume errors and warnings come in the stderr stream while
     ///  test failures come in stdout
@@ -142,6 +148,6 @@ impl Report {
         // have been read but not added (at start or end)
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
-        Ok(Report { lines, stats, suggest_backtrace })
+        Ok(Report { lines, stats, suggest_backtrace, cmd_lines: Vec::new() })
     }
 }

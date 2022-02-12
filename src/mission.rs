@@ -75,9 +75,9 @@ impl<'s> Mission<'s> {
         })
     }
 
-    /// should end on success
-    pub fn end_on_success(&self) -> bool {
-        self.job.end_on_success
+    /// the action bound to success on this job
+    pub fn on_success(&self) -> &Option<Action> {
+        &self.job.on_success
     }
 
     /// configure the watcher with files and directories to watch

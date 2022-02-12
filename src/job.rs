@@ -1,4 +1,7 @@
-use serde::Deserialize;
+use {
+    crate::*,
+    serde::Deserialize,
+};
 
 /// One of the possible job that bacon can run
 #[derive(Debug, Clone, Deserialize)]
@@ -20,8 +23,8 @@ pub struct Job {
     #[serde(default)]
     pub need_stdout: bool,
 
-    /// whether we should end the mission when there's no
+    /// the optional action to run when there's no
     /// error, warning or test failures
     #[serde(default)]
-    pub end_on_success: bool,
+    pub on_success: Option<Action>,
 }

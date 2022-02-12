@@ -29,7 +29,7 @@ impl HelpLine {
         let help = kb.shortest_internal_key(Internal::Help)
             .map(|k| format!("*{k}* for help"));
         let close_help = kb.shortest_internal_key(Internal::Back)
-            .or(kb.shortest_internal_key(Internal::Help))
+            .or_else(|| kb.shortest_internal_key(Internal::Help))
             .map(|k| format!("*{k}* to close this help"));
         Self { quit, toggle_summary, wrap, not_wrap, toggle_backtrace, help, close_help }
     }
@@ -45,7 +45,7 @@ impl HelpLine {
                     if let Some(s) = &self.toggle_backtrace {
                         parts.push(s);
                     }
-                } else {
+                } else if !report.is_success() {
                     if let Some(s) = &self.toggle_summary {
                         parts.push(s);
                     }
