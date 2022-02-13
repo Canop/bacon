@@ -41,6 +41,7 @@ impl HelpPage {
 
     pub fn new(settings: &Settings) -> Self {
         let mut skin = MadSkin::default();
+        skin.paragraph.align = Alignment::Center;
         skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
         skin.table.align = Alignment::Center;
         let mut expander = OwningTemplateExpander::new();
