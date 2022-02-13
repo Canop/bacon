@@ -17,7 +17,7 @@ pub enum Action {
 
 #[derive(Debug)]
 pub enum ParseActionError {
-    WrongFormat,
+    UnknownAction(String),
     UnknowCategory(String),
     UnknownInternal(String),
 }
@@ -25,8 +25,8 @@ pub enum ParseActionError {
 impl fmt::Display for ParseActionError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::WrongFormat => {
-                write!(f, "Wrong format. Expected <category>:<name>")
+            Self::UnknownAction(s) => {
+                write!(f, "Action not understood: {s:?}")
             }
             Self::UnknowCategory(s) => {
                 write!(f, "Unknown category: {s:?}")
@@ -55,8 +55,10 @@ impl FromStr for Action {
             } else {
                 Err(ParseActionError::UnknowCategory(cat.to_string()))
             }
+        } else if let Ok(internal) = Internal::from_str(s) {
+            Ok(Self::Internal(internal))
         } else {
-            Err(ParseActionError::WrongFormat)
+            Err(ParseActionError::UnknownAction(s.to_string()))
         }
     }
 }

@@ -17,6 +17,7 @@ impl Default for KeyBindings {
             map: HashMap::default(),
         };
         bindings.set(key!('?'), Internal::Help);
+        bindings.set(key!(h), Internal::Help);
         bindings.set(key!(ctrl-c), Internal::Quit);
         bindings.set(key!(ctrl-q), Internal::Quit);
         bindings.set(key!(q), Internal::Quit);
