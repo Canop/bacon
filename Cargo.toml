@@ -12,9 +12,9 @@ readme = "README.md"
 rust-version = "1.56"
 
 [dependencies]
-argh = "0.1.6"
 anyhow = "1.0.49"
 cargo_metadata = "0.14.0"
+clap = { version = "3.0.14", features = ["derive"] }
 cli-log = "2.0.0"
 crokey = "0.4"
 crossbeam = "0.8.1"

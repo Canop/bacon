@@ -102,6 +102,7 @@ impl<'s> Mission<'s> {
         let mut no_default_features_done = false;
         let mut features_done = false;
         let mut last_is_features = false;
+        let tokens = tokens.chain(&self.settings.additional_job_args);
         for arg in tokens {
             if last_is_features {
                 if self.settings.all_features {

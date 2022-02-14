@@ -1,78 +1,79 @@
 use {
     anyhow::{bail, Result},
-    argh::FromArgs,
+    clap::Parser,
 };
 
-#[derive(Debug, FromArgs)]
+#[derive(Debug, Parser)]
 /// bacon watches your source and run code checks in background.
 ///
-///
-/// Source at <https://github.com/Canop/bacon>
+/// Documentation at <https://dystroy.org/bacon>
+#[clap(version, about)]
 pub struct Args {
-    /// print the version
-    #[argh(switch, short = 'v')]
-    pub version: bool,
 
     /// print the path to the prefs file, create it if it doesn't exist
-    #[argh(switch)]
+    #[clap(long = "prefs")]
     pub prefs: bool,
 
     /// start in summary mode
-    #[argh(switch, short = 's')]
+    #[clap(short = 's', long = "summary")]
     pub summary: bool,
 
     /// start in full mode (not summary)
-    #[argh(switch, short = 'S')]
+    #[clap(short = 'S', long = "no-summary")]
     pub no_summary: bool,
 
     /// start with lines wrapped
-    #[argh(switch, short = 'w')]
+    #[clap(short = 'w', long = "wrap")]
     pub wrap: bool,
 
     /// start with lines not wrapped
-    #[argh(switch, short = 'W')]
+    #[clap(short = 'W', long = "no-wrap")]
     pub no_wrap: bool,
 
     /// start with gui vertical order reversed
-    #[argh(switch)]
+    #[clap(long = "reverse")]
     pub reverse: bool,
 
     /// start with standard gui order (focus on top)
-    #[argh(switch)]
+    #[clap(long = "no-reverse")]
     pub no_reverse: bool,
 
     /// list available jobs
-    #[argh(switch, short = 'l')]
+    #[clap(short = 'l', long = "list-jobs")]
     pub list_jobs: bool,
 
     /// create a bacon.toml file, ready to be customized
-    #[argh(switch)]
+    #[clap(long = "init")]
     pub init: bool,
 
     /// job to launch ("check", "clippy", customized ones, ...)
-    #[argh(option, short = 'j')]
+    #[clap(short = 'j', long = "job")]
     pub job: Option<String>,
 
     /// ignore features of both the package and the bacon job
-    #[argh(switch)]
+    #[clap(long = "no-default-features")]
     pub no_default_features: bool,
 
     /// activate all available features
-    #[argh(switch)]
+    #[clap(long = "all-features")]
     pub all_features: bool,
 
     /// comma separated list of features to ask cargo to compile with
     /// (if the job defines some, they're merged)
-    #[argh(option)]
+    #[clap(long = "features")]
     pub features: Option<String>,
 
     /// path to watch (must be a rust directory or inside)
-    #[argh(option, short = 'p')]
+    #[clap(short = 'p', long = "path")]
     pub path: Option<String>,
 
-    #[argh(positional)]
+    #[clap()]
     /// either a job, or a path, or both
     pub args: Vec<String>,
+
+    #[clap(last = true)]
+    /// arguments given to the job
+    pub additional_job_args: Vec<String>,
 }
 
 impl Args {

@@ -1,12 +1,13 @@
 use {
     crate::*,
+    clap::Parser,
     crossterm::{
         self, cursor,
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
         QueueableCommand,
     },
     directories_next::ProjectDirs,
-    std::{env, fs, io::Write},
+    std::{fs, io::Write},
     termimad::EventSource,
 };
 
@@ -26,15 +27,8 @@ pub fn writer() -> W {
 }
 
 pub fn run() -> anyhow::Result<()> {
-    let mut args: Args = argh::from_env();
+    let mut args: Args = Args::parse();
     args.fix()?;
-    if args.version {
-        println!(
-            "bacon {}",
-            env!("CARGO_PKG_VERSION"),
-        );
-        return Ok(());
-    }
     info!("args: {:#?}", &args);
     let location = MissionLocation::new(&args)?;
     debug!("cargo_toml_file: {:?}", &location.cargo_toml_file);

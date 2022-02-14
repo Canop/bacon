@@ -11,6 +11,7 @@ use crate::*;
 #[derive(Debug, Clone, Default)]
 pub struct Settings {
     pub arg_job_name: Option<String>,
+    pub additional_job_args: Vec<String>,
     pub summary: bool,
     pub wrap: bool,
     pub reverse: bool,
@@ -74,5 +75,6 @@ impl Settings {
         if args.features.is_some() {
             self.features = args.features.clone();
         }
+        self.additional_job_args = args.additional_job_args.clone();
     }
 }
