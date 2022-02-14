@@ -67,3 +67,33 @@ need_stdout = true
 ```
 
 You may add `on_success = "back"` if you don't want the executable to run again on changes.
+
+# Variable arguments
+
+Launch arguments after the `--` aren't interpreted by bacon but sent inchanged to the job commands.
+
+This may be useful to add an argument only for one run without changing the `bacon.toml` file.
+
+For example
+
+```bash
+bacon -- --target x86_64-pc-windows-gnu
+```
+
+Another example, a job which needs a complementary argument:
+
+
+```toml
+[jobs.ex]
+command = ["cargo", "run", "--color", "always", "--example"]
+need_stdout = true
+```
+
+You would call it with
+
+```bash
+bacon ex -- example4578
+```
+
+
+
