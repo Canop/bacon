@@ -116,8 +116,8 @@ pub fn run(
                             executor.die()?;
                             break;
                         }
-                        Internal::RawOutput => {
-                            state.set_raw_output();
+                        Internal::ToggleRawOutput => {
+                            state.toggle_raw_output();
                         }
                         Internal::ToggleSummary => {
                             state.toggle_summary_mode();

@@ -101,8 +101,8 @@ impl<'s> AppState<'s> {
     pub fn has_report(&self) -> bool {
         matches!(self.cmd_result, CommandResult::Report(_))
     }
-    pub fn set_raw_output(&mut self) {
-        self.raw_output = true;
+    pub fn toggle_raw_output(&mut self) {
+        self.raw_output ^= true;
     }
     pub fn set_result(&mut self, mut cmd_result: CommandResult) {
         if self.reverse {

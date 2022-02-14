@@ -1,0 +1,35 @@
+site_name: Bacon
+site_description: 'Bacon, a secure cross-platform secret holder'
+site_url: https://dystroy.org/bacon
+repo_url: https://github.com/Canop/bacon
+edit_uri: ''
+
+nav:
+        - Overview: index.md
+        - Config: config.md
+        - Cookbook: cookbook.md
+        - Community: community.md
+
+extra_css:
+        - css/extra.css
+        - css/link-to-dystroy.css
+
+extra_javascript:
+        - js/link-to-dystroy.js
+
+theme:
+        name: mkdocs
+        favicon: img/favicon.png
+        nav_style: dark
+        custom_dir: custom_theme
+        highlightjs: true
+        hljs_style: Dracula
+        hljs_languages:
+                - yaml
+                - ini
+                - css
+                - rust
+
+markdown_extensions:
+        - admonition
+        - def_list
