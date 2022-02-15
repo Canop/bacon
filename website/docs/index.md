@@ -42,6 +42,9 @@ You may decide to launch and watch tests by either hitting the <kbd>t</kbd> key,
 bacon test
 ```
 
+![test](img/test.png)
+
+
 You can configure and launch the jobs of your choice: tests, specific target compilations, examples, etc. and look at the results while you code.
 
 You may also open the `cargo doc` in your browser with the <kbd>d</kbd> key.

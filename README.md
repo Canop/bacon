@@ -17,21 +17,17 @@ It's designed for minimal interaction so that you can just let it running, side 
 
 ![screenshot](doc/screenshot.png)
 
-## Installation
+# Documentation
 
-```default
-cargo install bacon
-```
+The **[bacon website](https://dystroy.org/bacon)** is a complete guide.
 
-## Usage
+Below is a short overview.
 
-You launch `bacon` in a terminal you keep visible.
-
-### check the current project
+## check the current project
 
     bacon
 
-### check another project
+## check another project
 
     bacon --path ../broot
 
@@ -39,7 +35,7 @@ or
 
     bacon ../broot
 
-### check all targets (tests, examples, benches, etc)
+## check all targets (tests, examples, benches, etc)
 
     bacon --job check-all
 
@@ -47,7 +43,7 @@ When there's no ambiguity, you may ommit the `--job` part:
 
     bacon check-all
 
-### run clippy instead of cargo check
+## run clippy instead of cargo check
 
     bacon clippy
 
@@ -55,13 +51,13 @@ or, if you want it to run against all targets (tests, examples, benches etc):
 
     bacon clippy-all
 
-### run tests
+## run tests
 
     bacon test
 
 ![bacon test](doc/test.png)
 
-### define your own jobs
+## define your own jobs
 
 First create a `bacon.toml` file by running
 
@@ -94,97 +90,14 @@ or
 
 The `bacon.toml` file may evolve with the features and settings of your project and should be added to source control.
 
-### configure clippy lints
-
-You can change the clippy job in the `bacon.toml` file:
-
-```toml
-[jobs.clippy]
-command = [
-	"cargo", "clippy",
-	"--color", "always",
-	"--",
-	"-A", "clippy::match_like_matches_macro",
-	"-A", "clippy::collapsible_if",
-	"-A", "clippy::module_inception",
-]
-need_stdout = false
-```
-
-## FAQ
-
-### What does it exactly do ?
-
-It watches the content of your source directories and launches `cargo check` or other commands on changes.
-
-Watching and computations are done on background threads to prevent any blocking.
-
-The screen isn't cleaned until the compilation is finished to prevent useful information from being replaced by the lines of an unfinished computation.
-
-Errors are displayed before warnings because you usually want to fix them first.
-
-Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report. And bacon manages rewrapping on resize.
-
-### Can I run several bacon in parallel ?
-
-It's perfectly OK and can be useful to check several compilation targets.
-
-Similarly you don't have to stop bacon when you want to use cargo to build the application.
-
-Bacon is efficient and doesn't work when there's no notification.
-
-### Can I have all code always checked, including tests, benches and examples ?
-
-You can set the dedicated `check-all` job as as default in the bacon.toml file:
-
-```TOML
-default_job = "check-all"
-```
-
-Similarly, if your test units are fast enough, you may run them as default, either by editing the default job, by pointing to a new default job, or by creating a new one.
-
-### What are the supported platforms ?
-
-It works on all decent terminals on Linux, Max OSX and Windows.
-
-### Are there settings ?
-
-Yes, they let you enable vim-like key bindings, or always start in summary mode or with lines wrapped.
-
-To create a default preferences file, use `bacon --prefs`.
-
-Shortcut:
-
-    $EDITOR $(bacon --prefs)
-
-### Why is bacon sometimes not recomputing when I'm using (neo)vim ?
-
-The default write strategy of vim makes successive savings of the same file not always detectable by inotify.
-
-A solution is to add this to your init.vim file:
-
-	set nowritebackup
-
-This doesn't prevent vim from keeping copies during editions, it just changes the behavior of the write operation and has no practical downside.
-
-### Can I get backtraces in tests ?
-
-When bacon finds a suggestion to run cargo with backtrace, it suggests you in the status line to toggle backtraces.
-
-Hit <kbd>t</kbd> to have the backtrace of the error.
-
-### Why "bacon" ?
-
-* It's a **bac**kground **con**piler.
-* It comes from France and, as you know, France is bacon.
 
 ## Licences
 
 Bacon is licenced under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.en.html).
+You're free to use it to compile the Rust projects of your choice, even commercial.
 
 The logo is designed by [Peter Varo][pv] and licensed under a
 [Creative Commons Attribution-ShareAlike 4.0 International License][cc-lic].
-
 [![license][cc-img]][cc-lic]
 
 [pv]: https://petervaro.com

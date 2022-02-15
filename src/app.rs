@@ -113,7 +113,6 @@ pub fn run(
                             state.toggle_help();
                         }
                         Internal::Quit => {
-                            executor.die()?;
                             break;
                         }
                         Internal::ToggleRawOutput => {
@@ -147,5 +146,6 @@ pub fn run(
         }
         state.draw(w)?;
     }
+    executor.die()?;
     Ok(next_job)
 }

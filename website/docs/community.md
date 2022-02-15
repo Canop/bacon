@@ -1,6 +1,7 @@
-# Author
 
 **Bacon** is developed by [Denys Séguret](https://twitter.com/DenysSeguret), also known as [Canop](https://github.com/Canop) or [dystroy](https://dystroy.org).
+
+The logo has been designed by [Peter Varo](https://petervaro.com).
 
 # Chat
 
@@ -58,8 +59,7 @@ This doesn't prevent vim from keeping copies during editions, it just changes th
 Bacon is licenced under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.en.html).
 You're free to use it to compile the Rust projects of your choice, even commercial.
 
-The logo is designed by [Peter Varo](https://petervaro.com) and licensed under a
-[Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0)
+The logo is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0).
 
 ## Why "bacon" ?
 
