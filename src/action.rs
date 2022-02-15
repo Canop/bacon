@@ -26,7 +26,7 @@ impl fmt::Display for ParseActionError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::UnknownAction(s) => {
-                write!(f, "Action not understood: {s:?}")
+                write!(f, "Action not understood: {s:?} (did you mean \"job:{s}\"?)")
             }
             Self::UnknowCategory(s) => {
                 write!(f, "Unknown category: {s:?}")
