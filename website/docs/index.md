@@ -1,8 +1,4 @@
 
-<p style=color:red><b>
-Warning: this site is for bacon2 which isn't released yet!
-</b></p>
-
 <p class=logo>
 <img class=logo width=640px src="img/logo.svg">
 </p>
