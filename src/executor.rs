@@ -26,9 +26,9 @@ pub struct Task {
 }
 
 impl Executor {
-    /// launch the commands, sends the lines of its stderr on the
+    /// launch the commands, send the lines of its stderr on the
     /// line channel.
-    /// If `with_stdout` captures and send also its stdout.
+    /// If `with_stdout` capture and send also its stdout.
     pub fn new(mission: &Mission) -> Result<Self> {
         let mut command = mission.get_command();
         let with_stdout = mission.need_stdout();

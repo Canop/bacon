@@ -3,6 +3,8 @@ use {
     std::fmt,
 };
 
+/// one of the hardcoded actions that can be mapped
+/// to a key or ran after a successful job
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Internal {
     Back,

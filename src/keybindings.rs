@@ -5,6 +5,9 @@ use {
     std::collections::{HashMap, hash_map},
 };
 
+/// A mapping from key combinations to actions.
+///
+/// Several key combinations can go to the same action.
 #[derive(Debug, Clone, Deserialize)]
 pub struct KeyBindings {
     #[serde(flatten)]
