@@ -11,6 +11,12 @@
 [l2]: https://miaou.dystroy.org/3768?rust
 
 
+## Announcement: Next Big version
+
+**bacon 2 is being developped in the "bacon2" branch and should be released soon. If you're interested in the next big version of bacon, come either to [the issue](https://github.com/Canop/bacon/issues/66) or to the [Miaou chat](https://miaou.dystroy.org/3768?rust).**
+
+# Bacon
+
 **bacon** is a background rust code checker.
 
 It's designed for minimal interaction so that you can just let it running, side to your editor, and be notified of warnings and errors in your Rust code.
