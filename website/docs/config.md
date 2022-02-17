@@ -87,6 +87,8 @@ need_stdout = true
 
 Don't forget to include `--color always` in most jobs, because bacon uses style information to parse the output of cargo.
 
+Beware of job references in `on_success`: you must avoid loops with 2 jobs calling themselves mutually, which would make bacon run all the time.
+
 ## Default Job
 
 The default job is the one which is launched when you don't specify one in argument to the bacon command (ie `bacon test`).
