@@ -1,5 +1,5 @@
 site_name: Bacon
-site_description: 'Bacon, a secure cross-platform secret holder'
+site_description: 'Bacon, a background compiler for Rust'
 site_url: https://dystroy.org/bacon
 repo_url: https://github.com/Canop/bacon
 edit_uri: ''

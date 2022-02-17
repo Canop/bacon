@@ -7,8 +7,10 @@ Major features:
 - it's possible to define an *action* to run when a job is successful. For example you can launch a `cargo doc --open` job on a key, and have bacon switch to the previous job with the `on_success = "back` trigger so that you don't open a browser page on every change
 - arguments given after `--` are given to the job - Fix #67
 - there's a web documentation site now, you should have a look: https://dystroy.org/bacon
+
 Minor changes:
 - fix character being lost behind scrollbar on wrapping
+- replaced argh with clap for launch arg parsing. The `--help` presentation is thus different. `bacon -h` now supported.
 
 <a name="v1.2.5"></a>
 ### v1.2.5 - 2022/01/29

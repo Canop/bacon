@@ -1,5 +1,5 @@
 
-The behavior of bacon is defined by both a global `prefs.toml`preferences file and a `bacon.toml` which is specific to each project.
+The behavior of bacon is defined by both a global `prefs.toml`file and a project specifif `bacon.toml` file.
 
 Both are optional but you'll fast need specific jobs for your targets, examples, etc.
 

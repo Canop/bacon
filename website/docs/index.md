@@ -11,7 +11,7 @@ It conveys the information you need even in a small terminal so that you can kee
 
 ![vi-and-bacon](img/vi-and-bacon.png)
 
-You don't have to remember commands: the essential ones are listed on bottom and the few other ones are shown on a hit on the <kbd>?</kbd> key.
+You don't have to remember commands: the essential ones are listed on bottom and the few other ones are shown on a hit on the <kbd>h</kbd> key.
 
 # Installation
 
