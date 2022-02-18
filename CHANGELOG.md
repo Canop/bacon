@@ -1,4 +1,5 @@
-### next
+<a name="v2.0.1"></a>
+### v2.0.1 - 2022/02/18
 - fix summary of warnings counted as warning
 
 <a name="v2.0.0"></a>
