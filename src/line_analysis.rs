@@ -56,12 +56,15 @@ impl From<&CommandOutputLine> for LineAnalysis {
                         (crate::CSI_BOLD_RED, r1, CSI_BOLD, _) if r1.starts_with("error") => {
                             LineType::Title(Kind::Error)
                         }
-                        (crate::CSI_BOLD_YELLOW, "warning", _, r2)
-                            if is_n_warnings_emitted(r2) =>
-                        {
-                            LineType::Title(Kind::Sum)
+                        (crate::CSI_BOLD_YELLOW, "warning", _, r2) => {
+                            if is_n_warnings_emitted(r2) {
+                                LineType::Title(Kind::Sum)
+                            } else if is_generated_n_warnings(content.strings.get(2)) {
+                                LineType::Title(Kind::Sum)
+                            } else {
+                                LineType::Title(Kind::Warning)
+                            }
                         }
-                        (crate::CSI_BOLD_YELLOW, "warning", _, _) => LineType::Title(Kind::Warning),
                         ("", r1, crate::CSI_BOLD_BLUE, "--> ") if is_spaces(r1) => {
                             LineType::Location
                         }
@@ -83,6 +86,10 @@ fn is_spaces(s: &str) -> bool {
 /// check if the string starts with something like ": 15 warnings emitted"
 fn is_n_warnings_emitted(s: &str) -> bool {
     regex_is_match!(r#"^: \d+ warnings? emitted"#, s)
+}
+
+fn is_generated_n_warnings(ts: Option<&TString>) -> bool {
+    ts.map_or(false, |ts| regex_is_match!(r#"generated \d+ warnings?$"#, &ts.raw))
 }
 
 /// return Some when the line is the non detailled

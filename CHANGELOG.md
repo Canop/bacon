@@ -1,3 +1,6 @@
+### next
+- fix summary of warnings counted as warning
+
 <a name="v2.0.0"></a>
 ### v2.0.0 - 2022/02/16
 Major features:
