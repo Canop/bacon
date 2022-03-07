@@ -42,11 +42,13 @@ For example:
 
 ```TOML
 [keybindings]
-ctrl-shift-e = "scroll-pages(1)"
 k = "scroll-lines(-1)"
 j = "scroll-lines(1)"
 h = "job:clippy"
 shift-F9 = "toggle-backtrace"
+ctrl-r = "toggle-raw-output"
+ctrl-u = "scroll-page(-1)"
+ctrl-d = "scroll-page(1)"
 ```
 
 Notes:

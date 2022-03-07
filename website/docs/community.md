@@ -7,7 +7,7 @@ The logo has been designed by [Peter Varo](https://petervaro.com).
 
 The best place to chat about bacon, to talk about features or bugs, is the Miaou chat.
 
-* [Rust & SafeCloset room on Miaou](https://miaou.dystroy.org/3490?rust)
+* [Rust & Bacon room on Miaou](https://miaou.dystroy.org/3490?rust)
 * [French Programmers room on Miaou](https://miaou.dystroy.org/3)
 
 # Issues

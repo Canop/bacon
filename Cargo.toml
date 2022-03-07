@@ -9,7 +9,7 @@ keywords = ["rust", "background", "compiler", "watch", "inotify"]
 license = "AGPL-3.0"
 categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
-rust-version = "1.56"
+rust-version = "1.59"
 
 [dependencies]
 anyhow = "1.0.49"
@@ -31,6 +31,7 @@ vte = "0.8"
 
 [profile.release]
 lto = true
+strip = true
 
 [patch.crates-io]
 # termimad = { path = "../termimad" }
