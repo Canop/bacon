@@ -57,7 +57,7 @@ pub struct Args {
     /// check all members in the workspace.
     ///
     /// Equivalent to `cargo check --workspace`
-    #[argh(switch)]
+    #[clap(long = "workspace")]
     pub workspace: bool,
 
     /// activate all available features
