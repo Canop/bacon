@@ -130,6 +130,13 @@ impl<'s> AppState<'s> {
                 report.lines.pop();
             }
         }
+        // we update the location file if required
+        if self.mission.settings.export_locations {
+            if let Err(err) = cmd_result.update_location_file(&self.mission) {
+                // FIXME user info
+                error!("Error writing location file: {}", err);
+            }
+        }
         // we keep the scroll when the number of lines didn't change
         let reset_scroll = self.cmd_result.lines_len() != cmd_result.lines_len();
         self.wrapped_report = None;

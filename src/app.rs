@@ -26,6 +26,7 @@ pub fn run(
         }
         Err(e) => warn!("watch error: {:?}", e),
     })?;
+
     mission.add_watchs(&mut watcher)?;
 
     let executor = Executor::new(&mission)?;

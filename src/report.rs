@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::Result,
-    std::collections::HashSet,
+    std::{
+        collections::HashSet,
+        io,
+    },
 };
 
 /// the usable content of cargo watch's output,
@@ -149,5 +152,14 @@ impl Report {
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
         Ok(Report { lines, stats, suggest_backtrace, cmd_lines: Vec::new() })
+    }
+    /// export the report in a file
+    pub fn write_to<W: io::Write>(&self, w: &mut W) -> Result<(), io::Error> {
+        for line in &self.lines {
+            if let Some(location) = line.location() {
+                writeln!(w, "{}", location)?;
+            }
+        }
+        Ok(())
     }
 }

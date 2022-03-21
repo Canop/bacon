@@ -66,6 +66,7 @@ impl From<&CommandOutputLine> for LineAnalysis {
                             }
                         }
                         ("", r1, crate::CSI_BOLD_BLUE, "--> ") if is_spaces(r1) => {
+                            debug!("LOCATION {:#?}", &cmd_line.content);
                             LineType::Location
                         }
                         _ => LineType::Normal,

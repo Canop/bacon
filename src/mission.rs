@@ -16,7 +16,7 @@ use {
 pub struct Mission<'s> {
     pub location_name: String,
     pub job_name: String,
-    cargo_execution_directory: PathBuf,
+    pub cargo_execution_directory: PathBuf,
     job: Job,
     files_to_watch: Vec<PathBuf>,
     directories_to_watch: Vec<PathBuf>,

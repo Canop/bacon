@@ -12,3 +12,15 @@ pub struct Line {
 
     pub content: TLine,
 }
+
+impl Line {
+    pub fn location(&self) -> Option<&str> {
+        match self.line_type {
+            LineType::Location => {
+                info!("CON: {:#?}", &self.content);
+                self.content.strings.get(2).map(|ts| ts.raw.as_str())
+            }
+            _ => None,
+        }
+    }
+}

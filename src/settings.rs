@@ -19,6 +19,7 @@ pub struct Settings {
     pub all_features: bool,
     pub features: Option<String>, // comma separated list
     pub keybindings: KeyBindings,
+    pub export_locations: bool,
 }
 
 impl Settings {
@@ -75,6 +76,7 @@ impl Settings {
         if args.features.is_some() {
             self.features = args.features.clone();
         }
+        self.export_locations = args.export_locations;
         self.additional_job_args = args.additional_job_args.clone();
     }
 }

@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::*,
-    std::process::ExitStatus,
+    std::{
+        fs::File,
+        process::ExitStatus,
+    },
 };
 
 /// what we get from the execution of a command
@@ -35,6 +38,19 @@ impl CommandResult {
             Self::Report(report) => Some(report),
             _ => None,
         }
+    }
+
+    pub fn update_location_file(&self, mission: &Mission) -> Result<()> {
+        match self {
+            Self::Report(report) => {
+                let path = mission.cargo_execution_directory.join(".bacon-locations");
+                let mut file = File::create(&path)?;
+                report.write_to(&mut file)?;
+            }
+            Self::Failure(_) => { }
+            Self::None => { }
+        }
+        Ok(())
     }
 
     /// return true when the report has been computed and there's been no

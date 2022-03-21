@@ -63,6 +63,10 @@ pub struct Args {
     #[clap(long = "features")]
     pub features: Option<String>,
 
+    /// export locations in .bacon-locations file
+    #[clap(short = 'e', long = "export-locations")]
+    pub export_locations: bool,
+
     /// path to watch (must be a rust directory or inside)
     #[clap(short = 'p', long = "path")]
     pub path: Option<String>,
