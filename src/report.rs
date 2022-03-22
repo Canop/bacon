@@ -155,9 +155,22 @@ impl Report {
     }
     /// export the report in a file
     pub fn write_to<W: io::Write>(&self, w: &mut W) -> Result<(), io::Error> {
+        let mut last_cat = "???";
         for line in &self.lines {
+            match line.line_type {
+                LineType::Title(Kind::Warning) => {
+                    last_cat = "warning";
+                }
+                LineType::Title(Kind::Error) => {
+                    last_cat = "error";
+                }
+                LineType::Title(Kind::TestFail) => {
+                    last_cat = "test";
+                }
+                _ => {}
+            }
             if let Some(location) = line.location() {
-                writeln!(w, "{}", location)?;
+                writeln!(w, "{} {}", last_cat, location)?;
             }
         }
         Ok(())
