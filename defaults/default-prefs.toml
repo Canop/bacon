@@ -16,6 +16,12 @@
 #
 # reverse = true
 
+# Uncomment this to have bacon always export locations
+# This is equivalent to always adding -e to bacon commands
+# but can still be cancelled on specific launches with -E
+# 
+# export_locations = true
+
 # Uncomment and change the key-bindings you want to define
 # (some of those ones are the defaults)
 [keybindings]

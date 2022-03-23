@@ -13,6 +13,7 @@ pub struct Prefs {
     pub wrap: Option<bool>,
     pub reverse: Option<bool>,
     pub vim_keys: Option<bool>, // deprecated thanks to keybindings
+    pub export_locations: Option<bool>,
     pub keybindings: Option<KeyBindings>,
 }
 

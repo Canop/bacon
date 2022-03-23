@@ -33,6 +33,9 @@ impl Settings {
         if let Some(b) = prefs.reverse {
             self.reverse = b;
         }
+        if let Some(b) = prefs.export_locations {
+            self.export_locations = b;
+        }
         if prefs.vim_keys == Some(true) {
             self.keybindings.add_vim_keys();
         }
@@ -64,6 +67,12 @@ impl Settings {
         if args.no_reverse {
             self.reverse = false;
         }
+        if args.export_locations {
+            self.export_locations = true;
+        }
+        if args.no_export_locations {
+            self.export_locations = false;
+        }
         if args.reverse {
             self.reverse = true;
         }
@@ -76,7 +85,6 @@ impl Settings {
         if args.features.is_some() {
             self.features = args.features.clone();
         }
-        self.export_locations = args.export_locations;
         self.additional_job_args = args.additional_job_args.clone();
     }
 }

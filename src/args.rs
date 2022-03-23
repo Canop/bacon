@@ -67,6 +67,10 @@ pub struct Args {
     #[clap(short = 'e', long = "export-locations")]
     pub export_locations: bool,
 
+    /// don't export locations
+    #[clap(short = 'E', long = "no-export-locations")]
+    pub no_export_locations: bool,
+
     /// path to watch (must be a rust directory or inside)
     #[clap(short = 'p', long = "path")]
     pub path: Option<String>,
