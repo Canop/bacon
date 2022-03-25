@@ -173,6 +173,7 @@ impl Report {
                 writeln!(w, "{} {}", last_cat, location)?;
             }
         }
+        debug!("exported locations");
         Ok(())
     }
 }

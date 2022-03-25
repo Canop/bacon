@@ -51,7 +51,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "bacon"
-version = "2.0.1"
+version = "2.1.0-dev"
 dependencies = [
  "anyhow",
  "cargo_metadata",
