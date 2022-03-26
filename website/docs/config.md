@@ -38,6 +38,8 @@ You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bac
 
 If you use neovim, you probably want to use the [neovim-bacon](https://github.com/Canop/neovim-bacon) plugin.
 
+This plugin needs neovim to be launched with the `-e` argument which makes it keep a `.bacon-locations` file up to date.
+
 If you write `export_locations = true` in the prefs.toml file, you can ommit passing `-e` to every bacon command.
 
 ## Key Bindings

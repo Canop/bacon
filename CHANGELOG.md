@@ -1,5 +1,6 @@
-### Next
-Major features:
+<a name="v2.1.0"></a>
+### v2.1.0 - 2022/03/26
+Major feature:
 The `export-locations` argument (shortened in `-e`) generates a `.bacon-locations` file which can be used by IDE plugins.
 A plugin has been made for neovim: [nvim-bacon](https://github.com/Canop/nvim-bacon) and other ones would be welcome.
 
