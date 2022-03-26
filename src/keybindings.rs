@@ -131,5 +131,4 @@ fn test_deserialize_keybindings(){
         conf.keybindings.get(key!(alt-p)),
         Some(&Action::Job(JobRef::Previous)),
     );
-
 }

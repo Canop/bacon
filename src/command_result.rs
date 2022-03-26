@@ -18,19 +18,28 @@ pub enum CommandResult {
 }
 
 impl CommandResult {
-    pub fn new(lines: Vec<CommandOutputLine>, exit_status: Option<ExitStatus>) -> Result<Self> {
+    pub fn new(output: CommandOutput, exit_status: Option<ExitStatus>) -> Result<Self> {
+        let lines = &output.lines;
         let error_code = exit_status.and_then(|s| s.code()).filter(|&c| c != 0);
-        let mut report = Report::from_lines(&lines)?;
+        let mut report = Report::from_lines(lines)?;
         if let Some(error_code) = error_code {
             if report.stats.errors + report.stats.test_fails == 0 {
                 // report shows no error while the command exe reported
                 // an error, so the report can't be trusted
-                return Ok(Self::Failure(Failure { error_code, lines }));
+                return Ok(Self::Failure(Failure { error_code, output }));
             }
         }
-        report.cmd_lines = lines; // We could do more elegantly, probably
+        report.output = output;
         // report looks valid
         Ok(Self::Report(report))
+    }
+
+    pub fn output(&self) -> Option<&CommandOutput> {
+        match self {
+            Self::Report(report) => Some(&report.output),
+            Self::Failure(failure) => Some(&failure.output),
+            Self::None => None,
+        }
     }
 
     pub fn report(&self) -> Option<&Report> {
@@ -70,7 +79,7 @@ impl CommandResult {
                 report.reverse();
             }
             Self::Failure(failure) => {
-                failure.lines.reverse();
+                failure.output.reverse();
             }
             Self::None => {}
         }
@@ -78,7 +87,7 @@ impl CommandResult {
     pub fn lines_len(&self) -> usize {
         match self {
             Self::Report(report) => report.lines.len(),
-            Self::Failure(failure) => failure.lines.len(),
+            Self::Failure(failure) => failure.output.lines.len(),
             Self::None => 0,
         }
     }

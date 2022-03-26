@@ -1,3 +1,11 @@
+### Next
+Major features:
+The `export-locations` argument (shortened in `-e`) generates a `.bacon-locations` file which can be used by IDE plugins.
+A plugin has been made for neovim: [nvim-bacon](https://github.com/Canop/nvim-bacon) and other ones would be welcome.
+
+Minor changes:
+- wrapping now applies to all outputs, even non interpreted ones like the output of `cargo run`.
+
 <a name="v2.0.1"></a>
 ### v2.0.1 - 2022/02/18
 - fix summary of warnings counted as warning

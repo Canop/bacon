@@ -79,8 +79,8 @@ pub fn run(
                     CommandExecInfo::End { status } => {
                         info!("execution finished with status: {:?}", status);
                         // computation finished
-                        if let Some(lines) = state.take_lines() {
-                            let cmd_result = CommandResult::new(lines, status)?;
+                        if let Some(output) = state.take_output() {
+                            let cmd_result = CommandResult::new(output, status)?;
                             state.set_result(cmd_result);
                             action = state.action();
                         } else {

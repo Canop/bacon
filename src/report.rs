@@ -14,7 +14,7 @@ pub struct Report {
     pub lines: Vec<Line>,
     pub stats: Stats,
     pub suggest_backtrace: bool,
-    pub cmd_lines: Vec<CommandOutputLine>,
+    pub output: CommandOutput,
 }
 
 impl Report {
@@ -151,7 +151,7 @@ impl Report {
         // have been read but not added (at start or end)
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
-        Ok(Report { lines, stats, suggest_backtrace, cmd_lines: Vec::new() })
+        Ok(Report { lines, stats, suggest_backtrace, output: CommandOutput::default() })
     }
     /// export the report in a file
     pub fn write_to<W: io::Write>(&self, w: &mut W) -> Result<(), io::Error> {

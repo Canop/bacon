@@ -49,15 +49,15 @@ impl HelpLine {
                     if let Some(s) = &self.toggle_summary {
                         parts.push(s);
                     }
-                    if state.wrap {
-                        if let Some(s) = &self.not_wrap {
-                            parts.push(s);
-                        }
-                    } else {
-                        if let Some(s) = &self.wrap {
-                            parts.push(s);
-                        }
-                    }
+                }
+            }
+            if state.wrap {
+                if let Some(s) = &self.not_wrap {
+                    parts.push(s);
+                }
+            } else {
+                if let Some(s) = &self.wrap {
+                    parts.push(s);
                 }
             }
             if let Some(s) = &self.help {

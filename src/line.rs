@@ -24,3 +24,12 @@ impl Line {
         }
     }
 }
+
+impl WrappableLine for Line {
+    fn content(&self) -> &TLine {
+        &self.content
+    }
+    fn prefix_cols(&self) -> usize {
+        self.line_type.cols()
+    }
+}

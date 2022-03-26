@@ -18,7 +18,9 @@ pub struct AppState<'s> {
     /// the mission to run, with settings
     pub mission: Mission<'s>,
     /// the lines of a computation in progress
-    lines: Option<Vec<CommandOutputLine>>,
+    output: Option<CommandOutput>,
+    /// wrapped output for the width of the console
+    wrapped_output: Option<WrappedCommandOutput>,
     /// result of a command, hopefully a report
     pub cmd_result: CommandResult,
     /// a report wrapped for the size of the console
@@ -62,7 +64,8 @@ impl<'s> AppState<'s> {
         let (width, height) = termimad::terminal_size();
         let help_line = HelpLine::new(mission.settings);
         Ok(Self {
-            lines: None,
+            output: None,
+            wrapped_output: None,
             cmd_result: CommandResult::None,
             wrapped_report: None,
             width,
@@ -84,10 +87,21 @@ impl<'s> AppState<'s> {
 
     pub fn add_line(&mut self, line: CommandOutputLine) {
         let auto_scroll = self.is_scroll_at_bottom();
-        self.lines.get_or_insert_with(Vec::new).push(line);
-        if auto_scroll {
-            // if the user never scrolled, we'll stick to the bottom
-            self.scroll_to_bottom();
+        if let Some(output) = self.output.as_mut() {
+            output.push(line);
+            if auto_scroll {
+                // if the user never scrolled, we'll stick to the bottom
+                self.scroll_to_bottom();
+            }
+        } else {
+            self.wrapped_output = None;
+            self.output = {
+                let mut output = CommandOutput::default();
+                output.push(line);
+                Some(output)
+            };
+            self.scroll = 0;
+            self.fix_scroll();
         }
     }
     pub fn new_task(&self) -> Task {
@@ -95,8 +109,9 @@ impl<'s> AppState<'s> {
             backtrace: self.backtrace,
         }
     }
-    pub fn take_lines(&mut self) -> Option<Vec<CommandOutputLine>> {
-        self.lines.take()
+    pub fn take_output(&mut self) -> Option<CommandOutput> {
+        self.wrapped_output = None;
+        self.output.take()
     }
     pub fn has_report(&self) -> bool {
         matches!(self.cmd_result, CommandResult::Report(_))
@@ -140,6 +155,7 @@ impl<'s> AppState<'s> {
         // we keep the scroll when the number of lines didn't change
         let reset_scroll = self.cmd_result.lines_len() != cmd_result.lines_len();
         self.wrapped_report = None;
+        self.wrapped_output = None;
         self.cmd_result = cmd_result;
         self.computing = false;
         if reset_scroll {
@@ -249,12 +265,12 @@ impl<'s> AppState<'s> {
     fn content_height(&self) -> usize {
         if let CommandResult::Report(report) = &self.cmd_result {
             if report.is_success() || self.raw_output {
-                report.cmd_lines.len()
+                report.output.len()
             } else {
                 report.stats.lines(self.summary)
             }
-        } else if let Some(lines) = &self.lines {
-            lines.len()
+        } else if let Some(output) = &self.output {
+            output.len()
         } else {
             0
         }
@@ -265,6 +281,7 @@ impl<'s> AppState<'s> {
     pub fn resize(&mut self, width: u16, height: u16) {
         if self.width != width {
             self.wrapped_report = None;
+            self.wrapped_output = None;
         }
         self.width = width;
         self.height = height;
@@ -401,7 +418,7 @@ impl<'s> AppState<'s> {
                         top_item_idx.get_or_insert_with(|| sub_line.src_line(report).item_idx);
                         sub_line.draw_line_type(w, report)?;
                         write!(w, " ")?;
-                        sub_line.draw(w, report)?;
+                        sub_line.draw(w, &report.lines)?;
                     }
                     clear_line(w)?;
                     if is_thumb(y.into(), scrollbar) {
@@ -438,15 +455,39 @@ impl<'s> AppState<'s> {
                 }
             }
             self.top_item_idx = top_item_idx.unwrap_or(0);
-        } else {
-            let lines = match &self.cmd_result {
-                CommandResult::Failure(failure) => Some(&failure.lines),
-                CommandResult::Report(report) => {
-                    Some(&report.cmd_lines)
+        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
+            debug!("MODE output");
+            if self.wrap {
+                debug!("wrap mode");
+                let wrapped_output = match self.wrapped_output.as_mut() {
+                    None => {
+                        let wo = WrappedCommandOutput::new(output, area.width);
+                        self.scroll = 0;
+                        self.wrapped_output.insert(wo)
+                    }
+                    Some(wo) => {
+                        wo.update(output, area.width);
+                        wo
+                    }
+                };
+                let mut sub_lines = wrapped_output
+                    .sub_lines
+                    .iter()
+                    .skip(self.scroll);
+                for row_idx in 0..area.height {
+                    let y = row_idx + top;
+                    goto(w, y)?;
+                    if let Some(sub_line) = sub_lines.next() {
+                        sub_line.draw(w, &output.lines)?;
+                    }
+                    clear_line(w)?;
+                    if is_thumb(y.into(), scrollbar) {
+                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                    }
                 }
-                _ => self.lines.as_ref(),
-            };
-            if let Some(lines) = lines {
+
+            } else {
+                let lines = &output.lines;
                 for row_idx in 0..area.height {
                     let y = row_idx + top;
                     goto(w, y)?;

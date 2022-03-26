@@ -30,6 +30,8 @@ mod state;
 mod stats;
 mod tty;
 mod wrap;
+mod wrapped_command_output;
+mod wrapped_report;
 
 pub use {
     action::*,
@@ -64,6 +66,8 @@ pub use {
     stats::*,
     tty::*,
     wrap::*,
+    wrapped_command_output::*,
+    wrapped_report::*,
 };
 
 #[macro_use] extern crate cli_log;
