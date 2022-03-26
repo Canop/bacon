@@ -34,6 +34,12 @@ You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bac
 # reverse = true
 ```
 
+## export locations
+
+If you use neovim, you probably want to use the [neovim-bacon](https://github.com/Canop/neovim-bacon) plugin.
+
+If you write `export_locations = true` in the prefs.toml file, you can ommit passing `-e` to every bacon command.
+
 ## Key Bindings
 
 This section, that you can also define in the project specific `bacon.toml` file, lets you change the key combinations to use to trigger [actions](#actions).
