@@ -1,12 +1,17 @@
-use {
-    crate::*,
-    anyhow::Result,
-    crossbeam::channel::{bounded, select, unbounded, Receiver, Sender},
-    std::{
-        io::{BufRead, BufReader},
-        process::Stdio,
-        thread,
+use crate::*;
+use anyhow::{anyhow, Context, Result};
+use std::{
+    process::{ExitStatus, Stdio},
+    thread,
+};
+use tokio::{
+    io::{AsyncBufReadExt, AsyncRead, BufReader},
+    process::{Child, Command},
+    sync::{
+        mpsc::{channel, Sender},
+        oneshot,
     },
+    task::JoinHandle,
 };
 
 /// an executor calling a cargo (or similar) command in a separate
@@ -14,9 +19,9 @@ use {
 /// and finishing by None.
 /// Channel sizes are designed to avoid useless computations.
 pub struct Executor {
-    pub line_receiver: Receiver<CommandExecInfo>,
+    pub line_receiver: crossbeam::channel::Receiver<CommandExecInfo>,
     task_sender: Sender<Task>,
-    stop_sender: Sender<()>, // signal for stopping the thread
+    stop_sender: oneshot::Sender<()>, // signal for stopping the thread
     thread: thread::JoinHandle<()>,
 }
 
@@ -25,161 +30,90 @@ pub struct Task {
     pub backtrace: bool,
 }
 
+type LineSender = crossbeam::channel::Sender<CommandExecInfo>;
+
 impl Executor {
     /// launch the commands, send the lines of its stderr on the
     /// line channel.
     /// If `with_stdout` capture and send also its stdout.
     pub fn new(mission: &Mission) -> Result<Self> {
-        let mut command = mission.get_command();
+        let mut command = Command::from(mission.get_command());
         let with_stdout = mission.need_stdout();
-        let (task_sender, task_receiver) = bounded::<Task>(1);
-        let (stop_sender, stop_receiver) = bounded(0);
-        let (line_sender, line_receiver) = unbounded();
+        let (task_sender, mut task_receiver) = channel::<Task>(1);
+        let (stop_sender, mut stop_receiver) = oneshot::channel();
+        let (line_sender, line_receiver) = crossbeam::channel::unbounded();
         command
+            .stdin(Stdio::null())
             .stderr(Stdio::piped())
-            .stdout(if with_stdout { Stdio::piped() } else { Stdio::null() });
+            .stdout(if with_stdout {
+                Stdio::piped()
+            } else {
+                Stdio::null()
+            });
+
         let thread = thread::spawn(move || {
-            loop {
-                select! {
-                    recv(task_receiver) -> task => {
-                        let task = match task {
-                            Ok(task) => task,
-                            _ => { break; }
-                        };
-                        debug!("starting task {:?}", task);
-                        command.env(
-                            "RUST_BACKTRACE",
-                            if task.backtrace { "1" } else { "0" },
-                        );
-                        let child = command.spawn();
-                        let mut child = match child {
-                            Ok(child) => child,
-                            Err(e) => {
-                                if let Err(e) = line_sender.send(CommandExecInfo::Error(
-                                    format!("command launch failed: {}", e)
-                                )) {
-                                    debug!("error when sending launch error: {}", e);
-                                    break;
-                                }
-                                continue;
+            // start a runtime to manage the executor
+            let rt = tokio::runtime::Builder::new_current_thread()
+                .enable_io()
+                .build()
+                .unwrap();
+
+            rt.block_on(async move {
+                // Handle to the current task
+                let mut current_task: Option<tokio::task::JoinHandle<_>> = None;
+
+                loop {
+                    tokio::select! {
+                        _ = &mut stop_receiver => break,
+
+                        // wait for the next task
+                        task = task_receiver.recv() => {
+                            if let Some(old) = current_task.take() {
+                                old.abort();
                             }
-                        };
-                        let stderr = match child.stderr.take() {
-                            Some(stderr) => stderr,
-                            None => {
-                                if let Err(e) = line_sender.send(CommandExecInfo::Error(
-                                    "taking stderr failed".to_string()
-                                )) {
-                                    debug!("error when sending stderr error: {}", e);
-                                    break;
-                                }
-                                continue;
-                            }
-                        };
-                        // if we need stdout, we listen for in on a separate thread
-                        // (if somebody knows of an efficient and clean cross-platform way
-                        // to listen for both stderr and stdout on the same thread, please tell me)
-                        let out_thread = if with_stdout {
-                            let stdout = match child.stdout.take() {
-                                Some(stdout) => stdout,
-                                None => {
-                                    if let Err(e) = line_sender.send(CommandExecInfo::Error(
-                                        "taking stdout failed".to_string()
-                                    )) {
-                                        debug!("error when sending stdout error: {}", e);
-                                        break;
-                                    }
-                                    continue;
-                                }
+
+                            let task = match task {
+                                // no more tasks, exit now
+                                None => break,
+                                Some(task) => task,
                             };
-                            let line_sender = line_sender.clone();
-                            Some(thread::spawn(move|| {
-                                let mut buf = String::new();
-                                let mut buf_reader = BufReader::new(stdout);
-                                loop {
-                                    let r = match buf_reader.read_line(&mut buf) {
-                                        Err(e) => CommandExecInfo::Error(e.to_string()),
-                                        Ok(0) => {
-                                            // finished
-                                            break;
-                                        }
-                                        Ok(_) => {
-                                            // debug!("STDOUT : {:?}", &buf);
-                                            CommandExecInfo::Line(CommandOutputLine {
-                                                origin: CommandStream::StdOut,
-                                                content: TLine::from_tty(buf.trim_end()),
-                                            })
-                                        }
-                                    };
-                                    if let Err(e) = line_sender.send(r) {
-                                        debug!("error when sending stdout line: {}", e);
-                                        break;
+
+                            let child = match start_task(task, &mut command) {
+                                Err(e) => {
+                                    let response = CommandExecInfo::Error(
+                                        format!("failed to start task: {}", e)
+                                    );
+                                    match line_sender.send(response) {
+                                        Err(_) => break,
+                                        _ => continue,
                                     }
-                                    buf.clear();
                                 }
-                            }))
-                        } else {
-                            None
-                        };
-                        let mut buf = String::new();
-                        let mut buf_reader = BufReader::new(stderr);
-                        loop {
-                            if let Ok(()) = stop_receiver.try_recv() {
-                                debug!("stopping during execution");
-                                match child.kill() {
-                                    Ok(()) => debug!("command stopped"),
-                                    _ => debug!("command already stopped"),
-                                }
-                                return;
-                            }
-                            let r = match buf_reader.read_line(&mut buf) {
-                                Err(e) => CommandExecInfo::Error(e.to_string()),
-                                Ok(0) => {
-                                    // finished
-                                    break;
-                                }
-                                Ok(_) => {
-                                    // debug!("STDERR : {:?}", &buf);
-                                    CommandExecInfo::Line(CommandOutputLine {
-                                        origin: CommandStream::StdErr,
-                                        content: TLine::from_tty(buf.trim_end()),
-                                    })
-                                }
+                                Ok(child) => child,
                             };
-                            if let Err(e) = line_sender.send(r) {
-                                debug!("error when sending stderr line: {}", e);
-                                break;
-                            }
-                            buf.clear();
+
+                            current_task = Some(tokio::spawn(                                execute_task(child, with_stdout, line_sender.clone())
+                            ));
                         }
-                        let status = match child.wait() {
-                            Ok(exit_status) => {
-                                debug!("exit_status: {:?}", &exit_status);
-                                Some(exit_status)
+
+                        // Wait for the current task to finish
+                        result = task_result(&mut current_task) => {
+                            current_task = None;
+                            let response = match result {
+                                Err(e) => CommandExecInfo::Error(
+                                    format!("failed to execute task: {}", e)
+                                ),
+                                Ok(status) => CommandExecInfo::End { status },
+                            };
+
+                            if let Err(_) = line_sender.send(response) {
+                                break
                             }
-                            Err(e) => {
-                                warn!("error in child: {:?}", e);
-                                None
-                            }
-                        };
-                        if let Err(e) = line_sender.send(CommandExecInfo::End { status }) {
-                            debug!("error when sending line: {}", e);
-                            break;
                         }
-                        debug!("finished command execution");
-                        if let Some(thread) = out_thread {
-                            debug!("waiting for out listening thread to join");
-                            thread.join().unwrap();
-                            debug!("out listening thread joined");
-                        }
-                    }
-                    recv(stop_receiver) -> _ => {
-                        debug!("leaving thread");
-                        return;
                     }
                 }
-            }
+            })
         });
+
         Ok(Self {
             line_receiver,
             task_sender,
@@ -198,4 +132,99 @@ impl Executor {
         self.thread.join().unwrap();
         Ok(())
     }
+}
+
+async fn task_result(
+    task: &mut Option<JoinHandle<Result<Option<ExitStatus>>>>,
+) -> Result<Option<ExitStatus>> {
+    match task {
+        Some(handle) => handle.await.unwrap(),
+        None => match AlwaysPending.await {},
+    }
+}
+
+/// A future that will never resolve
+struct AlwaysPending;
+
+impl std::future::Future for AlwaysPending {
+    type Output = std::convert::Infallible;
+
+    fn poll(
+        self: std::pin::Pin<&mut Self>,
+        _cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Self::Output> {
+        std::task::Poll::Pending
+    }
+}
+
+/// Start the given task/command
+fn start_task(task: Task, command: &mut Command) -> Result<Child> {
+    command
+        .kill_on_drop(true)
+        .env("RUST_BACKTRACE", if task.backtrace { "1" } else { "0" })
+        .spawn()
+        .context("failed to launch command")
+}
+
+/// Send all lines in the process' output
+async fn execute_task(
+    mut child: Child,
+    with_stdout: bool,
+    line_sender: LineSender,
+) -> Result<Option<ExitStatus>> {
+    let stderr = child
+        .stderr
+        .take()
+        .ok_or_else(|| anyhow!("child missing stderr"))?;
+
+    let stderr_sender = line_sender.clone();
+    let stderr =
+        tokio::spawn(async move { consume_stream(stderr, CommandStream::StdErr, stderr_sender) });
+
+    let stdout = if with_stdout {
+        let stdout = child
+            .stdout
+            .take()
+            .ok_or_else(|| anyhow!("child missing stdout"))?;
+        let stdout_sender = line_sender.clone();
+        Some(tokio::spawn(async move {
+            consume_stream(stdout, CommandStream::StdOut, stdout_sender)
+        }))
+    } else {
+        None
+    };
+
+    // we use `unwrap` to bubble panics in the subtasks up the stack
+    stderr.await.unwrap().await?;
+    if let Some(stdout) = stdout {
+        stdout.await.unwrap().await?;
+    }
+
+    let status = match child.wait().await {
+        Err(_) => None,
+        Ok(status) => Some(status),
+    };
+
+    Ok(status)
+}
+
+/// Send all lines in the given stream to the sender.
+async fn consume_stream(
+    stream: impl AsyncRead + Unpin,
+    origin: CommandStream,
+    line_sender: LineSender,
+) -> Result<()> {
+    let mut lines = BufReader::new(stream).lines();
+
+    while let Some(line) = lines.next_line().await? {
+        let response = CommandExecInfo::Line(CommandOutputLine {
+                content: TLine::from_tty(&line),
+                origin,
+            });
+        if let Err(_) = line_sender.send(response) {
+            return Err(anyhow!("channel closed"));
+        }
+    }
+
+    Ok(())
 }
