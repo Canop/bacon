@@ -178,8 +178,7 @@ async fn execute_task(
         .ok_or_else(|| anyhow!("child missing stderr"))?;
 
     let stderr_sender = line_sender.clone();
-    let stderr =
-        tokio::spawn(async move { consume_stream(stderr, CommandStream::StdErr, stderr_sender) });
+    let stderr = stream_consumer(stderr, CommandStream::StdErr, stderr_sender);
 
     let stdout = if with_stdout {
         let stdout = child
@@ -187,17 +186,16 @@ async fn execute_task(
             .take()
             .ok_or_else(|| anyhow!("child missing stdout"))?;
         let stdout_sender = line_sender.clone();
-        Some(tokio::spawn(async move {
-            consume_stream(stdout, CommandStream::StdOut, stdout_sender)
-        }))
+        Some(stream_consumer(stdout, CommandStream::StdOut, stdout_sender))
     } else {
         None
     };
 
-    // we use `unwrap` to bubble panics in the subtasks up the stack
-    stderr.await.unwrap().await?;
+    // either we wait on both stdout and stderr concurrently, or just stderr.
     if let Some(stdout) = stdout {
-        stdout.await.unwrap().await?;
+        tokio::try_join!(stdout, stderr)?;
+    } else {
+        stderr.await?;
     }
 
     let status = match child.wait().await {
@@ -209,7 +207,7 @@ async fn execute_task(
 }
 
 /// Send all lines in the given stream to the sender.
-async fn consume_stream(
+async fn stream_consumer(
     stream: impl AsyncRead + Unpin,
     origin: CommandStream,
     line_sender: LineSender,
@@ -218,9 +216,9 @@ async fn consume_stream(
 
     while let Some(line) = lines.next_line().await? {
         let response = CommandExecInfo::Line(CommandOutputLine {
-                content: TLine::from_tty(&line),
-                origin,
-            });
+            content: TLine::from_tty(&line),
+            origin,
+        });
         if let Err(_) = line_sender.send(response) {
             return Err(anyhow!("channel closed"));
         }
