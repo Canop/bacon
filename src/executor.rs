@@ -91,7 +91,8 @@ impl Executor {
                                 Ok(child) => child,
                             };
 
-                            current_task = Some(tokio::spawn(                                execute_task(child, with_stdout, line_sender.clone())
+                            current_task = Some(tokio::spawn(
+                                execute_task(child, with_stdout, line_sender.clone())
                             ));
                         }
 
@@ -186,7 +187,11 @@ async fn execute_task(
             .take()
             .ok_or_else(|| anyhow!("child missing stdout"))?;
         let stdout_sender = line_sender.clone();
-        Some(stream_consumer(stdout, CommandStream::StdOut, stdout_sender))
+        Some(stream_consumer(
+            stdout,
+            CommandStream::StdOut,
+            stdout_sender,
+        ))
     } else {
         None
     };
