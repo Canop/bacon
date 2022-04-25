@@ -10,16 +10,24 @@ use crate::*;
 /// They're immutable during the execution of the missions.
 #[derive(Debug, Clone, Default)]
 pub struct Settings {
-    pub arg_job_name: Option<String>,
+    pub arg_job_name: Option<JobType>,
     pub additional_job_args: Vec<String>,
     pub summary: bool,
     pub wrap: bool,
     pub reverse: bool,
+    pub no_default_alias_args: bool,
     pub no_default_features: bool,
     pub all_features: bool,
     pub features: Option<String>, // comma separated list
     pub keybindings: KeyBindings,
     pub export_locations: bool,
+}
+
+/// Remember whether the user gave us a job or an alias.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum JobType {
+    Job(String),
+    Alias(String),
 }
 
 impl Settings {
@@ -49,8 +57,10 @@ impl Settings {
         }
     }
     pub fn apply_args(&mut self, args: &Args) {
-        if let Some(job_name) = &args.job {
-            self.arg_job_name = Some(job_name.clone());
+        if let Some(alias_name) = &args.alias {
+            self.arg_job_name = Some(JobType::Alias(alias_name.clone()));
+        } else if let Some(job_name) = &args.job {
+            self.arg_job_name = Some(JobType::Job(job_name.clone()));
         }
         if args.no_summary {
             self.summary = false;
@@ -76,6 +86,9 @@ impl Settings {
         if args.reverse {
             self.reverse = true;
         }
+        if args.no_default_alias_args {
+            self.no_default_alias_args = true;
+        }
         if args.no_default_features {
             self.no_default_features = true;
         }
@@ -86,5 +99,23 @@ impl Settings {
             self.features = args.features.clone();
         }
         self.additional_job_args = args.additional_job_args.clone();
+    }
+}
+
+impl JobType {
+    pub fn name(&self) -> &str {
+        match self {
+            JobType::Job(s) => s,
+            JobType::Alias(s) => s,
+        }
+    }
+}
+
+impl std::fmt::Display for JobType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Job(j) => f.write_str(j),
+            Self::Alias(a) => f.write_str(a),
+        }
     }
 }

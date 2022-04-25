@@ -8,11 +8,10 @@ use {
 pub struct JobStack<'c> {
     package_config: &'c PackageConfig,
     settings: &'c Settings,
-    name_stack: Vec<String>,
+    name_stack: Vec<JobType>,
 }
 
 impl<'c> JobStack<'c> {
-
     pub fn new(
         package_config: &'c PackageConfig,
         settings: &'c Settings,
@@ -24,16 +23,17 @@ impl<'c> JobStack<'c> {
         }
     }
 
-    fn initial_job_name(&self) -> String {
-        self.settings.arg_job_name.as_ref()
-            .unwrap_or(&self.package_config.default_job)
-            .to_string()
+    fn initial_job(&self) -> JobType {
+        self.settings.arg_job_name.as_ref().map_or_else(
+            || JobType::Job(self.package_config.default_job.clone()),
+            Clone::clone,
+        )
     }
 
-    pub fn pick_job(&mut self, job_ref: &JobRef) -> Result<Option<(String, Job)>> {
-        let job_name = match job_ref {
-            JobRef::Default => self.package_config.default_job.to_string(),
-            JobRef::Initial => self.initial_job_name(),
+    pub fn pick_job(&mut self, job_ref: &JobRef) -> Result<Option<(JobType, Job)>> {
+        let job_type = match job_ref {
+            JobRef::Default => JobType::Job(self.package_config.default_job.to_string()),
+            JobRef::Initial => self.initial_job(),
             JobRef::Previous => {
                 self.name_stack.pop();
                 match self.name_stack.pop() {
@@ -43,14 +43,21 @@ impl<'c> JobStack<'c> {
                     }
                 }
             }
-            JobRef::Name(name) => name.to_string(),
+            JobRef::Type(ty) => ty.clone(),
         };
-        let job = self.package_config.jobs
-            .get(&job_name)
-            .ok_or_else(|| anyhow!("job not found: {:?}", job_name))?;
-        if self.name_stack.last() != Some(&job_name) {
-            self.name_stack.push(job_name.clone());
+
+        if self.name_stack.last() != Some(&job_type) {
+            self.name_stack.push(job_type.clone());
         }
-        Ok(Some((job_name, job.clone())))
+        let job = match &job_type {
+            JobType::Job(job_name) => self
+                .package_config
+                .jobs
+                .get(job_name)
+                .ok_or_else(|| anyhow!("job not found: {:?}", job_name))?
+                .clone(),
+            JobType::Alias(alias_name) => Job::from_alias(alias_name, self.settings),
+        };
+        Ok(Some((job_type, job)))
     }
 }

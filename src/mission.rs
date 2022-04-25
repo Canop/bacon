@@ -15,7 +15,7 @@ use {
 #[derive(Debug)]
 pub struct Mission<'s> {
     pub location_name: String,
-    pub job_name: String,
+    pub job_type: JobType,
     pub cargo_execution_directory: PathBuf,
     job: Job,
     files_to_watch: Vec<PathBuf>,
@@ -26,7 +26,7 @@ pub struct Mission<'s> {
 impl<'s> Mission<'s> {
     pub fn new(
         location: &MissionLocation,
-        job_name: String,
+        job_type: JobType,
         job: Job,
         settings: &'s Settings,
     ) -> Result<Self> {
@@ -66,7 +66,7 @@ impl<'s> Mission<'s> {
         let cargo_execution_directory = location.package_directory.clone();
         Ok(Mission {
             location_name,
-            job_name,
+            job_type,
             cargo_execution_directory,
             job,
             files_to_watch,

@@ -28,3 +28,22 @@ pub struct Job {
     #[serde(default)]
     pub on_success: Option<Action>,
 }
+
+impl Job {
+    /// Builds a `Job` from a cargo alias. The user is expected to know what
+    /// they are doing here.
+    pub fn from_alias(alias_name: &str, settings: &Settings) -> Self {
+        let mut command = vec!["cargo".to_string(), alias_name.to_string()];
+
+        if !settings.no_default_alias_args {
+            command.extend_from_slice(&["--color".to_string(), "always".to_string()]);
+        }
+
+        Self {
+            command,
+            watch: Vec::new(),
+            need_stdout: false,
+            on_success: None,
+        }
+    }
+}

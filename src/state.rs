@@ -316,7 +316,7 @@ impl<'s> AppState<'s> {
         let project_name = &self.mission.location_name;
         t_line.add_badge(TString::badge(project_name, 255, 240));
         // black over pink
-        t_line.add_badge(TString::badge(&self.mission.job_name, 235, 204));
+        t_line.add_badge(TString::badge(&self.mission.job_type.name(), 235, 204));
         if let CommandResult::Report(report) = &self.cmd_result {
             let stats = &report.stats;
             if stats.errors > 0 {

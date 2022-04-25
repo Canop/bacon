@@ -9,7 +9,6 @@ use {
 /// Documentation at <https://dystroy.org/bacon>
 #[clap(version, about)]
 pub struct Args {
-
     /// print the path to the prefs file, create it if it doesn't exist
     #[clap(long = "prefs")]
     pub prefs: bool,
@@ -49,6 +48,18 @@ pub struct Args {
     /// job to launch ("check", "clippy", customized ones, ...)
     #[clap(short = 'j', long = "job")]
     pub job: Option<String>,
+
+    /// alias to launch (bacon does not check its existence before
+    /// attempting to launch it). Adds `--color=always` by default,
+    /// use `--no-default-alias-args` to remove it.
+    ///
+    /// Checked before `--job`
+    #[clap(short = 'a', long = "alias")]
+    pub alias: Option<String>,
+
+    /// do not add `--color=always` to the `--alias` argument
+    #[clap(long = "no-default-alias-args")]
+    pub no_default_alias_args: bool,
 
     /// ignore features of both the package and the bacon job
     #[clap(long = "no-default-features")]
