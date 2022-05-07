@@ -4,6 +4,7 @@ use {
     cargo_metadata::MetadataCommand,
     std::{
         env,
+        fmt,
         fs,
         path::PathBuf,
     },
@@ -11,10 +12,22 @@ use {
 
 pub struct MissionLocation {
     pub intended_dir: PathBuf,
+    pub workspace_root: PathBuf,
     pub package_directory: PathBuf,
     pub cargo_toml_file: PathBuf,
     pub intended_is_package: bool,
     pub packages: Vec<cargo_metadata::Package>,
+}
+
+impl fmt::Debug for MissionLocation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("MissionLocation")
+         .field("intended_dir", &self.intended_dir)
+         .field("package_directory", &self.package_directory)
+         .field("cargo_toml_file", &self.cargo_toml_file)
+         .field("intended_is_package", &self.intended_is_package)
+         .finish()
+    }
 }
 
 impl MissionLocation {
@@ -37,6 +50,7 @@ impl MissionLocation {
             }
             Err(other) => bail!(other),
         };
+        let workspace_root = metadata.workspace_root.clone().into();
         let resolve = metadata
             .resolve
             .expect("cargo metadata should resolve workspace without --no-deps");
@@ -64,6 +78,7 @@ impl MissionLocation {
         Ok(Self {
             intended_dir,
             package_directory,
+            workspace_root,
             cargo_toml_file,
             intended_is_package,
             packages: metadata.packages,

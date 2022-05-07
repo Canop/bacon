@@ -17,6 +17,7 @@ pub struct Mission<'s> {
     pub location_name: String,
     pub job_name: String,
     pub cargo_execution_directory: PathBuf,
+    pub workspace_root: PathBuf,
     job: Job,
     files_to_watch: Vec<PathBuf>,
     directories_to_watch: Vec<PathBuf>,
@@ -68,11 +69,17 @@ impl<'s> Mission<'s> {
             location_name,
             job_name,
             cargo_execution_directory,
+            workspace_root: location.workspace_root.clone(),
             job,
             files_to_watch,
             directories_to_watch,
             settings,
         })
+    }
+
+    /// Return the path to the bacon-locations file
+    pub fn bacon_locations_path(&self) -> PathBuf {
+        self.workspace_root.join(".bacon-locations")
     }
 
     /// the action bound to success on this job

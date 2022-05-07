@@ -14,7 +14,6 @@ pub fn run(
     mission: Mission,
     event_source: &EventSource,
 ) -> Result<Option<JobRef>> {
-
     let keybindings = mission.settings.keybindings.clone();
     let (watch_sender, watch_receiver) = bounded(0);
     let mut watcher = notify::recommended_watcher(move |res| match res {

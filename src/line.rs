@@ -32,7 +32,7 @@ impl Line {
         let location_path = self.location()?;
         let mut location_path = PathBuf::from(location_path);
         if !location_path.is_absolute() {
-            location_path = mission.cargo_execution_directory.join(location_path);
+            location_path = mission.workspace_root.join(location_path);
         }
         Some(location_path)
     }

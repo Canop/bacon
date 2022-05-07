@@ -55,7 +55,7 @@ impl CommandResult {
     ) -> Result<()> {
         match self {
             Self::Report(report) => {
-                let path = mission.cargo_execution_directory.join(".bacon-locations");
+                let path = mission.bacon_locations_path();
                 let mut file = File::create(&path)?;
                 report.write_to(&mut file, mission)?;
             }

@@ -31,7 +31,7 @@ pub fn run() -> anyhow::Result<()> {
     args.fix()?;
     info!("args: {:#?}", &args);
     let location = MissionLocation::new(&args)?;
-    debug!("cargo_toml_file: {:?}", &location.cargo_toml_file);
+    info!("mission location: {:#?}", &location);
 
     let mut settings = Settings::default();
 
@@ -50,7 +50,7 @@ pub fn run() -> anyhow::Result<()> {
         }
         if prefs_path.exists() {
             let prefs = Prefs::from_path(&prefs_path)?;
-            info!("prefs: {:#?}", &prefs);
+            debug!("prefs: {:#?}", &prefs);
             settings.apply_prefs(&prefs);
         }
     }
