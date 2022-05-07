@@ -154,7 +154,11 @@ impl Report {
         Ok(Report { lines, stats, suggest_backtrace, output: CommandOutput::default() })
     }
     /// export the report in a file
-    pub fn write_to<W: io::Write>(&self, w: &mut W) -> Result<(), io::Error> {
+    pub fn write_to<W: io::Write>(
+        &self,
+        w: &mut W,
+        mission: &Mission,
+    ) -> Result<(), io::Error> {
         let mut last_cat = "???";
         for line in &self.lines {
             match line.line_type {
@@ -169,8 +173,8 @@ impl Report {
                 }
                 _ => {}
             }
-            if let Some(location) = line.location() {
-                writeln!(w, "{} {}", last_cat, location)?;
+            if let Some(location) = line.location_path(mission) {
+                writeln!(w, "{} {}", last_cat, location.to_string_lossy())?;
             }
         }
         debug!("exported locations");

@@ -49,12 +49,15 @@ impl CommandResult {
         }
     }
 
-    pub fn update_location_file(&self, mission: &Mission) -> Result<()> {
+    pub fn update_location_file(
+        &self,
+        mission: &Mission,
+    ) -> Result<()> {
         match self {
             Self::Report(report) => {
                 let path = mission.cargo_execution_directory.join(".bacon-locations");
                 let mut file = File::create(&path)?;
-                report.write_to(&mut file)?;
+                report.write_to(&mut file, mission)?;
             }
             Self::Failure(_) => { }
             Self::None => { }

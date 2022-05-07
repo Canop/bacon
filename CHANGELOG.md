@@ -1,3 +1,7 @@
+### next
+- Locations exported in .bacon-locations now made absolute so that IDE plugins don't have to know the package's root
+- job cancelling now works on unresponsive jobs too. This is a quite heavy change as the current implementation involves bringing in async and it's not 100% clean but it solves a major problem, further improvements could be welcome - Fix #78 - Thanks @nolanderc
+
 <a name="v2.1.0"></a>
 ### v2.1.0 - 2022/03/26
 Major feature:
