@@ -8,7 +8,7 @@ use {
 pub struct JobStack<'c> {
     package_config: &'c PackageConfig,
     settings: &'c Settings,
-    name_stack: Vec<String>,
+    entries: Vec<ConcreteJobRef>,
 }
 
 impl<'c> JobStack<'c> {
@@ -20,37 +20,44 @@ impl<'c> JobStack<'c> {
         Self {
             package_config,
             settings,
-            name_stack: Vec::new(),
+            entries: Vec::new(),
         }
     }
 
-    fn initial_job_name(&self) -> String {
-        self.settings.arg_job_name.as_ref()
+    fn initial_job(&self) -> &ConcreteJobRef {
+        self.settings.arg_job.as_ref()
             .unwrap_or(&self.package_config.default_job)
-            .to_string()
     }
 
-    pub fn pick_job(&mut self, job_ref: &JobRef) -> Result<Option<(String, Job)>> {
-        let job_name = match job_ref {
-            JobRef::Default => self.package_config.default_job.to_string(),
-            JobRef::Initial => self.initial_job_name(),
+
+    pub fn pick_job(&mut self, job_ref: &JobRef) -> Result<Option<(ConcreteJobRef, Job)>> {
+        info!("PICKING JOB {job_ref:?}");
+        let concrete = match job_ref {
+            JobRef::Default => self.package_config.default_job.clone(),
+            JobRef::Initial => self.initial_job().clone(),
             JobRef::Previous => {
-                self.name_stack.pop();
-                match self.name_stack.pop() {
-                    Some(name) => name,
+                self.entries.pop();
+                match self.entries.pop() {
+                    Some(concrete) => concrete,
                     None => {
                         return Ok(None);
                     }
                 }
             }
-            JobRef::Name(name) => name.to_string(),
+            JobRef::Concrete(concrete) => concrete.clone(),
         };
-        let job = self.package_config.jobs
-            .get(&job_name)
-            .ok_or_else(|| anyhow!("job not found: {:?}", job_name))?;
-        if self.name_stack.last() != Some(&job_name) {
-            self.name_stack.push(job_name.clone());
+        let job = match &concrete {
+            ConcreteJobRef::Alias(alias) => Job::from_alias(alias, &self.settings),
+            ConcreteJobRef::Name(name) => {
+                self.package_config.jobs
+                    .get(name)
+                    .ok_or_else(|| anyhow!("job not found: {:?}", name))?
+                    .clone()
+            }
+        };
+        if self.entries.last() != Some(&concrete) {
+            self.entries.push(concrete.clone());
         }
-        Ok(Some((job_name, job.clone())))
+        Ok(Some((concrete, job)))
     }
 }

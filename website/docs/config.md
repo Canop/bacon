@@ -144,6 +144,8 @@ They're either role based or name based.
 
 To refer to the job called `test`, you use a name based reference: `job:test`.
 
+To refer to a job based on a [cargo alias](https://doc.rust-lang.org/cargo/reference/config.html#alias), add `alias:`, for example `job:alias:r`.
+
 Role based job references are the following ones:
 
 job reference | meaning

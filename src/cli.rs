@@ -99,7 +99,7 @@ pub fn run() -> anyhow::Result<()> {
             Ok(Some(t)) => t,
             Ok(None) => { break; }
         };
-        let r = Mission::new(&location, job_name, job, &settings)
+        let r = Mission::new(&location, job_name.to_string(), job, &settings)
             .and_then(|mission| app::run(&mut w, mission, &event_source));
         match r {
             Ok(Some(job_ref)) => {

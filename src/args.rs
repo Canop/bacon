@@ -1,4 +1,5 @@
 use {
+    crate::ConcreteJobRef,
     anyhow::{bail, Result},
     clap::Parser,
 };
@@ -48,7 +49,7 @@ pub struct Args {
 
     /// job to launch ("check", "clippy", customized ones, ...)
     #[clap(short = 'j', long = "job")]
-    pub job: Option<String>,
+    pub job: Option<ConcreteJobRef>,
 
     /// ignore features of both the package and the bacon job
     #[clap(long = "no-default-features")]
@@ -101,9 +102,9 @@ impl Args {
                 if a.contains('.') || a.contains('/') {
                     // a is a path, it can't be job
                     self.path = Some(a);
-                    self.job = b;
+                    self.job = b.map(|b| b.as_str().into());
                 } else {
-                    self.job = Some(a);
+                    self.job = Some(a.as_str().into());
                     self.path = b;
                 }
             }
@@ -111,7 +112,7 @@ impl Args {
                 bail!("Too many arguments");
             }
             (Some(a), None, true, false) => {
-                self.job = Some(a);
+                self.job = Some(a.as_str().into());
             }
             (Some(a), None, false, true) => {
                 self.path = Some(a);

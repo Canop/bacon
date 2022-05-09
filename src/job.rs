@@ -28,3 +28,30 @@ pub struct Job {
     #[serde(default)]
     pub on_success: Option<Action>,
 }
+
+static DEFAULT_ARGS: &[&str] = &["--color", "always"];
+
+impl Job {
+    /// Builds a `Job` for a cargo alias
+    pub fn from_alias(
+        alias_name: &str,
+        settings: &Settings,
+    ) -> Self {
+        let mut command = vec!["cargo".to_string(), alias_name.to_string()];
+        if let Some(additional_args) = settings.additional_alias_args.as_ref() {
+            for arg in additional_args {
+                command.push(arg.to_string())
+            }
+        } else {
+            for arg in DEFAULT_ARGS {
+                command.push(arg.to_string())
+            }
+        }
+        Self {
+            command,
+            watch: Vec::new(),
+            need_stdout: false,
+            on_success: None,
+        }
+    }
+}

@@ -10,8 +10,9 @@ use crate::*;
 /// They're immutable during the execution of the missions.
 #[derive(Debug, Clone, Default)]
 pub struct Settings {
-    pub arg_job_name: Option<String>,
+    pub arg_job: Option<ConcreteJobRef>,
     pub additional_job_args: Vec<String>,
+    pub additional_alias_args: Option<Vec<String>>,
     pub summary: bool,
     pub wrap: bool,
     pub reverse: bool,
@@ -42,15 +43,21 @@ impl Settings {
         if let Some(pref_keybindings) = prefs.keybindings.as_ref() {
             self.keybindings.add_all(pref_keybindings);
         }
+        if prefs.additional_alias_args.is_some() {
+            self.additional_alias_args = prefs.additional_alias_args.clone();
+        }
     }
     pub fn apply_package_config(&mut self, package_config: &PackageConfig) {
         if let Some(keybindings) = package_config.keybindings.as_ref() {
             self.keybindings.add_all(keybindings);
         }
+        if package_config.additional_alias_args.is_some() {
+            self.additional_alias_args = package_config.additional_alias_args.clone();
+        }
     }
     pub fn apply_args(&mut self, args: &Args) {
-        if let Some(job_name) = &args.job {
-            self.arg_job_name = Some(job_name.clone());
+        if let Some(job) = &args.job {
+            self.arg_job = Some(job.clone());
         }
         if args.no_summary {
             self.summary = false;

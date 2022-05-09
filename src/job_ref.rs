@@ -1,5 +1,9 @@
 use {
-    std::fmt,
+    serde::{de, Deserialize, Deserializer},
+    std::{
+        fmt,
+        str::FromStr,
+    },
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -7,7 +11,53 @@ pub enum JobRef {
     Default,
     Initial,
     Previous,
-    Name(String), // should be neither "initial", "default" or "previous"
+    Concrete(ConcreteJobRef),
+}
+
+/// A "concrete" job ref is one which can be used from the start, without
+/// referring to the job stack
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum ConcreteJobRef {
+    Name(String),
+    Alias(String),
+}
+
+impl fmt::Display for ConcreteJobRef {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Alias(alias) => write!(f, "alias:{alias}"),
+            Self::Name(name) => write!(f, "{name}"),
+        }
+    }
+}
+
+impl FromStr for ConcreteJobRef {
+    type Err = &'static str;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            Err("empty job name")
+        } else {
+            Ok(s.into())
+        }
+    }
+}
+impl<'de> Deserialize<'de> for ConcreteJobRef {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        let s = String::deserialize(deserializer)?;
+        FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}
+
+impl From<&str> for ConcreteJobRef {
+    fn from(str_entry: &str) -> Self {
+        if let Some(alias) = str_entry.strip_prefix("alias:") {
+            ConcreteJobRef::Alias(alias.to_string())
+        } else {
+            ConcreteJobRef::Name(str_entry.to_string())
+        }
+    }
 }
 
 impl fmt::Display for JobRef {
@@ -16,7 +66,7 @@ impl fmt::Display for JobRef {
             Self::Default => write!(f, "default"),
             Self::Initial => write!(f, "initial"),
             Self::Previous => write!(f, "previous"),
-            Self::Name(name) => write!(f, "{name:?}"),
+            Self::Concrete(concrete) => concrete.fmt(f),
         }
     }
 }
@@ -27,7 +77,7 @@ impl From<&str> for JobRef {
             "default" => Self::Default,
             "initial" => Self::Initial,
             "previous" => Self::Previous,
-            _ => Self::Name(name.to_string()),
+            _ => Self::Concrete(ConcreteJobRef::from(name)),
         }
     }
 }

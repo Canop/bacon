@@ -10,9 +10,10 @@ use {
 /// along a `Cargo.toml` file
 #[derive(Debug, Clone, Deserialize)]
 pub struct PackageConfig {
-    pub default_job: String,
+    pub default_job: ConcreteJobRef,
     pub jobs: HashMap<String, Job>,
     pub keybindings: Option<KeyBindings>,
+    pub additional_alias_args: Option<Vec<String>>,
 }
 
 impl PackageConfig {
@@ -36,10 +37,12 @@ impl PackageConfig {
                 );
             }
         }
-        if !conf.jobs.contains_key(&conf.default_job) {
-            bail!(
-                "Invalid bacon.toml : default job not found in jobs"
-            );
+        if let ConcreteJobRef::Name(name) = &conf.default_job {
+            if !conf.jobs.contains_key(name) {
+                bail!(
+                    "Invalid bacon.toml : default job not found in jobs"
+                );
+            }
         }
         Ok(conf)
     }

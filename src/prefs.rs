@@ -15,6 +15,7 @@ pub struct Prefs {
     pub vim_keys: Option<bool>, // deprecated thanks to keybindings
     pub export_locations: Option<bool>,
     pub keybindings: Option<KeyBindings>,
+    pub additional_alias_args: Option<Vec<String>>,
 }
 
 impl Prefs {
