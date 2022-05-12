@@ -5,7 +5,7 @@ Tell me about your recipes so that I may share them there.
 
 # Jump to the next location in neovim
 
-With the [neovim-bacon](https://github.com/Canop/neovim-bacon) plugin, you can navigate between errors and warnings without leaving nvim, just hitting a key.
+With the [nvim-bacon](https://github.com/Canop/nvim-bacon) plugin, you can navigate between errors and warnings without leaving nvim, just hitting a key.
 
 # Open your lib's doc
 
