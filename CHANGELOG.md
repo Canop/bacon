@@ -1,3 +1,7 @@
+<a name="v2.2.1"></a>
+### v2.2.1 - 2022/05/12
+- update some dependencies
+
 <a name="v2.2.0"></a>
 ### v2.2.0 - 2022/05/12
 - Locations exported in .bacon-locations now made absolute so that IDE plugins don't have to know the package's root
