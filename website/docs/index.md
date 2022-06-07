@@ -18,7 +18,7 @@ You don't have to remember commands: the essential ones are listed on bottom and
 Run
 
 ```bash
-cargo install bacon
+cargo install --locked bacon
 ```
 
 # Usage
