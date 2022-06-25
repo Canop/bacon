@@ -8,7 +8,7 @@ use {
 /// bacon watches your source and run code checks in background.
 ///
 /// Documentation at <https://dystroy.org/bacon>
-#[clap(version, about)]
+#[clap(author, version, about)]
 pub struct Args {
 
     /// print the path to the prefs file, create it if it doesn't exist

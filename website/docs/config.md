@@ -59,10 +59,9 @@ ctrl-u = "scroll-page(-1)"
 ctrl-d = "scroll-page(1)"
 ```
 
-Notes:
+Note that you may have keybindings for jobs which aren't defined in all projects, this isn't an error.
 
-* actions here may refer to jobs even if they're not defined in all projects
-* your operating system and console intercept many key combinations
+Your operating system and console intercept many key combinations. If you want to know which one are available, and the key syntax to use, you may find [print_key](https://github.com/Canop/print_key) useful.
 
 # Project Settings
 
