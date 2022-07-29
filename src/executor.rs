@@ -105,7 +105,7 @@ impl Executor {
                                 Ok(status) => CommandExecInfo::End { status },
                             };
 
-                            if let Err(_) = line_sender.send(response) {
+                            if line_sender.send(response).is_err() {
                                 break
                             }
                         }
@@ -219,7 +219,7 @@ async fn stream_consumer(
             content: TLine::from_tty(&line),
             origin,
         });
-        if let Err(_) = line_sender.send(response) {
+        if line_sender.send(response).is_err() {
             return Err(anyhow!("channel closed"));
         }
     }

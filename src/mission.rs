@@ -87,6 +87,10 @@ impl<'s> Mission<'s> {
         &self.job.on_success
     }
 
+    pub fn allow_warnings(&self) -> bool {
+        self.job.allow_warnings
+    }
+
     /// configure the watcher with files and directories to watch
     pub fn add_watchs(&self, watcher: &mut RecommendedWatcher) -> Result<()> {
         for file in &self.files_to_watch {

@@ -26,8 +26,12 @@ impl Report {
     }
     /// A successful report is one with nothing to tell: no warning,
     /// no error, no test failure
-    pub fn is_success(&self) -> bool {
-        self.stats.errors + self.stats.warnings + self.stats.test_fails == 0
+    pub fn is_success(&self, allow_warnings: bool) -> bool {
+        if allow_warnings {
+            self.stats.errors + self.stats.test_fails == 0
+        } else {
+            self.stats.errors + self.stats.warnings + self.stats.test_fails == 0
+        }
     }
     /// compute the report from the lines of stdout and/or stderr of the
     /// `cargo` command.

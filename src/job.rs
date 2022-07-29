@@ -27,6 +27,12 @@ pub struct Job {
     /// error, warning or test failures
     #[serde(default)]
     pub on_success: Option<Action>,
+
+    /// whether to consider that we have a success when
+    /// we only have warnings. This is especially useful
+    /// for "cargo run" jobs
+    #[serde(default)]
+    pub allow_warnings: bool,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -52,6 +58,7 @@ impl Job {
             watch: Vec::new(),
             need_stdout: false,
             on_success: None,
+            allow_warnings: false,
         }
     }
 }

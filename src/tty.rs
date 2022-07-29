@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::*,
-    std::io::Write,
+    std::{
+        fmt::Write as _,
+        io::Write,
+    },
     termimad::StrFit,
 };
 
@@ -50,7 +53,7 @@ impl TString {
         self.csi.push('\u{1b}');
         self.csi.push('[');
         for (idx, p) in params.iter().enumerate() {
-            self.csi.push_str(&format!("{}", p));
+            let _ = write!(self.csi, "{}", p);
             if idx < params.len() - 1 {
                 self.csi.push(';');
             }

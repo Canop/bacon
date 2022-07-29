@@ -45,7 +45,7 @@ impl HelpLine {
                     if let Some(s) = &self.toggle_backtrace {
                         parts.push(s);
                     }
-                } else if !report.is_success() {
+                } else if !report.is_success(state.mission.allow_warnings()) {
                     if let Some(s) = &self.toggle_summary {
                         parts.push(s);
                     }

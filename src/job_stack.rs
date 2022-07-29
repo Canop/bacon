@@ -47,7 +47,7 @@ impl<'c> JobStack<'c> {
             JobRef::Concrete(concrete) => concrete.clone(),
         };
         let job = match &concrete {
-            ConcreteJobRef::Alias(alias) => Job::from_alias(alias, &self.settings),
+            ConcreteJobRef::Alias(alias) => Job::from_alias(alias, self.settings),
             ConcreteJobRef::Name(name) => {
                 self.package_config.jobs
                     .get(name)
