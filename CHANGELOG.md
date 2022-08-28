@@ -1,3 +1,8 @@
+<a name="v2.2.2"></a>
+### v2.2.2 - 2022/08/28
+- define a new `allow_warnings` job setting. When it's true, the job is considered successful even when there are warnings. This is default on the `run` job, which means the `cargo run` output is displayed even when there are warnings - Fix #81
+- allow `cargo --prefs` to be ran from outside cargo projects - Fix #84
+
 <a name="v2.2.1"></a>
 ### v2.2.1 - 2022/05/12
 - update some dependencies
