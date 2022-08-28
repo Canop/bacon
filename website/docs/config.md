@@ -86,6 +86,7 @@ command | no | The tokens making the command to execute (first one is the execut
 watch | yes | A list of directories that will be watched if the job is run on a package. `src` is implicitly included.
 need_stdout | yes |whether we need to capture stdout too (stderr is always captured). Default is `false`
 on_success | yes | the action to run when there's no error, warning or test failures
+allow_warnings | yes | if true, the action is considered a success even when there are warnings. Default is `false` but the standard `run` job is configured with `allow_warnings=false`
 
 Example:
 
