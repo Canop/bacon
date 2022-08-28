@@ -30,8 +30,6 @@ pub fn run() -> anyhow::Result<()> {
     let mut args: Args = Args::parse();
     args.fix()?;
     info!("args: {:#?}", &args);
-    let location = MissionLocation::new(&args)?;
-    info!("mission location: {:#?}", &location);
 
     let mut settings = Settings::default();
 
@@ -54,6 +52,9 @@ pub fn run() -> anyhow::Result<()> {
             settings.apply_prefs(&prefs);
         }
     }
+
+    let location = MissionLocation::new(&args)?;
+    info!("mission location: {:#?}", &location);
 
     let package_config_path = location.package_config_path();
     if args.init {
