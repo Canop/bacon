@@ -27,7 +27,7 @@ termimad = "0.20.2"
 toml = "0.5.8"
 unicode-width = "0.1.9"
 vte = "0.8"
-tokio = { version = "1.17.0", default-features = false, features = ["sync", "process", "rt", "macros", "io-util"] }
+tokio = { version = "1.17.0", default-features = false, features = ["net", "sync", "process", "rt", "macros", "io-util"] }
 
 [profile.release]
 lto = true
