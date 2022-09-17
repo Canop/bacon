@@ -1,3 +1,7 @@
+<a name="v2.2.3"></a>
+### v2.2.3 - 2022/09/17
+- fix a compilation problem on Window - Thanks @Stargateur - Fix #87
+
 <a name="v2.2.2"></a>
 ### v2.2.2 - 2022/08/28
 - define a new `allow_warnings` job setting. When it's true, the job is considered successful even when there are warnings. This is default on the `run` job, which means the `cargo run` output is displayed even when there are warnings - Fix #81
