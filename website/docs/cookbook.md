@@ -67,10 +67,23 @@ If you configure a `cargo run` job, you'll get the usual warnings and errors unt
 ```toml
 [jobs.exs]
 command = ["cargo", "run", "--example", "simple", "--color", "always"]
+allow_warnings = true
 need_stdout = true
 ```
 
 You may add `on_success = "back"` if you don't want the executable to run again on changes.
+
+The `allow_warnings = true` line tells bacon to run the executable even when there are warnings. The excutable's output would come below warnings.
+
+Some libraries and programs test whether they run in a TTY and remove style in such case.
+Most usually, those applications provide a way to bypass this test with a launch argument.
+Depending on the desired output, you would have to add a setting to the run job, for example
+([more on this](https://github.com/Canop/bacon/issues/89#issuecomment-1257752297)):
+
+```toml
+command = ["cargo", "run", "--color", "always", "--", "--color", "yes"]
+```
+
 
 # Variable arguments
 
