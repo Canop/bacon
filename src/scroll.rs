@@ -47,7 +47,7 @@ impl ScrollCommand {
     pub fn apply(self, scroll: usize, content_height: usize, page_height: usize) -> usize {
         if content_height > page_height {
             (scroll as i32 + self.to_lines(content_height, page_height))
-                .min((content_height - page_height - 1) as i32)
+                .min((content_height - page_height) as i32)
                 .max(0) as usize
         } else {
             0

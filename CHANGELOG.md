@@ -1,3 +1,10 @@
+### next
+- fix wrong scrollbar in several cases of wrapping
+
+<a name="v2.2.4"></a>
+### v2.2.4 - 2022/10/05
+- fix inability to scroll to last line sometimes
+
 <a name="v2.2.3"></a>
 ### v2.2.3 - 2022/09/17
 - fix a compilation problem on Window - Thanks @Stargateur - Fix #87
