@@ -36,7 +36,7 @@ You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bac
 
 ## export locations
 
-If you use neovim, you probably want to use the [neovim-bacon](https://github.com/Canop/neovim-bacon) plugin.
+If you use neovim, you probably want to use the [nvim-bacon](https://github.com/Canop/nvim-bacon) plugin.
 
 This plugin needs neovim to be launched with the `-e` argument which makes it keep a `.bacon-locations` file up to date (you'll probably want to put the `.bacon-locations` in your global .gitignore).
 
