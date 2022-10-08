@@ -1,4 +1,5 @@
-### next
+<a name="v2.2.5"></a>
+### v2.2.5 - 2022/10/08
 - fix wrong scrollbar in several cases of wrapping
 
 <a name="v2.2.4"></a>
