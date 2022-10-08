@@ -265,9 +265,17 @@ impl<'s> AppState<'s> {
     fn content_height(&self) -> usize {
         if let CommandResult::Report(report) = &self.cmd_result {
             if report.is_success(self.mission.allow_warnings()) || self.raw_output {
-                report.output.len()
+                if let Some(wrapped_output) = self.wrapped_output.as_ref() {
+                    wrapped_output.sub_lines.len()
+                } else {
+                    report.output.len()
+                }
             } else {
-                report.stats.lines(self.summary)
+                if let Some(wrapped_report) = self.wrapped_report.as_ref() {
+                    wrapped_report.content_height(self.summary)
+                } else {
+                    report.stats.lines(self.summary)
+                }
             }
         } else if let Some(output) = &self.output {
             output.len()
@@ -291,6 +299,8 @@ impl<'s> AppState<'s> {
         if let Some(help_page) = self.help_page.as_mut() {
             help_page.apply_scroll_command(cmd);
         } else {
+            debug!("content_height: {}", self.content_height());
+            debug!("page_height: {}", self.page_height());
             self.scroll = cmd.apply(self.scroll, self.content_height(), self.page_height());
         }
     }
@@ -366,19 +376,42 @@ impl<'s> AppState<'s> {
             .as_ref()
             .filter(|_| self.cmd_result.is_success())
     }
+    fn report_to_draw(&self) -> Option<&Report> {
+        self.cmd_result
+            .report()
+            .filter(|_| !self.raw_output)
+            .filter(|report| !report.is_success(self.mission.allow_warnings()))
+    }
+    fn update_wrap(&mut self, width: u16) {
+        if let Some(report) = self.report_to_draw() {
+            if self.wrapped_report.is_none() {
+                self.wrapped_report = Some(WrappedReport::new(report, width));
+                self.scroll = self.get_last_item_scroll();
+            }
+        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
+            match self.wrapped_output.as_mut() {
+                None => {
+                    self.wrapped_output = Some(WrappedCommandOutput::new(output, width));
+                    self.scroll = 0;
+                }
+                Some(wo) => {
+                    wo.update(output, width);
+                }
+            }
+        }
+    }
     /// draw the report or the lines of the current computation, between
     /// y and self.page_height()
     pub fn draw_content(&mut self, w: &mut W, y: u16) -> Result<()> {
         if self.height < 4 {
             return Ok(());
         }
-        let width = self.width as usize;
-        let mut area = Area::new(0, y, self.width, self.page_height() as u16);
+        let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
+        if self.wrap {
+            self.update_wrap(area.width); // must be done before call to content_height
+        }
         let content_height = self.content_height();
         let scrollbar = area.scrollbar(self.scroll, content_height);
-        if scrollbar.is_some() {
-            area.width -= 1;
-        }
         let mut top_item_idx = None;
         let top = if self.reverse && self.page_height() > content_height {
             self.page_height() - content_height + 1
@@ -390,113 +423,95 @@ impl<'s> AppState<'s> {
             goto(w, y)?;
             clear_line(w)?;
         }
-        let report_to_draw = self.cmd_result
-            .report()
-            .filter(|_| !self.raw_output)
-            .filter(|report| !report.is_success(self.mission.allow_warnings()));
-        if let Some(report) = report_to_draw {
-            if self.wrap {
-                let wrapped_report = match self.wrapped_report.as_mut() {
-                    None => {
-                        let wr = WrappedReport::new(report, area.width);
-                        self.scroll = self.get_last_item_scroll();
-                        self.wrapped_report.insert(wr)
-                    }
-                    Some(wr) => wr,
-                };
-                let mut sub_lines = wrapped_report
-                    .sub_lines
-                    .iter()
-                    .filter(|sub_line| {
-                        !(self.summary && sub_line.src_line_type(report) == LineType::Normal)
-                    })
-                    .skip(self.scroll);
-                for row_idx in 0..area.height {
-                    let y = row_idx + top;
-                    goto(w, y)?;
-                    if let Some(sub_line) = sub_lines.next() {
-                        top_item_idx.get_or_insert_with(|| sub_line.src_line(report).item_idx);
-                        sub_line.draw_line_type(w, report)?;
-                        write!(w, " ")?;
-                        sub_line.draw(w, &report.lines)?;
-                    }
-                    clear_line(w)?;
-                    if is_thumb(y.into(), scrollbar) {
-                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
-                    }
-                }
-            } else {
-                // unwrapped report
-                let mut lines = report
-                    .lines
-                    .iter()
-                    .filter(|line| !(self.summary && line.line_type == LineType::Normal))
-                    .skip(self.scroll);
-                for row_idx in 0..area.height {
-                    let y = row_idx + top;
-                    goto(w, y)?;
-                    if let Some(Line {
-                        item_idx,
-                        line_type,
-                        content,
-                    }) = lines.next()
-                    {
-                        top_item_idx.get_or_insert(*item_idx);
-                        line_type.draw(w, *item_idx)?;
-                        write!(w, " ")?;
-                        if width > line_type.cols() + 1 {
-                            content.draw_in(w, width - 1 - line_type.cols())?;
+        let width = self.width as usize;
+        if let Some(report) = self.report_to_draw() {
+            match (self.wrap, self.wrapped_report.as_ref()) {
+                (true, Some(wrapped_report)) => { // wrapped report
+                    let mut sub_lines = wrapped_report
+                        .sub_lines
+                        .iter()
+                        .filter(|sub_line| {
+                            !(self.summary && sub_line.src_line_type(report) == LineType::Normal)
+                        })
+                        .skip(self.scroll);
+                    for row_idx in 0..area.height {
+                        let y = row_idx + top;
+                        goto(w, y)?;
+                        if let Some(sub_line) = sub_lines.next() {
+                            top_item_idx.get_or_insert_with(|| sub_line.src_line(report).item_idx);
+                            sub_line.draw_line_type(w, report)?;
+                            write!(w, " ")?;
+                            sub_line.draw(w, &report.lines)?;
+                        }
+                        clear_line(w)?;
+                        if is_thumb(y.into(), scrollbar) {
+                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
                         }
                     }
-                    clear_line(w)?;
-                    if is_thumb(y.into(), scrollbar) {
-                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                }
+                _ => { // unwrapped report
+                    let mut lines = report
+                        .lines
+                        .iter()
+                        .filter(|line| !(self.summary && line.line_type == LineType::Normal))
+                        .skip(self.scroll);
+                    for row_idx in 0..area.height {
+                        let y = row_idx + top;
+                        goto(w, y)?;
+                        if let Some(Line {
+                            item_idx,
+                            line_type,
+                            content,
+                        }) = lines.next()
+                        {
+                            top_item_idx.get_or_insert(*item_idx);
+                            line_type.draw(w, *item_idx)?;
+                            write!(w, " ")?;
+                            if width > line_type.cols() + 1 {
+                                content.draw_in(w, width - 1 - line_type.cols())?;
+                            }
+                        }
+                        clear_line(w)?;
+                        if is_thumb(y.into(), scrollbar) {
+                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                        }
                     }
                 }
             }
             self.top_item_idx = top_item_idx.unwrap_or(0);
         } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
             debug!("MODE output");
-            if self.wrap {
-                debug!("wrap mode");
-                let wrapped_output = match self.wrapped_output.as_mut() {
-                    None => {
-                        let wo = WrappedCommandOutput::new(output, area.width);
-                        self.scroll = 0;
-                        self.wrapped_output.insert(wo)
-                    }
-                    Some(wo) => {
-                        wo.update(output, area.width);
-                        wo
-                    }
-                };
-                let mut sub_lines = wrapped_output
-                    .sub_lines
-                    .iter()
-                    .skip(self.scroll);
-                for row_idx in 0..area.height {
-                    let y = row_idx + top;
-                    goto(w, y)?;
-                    if let Some(sub_line) = sub_lines.next() {
-                        sub_line.draw(w, &output.lines)?;
-                    }
-                    clear_line(w)?;
-                    if is_thumb(y.into(), scrollbar) {
-                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+            match (self.wrap, self.wrapped_output.as_ref()) {
+                (true, Some(wrapped_output)) => {
+                    debug!("wrap mode");
+                    let mut sub_lines = wrapped_output
+                        .sub_lines
+                        .iter()
+                        .skip(self.scroll);
+                    for row_idx in 0..area.height {
+                        let y = row_idx + top;
+                        goto(w, y)?;
+                        if let Some(sub_line) = sub_lines.next() {
+                            sub_line.draw(w, &output.lines)?;
+                        }
+                        clear_line(w)?;
+                        if is_thumb(y.into(), scrollbar) {
+                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                        }
                     }
                 }
-
-            } else {
-                let lines = &output.lines;
-                for row_idx in 0..area.height {
-                    let y = row_idx + top;
-                    goto(w, y)?;
-                    if let Some(line) = lines.get(row_idx as usize + self.scroll) {
-                        line.content.draw_in(w, width)?;
-                    }
-                    clear_line(w)?;
-                    if is_thumb(y.into(), scrollbar) {
-                        execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                _ => {
+                    let lines = &output.lines;
+                    for row_idx in 0..area.height {
+                        let y = row_idx + top;
+                        goto(w, y)?;
+                        if let Some(line) = lines.get(row_idx as usize + self.scroll) {
+                            line.content.draw_in(w, width)?;
+                        }
+                        clear_line(w)?;
+                        if is_thumb(y.into(), scrollbar) {
+                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                        }
                     }
                 }
             }

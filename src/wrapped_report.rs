@@ -7,6 +7,7 @@ use {
 /// given width
 pub struct WrappedReport {
     pub sub_lines: Vec<SubLine>,
+    pub summary_height: usize,
 }
 
 impl WrappedReport {
@@ -16,6 +17,20 @@ impl WrappedReport {
     pub fn new(report: &Report, width: u16) -> Self {
         debug!("wrapping report");
         let sub_lines = wrap(&report.lines, width);
-        Self { sub_lines }
+        let summary_height = sub_lines
+            .iter()
+            .filter(|sl| {
+                report.lines.get(sl.line_idx)
+                    .map_or(true, |l| l.line_type != LineType::Normal)
+            })
+            .count();
+        Self { sub_lines, summary_height }
+    }
+    pub fn content_height(&self, summary: bool) -> usize {
+        if summary {
+            self.summary_height
+        } else {
+            self.sub_lines.len()
+        }
     }
 }
