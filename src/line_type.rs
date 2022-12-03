@@ -1,8 +1,8 @@
 use {
     crate::*,
     anyhow::*,
-    crossterm::style::Stylize,
     std::io::Write,
+    termimad::crossterm::style::Stylize,
 };
 
 /// a kind of section

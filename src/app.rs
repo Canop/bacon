@@ -3,8 +3,8 @@ use {
     anyhow::Result,
     crokey::CroKey,
     crossbeam::channel::{bounded, select},
-    crossterm::event::Event,
     termimad::EventSource,
+    termimad::crossterm::event::Event,
 };
 
 /// Run the mission and return the reference to the next

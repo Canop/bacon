@@ -1,14 +1,14 @@
 use {
     crate::*,
     anyhow::Result,
-    crossterm::{
-        cursor, execute,
-        style::{Attribute, Color::*, Print},
-    },
     std::io::Write,
     termimad::{
         minimad::{Alignment, Composite},
         Area, CompoundStyle, MadSkin,
+    },
+    termimad::crossterm::{
+        cursor, execute,
+        style::{Attribute, Color::*, Print},
     },
 };
 

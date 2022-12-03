@@ -3,6 +3,11 @@ The behavior of bacon is defined by both a global `prefs.toml`file and a project
 
 Both are optional but you'll fast need specific jobs for your targets, examples, etc.
 
+When you modified those files and bacon evolved since, you may want to refer to the current default ones and pick the changes you like:
+
+* [Current default prefs.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-prefs.toml)
+* [Current default bacon.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-bacon.toml)
+
 # Global Preferences
 
 `bacon --prefs` creates the preferences file if it doesn't exist and returns its path (which is system dependent).
@@ -11,7 +16,6 @@ You may run `$EDITOR $(bacon --prefs)` to edit it directly.
 
 The default configuration file contains already the possible entries that you may uncomment and modify.
 
-[Current default prefs.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-prefs.toml)
 
 ## summary, wrap, reverse
 

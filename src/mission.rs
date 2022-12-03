@@ -130,7 +130,7 @@ impl<'s> Mission<'s> {
                         (Some(features), true) => {
                             // arg add features and remove the job ones
                             command.arg("--features");
-                            command.arg(&features);
+                            command.arg(features);
                         }
                         (None, true) => {
                             // we pass no feature

@@ -1,14 +1,14 @@
 use {
     crate::*,
     clap::Parser,
-    crossterm::{
-        self, cursor,
-        terminal::{EnterAlternateScreen, LeaveAlternateScreen},
-        QueueableCommand,
-    },
     directories_next::ProjectDirs,
     std::{fs, io::Write},
     termimad::EventSource,
+    termimad::crossterm::{
+        cursor,
+        terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+        QueueableCommand,
+    },
 };
 
 /// the type used by all GUI writing functions
