@@ -1,3 +1,7 @@
+<a name="v2.2.6"></a>
+### v2.2.6 - 2022/12/08
+- fix a compilation problem - Fix #94
+
 <a name="v2.2.5"></a>
 ### v2.2.5 - 2022/10/08
 - fix wrong scrollbar in several cases of wrapping

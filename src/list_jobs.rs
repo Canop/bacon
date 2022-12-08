@@ -1,7 +1,12 @@
 use {
     crate::*,
-    minimad::*,
-    termimad::*,
+    termimad::{
+        minimad::{
+            OwningTemplateExpander,
+            TextTemplate,
+        },
+        MadSkin,
+    },
 };
 
 pub fn print_jobs(package_config: &PackageConfig) {

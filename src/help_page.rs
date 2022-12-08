@@ -1,10 +1,18 @@
 use {
     crate::*,
     anyhow::Result,
-    crossterm::style::{Attribute, Color::*},
     termimad::{
-        minimad::*,
-        *,
+        Area,
+        CompoundStyle,
+        FmtText,
+        MadSkin,
+        TextView,
+        crossterm::style::{Attribute, Color::*},
+        minimad::{
+            Alignment,
+            OwningTemplateExpander,
+            TextTemplate,
+        },
     },
 };
 
