@@ -97,7 +97,14 @@ For example
 bacon -- --target x86_64-pc-windows-gnu
 ```
 
-Another example, a job which needs a complementary argument:
+Be careful that some programs already require `--` so you may have to double it.
+For example, to run `cargo test` with a single thread, you'll need
+
+```bash
+bacon test -- -- --test-threads=1
+```
+
+Another use case, a job which needs a complementary argument:
 
 
 ```toml
