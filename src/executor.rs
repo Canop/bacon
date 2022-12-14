@@ -91,7 +91,8 @@ impl Executor {
                                 Ok(child) => child,
                             };
 
-                            current_task = Some(tokio::spawn(                                execute_task(child, with_stdout, line_sender.clone())
+                            current_task = Some(tokio::spawn(
+                                execute_task(child, with_stdout, line_sender.clone())
                             ));
                         }
 
