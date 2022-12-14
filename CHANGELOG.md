@@ -1,4 +1,5 @@
-### next
+<a name="v2.2.7"></a>
+### v2.2.7 - 2022/12/14
 - capture output of "should panic" tests - Fix #95
 
 <a name="v2.2.6"></a>
