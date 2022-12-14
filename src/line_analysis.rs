@@ -102,10 +102,13 @@ fn is_generated_n_warnings(ts: Option<&TString>) -> bool {
 /// or
 ///  "test src/lib.rs - (line 10) ... ok"
 /// or
-/// "test src/mode.rs - mode::Mode::new (line 121) - compile ... FAILED"
+///  "test src/mode.rs - mode::Mode::new (line 121) - compile ... FAILED"
 /// (in this case, the " - compile" part isn't in the key, see #64)
+/// or
+///  "test tests::another - should panic ... FAILED"
+/// (in this case, the " - should panic" part isn't in the key, see #95)
 fn as_test_result(s: &str) -> Option<(&str, bool)> {
-    regex_captures!(r#"^test\s+(.+?)(?: - compile\s*)?\s+...\s+(\w+)$"#, s)
+    regex_captures!(r#"^test\s+(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s+(\w+)$"#, s)
         .and_then(|(_, key, outcome)| {
             match outcome {
                 "ok" => Some((key, true)),

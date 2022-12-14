@@ -1,3 +1,6 @@
+### next
+- capture output of "should panic" tests - Fix #95
+
 <a name="v2.2.6"></a>
 ### v2.2.6 - 2022/12/08
 - fix a compilation problem - Fix #94
