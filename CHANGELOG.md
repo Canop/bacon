@@ -1,3 +1,7 @@
+<a name="v2.2.8"></a>
+### v2.2.8 - 2022/12/15
+- remove double-dash from default run configuration - Fix #96
+
 <a name="v2.2.7"></a>
 ### v2.2.7 - 2022/12/14
 - capture output of "should panic" tests - Fix #95

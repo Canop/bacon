@@ -1,5 +1,7 @@
 # This is a configuration file for the bacon tool
-# More info at https://github.com/Canop/bacon
+#
+# Bacon repository: https://github.com/Canop/bacon
+# Complete help on configuration: https://dystroy.org/bacon/config/
 
 default_job = "check"
 
@@ -32,7 +34,7 @@ watch = ["tests"]
 command = ["cargo", "doc", "--color", "always", "--no-deps"]
 need_stdout = false
 
-# if the doc compiles, then it opens in your browser and bacon switches
+# If the doc compiles, then it opens in your browser and bacon switches
 # to the previous job
 [jobs.doc-open]
 command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
@@ -43,12 +45,10 @@ on_success = "back" # so that we don't open the browser at each change
 # *if* it makes sense for this crate. You can run an example the same
 # way. Don't forget the `--color always` part or the errors won't be
 # properly parsed.
+# If you want to pass options to your program, a `--` separator
+# will be needed.
 [jobs.run]
-command = [
-    "cargo", "run", "--color", "always",
-    "--",
-    # add here the options of your program, if needed
-]
+command = [ "cargo", "run", "--color", "always" ]
 need_stdout = true
 allow_warnings = true
 
