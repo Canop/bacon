@@ -9,24 +9,24 @@ keywords = ["rust", "background", "compiler", "watch", "inotify"]
 license = "AGPL-3.0"
 categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
-rust-version = "1.59"
+rust-version = "1.65"
 
 [dependencies]
-anyhow = "1.0.57"
+anyhow = "1.0.68"
 cargo_metadata = "0.14.0"
 clap = { version = "3.1", features = ["derive"] }
 cli-log = "2.0.0"
 coolor = "=0.5.0"
 crokey = "0.4.1"
-crossbeam = "0.8.1"
+crossbeam = "0.8.2"
 directories-next = "2.0.0"
 lazy-regex = "2.3.1"
-notify = "=5.0.0-pre.14"
+notify = "5.0.0"
 serde = { version = "1.0.136", features = ["derive"] }
-termimad = "0.20.4"
+termimad = "0.20.6"
 tokio = { version = "1.17.0", default-features = false, features = ["net", "sync", "process", "rt", "macros", "io-util"] }
 toml = "0.5.8"
-unicode-width = "0.1.9"
+unicode-width = "0.1.10"
 vte = "0.8"
 
 [profile.release]

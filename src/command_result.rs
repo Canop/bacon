@@ -56,7 +56,7 @@ impl CommandResult {
         match self {
             Self::Report(report) => {
                 let path = mission.bacon_locations_path();
-                let mut file = File::create(&path)?;
+                let mut file = File::create(path)?;
                 report.write_to(&mut file, mission)?;
             }
             Self::Failure(_) => { }
