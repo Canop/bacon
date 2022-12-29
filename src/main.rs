@@ -10,6 +10,7 @@ mod executor;
 mod failure;
 mod help_line;
 mod help_page;
+mod ignorer;
 mod internal;
 mod job;
 mod job_ref;
@@ -46,6 +47,7 @@ pub use {
     failure::*,
     help_line::*,
     help_page::*,
+    ignorer::*,
     internal::*,
     job::*,
     job_ref::*,

@@ -77,6 +77,16 @@ impl<'s> Mission<'s> {
         })
     }
 
+    pub fn ignorer(&self) -> Option<Ignorer> {
+        match Ignorer::new(&self.workspace_root) {
+            Ok(ignorer) => Some(ignorer),
+            Err(e) => {
+                debug!("no ignorer: {e}");
+                None
+            }
+        }
+    }
+
     /// Return the path to the bacon-locations file
     pub fn bacon_locations_path(&self) -> PathBuf {
         self.workspace_root.join(".bacon-locations")

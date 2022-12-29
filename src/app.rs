@@ -15,10 +15,26 @@ pub fn run(
     event_source: &EventSource,
 ) -> Result<Option<JobRef>> {
     let keybindings = mission.settings.keybindings.clone();
+    let mut ignorer = time!(Info, mission.ignorer());
     let (watch_sender, watch_receiver) = bounded(0);
-    let mut watcher = notify::recommended_watcher(move |res| match res {
-        Ok(_) => {
+    let mut watcher = notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
+        Ok(we) => {
             debug!("notify event received");
+            info!("notify event: {we:?}");
+            if let Some(ignorer) = ignorer.as_mut() {
+                match time!(Info, ignorer.excludes_all(&we.paths)) {
+                    Ok(true) => {
+                        info!("all excluded");
+                        return;
+                    }
+                    Ok(false) => {
+                        info!("at least one is included");
+                    }
+                    Err(e) => {
+                        warn!("exclusion check failed: {e}");
+                    }
+                }
+            }
             if let Err(e) = watch_sender.send(()) {
                 debug!("error when notifying on inotify event: {}", e);
             }
@@ -63,7 +79,6 @@ pub fn run(
                 event_source.unblock(false);
             }
             recv(watch_receiver) -> _ => {
-                debug!("got a watcher event");
                 if let Err(e) = executor.start(state.new_task()) {
                     debug!("error sending task: {}", e);
                 } else {
