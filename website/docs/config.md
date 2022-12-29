@@ -91,6 +91,7 @@ watch | yes | A list of directories that will be watched if the job is run on a 
 need_stdout | yes |whether we need to capture stdout too (stderr is always captured). Default is `false`
 on_success | yes | the action to run when there's no error, warning or test failures
 allow_warnings | yes | if true, the action is considered a success even when there are warnings. Default is `false` but the standard `run` job is configured with `allow_warnings=false`
+apply_gitignore | yes | if true (which is default) the job isn't triggered when the modified file is excluded by gitignore rules
 
 Example:
 

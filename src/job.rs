@@ -33,6 +33,9 @@ pub struct Job {
     /// for "cargo run" jobs
     #[serde(default)]
     pub allow_warnings: bool,
+
+    /// whether gitignore rules must be applied
+    pub apply_gitignore: Option<bool>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -59,6 +62,7 @@ impl Job {
             need_stdout: false,
             on_success: None,
             allow_warnings: false,
+            apply_gitignore: None,
         }
     }
 }

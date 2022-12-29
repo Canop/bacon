@@ -18,7 +18,7 @@ pub struct Mission<'s> {
     pub job_name: String,
     pub cargo_execution_directory: PathBuf,
     pub workspace_root: PathBuf,
-    job: Job,
+    pub job: Job,
     files_to_watch: Vec<PathBuf>,
     directories_to_watch: Vec<PathBuf>,
     pub settings: &'s Settings,
@@ -77,12 +77,24 @@ impl<'s> Mission<'s> {
         })
     }
 
+    /// Return an Ignorer if required by the job's settings
+    /// and if the mission takes place in a git repository
     pub fn ignorer(&self) -> Option<Ignorer> {
-        match Ignorer::new(&self.workspace_root) {
-            Ok(ignorer) => Some(ignorer),
-            Err(e) => {
-                debug!("no ignorer: {e}");
+        info!("apply_gitignore={:?}", self.job.apply_gitignore);
+        match self.job.apply_gitignore {
+            Some(false) => {
+                info!("No gitignorer because of settings");
                 None
+            }
+            _ => { // by default we apply gitignore rules
+                match Ignorer::new(&self.workspace_root) {
+                    Ok(ignorer) => Some(ignorer),
+                    Err(e) => {
+                        // might be normal, eg not in a git repo
+                        info!("Failed to initialise git ignorer: {e}");
+                        None
+                    }
+                }
             }
         }
     }
