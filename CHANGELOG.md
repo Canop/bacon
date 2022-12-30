@@ -1,3 +1,7 @@
+<a name="v2.3.0"></a>
+### v2.3.0 - 2022/12/30
+- doesn't launch job when the modified file is excluded by gitignore rules - Fix #32
+
 <a name="v2.2.8"></a>
 ### v2.2.8 - 2022/12/15
 - remove double-dash from default run configuration - Fix #96
