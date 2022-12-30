@@ -16,6 +16,10 @@ pub struct Ignorer {
 
 impl Ignorer {
 
+    /// Create an Ignorer from any directory path: the closest
+    /// surrounding git repository will be found (if there's one)
+    /// and its gitignore rules used.
+    ///
     /// root_path is assumed to exist and be a directory
     pub(crate) fn new(root_path: &Path) -> Result<Self> {
         let repo = git::discover(root_path)?;
@@ -25,15 +29,10 @@ impl Ignorer {
     /// Tell whether the given path is excluded according to
     /// either the global gitignore rules or the ones of the repository
     pub fn excludes(&mut self, file_path: &Path) -> Result<bool> {
-        // TODO this code does work but is wasteful (creating a cache
-        // for each file, for example). I hope this should get better
-        // when gitoxide matures
-
         let worktree = self.repo.worktree().context("a worktree should exist")?;
         let index = worktree.index()?;
 
-        // there doesn't seem to be any public API for looking at "excludes" without caching
-        // so we create a cache
+        // the "Cache" is the structure allowing checking exclusion
         let mut cache = worktree.excludes(&index, None)?;
 
         // cache.at_path panics if not provided a path relative
@@ -46,7 +45,7 @@ impl Ignorer {
         };
 
         // cache.at_path panics if the relative path is empty, so
-        // we must check it
+        // we must check that
         if relative_path.as_os_str().is_empty() {
             return Ok(true);
         };

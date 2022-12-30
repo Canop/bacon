@@ -19,16 +19,15 @@ pub fn run(
     let (watch_sender, watch_receiver) = bounded(0);
     let mut watcher = notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
         Ok(we) => {
-            debug!("notify event received");
-            info!("notify event: {we:?}");
+            debug!("notify event: {we:?}");
             if let Some(ignorer) = ignorer.as_mut() {
                 match time!(Info, ignorer.excludes_all(&we.paths)) {
                     Ok(true) => {
-                        info!("all excluded");
+                        debug!("all excluded");
                         return;
                     }
                     Ok(false) => {
-                        info!("at least one is included");
+                        debug!("at least one is included");
                     }
                     Err(e) => {
                         warn!("exclusion check failed: {e}");

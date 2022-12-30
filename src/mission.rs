@@ -80,10 +80,9 @@ impl<'s> Mission<'s> {
     /// Return an Ignorer if required by the job's settings
     /// and if the mission takes place in a git repository
     pub fn ignorer(&self) -> Option<Ignorer> {
-        info!("apply_gitignore={:?}", self.job.apply_gitignore);
         match self.job.apply_gitignore {
             Some(false) => {
-                info!("No gitignorer because of settings");
+                debug!("No gitignorer because of settings");
                 None
             }
             _ => { // by default we apply gitignore rules
@@ -91,7 +90,7 @@ impl<'s> Mission<'s> {
                     Ok(ignorer) => Some(ignorer),
                     Err(e) => {
                         // might be normal, eg not in a git repo
-                        info!("Failed to initialise git ignorer: {e}");
+                        debug!("Failed to initialise git ignorer: {e}");
                         None
                     }
                 }
