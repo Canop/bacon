@@ -31,7 +31,7 @@ impl<'c> JobStack<'c> {
 
 
     pub fn pick_job(&mut self, job_ref: &JobRef) -> Result<Option<(ConcreteJobRef, Job)>> {
-        info!("PICKING JOB {job_ref:?}");
+        debug!("picking job {job_ref:?}");
         let concrete = match job_ref {
             JobRef::Default => self.package_config.default_job.clone(),
             JobRef::Initial => self.initial_job().clone(),
