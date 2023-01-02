@@ -1,7 +1,17 @@
 
-**Bacon** is developed by [Denys Séguret](https://twitter.com/DenysSeguret), also known as [Canop](https://github.com/Canop) or [dystroy](https://dystroy.org).
+**Bacon** is developed by **Denys Séguret**, also known as [Canop](https://github.com/Canop) or [dystroy](https://dystroy.org).
+
+Major updates are announced on my Mastodon account: [@dystroy@mastodon.dystroy.org](https://mastodon.dystroy.org/@dystroy).
 
 The logo has been designed by [Peter Varo](https://petervaro.com).
+
+# Sponsorship
+
+**Bacon** is free for all uses.
+
+If it helps your company make money, consider [helping me](https://github.com/sponsors/Canop) find time to add features and to develop new free open-source software.
+
+There's no moral obligation to do so, though, even if you're an avid user.
 
 # Chat
 
