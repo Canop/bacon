@@ -21,7 +21,7 @@ body::before {
 }
 
 body {
-	font-size: 15px;
+	font-size: 17px;
 	background-color: var(--bg);
 	color: var(--text);
 }
@@ -248,7 +248,7 @@ body #toc-collapse ul.nav.flex-column.bs-sidenav {
 /* custom classes */
 
 .install-link {
-	font-size: 15px;
+	font-size: 17px;
 	margin: 10px 0 10px 0px;
 	text-align:center;
 	background: #133d55;
