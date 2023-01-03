@@ -27,6 +27,9 @@ Below is a short overview.
 
     bacon
 
+That's how you'll most usually launch bacon, because other jobs like `test`, `clippy`, `doc`, your own ones, are just a key away: You'll hit <kbd>c</kbd> to see Clippy warnings, or <kbd>t</kbd> for the tests.
+
+
 ## check another project
 
     bacon --path ../broot
@@ -39,7 +42,7 @@ or
 
     bacon --job check-all
 
-When there's no ambiguity, you may ommit the `--job` part:
+When there's no ambiguity, you may omit the `--job` part:
 
     bacon check-all
 

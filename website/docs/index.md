@@ -40,10 +40,11 @@ bacon test
 
 ![test](img/test.png)
 
-
-You can configure and launch the jobs of your choice: tests, specific target compilations, examples, etc. and look at the results while you code.
+While in bacon, you can see Clippy warnings by hitting the <kbd>c</kbd> key. And you get back to your previous job with <kbd>esc</kbd>
 
 You may also open the `cargo doc` in your browser with the <kbd>d</kbd> key.
+
+You can configure and launch the jobs of your choice: tests, specific target compilations, examples, etc. and look at the results while you code.
 
 Run `bacon --help` to see all launch arguments, and read the [cookbook](cookbook).
 
