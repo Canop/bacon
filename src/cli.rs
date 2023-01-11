@@ -47,9 +47,9 @@ pub fn run() -> anyhow::Result<()> {
             return Ok(());
         }
         if prefs_path.exists() {
-            let prefs = Prefs::from_path(&prefs_path)?;
+            let prefs = Config::from_path(&prefs_path)?;
             debug!("prefs: {:#?}", &prefs);
-            settings.apply_prefs(&prefs);
+            settings.apply_config(&prefs);
         }
     }
 
@@ -68,17 +68,19 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
     let package_config = if package_config_path.exists() {
-        PackageConfig::from_path(&package_config_path)?
+        Config::from_path(&package_config_path)?
     } else {
-        PackageConfig::default()
+        Config::default_package_config()
     };
-    settings.apply_package_config(&package_config);
+    settings.apply_config(&package_config);
 
     // args are applied after prefs, and package config so that they can override them
     settings.apply_args(&args);
 
+    settings.check()?;
+
     if args.list_jobs {
-        print_jobs(&package_config);
+        print_jobs(&settings);
         return Ok(());
     }
 
@@ -87,7 +89,7 @@ pub fn run() -> anyhow::Result<()> {
     w.queue(cursor::Hide)?;
 
     let event_source = EventSource::new()?;
-    let mut job_stack = JobStack::new(&package_config, &settings);
+    let mut job_stack = JobStack::new(&settings);
     let mut next_job = JobRef::Initial;
     let mut result = Ok(());
     #[allow(clippy::while_let_loop)]

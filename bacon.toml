@@ -3,8 +3,6 @@
 
 default_job = "check"
 
-[jobs]
-
 [jobs.check]
 command = ["cargo", "check", "--color", "always"]
 need_stdout = false

@@ -6,19 +6,25 @@ use {
     std::{collections::HashMap, fs, path::Path},
 };
 
-/// the configuration item which may be stored as `bacon.toml`
-/// along a `Cargo.toml` file
+/// The configuration item which may be stored either as `bacon.toml`
+/// along a `Cargo.toml` file or as `prefs.toml` in the xdg config directory
 #[derive(Debug, Clone, Deserialize)]
-pub struct PackageConfig {
-    pub default_job: ConcreteJobRef,
-    pub jobs: HashMap<String, Job>,
+pub struct Config {
+    pub summary: Option<bool>,
+    pub wrap: Option<bool>,
+    pub reverse: Option<bool>,
+    pub vim_keys: Option<bool>, // deprecated thanks to keybindings
+    pub export_locations: Option<bool>,
     pub keybindings: Option<KeyBindings>,
     pub additional_alias_args: Option<Vec<String>>,
+    #[serde(default)]
+    pub jobs: HashMap<String, Job>,
+    pub default_job: Option<ConcreteJobRef>,
 }
 
-impl PackageConfig {
+impl Config {
     pub fn from_path(path: &Path) -> Result<Self> {
-        let conf = toml::from_str::<PackageConfig>(&fs::read_to_string(path)?)
+        let conf = toml::from_str::<Self>(&fs::read_to_string(path)?)
             .with_context(|| format!("Failed to parse configuration file at {:?}", path))?;
         if conf.jobs.is_empty() {
             bail!("Invalid bacon.toml : no job found");
@@ -37,19 +43,20 @@ impl PackageConfig {
                 );
             }
         }
-        if let ConcreteJobRef::Name(name) = &conf.default_job {
-            if !conf.jobs.contains_key(name) {
-                bail!(
-                    "Invalid bacon.toml : default job not found in jobs"
-                );
-            }
-        }
         Ok(conf)
+    }
+    pub fn default_package_config() -> Self {
+        toml::from_str(DEFAULT_PACKAGE_CONFIG).unwrap()
+    }
+    pub fn default_prefs() -> Self {
+        toml::from_str(DEFAULT_PREFS).unwrap()
     }
 }
 
-impl Default for PackageConfig {
-    fn default() -> Self {
-        toml::from_str(DEFAULT_PACKAGE_CONFIG).unwrap()
-    }
+#[test]
+fn test_default_files() {
+    let mut settings = Settings::default();
+    settings.apply_config(&Config::default_prefs());
+    settings.apply_config(&Config::default_package_config());
+    settings.check().unwrap();
 }

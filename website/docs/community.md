@@ -36,7 +36,7 @@ Watching and computations are done on background threads to prevent any blocking
 
 The screen isn't cleaned until the compilation is finished to prevent useful information from being replaced by the lines of an unfinished computation.
 
-Errors are displayed before warnings because you usually want to fix them first.
+Errors and test failures are displayed before warnings because you usually want to fix them first.
 
 Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report. And bacon manages rewrapping on resize.
 

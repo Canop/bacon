@@ -4,6 +4,7 @@ mod args;
 mod cli;
 mod command_output;
 mod command_result;
+mod config;
 mod defaults;
 mod drawing;
 mod executor;
@@ -22,8 +23,6 @@ mod line_type;
 mod list_jobs;
 mod mission;
 mod mission_location;
-mod package_config;
-mod prefs;
 mod report;
 mod scroll;
 mod settings;
@@ -41,6 +40,7 @@ pub use {
     cli::*,
     command_output::*,
     command_result::*,
+    config::*,
     defaults::*,
     drawing::*,
     executor::*,
@@ -59,8 +59,6 @@ pub use {
     list_jobs::*,
     mission::*,
     mission_location::*,
-    package_config::*,
-    prefs::*,
     report::*,
     scroll::*,
     settings::*,
