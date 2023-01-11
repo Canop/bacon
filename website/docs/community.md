@@ -48,7 +48,7 @@ Similarly you don't have to stop bacon when you want to use cargo to build the a
 
 Bacon is efficient and doesn't work when there's no notification.
 
-## supported platforms
+## Supported platforms
 
 It works on all decent terminals on Linux, Max OSX and Windows.
 
@@ -75,3 +75,5 @@ The logo is licensed under a [Creative Commons Attribution-ShareAlike 4.0 Intern
 
 * It's a **bac**kground **con**piler.
 * It comes from France and, as you know, France is bacon.
+
+It's just a name. You don't have to eat meat to use the software.

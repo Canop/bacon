@@ -21,6 +21,25 @@ body::before {
 }
 
 body {
+	background-image:
+		linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,1) 25%, rgba(255,255,255,1) 75%, rgba(255,255,255,0.8) 100%),
+		url("../img/cochon.jpg");
+	background-position: center;
+	background-size: cover;
+    background-attachment: fixed;
+}
+@media (max-width: 800px) {
+	body {
+		background-image:
+			linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,1) 10%, rgba(255,255,255,1) 90%, rgba(255,255,255,0.8) 100%),
+			url("../img/cochon.jpg");
+        background-position: center;
+        background-size: cover;
+        background-attachment: fixed;
+	}
+}
+
+body {
 	font-size: 17px;
 	background-color: var(--bg);
 	color: var(--text);
