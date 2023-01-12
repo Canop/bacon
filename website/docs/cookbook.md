@@ -60,6 +60,13 @@ You may define specific jobs for specific targets:
 command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "always"]
 ```
 
+An habit I suggest: use <kbd>alt</kbd> keybindings for *alternative* platforms:
+
+```toml
+[keybindings]
+alt-w = "job:check-win"
+```
+
 # Run binaries and examples
 
 If you configure a `cargo run` job, you'll get the usual warnings and errors until there's none, at which point you'll have the output of your binary (assuming its terminal output is interesting).

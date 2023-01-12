@@ -1,4 +1,8 @@
-use crate::*;
+use {
+    crate::*,
+    anyhow::*,
+    std::collections::HashMap,
+};
 
 /// The settings used in the application.
 ///
@@ -21,38 +25,38 @@ pub struct Settings {
     pub features: Option<String>, // comma separated list
     pub keybindings: KeyBindings,
     pub export_locations: bool,
+    pub jobs: HashMap<String, Job>,
+    pub default_job: ConcreteJobRef,
 }
 
 impl Settings {
-    pub fn apply_prefs(&mut self, prefs: &Prefs) {
-        if let Some(b) = prefs.summary {
+    pub fn apply_config(&mut self, config: &Config) {
+        if let Some(b) = config.summary {
             self.summary = b;
         }
-        if let Some(b) = prefs.wrap {
+        if let Some(b) = config.wrap {
             self.wrap = b;
         }
-        if let Some(b) = prefs.reverse {
+        if let Some(b) = config.reverse {
             self.reverse = b;
         }
-        if let Some(b) = prefs.export_locations {
+        if let Some(b) = config.export_locations {
             self.export_locations = b;
         }
-        if prefs.vim_keys == Some(true) {
+        if config.vim_keys == Some(true) {
             self.keybindings.add_vim_keys();
         }
-        if let Some(pref_keybindings) = prefs.keybindings.as_ref() {
-            self.keybindings.add_all(pref_keybindings);
-        }
-        if prefs.additional_alias_args.is_some() {
-            self.additional_alias_args = prefs.additional_alias_args.clone();
-        }
-    }
-    pub fn apply_package_config(&mut self, package_config: &PackageConfig) {
-        if let Some(keybindings) = package_config.keybindings.as_ref() {
+        if let Some(keybindings) = config.keybindings.as_ref() {
             self.keybindings.add_all(keybindings);
         }
-        if package_config.additional_alias_args.is_some() {
-            self.additional_alias_args = package_config.additional_alias_args.clone();
+        if config.additional_alias_args.is_some() {
+            self.additional_alias_args = config.additional_alias_args.clone();
+        }
+        for (name, job) in &config.jobs {
+            self.jobs.insert(name.clone(), job.clone());
+        }
+        if let Some(default_job) = &config.default_job {
+            self.default_job = default_job.clone();
         }
     }
     pub fn apply_args(&mut self, args: &Args) {
@@ -93,5 +97,16 @@ impl Settings {
             self.features = args.features.clone();
         }
         self.additional_job_args = args.additional_job_args.clone();
+    }
+    pub fn check(&self) -> Result<()> {
+        if self.jobs.is_empty() {
+            bail!("Invalid configuration : no job found");
+        }
+        if let ConcreteJobRef::Name(name) = &self.default_job {
+            if !self.jobs.contains_key(name) {
+                bail!("Invalid configuration : default job ({name:?}) not found in jobs");
+            }
+        }
+        Ok(())
     }
 }

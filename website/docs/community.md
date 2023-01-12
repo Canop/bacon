@@ -36,7 +36,7 @@ Watching and computations are done on background threads to prevent any blocking
 
 The screen isn't cleaned until the compilation is finished to prevent useful information from being replaced by the lines of an unfinished computation.
 
-Errors are displayed before warnings because you usually want to fix them first.
+Errors and test failures are displayed before warnings because you usually want to fix them first.
 
 Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report. And bacon manages rewrapping on resize.
 
@@ -48,7 +48,7 @@ Similarly you don't have to stop bacon when you want to use cargo to build the a
 
 Bacon is efficient and doesn't work when there's no notification.
 
-## supported platforms
+## Supported platforms
 
 It works on all decent terminals on Linux, Max OSX and Windows.
 
@@ -75,3 +75,5 @@ The logo is licensed under a [Creative Commons Attribution-ShareAlike 4.0 Intern
 
 * It's a **bac**kground **con**piler.
 * It comes from France and, as you know, France is bacon.
+
+It's just a name. You don't have to eat meat to use the software.

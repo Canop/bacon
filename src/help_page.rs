@@ -22,7 +22,7 @@ static TEMPLATE: &str = r#"
 
 **bac*o*n** is a background compiler, watching your sources and executing your cargo jobs on change.
 
-See *https://github.com/Canop/bacon* for a complete guide.
+See *https://dystroy.org/bacon* for a complete guide.
 
 |:-:|:-:
 |**action**|**shortcuts**
