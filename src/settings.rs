@@ -46,8 +46,8 @@ impl Settings {
         if config.vim_keys == Some(true) {
             self.keybindings.add_vim_keys();
         }
-        if let Some(pref_keybindings) = config.keybindings.as_ref() {
-            self.keybindings.add_all(pref_keybindings);
+        if let Some(keybindings) = config.keybindings.as_ref() {
+            self.keybindings.add_all(keybindings);
         }
         if config.additional_alias_args.is_some() {
             self.additional_alias_args = config.additional_alias_args.clone();

@@ -6,7 +6,7 @@ use {
     std::{collections::HashMap, fs, path::Path},
 };
 
-/// The configuration item which may be stored either as `bacon.toml`
+/// A configuration item which may be stored either as `bacon.toml`
 /// along a `Cargo.toml` file or as `prefs.toml` in the xdg config directory
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
@@ -26,19 +26,16 @@ impl Config {
     pub fn from_path(path: &Path) -> Result<Self> {
         let conf = toml::from_str::<Self>(&fs::read_to_string(path)?)
             .with_context(|| format!("Failed to parse configuration file at {:?}", path))?;
-        if conf.jobs.is_empty() {
-            bail!("Invalid bacon.toml : no job found");
-        }
         for (name, job) in &conf.jobs {
             if !regex_is_match!(r#"^[\w-]+$"#, name) {
                 bail!(
-                    "Invalid bacon.toml : Illegal job name : {:?}",
+                    "Invalid configuration : Illegal job name : {:?}",
                     name
                 );
             }
             if job.command.is_empty() {
                 bail!(
-                    "Invalid bacon.toml : empty command for job {:?}",
+                    "Invalid configuration : empty command for job {:?}",
                     name
                 );
             }
