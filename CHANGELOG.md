@@ -1,3 +1,7 @@
+### next
+Major feature:
+The global prefs.toml and the local bacon.toml file now have the same properties, the local bacon.toml overriding the global prefs.toml file. Among the consequences: you can have a list of default global jobs; you can set a different preferences (eg wrapping, summary, etc.) for a specific repository. The default configuration files and the recommended best practices are unchanged - Fix #101
+
 <a name="v2.3.0"></a>
 ### v2.3.0 - 2022/12/30
 - doesn't launch job when the modified file is excluded by gitignore rules - Fix #32

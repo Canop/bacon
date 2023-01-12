@@ -8,7 +8,7 @@ use {
     },
 };
 
-/// an action that can be mapped to a key
+/// An action that can be mapped to a key
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Action {
     Internal(Internal),

@@ -6,7 +6,6 @@ use {
 /// The stack of jobs that bacon ran, allowing
 /// to get back to the previous one
 pub struct JobStack<'c> {
-    package_config: &'c PackageConfig,
     settings: &'c Settings,
     entries: Vec<ConcreteJobRef>,
 }
@@ -14,11 +13,9 @@ pub struct JobStack<'c> {
 impl<'c> JobStack<'c> {
 
     pub fn new(
-        package_config: &'c PackageConfig,
         settings: &'c Settings,
     ) -> Self {
         Self {
-            package_config,
             settings,
             entries: Vec::new(),
         }
@@ -26,14 +23,13 @@ impl<'c> JobStack<'c> {
 
     fn initial_job(&self) -> &ConcreteJobRef {
         self.settings.arg_job.as_ref()
-            .unwrap_or(&self.package_config.default_job)
+            .unwrap_or(&self.settings.default_job)
     }
-
 
     pub fn pick_job(&mut self, job_ref: &JobRef) -> Result<Option<(ConcreteJobRef, Job)>> {
         debug!("picking job {job_ref:?}");
         let concrete = match job_ref {
-            JobRef::Default => self.package_config.default_job.clone(),
+            JobRef::Default => self.settings.default_job.clone(),
             JobRef::Initial => self.initial_job().clone(),
             JobRef::Previous => {
                 self.entries.pop();
@@ -49,7 +45,7 @@ impl<'c> JobStack<'c> {
         let job = match &concrete {
             ConcreteJobRef::Alias(alias) => Job::from_alias(alias, self.settings),
             ConcreteJobRef::Name(name) => {
-                self.package_config.jobs
+                self.settings.jobs
                     .get(name)
                     .ok_or_else(|| anyhow!("job not found: {:?}", name))?
                     .clone()
