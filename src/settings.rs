@@ -1,8 +1,4 @@
-use {
-    crate::*,
-    anyhow::*,
-    std::collections::HashMap,
-};
+use {crate::*, anyhow::*, std::collections::HashMap};
 
 /// The settings used in the application.
 ///

@@ -1,10 +1,6 @@
 use {
     anyhow::{Context, Result},
-    git_repository::{
-        self as git,
-        prelude::FindExt,
-        Repository,
-    },
+    git_repository::{self as git, prelude::FindExt, Repository},
     std::path::{Path, PathBuf},
 };
 
@@ -15,7 +11,6 @@ pub struct Ignorer {
 }
 
 impl Ignorer {
-
     /// Create an Ignorer from any directory path: the closest
     /// surrounding git repository will be found (if there's one)
     /// and its gitignore rules used.

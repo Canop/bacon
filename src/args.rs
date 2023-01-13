@@ -10,7 +10,6 @@ use {
 /// Documentation at <https://dystroy.org/bacon>
 #[clap(author, version, about)]
 pub struct Args {
-
     /// print the path to the prefs file, create it if it doesn't exist
     #[clap(long = "prefs")]
     pub prefs: bool,

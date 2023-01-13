@@ -28,16 +28,10 @@ impl Config {
             .with_context(|| format!("Failed to parse configuration file at {:?}", path))?;
         for (name, job) in &conf.jobs {
             if !regex_is_match!(r#"^[\w-]+$"#, name) {
-                bail!(
-                    "Invalid configuration : Illegal job name : {:?}",
-                    name
-                );
+                bail!("Invalid configuration : Illegal job name : {:?}", name);
             }
             if job.command.is_empty() {
-                bail!(
-                    "Invalid configuration : empty command for job {:?}",
-                    name
-                );
+                bail!("Invalid configuration : empty command for job {:?}", name);
             }
         }
         Ok(conf)

@@ -1,9 +1,4 @@
-use {
-    crate::*,
-    anyhow::*,
-    std::io::Write,
-    termimad::crossterm::style::Stylize,
-};
+use {crate::*, anyhow::*, std::io::Write, termimad::crossterm::style::Stylize};
 
 /// a kind of section
 #[derive(Debug, Clone, Copy, PartialEq)]

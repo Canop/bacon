@@ -187,7 +187,11 @@ async fn execute_task(
             .take()
             .ok_or_else(|| anyhow!("child missing stdout"))?;
         let stdout_sender = line_sender.clone();
-        Some(stream_consumer(stdout, CommandStream::StdOut, stdout_sender))
+        Some(stream_consumer(
+            stdout,
+            CommandStream::StdOut,
+            stdout_sender,
+        ))
     } else {
         None
     };

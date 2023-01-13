@@ -1,7 +1,4 @@
-use {
-    crate::ScrollCommand,
-    std::fmt,
-};
+use {crate::ScrollCommand, std::fmt};
 
 /// one of the hardcoded actions that can be mapped
 /// to a key or ran after a successful job

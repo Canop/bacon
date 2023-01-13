@@ -34,43 +34,15 @@ mod wrapped_command_output;
 mod wrapped_report;
 
 pub use {
-    action::*,
-    app::*,
-    args::*,
-    cli::*,
-    command_output::*,
-    command_result::*,
-    config::*,
-    defaults::*,
-    drawing::*,
-    executor::*,
-    failure::*,
-    help_line::*,
-    help_page::*,
-    ignorer::*,
-    internal::*,
-    job::*,
-    job_ref::*,
-    job_stack::*,
-    keybindings::*,
-    line::*,
-    line_analysis::*,
-    line_type::*,
-    list_jobs::*,
-    mission::*,
-    mission_location::*,
-    report::*,
-    scroll::*,
-    settings::*,
-    state::*,
-    stats::*,
-    tty::*,
-    wrap::*,
-    wrapped_command_output::*,
-    wrapped_report::*,
+    action::*, app::*, args::*, cli::*, command_output::*, command_result::*, config::*,
+    defaults::*, drawing::*, executor::*, failure::*, help_line::*, help_page::*, ignorer::*,
+    internal::*, job::*, job_ref::*, job_stack::*, keybindings::*, line::*, line_analysis::*,
+    line_type::*, list_jobs::*, mission::*, mission_location::*, report::*, scroll::*, settings::*,
+    state::*, stats::*, tty::*, wrap::*, wrapped_command_output::*, wrapped_report::*,
 };
 
-#[macro_use] extern crate cli_log;
+#[macro_use]
+extern crate cli_log;
 
 /// Knowledge is power
 fn main() -> anyhow::Result<()> {

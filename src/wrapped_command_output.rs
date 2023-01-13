@@ -1,23 +1,18 @@
-use {
-    crate::*,
-};
+use crate::*;
 
 /// A wrapped cmd_output, only valid for the cmd_output it was computed for,
 /// contains references to the start and end of lines wrapped for a
 /// given width
 pub struct WrappedCommandOutput {
-
     pub sub_lines: Vec<SubLine>,
 
     /// in order to allow partial wrapping, and assuming the wrapped part
     /// didn't change, we store the count of lines which were wrapped so
     /// that we may update starting from there
     pub wrapped_lines_count: usize,
-
 }
 
 impl WrappedCommandOutput {
-
     /// compute a new wrapped cmd_output for a width and cmd_output.
     ///
     /// width is the total area width, including the scrollbar.
@@ -41,5 +36,4 @@ impl WrappedCommandOutput {
         }
         self.wrapped_lines_count = cmd_output.lines.len();
     }
-
 }

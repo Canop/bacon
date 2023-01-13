@@ -1,7 +1,4 @@
-use {
-    crate::*,
-    std::path::PathBuf,
-};
+use {crate::*, std::path::PathBuf};
 
 /// A report line
 #[derive(Debug)]
@@ -20,9 +17,7 @@ impl Line {
     /// Return the location as given by cargo (usually relative)
     pub fn location(&self) -> Option<&str> {
         match self.line_type {
-            LineType::Location => {
-                self.content.strings.get(2).map(|ts| ts.raw.as_str())
-            }
+            LineType::Location => self.content.strings.get(2).map(|ts| ts.raw.as_str()),
             _ => None,
         }
     }

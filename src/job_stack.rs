@@ -11,10 +11,7 @@ pub struct JobStack<'c> {
 }
 
 impl<'c> JobStack<'c> {
-
-    pub fn new(
-        settings: &'c Settings,
-    ) -> Self {
+    pub fn new(settings: &'c Settings) -> Self {
         Self {
             settings,
             entries: Vec::new(),
@@ -22,7 +19,9 @@ impl<'c> JobStack<'c> {
     }
 
     fn initial_job(&self) -> &ConcreteJobRef {
-        self.settings.arg_job.as_ref()
+        self.settings
+            .arg_job
+            .as_ref()
             .unwrap_or(&self.settings.default_job)
     }
 
@@ -44,12 +43,12 @@ impl<'c> JobStack<'c> {
         };
         let job = match &concrete {
             ConcreteJobRef::Alias(alias) => Job::from_alias(alias, self.settings),
-            ConcreteJobRef::Name(name) => {
-                self.settings.jobs
-                    .get(name)
-                    .ok_or_else(|| anyhow!("job not found: {:?}", name))?
-                    .clone()
-            }
+            ConcreteJobRef::Name(name) => self
+                .settings
+                .jobs
+                .get(name)
+                .ok_or_else(|| anyhow!("job not found: {:?}", name))?
+                .clone(),
         };
         if self.entries.last() != Some(&concrete) {
             self.entries.push(concrete.clone());

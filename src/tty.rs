@@ -1,10 +1,7 @@
 use {
     crate::*,
     anyhow::*,
-    std::{
-        fmt::Write as _,
-        io::Write,
-    },
+    std::{fmt::Write as _, io::Write},
     termimad::StrFit,
 };
 

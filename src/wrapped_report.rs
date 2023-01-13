@@ -1,6 +1,4 @@
-use {
-    crate::*,
-};
+use crate::*;
 
 /// A wrapped report, only valid for the report it was computed for,
 /// contains references to the start and end of lines wrapped for a
@@ -20,11 +18,16 @@ impl WrappedReport {
         let summary_height = sub_lines
             .iter()
             .filter(|sl| {
-                report.lines.get(sl.line_idx)
+                report
+                    .lines
+                    .get(sl.line_idx)
                     .map_or(true, |l| l.line_type != LineType::Normal)
             })
             .count();
-        Self { sub_lines, summary_height }
+        Self {
+            sub_lines,
+            summary_height,
+        }
     }
     pub fn content_height(&self, summary: bool) -> usize {
         if summary {

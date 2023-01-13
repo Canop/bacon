@@ -2,13 +2,13 @@ use {
     crate::*,
     anyhow::Result,
     std::io::Write,
-    termimad::{
-        minimad::{Alignment, Composite},
-        Area, CompoundStyle, MadSkin,
-    },
     termimad::crossterm::{
         cursor, execute,
         style::{Attribute, Color::*, Print},
+    },
+    termimad::{
+        minimad::{Alignment, Composite},
+        Area, CompoundStyle, MadSkin,
     },
 };
 
@@ -54,7 +54,6 @@ pub struct AppState<'s> {
 }
 
 impl<'s> AppState<'s> {
-
     pub fn new(mission: Mission<'s>) -> Result<Self> {
         let mut status_skin = MadSkin::default();
         status_skin
@@ -426,7 +425,8 @@ impl<'s> AppState<'s> {
         let width = self.width as usize;
         if let Some(report) = self.report_to_draw() {
             match (self.wrap, self.wrapped_report.as_ref()) {
-                (true, Some(wrapped_report)) => { // wrapped report
+                (true, Some(wrapped_report)) => {
+                    // wrapped report
                     let mut sub_lines = wrapped_report
                         .sub_lines
                         .iter()
@@ -449,7 +449,8 @@ impl<'s> AppState<'s> {
                         }
                     }
                 }
-                _ => { // unwrapped report
+                _ => {
+                    // unwrapped report
                     let mut lines = report
                         .lines
                         .iter()
@@ -484,10 +485,7 @@ impl<'s> AppState<'s> {
             match (self.wrap, self.wrapped_output.as_ref()) {
                 (true, Some(wrapped_output)) => {
                     debug!("wrap mode");
-                    let mut sub_lines = wrapped_output
-                        .sub_lines
-                        .iter()
-                        .skip(self.scroll);
+                    let mut sub_lines = wrapped_output.sub_lines.iter().skip(self.scroll);
                     for row_idx in 0..area.height {
                         let y = row_idx + top;
                         goto(w, y)?;
@@ -523,7 +521,7 @@ impl<'s> AppState<'s> {
         if self.reverse {
             self.draw_help_line(w, 0)?;
             if let Some(help_page) = self.help_page.as_mut() {
-                help_page.draw(w, Area::new(0, 1, self.width, self.height-1))?;
+                help_page.draw(w, Area::new(0, 1, self.width, self.height - 1))?;
             } else {
                 self.draw_content(w, 1)?;
                 self.draw_computing(w, self.height - 2)?;
@@ -531,7 +529,7 @@ impl<'s> AppState<'s> {
             }
         } else {
             if let Some(help_page) = self.help_page.as_mut() {
-                help_page.draw(w, Area::new(0, 0, self.width, self.height-1))?;
+                help_page.draw(w, Area::new(0, 0, self.width, self.height - 1))?;
             } else {
                 self.draw_badges(w, 0)?;
                 self.draw_computing(w, 1)?;
@@ -543,4 +541,3 @@ impl<'s> AppState<'s> {
         Ok(())
     }
 }
-

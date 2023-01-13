@@ -3,12 +3,12 @@ use {
     clap::Parser,
     directories_next::ProjectDirs,
     std::{fs, io::Write},
-    termimad::EventSource,
     termimad::crossterm::{
         cursor,
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
         QueueableCommand,
     },
+    termimad::EventSource,
 };
 
 /// The Write type used by all GUI writing functions
@@ -93,7 +93,9 @@ pub fn run() -> anyhow::Result<()> {
                 break;
             }
             Ok(Some(t)) => t,
-            Ok(None) => { break; }
+            Ok(None) => {
+                break;
+            }
         };
         let r = Mission::new(&location, job_name.to_string(), job, &settings)
             .and_then(|mission| app::run(&mut w, mission, &event_source));

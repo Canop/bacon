@@ -1,6 +1,4 @@
-use {
-    super::*,
-};
+use super::*;
 
 pub struct HelpLine {
     quit: String,
@@ -15,23 +13,38 @@ pub struct HelpLine {
 impl HelpLine {
     pub fn new(settings: &Settings) -> Self {
         let kb = &settings.keybindings;
-        let quit = kb.shortest_internal_key(Internal::Quit)
+        let quit = kb
+            .shortest_internal_key(Internal::Quit)
             .map(|k| format!("Hit *{k}* to quit"))
             .expect("the app to be quittable");
-        let toggle_summary = kb.shortest_internal_key(Internal::ToggleSummary)
+        let toggle_summary = kb
+            .shortest_internal_key(Internal::ToggleSummary)
             .map(|k| format!("*{k}* to toggle summary mode"));
-        let wrap = kb.shortest_internal_key(Internal::ToggleWrap)
+        let wrap = kb
+            .shortest_internal_key(Internal::ToggleWrap)
             .map(|k| format!("*{k}* to wrap lines"));
-        let not_wrap = kb.shortest_internal_key(Internal::ToggleWrap)
+        let not_wrap = kb
+            .shortest_internal_key(Internal::ToggleWrap)
             .map(|k| format!("*{k}* to not wrap lines"));
-        let toggle_backtrace = kb.shortest_internal_key(Internal::ToggleBacktrace)
+        let toggle_backtrace = kb
+            .shortest_internal_key(Internal::ToggleBacktrace)
             .map(|k| format!("*{k}* to toggle backtraces"));
-        let help = kb.shortest_internal_key(Internal::Help)
+        let help = kb
+            .shortest_internal_key(Internal::Help)
             .map(|k| format!("*{k}* for help"));
-        let close_help = kb.shortest_internal_key(Internal::Back)
+        let close_help = kb
+            .shortest_internal_key(Internal::Back)
             .or_else(|| kb.shortest_internal_key(Internal::Help))
             .map(|k| format!("*{k}* to close this help"));
-        Self { quit, toggle_summary, wrap, not_wrap, toggle_backtrace, help, close_help }
+        Self {
+            quit,
+            toggle_summary,
+            wrap,
+            not_wrap,
+            toggle_backtrace,
+            help,
+            close_help,
+        }
     }
     pub fn markdown(&self, state: &AppState) -> String {
         let mut parts: Vec<&str> = vec![&self.quit];

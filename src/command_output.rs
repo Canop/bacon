@@ -1,7 +1,4 @@
-use {
-    crate::*,
-    std::process::ExitStatus,
-};
+use {crate::*, std::process::ExitStatus};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CommandStream {

@@ -1,10 +1,7 @@
 use {
     crate::*,
     anyhow::*,
-    std::{
-        fs::File,
-        process::ExitStatus,
-    },
+    std::{fs::File, process::ExitStatus},
 };
 
 /// what we get from the execution of a command
@@ -49,18 +46,15 @@ impl CommandResult {
         }
     }
 
-    pub fn update_location_file(
-        &self,
-        mission: &Mission,
-    ) -> Result<()> {
+    pub fn update_location_file(&self, mission: &Mission) -> Result<()> {
         match self {
             Self::Report(report) => {
                 let path = mission.bacon_locations_path();
                 let mut file = File::create(path)?;
                 report.write_to(&mut file, mission)?;
             }
-            Self::Failure(_) => { }
-            Self::None => { }
+            Self::Failure(_) => {}
+            Self::None => {}
         }
         Ok(())
     }

@@ -2,12 +2,7 @@ use {
     crate::*,
     anyhow::Result,
     notify::{RecommendedWatcher, RecursiveMode, Watcher},
-    std::{
-        collections::HashSet,
-        iter,
-        path::PathBuf,
-        process::Command,
-    },
+    std::{collections::HashSet, iter, path::PathBuf, process::Command},
 };
 
 /// the description of the mission of bacon
@@ -85,7 +80,8 @@ impl<'s> Mission<'s> {
                 debug!("No gitignorer because of settings");
                 None
             }
-            _ => { // by default we apply gitignore rules
+            _ => {
+                // by default we apply gitignore rules
                 match Ignorer::new(&self.workspace_root) {
                     Ok(ignorer) => Some(ignorer),
                     Err(e) => {

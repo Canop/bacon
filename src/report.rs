@@ -1,10 +1,7 @@
 use {
     crate::*,
     anyhow::Result,
-    std::{
-        collections::HashSet,
-        io,
-    },
+    std::{collections::HashSet, io},
 };
 
 /// the usable content of cargo watch's output,
@@ -97,8 +94,7 @@ impl Report {
                             } else {
                                 warn!(
                                     "unexpected test result failure_names={:?}, key={:?}",
-                                    &failure_names,
-                                    &key,
+                                    &failure_names, &key,
                                 );
                             }
                         }
@@ -155,14 +151,15 @@ impl Report {
         // have been read but not added (at start or end)
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
-        Ok(Report { lines, stats, suggest_backtrace, output: CommandOutput::default() })
+        Ok(Report {
+            lines,
+            stats,
+            suggest_backtrace,
+            output: CommandOutput::default(),
+        })
     }
     /// export the report in a file
-    pub fn write_to<W: io::Write>(
-        &self,
-        w: &mut W,
-        mission: &Mission,
-    ) -> Result<(), io::Error> {
+    pub fn write_to<W: io::Write>(&self, w: &mut W, mission: &Mission) -> Result<(), io::Error> {
         let mut last_cat = "???";
         for line in &self.lines {
             match line.line_type {

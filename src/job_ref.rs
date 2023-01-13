@@ -1,9 +1,6 @@
 use {
     serde::{de, Deserialize, Deserializer},
-    std::{
-        fmt,
-        str::FromStr,
-    },
+    std::{fmt, str::FromStr},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -49,7 +46,8 @@ impl FromStr for ConcreteJobRef {
 }
 impl<'de> Deserialize<'de> for ConcreteJobRef {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
         FromStr::from_str(&s).map_err(de::Error::custom)

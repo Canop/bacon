@@ -2,12 +2,7 @@ use {
     crate::*,
     anyhow::{bail, Result},
     cargo_metadata::MetadataCommand,
-    std::{
-        env,
-        fmt,
-        fs,
-        path::PathBuf,
-    },
+    std::{env, fmt, fs, path::PathBuf},
 };
 
 pub struct MissionLocation {
@@ -22,11 +17,11 @@ pub struct MissionLocation {
 impl fmt::Debug for MissionLocation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("MissionLocation")
-         .field("intended_dir", &self.intended_dir)
-         .field("package_directory", &self.package_directory)
-         .field("cargo_toml_file", &self.cargo_toml_file)
-         .field("intended_is_package", &self.intended_is_package)
-         .finish()
+            .field("intended_dir", &self.intended_dir)
+            .field("package_directory", &self.package_directory)
+            .field("cargo_toml_file", &self.cargo_toml_file)
+            .field("intended_is_package", &self.intended_is_package)
+            .finish()
     }
 }
 
@@ -38,7 +33,9 @@ impl MissionLocation {
             .map_or_else(|| env::current_dir().unwrap(), PathBuf::from);
         let metadata = match MetadataCommand::new().current_dir(&intended_dir).exec() {
             Ok(m) => m,
-            Err(cargo_metadata::Error::CargoMetadata { stderr }) if cargo_manifest_not_found(&stderr) => {
+            Err(cargo_metadata::Error::CargoMetadata { stderr })
+                if cargo_manifest_not_found(&stderr) =>
+            {
                 bail!(
                     "Cargo.toml file not found.\n\
                     bacon must be launched \n\
@@ -99,4 +96,3 @@ impl MissionLocation {
 fn cargo_manifest_not_found(err: &str) -> bool {
     err.starts_with("error: could not find `Cargo.toml`")
 }
-

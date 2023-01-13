@@ -1,9 +1,4 @@
-use {
-    crate::*,
-    anyhow::*,
-    std::io::Write,
-    unicode_width::UnicodeWidthChar,
-};
+use {crate::*, anyhow::*, std::io::Write, unicode_width::UnicodeWidthChar};
 
 /// a line which can be wrapped
 pub trait WrappableLine {
@@ -75,10 +70,7 @@ impl SubLine {
     }
 }
 
-pub fn wrap<WL: WrappableLine>(
-    lines: &[WL],
-    width: u16,
-) -> Vec<SubLine> {
+pub fn wrap<WL: WrappableLine>(lines: &[WL], width: u16) -> Vec<SubLine> {
     let cols = width as usize - 1; // -1 for the probable scrollbar
     let mut sub_lines = Vec::new();
     for (line_idx, line) in lines.iter().enumerate() {
@@ -121,4 +113,3 @@ pub fn wrap<WL: WrappableLine>(
     }
     sub_lines
 }
-
