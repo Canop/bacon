@@ -18,6 +18,12 @@ pub enum JobRef {
     Concrete(ConcreteJobRef),
 }
 
+impl JobRef {
+    pub fn from_job_name<S: Into<String>>(s: S) -> Self {
+        Self::Concrete(ConcreteJobRef::Name(s.into()))
+    }
+}
+
 /// A "concrete" job ref is one which can be used from the start, without
 /// referring to the job stack
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
