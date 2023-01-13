@@ -2,7 +2,10 @@ use {
     crate::*,
     crokey::*,
     serde::Deserialize,
-    std::collections::{hash_map, HashMap},
+    std::collections::{
+        hash_map,
+        HashMap,
+    },
 };
 
 /// A mapping from key combinations to actions.
@@ -41,7 +44,11 @@ impl Default for KeyBindings {
 }
 
 impl KeyBindings {
-    pub fn set<CK: Into<CroKey>, A: Into<Action>>(&mut self, ck: CK, action: A) {
+    pub fn set<CK: Into<CroKey>, A: Into<Action>>(
+        &mut self,
+        ck: CK,
+        action: A,
+    ) {
         self.map.insert(ck.into(), action.into());
     }
     pub fn add_vim_keys(&mut self) {
@@ -50,16 +57,25 @@ impl KeyBindings {
         self.set(key!(k), Internal::Scroll(ScrollCommand::Lines(-1)));
         self.set(key!(j), Internal::Scroll(ScrollCommand::Lines(1)));
     }
-    pub fn add_all(&mut self, other: &KeyBindings) {
+    pub fn add_all(
+        &mut self,
+        other: &KeyBindings,
+    ) {
         for (ck, action) in other.map.iter() {
             self.map.insert(*ck, action.clone());
         }
     }
-    pub fn get<CK: Into<CroKey>>(&self, key: CK) -> Option<&Action> {
+    pub fn get<CK: Into<CroKey>>(
+        &self,
+        key: CK,
+    ) -> Option<&Action> {
         self.map.get(&key.into())
     }
     /// return the shortest key.to_string for the internal, if any
-    pub fn shortest_internal_key(&self, internal: Internal) -> Option<String> {
+    pub fn shortest_internal_key(
+        &self,
+        internal: Internal,
+    ) -> Option<String> {
         let mut shortest: Option<String> = None;
         let searched_action = Action::Internal(internal);
         for (ck, action) in &self.map {

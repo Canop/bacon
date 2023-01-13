@@ -1,10 +1,17 @@
 use {
     crate::*,
     anyhow::Result,
-    termimad::crossterm::{cursor, execute, terminal},
+    termimad::crossterm::{
+        cursor,
+        execute,
+        terminal,
+    },
 };
 
-pub fn goto(w: &mut W, y: u16) -> Result<()> {
+pub fn goto(
+    w: &mut W,
+    y: u16,
+) -> Result<()> {
     execute!(w, cursor::MoveTo(0, y))?;
     Ok(())
 }

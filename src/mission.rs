@@ -1,8 +1,17 @@
 use {
     crate::*,
     anyhow::Result,
-    notify::{RecommendedWatcher, RecursiveMode, Watcher},
-    std::{collections::HashSet, iter, path::PathBuf, process::Command},
+    notify::{
+        RecommendedWatcher,
+        RecursiveMode,
+        Watcher,
+    },
+    std::{
+        collections::HashSet,
+        iter,
+        path::PathBuf,
+        process::Command,
+    },
 };
 
 /// the description of the mission of bacon
@@ -109,7 +118,10 @@ impl<'s> Mission<'s> {
     }
 
     /// configure the watcher with files and directories to watch
-    pub fn add_watchs(&self, watcher: &mut RecommendedWatcher) -> Result<()> {
+    pub fn add_watchs(
+        &self,
+        watcher: &mut RecommendedWatcher,
+    ) -> Result<()> {
         for file in &self.files_to_watch {
             debug!("add watch file {:?}", file);
             watcher.watch(file, RecursiveMode::NonRecursive)?;
@@ -197,7 +209,10 @@ impl<'s> Mission<'s> {
     }
 }
 
-fn merge_features(a: &str, b: &str) -> String {
+fn merge_features(
+    a: &str,
+    b: &str,
+) -> String {
     let mut features = HashSet::new();
     for feature in a.split(',') {
         features.insert(feature);

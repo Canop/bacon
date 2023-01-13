@@ -16,7 +16,10 @@ impl WrappedCommandOutput {
     /// compute a new wrapped cmd_output for a width and cmd_output.
     ///
     /// width is the total area width, including the scrollbar.
-    pub fn new(cmd_output: &CommandOutput, width: u16) -> Self {
+    pub fn new(
+        cmd_output: &CommandOutput,
+        width: u16,
+    ) -> Self {
         debug!("wrapping cmd_output");
         let sub_lines = wrap(&cmd_output.lines, width);
         Self {
@@ -27,7 +30,11 @@ impl WrappedCommandOutput {
 
     /// Assuming the width is the same and the lines already handled
     /// didn't change, wrap and add the lines which weren't.
-    pub fn update(&mut self, cmd_output: &CommandOutput, width: u16) {
+    pub fn update(
+        &mut self,
+        cmd_output: &CommandOutput,
+        width: u16,
+    ) {
         debug!("updating cmd_output");
         let mut new_lines = wrap(&cmd_output.lines[self.wrapped_lines_count..], width);
         for mut line in new_lines.drain(..) {

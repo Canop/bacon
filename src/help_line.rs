@@ -46,7 +46,10 @@ impl HelpLine {
             close_help,
         }
     }
-    pub fn markdown(&self, state: &AppState) -> String {
+    pub fn markdown(
+        &self,
+        state: &AppState,
+    ) -> String {
         let mut parts: Vec<&str> = vec![&self.quit];
         if state.is_help() {
             if let Some(s) = &self.close_help {

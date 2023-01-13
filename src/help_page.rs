@@ -2,9 +2,20 @@ use {
     crate::*,
     anyhow::Result,
     termimad::{
-        crossterm::style::{Attribute, Color::*},
-        minimad::{Alignment, OwningTemplateExpander, TextTemplate},
-        Area, CompoundStyle, FmtText, MadSkin, TextView,
+        crossterm::style::{
+            Attribute,
+            Color::*,
+        },
+        minimad::{
+            Alignment,
+            OwningTemplateExpander,
+            TextTemplate,
+        },
+        Area,
+        CompoundStyle,
+        FmtText,
+        MadSkin,
+        TextView,
     },
 };
 
@@ -77,7 +88,11 @@ impl HelpPage {
     }
 
     /// draw the state on the whole terminal
-    pub fn draw(&mut self, w: &mut W, area: Area) -> Result<()> {
+    pub fn draw(
+        &mut self,
+        w: &mut W,
+        area: Area,
+    ) -> Result<()> {
         self.area = area;
         let text = self.expander.expand(&self.template);
         let fmt_text = FmtText::from_text(&self.skin, text, Some((self.area.width - 1) as usize));
@@ -86,7 +101,10 @@ impl HelpPage {
         Ok(text_view.write_on(w)?)
     }
 
-    pub fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
+    pub fn apply_scroll_command(
+        &mut self,
+        cmd: ScrollCommand,
+    ) {
         let text = self.expander.expand(&self.template);
         let fmt_text = FmtText::from_text(&self.skin, text, Some((self.area.width - 1) as usize));
         let mut text_view = TextView::from(&self.area, &fmt_text);

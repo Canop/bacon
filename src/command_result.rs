@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::*,
-    std::{fs::File, process::ExitStatus},
+    std::{
+        fs::File,
+        process::ExitStatus,
+    },
 };
 
 /// what we get from the execution of a command
@@ -15,7 +18,10 @@ pub enum CommandResult {
 }
 
 impl CommandResult {
-    pub fn new(output: CommandOutput, exit_status: Option<ExitStatus>) -> Result<Self> {
+    pub fn new(
+        output: CommandOutput,
+        exit_status: Option<ExitStatus>,
+    ) -> Result<Self> {
         let lines = &output.lines;
         let error_code = exit_status.and_then(|s| s.code()).filter(|&c| c != 0);
         let mut report = Report::from_lines(lines)?;
@@ -46,7 +52,10 @@ impl CommandResult {
         }
     }
 
-    pub fn update_location_file(&self, mission: &Mission) -> Result<()> {
+    pub fn update_location_file(
+        &self,
+        mission: &Mission,
+    ) -> Result<()> {
         match self {
             Self::Report(report) => {
                 let path = mission.bacon_locations_path();

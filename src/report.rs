@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::Result,
-    std::{collections::HashSet, io},
+    std::{
+        collections::HashSet,
+        io,
+    },
 };
 
 /// the usable content of cargo watch's output,
@@ -23,7 +26,10 @@ impl Report {
     }
     /// A successful report is one with nothing to tell: no warning,
     /// no error, no test failure
-    pub fn is_success(&self, allow_warnings: bool) -> bool {
+    pub fn is_success(
+        &self,
+        allow_warnings: bool,
+    ) -> bool {
         if allow_warnings {
             self.stats.errors + self.stats.test_fails == 0
         } else {
@@ -159,7 +165,11 @@ impl Report {
         })
     }
     /// export the report in a file
-    pub fn write_to<W: io::Write>(&self, w: &mut W, mission: &Mission) -> Result<(), io::Error> {
+    pub fn write_to<W: io::Write>(
+        &self,
+        w: &mut W,
+        mission: &Mission,
+    ) -> Result<(), io::Error> {
         let mut last_cat = "???";
         for line in &self.lines {
             match line.line_type {

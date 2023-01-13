@@ -1,6 +1,9 @@
 use {
     crate::*,
-    anyhow::{anyhow, Result},
+    anyhow::{
+        anyhow,
+        Result,
+    },
 };
 
 /// The stack of jobs that bacon ran, allowing
@@ -25,7 +28,10 @@ impl<'c> JobStack<'c> {
             .unwrap_or(&self.settings.default_job)
     }
 
-    pub fn pick_job(&mut self, job_ref: &JobRef) -> Result<Option<(ConcreteJobRef, Job)>> {
+    pub fn pick_job(
+        &mut self,
+        job_ref: &JobRef,
+    ) -> Result<Option<(ConcreteJobRef, Job)>> {
         debug!("picking job {job_ref:?}");
         let concrete = match job_ref {
             JobRef::Default => self.settings.default_job.clone(),

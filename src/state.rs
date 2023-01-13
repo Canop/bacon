@@ -3,12 +3,22 @@ use {
     anyhow::Result,
     std::io::Write,
     termimad::crossterm::{
-        cursor, execute,
-        style::{Attribute, Color::*, Print},
+        cursor,
+        execute,
+        style::{
+            Attribute,
+            Color::*,
+            Print,
+        },
     },
     termimad::{
-        minimad::{Alignment, Composite},
-        Area, CompoundStyle, MadSkin,
+        minimad::{
+            Alignment,
+            Composite,
+        },
+        Area,
+        CompoundStyle,
+        MadSkin,
     },
 };
 
@@ -84,7 +94,10 @@ impl<'s> AppState<'s> {
         })
     }
 
-    pub fn add_line(&mut self, line: CommandOutputLine) {
+    pub fn add_line(
+        &mut self,
+        line: CommandOutputLine,
+    ) {
         let auto_scroll = self.is_scroll_at_bottom();
         if let Some(output) = self.output.as_mut() {
             output.push(line);
@@ -118,7 +131,10 @@ impl<'s> AppState<'s> {
     pub fn toggle_raw_output(&mut self) {
         self.raw_output ^= true;
     }
-    pub fn set_result(&mut self, mut cmd_result: CommandResult) {
+    pub fn set_result(
+        &mut self,
+        mut cmd_result: CommandResult,
+    ) {
         if self.reverse {
             cmd_result.reverse();
         }
@@ -285,7 +301,11 @@ impl<'s> AppState<'s> {
     fn page_height(&self) -> usize {
         self.height.max(3) as usize - 3
     }
-    pub fn resize(&mut self, width: u16, height: u16) {
+    pub fn resize(
+        &mut self,
+        width: u16,
+        height: u16,
+    ) {
         if self.width != width {
             self.wrapped_report = None;
             self.wrapped_output = None;
@@ -294,7 +314,10 @@ impl<'s> AppState<'s> {
         self.height = height;
         self.try_scroll_to_last_top_item();
     }
-    pub fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
+    pub fn apply_scroll_command(
+        &mut self,
+        cmd: ScrollCommand,
+    ) {
         if let Some(help_page) = self.help_page.as_mut() {
             help_page.apply_scroll_command(cmd);
         } else {
@@ -304,7 +327,11 @@ impl<'s> AppState<'s> {
         }
     }
     /// draw the grey line containing the keybindings indications
-    fn draw_help_line(&self, w: &mut W, y: u16) -> Result<()> {
+    fn draw_help_line(
+        &self,
+        w: &mut W,
+        y: u16,
+    ) -> Result<()> {
         let markdown = self.help_line.markdown(self);
         if self.height > 1 {
             goto(w, y)?;
@@ -318,7 +345,11 @@ impl<'s> AppState<'s> {
         Ok(())
     }
     /// draw the line of colored badges, usually on top
-    pub fn draw_badges(&mut self, w: &mut W, y: u16) -> Result<usize> {
+    pub fn draw_badges(
+        &mut self,
+        w: &mut W,
+        y: u16,
+    ) -> Result<usize> {
         goto(w, y)?;
         let mut t_line = TLine::default();
         // white over grey
@@ -353,7 +384,11 @@ impl<'s> AppState<'s> {
         Ok(cols)
     }
     /// draw "computing...", the error code if any, or a blank line
-    pub fn draw_computing(&mut self, w: &mut W, y: u16) -> Result<()> {
+    pub fn draw_computing(
+        &mut self,
+        w: &mut W,
+        y: u16,
+    ) -> Result<()> {
         goto(w, y)?;
         let width = self.width as usize;
         if self.computing {
@@ -381,7 +416,10 @@ impl<'s> AppState<'s> {
             .filter(|_| !self.raw_output)
             .filter(|report| !report.is_success(self.mission.allow_warnings()))
     }
-    fn update_wrap(&mut self, width: u16) {
+    fn update_wrap(
+        &mut self,
+        width: u16,
+    ) {
         if let Some(report) = self.report_to_draw() {
             if self.wrapped_report.is_none() {
                 self.wrapped_report = Some(WrappedReport::new(report, width));
@@ -401,7 +439,11 @@ impl<'s> AppState<'s> {
     }
     /// draw the report or the lines of the current computation, between
     /// y and self.page_height()
-    pub fn draw_content(&mut self, w: &mut W, y: u16) -> Result<()> {
+    pub fn draw_content(
+        &mut self,
+        w: &mut W,
+        y: u16,
+    ) -> Result<()> {
         if self.height < 4 {
             return Ok(());
         }
@@ -517,7 +559,10 @@ impl<'s> AppState<'s> {
         Ok(())
     }
     /// draw the state on the whole terminal
-    pub fn draw(&mut self, w: &mut W) -> Result<()> {
+    pub fn draw(
+        &mut self,
+        w: &mut W,
+    ) -> Result<()> {
         if self.reverse {
             self.draw_help_line(w, 0)?;
             if let Some(help_page) = self.help_page.as_mut() {

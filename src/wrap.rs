@@ -1,4 +1,9 @@
-use {crate::*, anyhow::*, std::io::Write, unicode_width::UnicodeWidthChar};
+use {
+    crate::*,
+    anyhow::*,
+    std::io::Write,
+    unicode_width::UnicodeWidthChar,
+};
 
 /// a line which can be wrapped
 pub trait WrappableLine {
@@ -13,7 +18,11 @@ pub struct SubString {
     pub byte_end: usize, // not included
 }
 impl SubString {
-    pub fn draw(&self, w: &mut W, content: &TLine) -> Result<()> {
+    pub fn draw(
+        &self,
+        w: &mut W,
+        content: &TLine,
+    ) -> Result<()> {
         //let line = &report.lines[line_idx];
         let string = &content.strings[self.string_idx];
         if string.csi.is_empty() {
@@ -43,25 +52,42 @@ impl SubLine {
             sub_string.string_idx != 0 || sub_string.byte_start != 0
         })
     }
-    pub fn src_line<'r>(&self, report: &'r Report) -> &'r Line {
+    pub fn src_line<'r>(
+        &self,
+        report: &'r Report,
+    ) -> &'r Line {
         &report.lines[self.line_idx]
     }
-    pub fn src_line_type(&self, report: &Report) -> LineType {
+    pub fn src_line_type(
+        &self,
+        report: &Report,
+    ) -> LineType {
         report.lines[self.line_idx].line_type
     }
-    pub fn line_type(&self, report: &Report) -> LineType {
+    pub fn line_type(
+        &self,
+        report: &Report,
+    ) -> LineType {
         if self.is_continuation() {
             LineType::Normal
         } else {
             report.lines[self.line_idx].line_type
         }
     }
-    pub fn draw_line_type(&self, w: &mut W, report: &Report) -> Result<()> {
+    pub fn draw_line_type(
+        &self,
+        w: &mut W,
+        report: &Report,
+    ) -> Result<()> {
         self.line_type(report)
             .draw(w, report.lines[self.line_idx].item_idx)?;
         Ok(())
     }
-    pub fn draw<WL: WrappableLine>(&self, w: &mut W, source_lines: &[WL]) -> Result<()> {
+    pub fn draw<WL: WrappableLine>(
+        &self,
+        w: &mut W,
+        source_lines: &[WL],
+    ) -> Result<()> {
         for ts in &self.sub_strings {
             let content = &source_lines[self.line_idx].content();
             ts.draw(w, content)?;
@@ -70,7 +96,10 @@ impl SubLine {
     }
 }
 
-pub fn wrap<WL: WrappableLine>(lines: &[WL], width: u16) -> Vec<SubLine> {
+pub fn wrap<WL: WrappableLine>(
+    lines: &[WL],
+    width: u16,
+) -> Vec<SubLine> {
     let cols = width as usize - 1; // -1 for the probable scrollbar
     let mut sub_lines = Vec::new();
     for (line_idx, line) in lines.iter().enumerate() {

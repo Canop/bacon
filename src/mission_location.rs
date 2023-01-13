@@ -1,8 +1,16 @@
 use {
     crate::*,
-    anyhow::{bail, Result},
+    anyhow::{
+        bail,
+        Result,
+    },
     cargo_metadata::MetadataCommand,
-    std::{env, fmt, fs, path::PathBuf},
+    std::{
+        env,
+        fmt,
+        fs,
+        path::PathBuf,
+    },
 };
 
 pub struct MissionLocation {
@@ -15,7 +23,10 @@ pub struct MissionLocation {
 }
 
 impl fmt::Debug for MissionLocation {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         f.debug_struct("MissionLocation")
             .field("intended_dir", &self.intended_dir)
             .field("package_directory", &self.package_directory)

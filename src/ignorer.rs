@@ -1,7 +1,17 @@
 use {
-    anyhow::{Context, Result},
-    git_repository::{self as git, prelude::FindExt, Repository},
-    std::path::{Path, PathBuf},
+    anyhow::{
+        Context,
+        Result,
+    },
+    git_repository::{
+        self as git,
+        prelude::FindExt,
+        Repository,
+    },
+    std::path::{
+        Path,
+        PathBuf,
+    },
 };
 
 /// An object able to tell whether a file is excluded
@@ -23,7 +33,10 @@ impl Ignorer {
 
     /// Tell whether the given path is excluded according to
     /// either the global gitignore rules or the ones of the repository
-    pub fn excludes(&mut self, file_path: &Path) -> Result<bool> {
+    pub fn excludes(
+        &mut self,
+        file_path: &Path,
+    ) -> Result<bool> {
         let worktree = self.repo.worktree().context("a worktree should exist")?;
         let index = worktree.index()?;
 
@@ -54,7 +67,10 @@ impl Ignorer {
 
     /// Return Ok(false) when at least one file is included (i.e. we should
     /// execute the job)
-    pub fn excludes_all(&mut self, paths: &[PathBuf]) -> Result<bool> {
+    pub fn excludes_all(
+        &mut self,
+        paths: &[PathBuf],
+    ) -> Result<bool> {
         for path in paths {
             if !self.excludes(path)? {
                 return Ok(false);

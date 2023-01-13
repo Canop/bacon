@@ -1,4 +1,8 @@
-use {crate::*, anyhow::*, std::collections::HashMap};
+use {
+    crate::*,
+    anyhow::*,
+    std::collections::HashMap,
+};
 
 /// The settings used in the application.
 ///
@@ -26,7 +30,10 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn apply_config(&mut self, config: &Config) {
+    pub fn apply_config(
+        &mut self,
+        config: &Config,
+    ) {
         if let Some(b) = config.summary {
             self.summary = b;
         }
@@ -55,7 +62,10 @@ impl Settings {
             self.default_job = default_job.clone();
         }
     }
-    pub fn apply_args(&mut self, args: &Args) {
+    pub fn apply_args(
+        &mut self,
+        args: &Args,
+    ) {
         if let Some(job) = &args.job {
             self.arg_job = Some(job.clone());
         }

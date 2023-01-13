@@ -1,6 +1,9 @@
 use {
     crate::ConcreteJobRef,
-    anyhow::{bail, Result},
+    anyhow::{
+        bail,
+        Result,
+    },
     clap::Parser,
 };
 

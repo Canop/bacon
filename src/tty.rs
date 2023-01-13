@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::*,
-    std::{fmt::Write as _, io::Write},
+    std::{
+        fmt::Write as _,
+        io::Write,
+    },
     termimad::StrFit,
 };
 
@@ -32,13 +35,22 @@ pub struct TString {
 }
 impl TString {
     /// colors are 8bits ansi values
-    pub fn badge(con: &str, fg: u8, bg: u8) -> Self {
+    pub fn badge(
+        con: &str,
+        fg: u8,
+        bg: u8,
+    ) -> Self {
         Self {
             csi: format!("\u{1b}[1m\u{1b}[38;5;{}m\u{1b}[48;5;{}m", fg, bg),
             raw: format!(" {} ", con),
         }
     }
-    pub fn num_badge(num: usize, cat: &str, fg: u8, bg: u8) -> Self {
+    pub fn num_badge(
+        num: usize,
+        cat: &str,
+        fg: u8,
+        bg: u8,
+    ) -> Self {
         let raw = if num == 1 {
             format!(" 1 {} ", cat)
         } else {
@@ -46,7 +58,11 @@ impl TString {
         };
         Self::badge(&raw, fg, bg)
     }
-    pub fn push_csi(&mut self, params: &[i64], action: char) {
+    pub fn push_csi(
+        &mut self,
+        params: &[i64],
+        action: char,
+    ) {
         self.csi.push('\u{1b}');
         self.csi.push('[');
         for (idx, p) in params.iter().enumerate() {
@@ -57,7 +73,10 @@ impl TString {
         }
         self.csi.push(action);
     }
-    pub fn draw(&self, w: &mut W) -> Result<()> {
+    pub fn draw(
+        &self,
+        w: &mut W,
+    ) -> Result<()> {
         if self.csi.is_empty() {
             write!(w, "{}", &self.raw)?;
         } else {
@@ -67,7 +86,11 @@ impl TString {
     }
     /// draw the string but without taking more than cols_max cols.
     /// Return the number of cols written
-    pub fn draw_in(&self, w: &mut W, cols_max: usize) -> Result<usize> {
+    pub fn draw_in(
+        &self,
+        w: &mut W,
+        cols_max: usize,
+    ) -> Result<usize> {
         let fit = StrFit::make_cow(&self.raw, cols_max);
         if self.csi.is_empty() {
             write!(w, "{}", &fit.0)?;
@@ -76,10 +99,17 @@ impl TString {
         }
         Ok(fit.1)
     }
-    pub fn starts_with(&self, csi: &str, raw: &str) -> bool {
+    pub fn starts_with(
+        &self,
+        csi: &str,
+        raw: &str,
+    ) -> bool {
         self.csi == csi && self.raw.starts_with(raw)
     }
-    pub fn split_off(&mut self, at: usize) -> Self {
+    pub fn split_off(
+        &mut self,
+        at: usize,
+    ) -> Self {
         Self {
             csi: self.csi.clone(),
             raw: self.raw.split_off(at),
@@ -153,14 +183,20 @@ impl TLine {
             ],
         }
     }
-    pub fn add_badge(&mut self, badge: TString) {
+    pub fn add_badge(
+        &mut self,
+        badge: TString,
+    ) {
         self.strings.push(badge);
         self.strings.push(TString {
             csi: "".to_string(),
             raw: " ".to_string(),
         });
     }
-    pub fn draw(&self, w: &mut W) -> Result<()> {
+    pub fn draw(
+        &self,
+        w: &mut W,
+    ) -> Result<()> {
         for ts in &self.strings {
             ts.draw(w)?;
         }
@@ -168,7 +204,11 @@ impl TLine {
     }
     /// draw the line but without taking more than cols_max cols.
     /// Return the number of cols written
-    pub fn draw_in(&self, w: &mut W, cols_max: usize) -> Result<usize> {
+    pub fn draw_in(
+        &self,
+        w: &mut W,
+        cols_max: usize,
+    ) -> Result<usize> {
         let mut cols = 0;
         for ts in &self.strings {
             if cols >= cols_max {
@@ -210,10 +250,19 @@ impl TLineBuilder {
     }
 }
 impl vte::Perform for TLineBuilder {
-    fn print(&mut self, c: char) {
+    fn print(
+        &mut self,
+        c: char,
+    ) {
         self.cur.get_or_insert_with(TString::default).raw.push(c);
     }
-    fn csi_dispatch(&mut self, params: &[i64], _intermediates: &[u8], _ignore: bool, action: char) {
+    fn csi_dispatch(
+        &mut self,
+        params: &[i64],
+        _intermediates: &[u8],
+        _ignore: bool,
+        action: char,
+    ) {
         if *params == [0] {
             if let Some(cur) = self.cur.take() {
                 self.strings.push(cur);
@@ -233,10 +282,36 @@ impl vte::Perform for TLineBuilder {
         cur.push_csi(params, action);
         self.cur = Some(cur);
     }
-    fn execute(&mut self, _byte: u8) {}
-    fn hook(&mut self, _params: &[i64], _intermediates: &[u8], _ignore: bool, _action: char) {}
-    fn put(&mut self, _byte: u8) {}
+    fn execute(
+        &mut self,
+        _byte: u8,
+    ) {
+    }
+    fn hook(
+        &mut self,
+        _params: &[i64],
+        _intermediates: &[u8],
+        _ignore: bool,
+        _action: char,
+    ) {
+    }
+    fn put(
+        &mut self,
+        _byte: u8,
+    ) {
+    }
     fn unhook(&mut self) {}
-    fn osc_dispatch(&mut self, _params: &[&[u8]], _bell_terminated: bool) {}
-    fn esc_dispatch(&mut self, _intermediates: &[u8], _ignore: bool, _byte: u8) {}
+    fn osc_dispatch(
+        &mut self,
+        _params: &[&[u8]],
+        _bell_terminated: bool,
+    ) {
+    }
+    fn esc_dispatch(
+        &mut self,
+        _intermediates: &[u8],
+        _ignore: bool,
+        _byte: u8,
+    ) {
+    }
 }

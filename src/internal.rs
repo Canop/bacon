@@ -1,4 +1,7 @@
-use {crate::ScrollCommand, std::fmt};
+use {
+    crate::ScrollCommand,
+    std::fmt,
+};
 
 /// one of the hardcoded actions that can be mapped
 /// to a key or ran after a successful job
@@ -15,7 +18,10 @@ pub enum Internal {
 }
 
 impl fmt::Display for Internal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
         match self {
             Self::Back => write!(f, "back to previous page or job"),
             Self::Help => write!(f, "help"),

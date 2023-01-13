@@ -1,4 +1,7 @@
-use {crate::*, std::path::PathBuf};
+use {
+    crate::*,
+    std::path::PathBuf,
+};
 
 /// A report line
 #[derive(Debug)]
@@ -22,7 +25,10 @@ impl Line {
         }
     }
     /// Return the absolute path to the error/warning/test location
-    pub fn location_path(&self, mission: &Mission) -> Option<PathBuf> {
+    pub fn location_path(
+        &self,
+        mission: &Mission,
+    ) -> Option<PathBuf> {
         let location_path = self.location()?;
         let mut location_path = PathBuf::from(location_path);
         if !location_path.is_absolute() {

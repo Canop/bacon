@@ -1,6 +1,13 @@
 use {
-    serde::{de, Deserialize, Deserializer},
-    std::{fmt, str::FromStr},
+    serde::{
+        de,
+        Deserialize,
+        Deserializer,
+    },
+    std::{
+        fmt,
+        str::FromStr,
+    },
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -26,7 +33,10 @@ impl Default for ConcreteJobRef {
 }
 
 impl fmt::Display for ConcreteJobRef {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
         match self {
             Self::Alias(alias) => write!(f, "alias:{alias}"),
             Self::Name(name) => write!(f, "{name}"),
@@ -65,7 +75,10 @@ impl From<&str> for ConcreteJobRef {
 }
 
 impl fmt::Display for JobRef {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
         match self {
             Self::Default => write!(f, "default"),
             Self::Initial => write!(f, "initial"),

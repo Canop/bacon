@@ -25,7 +25,10 @@ impl From<&Vec<Line>> for Stats {
     }
 }
 impl Stats {
-    pub fn lines(&self, summary: bool) -> usize {
+    pub fn lines(
+        &self,
+        summary: bool,
+    ) -> usize {
         let mut sum = self.warnings + self.errors + self.test_fails + self.location_lines;
         if !summary {
             sum += self.normal_lines;

@@ -2,14 +2,21 @@ use {
     crate::*,
     anyhow::Result,
     crokey::CroKey,
-    crossbeam::channel::{bounded, select},
+    crossbeam::channel::{
+        bounded,
+        select,
+    },
     termimad::crossterm::event::Event,
     termimad::EventSource,
 };
 
 /// Run the mission and return the reference to the next
 /// job to run, if any
-pub fn run(w: &mut W, mission: Mission, event_source: &EventSource) -> Result<Option<JobRef>> {
+pub fn run(
+    w: &mut W,
+    mission: Mission,
+    event_source: &EventSource,
+) -> Result<Option<JobRef>> {
     let keybindings = mission.settings.keybindings.clone();
     let mut ignorer = time!(Info, mission.ignorer());
     let (watch_sender, watch_receiver) = bounded(0);

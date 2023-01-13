@@ -1,4 +1,7 @@
-use {crate::*, lazy_regex::*};
+use {
+    crate::*,
+    lazy_regex::*,
+};
 
 /// result of the "parsing" of the line
 #[derive(Debug, Clone)]

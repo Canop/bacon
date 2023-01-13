@@ -1,8 +1,15 @@
 use {
     crate::*,
     lazy_regex::*,
-    serde::{de, Deserialize, Deserializer},
-    std::{fmt, str::FromStr},
+    serde::{
+        de,
+        Deserialize,
+        Deserializer,
+    },
+    std::{
+        fmt,
+        str::FromStr,
+    },
 };
 
 /// An action that can be mapped to a key
@@ -20,7 +27,10 @@ pub enum ParseActionError {
 }
 
 impl fmt::Display for ParseActionError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
         match self {
             Self::UnknownAction(s) => {
                 write!(

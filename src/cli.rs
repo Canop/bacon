@@ -2,10 +2,16 @@ use {
     crate::*,
     clap::Parser,
     directories_next::ProjectDirs,
-    std::{fs, io::Write},
+    std::{
+        fs,
+        io::Write,
+    },
     termimad::crossterm::{
         cursor,
-        terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+        terminal::{
+            EnterAlternateScreen,
+            LeaveAlternateScreen,
+        },
         QueueableCommand,
     },
     termimad::EventSource,

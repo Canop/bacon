@@ -1,4 +1,7 @@
-use {lazy_regex::*, std::fmt};
+use {
+    lazy_regex::*,
+    std::fmt,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ScrollCommand {
@@ -9,8 +12,16 @@ pub enum ScrollCommand {
 }
 
 impl fmt::Display for ScrollCommand {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fn txt(n: i32, thing: &str, way: &str, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
+        fn txt(
+            n: i32,
+            thing: &str,
+            way: &str,
+            f: &mut fmt::Formatter,
+        ) -> fmt::Result {
             let p = if n > 1 { "s" } else { "" };
             write!(f, "scroll {n} {thing}{p} {way}")
         }
@@ -36,7 +47,11 @@ impl fmt::Display for ScrollCommand {
 }
 
 impl ScrollCommand {
-    fn to_lines(self, content_height: usize, page_height: usize) -> i32 {
+    fn to_lines(
+        self,
+        content_height: usize,
+        page_height: usize,
+    ) -> i32 {
         match self {
             Self::Top => -(content_height as i32),
             Self::Bottom => content_height as i32,
@@ -45,7 +60,12 @@ impl ScrollCommand {
         }
     }
     /// compute the new scroll value
-    pub fn apply(self, scroll: usize, content_height: usize, page_height: usize) -> usize {
+    pub fn apply(
+        self,
+        scroll: usize,
+        content_height: usize,
+        page_height: usize,
+    ) -> usize {
         if content_height > page_height {
             (scroll as i32 + self.to_lines(content_height, page_height))
                 .min((content_height - page_height) as i32)
@@ -77,14 +97,21 @@ impl std::str::FromStr for ScrollCommand {
     }
 }
 
-pub fn is_thumb(y: usize, scrollbar: Option<(u16, u16)>) -> bool {
+pub fn is_thumb(
+    y: usize,
+    scrollbar: Option<(u16, u16)>,
+) -> bool {
     scrollbar.map_or(false, |(sctop, scbottom)| {
         let y = y as u16;
         sctop <= y && y <= scbottom
     })
 }
 
-pub fn fix_scroll(scroll: usize, content_height: usize, page_height: usize) -> usize {
+pub fn fix_scroll(
+    scroll: usize,
+    content_height: usize,
+    page_height: usize,
+) -> usize {
     if content_height > page_height {
         scroll.min(content_height - page_height - 1)
     } else {
