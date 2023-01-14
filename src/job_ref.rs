@@ -1,5 +1,9 @@
 use {
-    serde::{de, Deserialize, Deserializer},
+    serde::{
+        de,
+        Deserialize,
+        Deserializer,
+    },
     std::{
         fmt,
         str::FromStr,
@@ -12,6 +16,12 @@ pub enum JobRef {
     Initial,
     Previous,
     Concrete(ConcreteJobRef),
+}
+
+impl JobRef {
+    pub fn from_job_name<S: Into<String>>(s: S) -> Self {
+        Self::Concrete(ConcreteJobRef::Name(s.into()))
+    }
 }
 
 /// A "concrete" job ref is one which can be used from the start, without
@@ -29,7 +39,10 @@ impl Default for ConcreteJobRef {
 }
 
 impl fmt::Display for ConcreteJobRef {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
         match self {
             Self::Alias(alias) => write!(f, "alias:{alias}"),
             Self::Name(name) => write!(f, "{name}"),
@@ -49,7 +62,8 @@ impl FromStr for ConcreteJobRef {
 }
 impl<'de> Deserialize<'de> for ConcreteJobRef {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
         FromStr::from_str(&s).map_err(de::Error::custom)
@@ -67,7 +81,10 @@ impl From<&str> for ConcreteJobRef {
 }
 
 impl fmt::Display for JobRef {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
         match self {
             Self::Default => write!(f, "default"),
             Self::Initial => write!(f, "initial"),

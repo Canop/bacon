@@ -20,14 +20,15 @@ impl Line {
     /// Return the location as given by cargo (usually relative)
     pub fn location(&self) -> Option<&str> {
         match self.line_type {
-            LineType::Location => {
-                self.content.strings.get(2).map(|ts| ts.raw.as_str())
-            }
+            LineType::Location => self.content.strings.get(2).map(|ts| ts.raw.as_str()),
             _ => None,
         }
     }
     /// Return the absolute path to the error/warning/test location
-    pub fn location_path(&self, mission: &Mission) -> Option<PathBuf> {
+    pub fn location_path(
+        &self,
+        mission: &Mission,
+    ) -> Option<PathBuf> {
         let location_path = self.location()?;
         let mut location_path = PathBuf::from(location_path);
         if !location_path.is_absolute() {

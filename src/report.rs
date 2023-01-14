@@ -26,7 +26,10 @@ impl Report {
     }
     /// A successful report is one with nothing to tell: no warning,
     /// no error, no test failure
-    pub fn is_success(&self, allow_warnings: bool) -> bool {
+    pub fn is_success(
+        &self,
+        allow_warnings: bool,
+    ) -> bool {
         if allow_warnings {
             self.stats.errors + self.stats.test_fails == 0
         } else {
@@ -97,8 +100,7 @@ impl Report {
                             } else {
                                 warn!(
                                     "unexpected test result failure_names={:?}, key={:?}",
-                                    &failure_names,
-                                    &key,
+                                    &failure_names, &key,
                                 );
                             }
                         }
@@ -155,7 +157,12 @@ impl Report {
         // have been read but not added (at start or end)
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
-        Ok(Report { lines, stats, suggest_backtrace, output: CommandOutput::default() })
+        Ok(Report {
+            lines,
+            stats,
+            suggest_backtrace,
+            output: CommandOutput::default(),
+        })
     }
     /// export the report in a file
     pub fn write_to<W: io::Write>(

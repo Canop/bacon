@@ -1,7 +1,11 @@
 use {
     crate::*,
     anyhow::Result,
-    notify::{RecommendedWatcher, RecursiveMode, Watcher},
+    notify::{
+        RecommendedWatcher,
+        RecursiveMode,
+        Watcher,
+    },
     std::{
         collections::HashSet,
         iter,
@@ -85,7 +89,8 @@ impl<'s> Mission<'s> {
                 debug!("No gitignorer because of settings");
                 None
             }
-            _ => { // by default we apply gitignore rules
+            _ => {
+                // by default we apply gitignore rules
                 match Ignorer::new(&self.workspace_root) {
                     Ok(ignorer) => Some(ignorer),
                     Err(e) => {
@@ -113,7 +118,10 @@ impl<'s> Mission<'s> {
     }
 
     /// configure the watcher with files and directories to watch
-    pub fn add_watchs(&self, watcher: &mut RecommendedWatcher) -> Result<()> {
+    pub fn add_watchs(
+        &self,
+        watcher: &mut RecommendedWatcher,
+    ) -> Result<()> {
         for file in &self.files_to_watch {
             debug!("add watch file {:?}", file);
             watcher.watch(file, RecursiveMode::NonRecursive)?;
@@ -201,7 +209,10 @@ impl<'s> Mission<'s> {
     }
 }
 
-fn merge_features(a: &str, b: &str) -> String {
+fn merge_features(
+    a: &str,
+    b: &str,
+) -> String {
     let mut features = HashSet::new();
     for feature in a.split(',') {
         features.insert(feature);

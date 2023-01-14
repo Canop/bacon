@@ -1,6 +1,9 @@
 use {
     crate::*,
-    anyhow::{anyhow, Result},
+    anyhow::{
+        anyhow,
+        Result,
+    },
 };
 
 /// The stack of jobs that bacon ran, allowing
@@ -11,10 +14,7 @@ pub struct JobStack<'c> {
 }
 
 impl<'c> JobStack<'c> {
-
-    pub fn new(
-        settings: &'c Settings,
-    ) -> Self {
+    pub fn new(settings: &'c Settings) -> Self {
         Self {
             settings,
             entries: Vec::new(),
@@ -22,11 +22,16 @@ impl<'c> JobStack<'c> {
     }
 
     fn initial_job(&self) -> &ConcreteJobRef {
-        self.settings.arg_job.as_ref()
+        self.settings
+            .arg_job
+            .as_ref()
             .unwrap_or(&self.settings.default_job)
     }
 
-    pub fn pick_job(&mut self, job_ref: &JobRef) -> Result<Option<(ConcreteJobRef, Job)>> {
+    pub fn pick_job(
+        &mut self,
+        job_ref: &JobRef,
+    ) -> Result<Option<(ConcreteJobRef, Job)>> {
         debug!("picking job {job_ref:?}");
         let concrete = match job_ref {
             JobRef::Default => self.settings.default_job.clone(),
@@ -44,12 +49,12 @@ impl<'c> JobStack<'c> {
         };
         let job = match &concrete {
             ConcreteJobRef::Alias(alias) => Job::from_alias(alias, self.settings),
-            ConcreteJobRef::Name(name) => {
-                self.settings.jobs
-                    .get(name)
-                    .ok_or_else(|| anyhow!("job not found: {:?}", name))?
-                    .clone()
-            }
+            ConcreteJobRef::Name(name) => self
+                .settings
+                .jobs
+                .get(name)
+                .ok_or_else(|| anyhow!("job not found: {:?}", name))?
+                .clone(),
         };
         if self.entries.last() != Some(&concrete) {
             self.entries.push(concrete.clone());

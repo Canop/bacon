@@ -2,7 +2,10 @@ use {
     crate::*,
     crokey::*,
     serde::Deserialize,
-    std::collections::{HashMap, hash_map},
+    std::collections::{
+        hash_map,
+        HashMap,
+    },
 };
 
 /// A mapping from key combinations to actions.
@@ -21,8 +24,8 @@ impl Default for KeyBindings {
         };
         bindings.set(key!('?'), Internal::Help);
         bindings.set(key!(h), Internal::Help);
-        bindings.set(key!(ctrl-c), Internal::Quit);
-        bindings.set(key!(ctrl-q), Internal::Quit);
+        bindings.set(key!(ctrl - c), Internal::Quit);
+        bindings.set(key!(ctrl - q), Internal::Quit);
         bindings.set(key!(q), Internal::Quit);
         bindings.set(key!(s), Internal::ToggleSummary);
         bindings.set(key!(w), Internal::ToggleWrap);
@@ -35,31 +38,44 @@ impl Default for KeyBindings {
         bindings.set(key!(PageDown), Internal::Scroll(ScrollCommand::Pages(1)));
         bindings.set(key!(Space), Internal::Scroll(ScrollCommand::Pages(1)));
         bindings.set(key!(esc), Internal::Back);
-        bindings.set(key!(ctrl-d), JobRef::Default);
+        bindings.set(key!(ctrl - d), JobRef::Default);
         bindings
     }
 }
 
 impl KeyBindings {
-    pub fn set<CK: Into<CroKey>, A: Into<Action>>(&mut self, ck: CK, action: A) {
+    pub fn set<CK: Into<CroKey>, A: Into<Action>>(
+        &mut self,
+        ck: CK,
+        action: A,
+    ) {
         self.map.insert(ck.into(), action.into());
     }
     pub fn add_vim_keys(&mut self) {
         self.set(key!(g), Internal::Scroll(ScrollCommand::Top));
-        self.set(key!(shift-g), Internal::Scroll(ScrollCommand::Bottom));
+        self.set(key!(shift - g), Internal::Scroll(ScrollCommand::Bottom));
         self.set(key!(k), Internal::Scroll(ScrollCommand::Lines(-1)));
         self.set(key!(j), Internal::Scroll(ScrollCommand::Lines(1)));
     }
-    pub fn add_all(&mut self, other: &KeyBindings) {
+    pub fn add_all(
+        &mut self,
+        other: &KeyBindings,
+    ) {
         for (ck, action) in other.map.iter() {
             self.map.insert(*ck, action.clone());
         }
     }
-    pub fn get<CK: Into<CroKey>>(&self, key: CK) -> Option<&Action> {
+    pub fn get<CK: Into<CroKey>>(
+        &self,
+        key: CK,
+    ) -> Option<&Action> {
         self.map.get(&key.into())
     }
     /// return the shortest key.to_string for the internal, if any
-    pub fn shortest_internal_key(&self, internal: Internal) -> Option<String> {
+    pub fn shortest_internal_key(
+        &self,
+        internal: Internal,
+    ) -> Option<String> {
         let mut shortest: Option<String> = None;
         let searched_action = Action::Internal(internal);
         for (ck, action) in &self.map {
@@ -79,9 +95,7 @@ impl KeyBindings {
     pub fn build_reverse_map(&self) -> HashMap<&Action, Vec<CroKey>> {
         let mut reverse_map = HashMap::new();
         for (ck, action) in &self.map {
-            reverse_map
-                .entry(action).or_insert_with(Vec::new)
-                .push(*ck);
+            reverse_map.entry(action).or_insert_with(Vec::new).push(*ck);
         }
         reverse_map
     }
@@ -95,9 +109,8 @@ impl<'a> IntoIterator for &'a KeyBindings {
     }
 }
 
-
 #[test]
-fn test_deserialize_keybindings(){
+fn test_deserialize_keybindings() {
     #[derive(Deserialize)]
     struct Config {
         keybindings: KeyBindings,
@@ -111,24 +124,23 @@ fn test_deserialize_keybindings(){
     "#;
     let conf = toml::from_str::<Config>(toml).unwrap();
     assert_eq!(
-        conf.keybindings.get(key!(ctrl-u)),
-        Some(&Action::Internal(Internal::Scroll(ScrollCommand::Pages(-2)))),
+        conf.keybindings.get(key!(ctrl - u)),
+        Some(&Action::Internal(Internal::Scroll(ScrollCommand::Pages(
+            -2
+        )))),
     );
     assert_eq!(
-        conf.keybindings.get(key!(ctrl-d)),
+        conf.keybindings.get(key!(ctrl - d)),
         Some(&Action::Internal(Internal::Scroll(ScrollCommand::Pages(1)))),
     );
+    assert_eq!(conf.keybindings.get(key!(z)), None,);
     assert_eq!(
-        conf.keybindings.get(key!(z)),
-        None,
-    );
-    assert_eq!(
-        conf.keybindings.get(key!(alt-q)),
+        conf.keybindings.get(key!(alt - q)),
         Some(&Action::Internal(Internal::Quit)),
     );
 
     assert_eq!(
-        conf.keybindings.get(key!(alt-p)),
+        conf.keybindings.get(key!(alt - p)),
         Some(&Action::Job(JobRef::Previous)),
     );
 }

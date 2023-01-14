@@ -2,17 +2,20 @@ use {
     crate::*,
     anyhow::Result,
     termimad::{
-        Area,
-        CompoundStyle,
-        FmtText,
-        MadSkin,
-        TextView,
-        crossterm::style::{Attribute, Color::*},
+        crossterm::style::{
+            Attribute,
+            Color::*,
+        },
         minimad::{
             Alignment,
             OwningTemplateExpander,
             TextTemplate,
         },
+        Area,
+        CompoundStyle,
+        FmtText,
+        MadSkin,
+        TextView,
     },
 };
 
@@ -46,7 +49,6 @@ pub struct HelpPage {
 }
 
 impl HelpPage {
-
     pub fn new(settings: &Settings) -> Self {
         let mut skin = MadSkin::default();
         skin.paragraph.align = Alignment::Center;
@@ -54,7 +56,8 @@ impl HelpPage {
         skin.table.align = Alignment::Center;
         let mut expander = OwningTemplateExpander::new();
         expander.set("version", env!("CARGO_PKG_VERSION"));
-        let mut bindings: Vec<(String, String)> = settings.keybindings
+        let mut bindings: Vec<(String, String)> = settings
+            .keybindings
             .build_reverse_map()
             .into_iter()
             .map(|(action, cks)| {
@@ -62,16 +65,15 @@ impl HelpPage {
                     Action::Internal(internal) => internal.to_string(),
                     Action::Job(job_name) => format!("start the *{job_name}* job"),
                 };
-                let cks: Vec<String> = cks.iter()
-                    .map(|ck| format!("*{ck}*"))
-                    .collect();
+                let cks: Vec<String> = cks.iter().map(|ck| format!("*{ck}*")).collect();
                 let cks = cks.join(" or ");
                 (action, cks)
             })
             .collect();
         bindings.sort_by(|a, b| a.0.cmp(&b.0));
         for (action, key) in bindings.drain(..) {
-            expander.sub("keybindings")
+            expander
+                .sub("keybindings")
                 .set_md("keys", key)
                 .set_md("action", action);
         }
@@ -86,26 +88,25 @@ impl HelpPage {
     }
 
     /// draw the state on the whole terminal
-    pub fn draw(&mut self, w: &mut W, area: Area) -> Result<()> {
+    pub fn draw(
+        &mut self,
+        w: &mut W,
+        area: Area,
+    ) -> Result<()> {
         self.area = area;
         let text = self.expander.expand(&self.template);
-        let fmt_text = FmtText::from_text(
-            &self.skin,
-            text,
-            Some((self.area.width - 1) as usize),
-        );
+        let fmt_text = FmtText::from_text(&self.skin, text, Some((self.area.width - 1) as usize));
         let mut text_view = TextView::from(&self.area, &fmt_text);
         self.scroll = text_view.set_scroll(self.scroll);
         Ok(text_view.write_on(w)?)
     }
 
-    pub fn apply_scroll_command(&mut self, cmd: ScrollCommand) {
+    pub fn apply_scroll_command(
+        &mut self,
+        cmd: ScrollCommand,
+    ) {
         let text = self.expander.expand(&self.template);
-        let fmt_text = FmtText::from_text(
-            &self.skin,
-            text,
-            Some((self.area.width - 1) as usize),
-        );
+        let fmt_text = FmtText::from_text(&self.skin, text, Some((self.area.width - 1) as usize));
         let mut text_view = TextView::from(&self.area, &fmt_text);
         text_view.set_scroll(self.scroll);
         match cmd {

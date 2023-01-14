@@ -50,7 +50,10 @@ impl CommandOutput {
     pub fn reverse(&mut self) {
         self.lines.reverse()
     }
-    pub fn push(&mut self, line: CommandOutputLine) {
+    pub fn push(
+        &mut self,
+        line: CommandOutputLine,
+    ) {
         self.lines.push(line);
     }
     pub fn len(&self) -> usize {

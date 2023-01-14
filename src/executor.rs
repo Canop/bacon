@@ -1,14 +1,31 @@
 use crate::*;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{
+    anyhow,
+    Context,
+    Result,
+};
 use std::{
-    process::{ExitStatus, Stdio},
+    process::{
+        ExitStatus,
+        Stdio,
+    },
     thread,
 };
 use tokio::{
-    io::{AsyncBufReadExt, AsyncRead, BufReader},
-    process::{Child, Command},
+    io::{
+        AsyncBufReadExt,
+        AsyncRead,
+        BufReader,
+    },
+    process::{
+        Child,
+        Command,
+    },
     sync::{
-        mpsc::{channel, Sender},
+        mpsc::{
+            channel,
+            Sender,
+        },
         oneshot,
     },
     task::JoinHandle,
@@ -123,7 +140,10 @@ impl Executor {
         })
     }
     /// notify the executor a computation is necessary
-    pub fn start(&self, task: Task) -> Result<()> {
+    pub fn start(
+        &self,
+        task: Task,
+    ) -> Result<()> {
         self.task_sender.try_send(task)?;
         Ok(())
     }
@@ -136,7 +156,7 @@ impl Executor {
 }
 
 async fn task_result(
-    task: &mut Option<JoinHandle<Result<Option<ExitStatus>>>>,
+    task: &mut Option<JoinHandle<Result<Option<ExitStatus>>>>
 ) -> Result<Option<ExitStatus>> {
     match task {
         Some(handle) => handle.await.unwrap(),
@@ -159,7 +179,10 @@ impl std::future::Future for AlwaysPending {
 }
 
 /// Start the given task/command
-fn start_task(task: Task, command: &mut Command) -> Result<Child> {
+fn start_task(
+    task: Task,
+    command: &mut Command,
+) -> Result<Child> {
     command
         .kill_on_drop(true)
         .env("RUST_BACKTRACE", if task.backtrace { "1" } else { "0" })
@@ -187,7 +210,11 @@ async fn execute_task(
             .take()
             .ok_or_else(|| anyhow!("child missing stdout"))?;
         let stdout_sender = line_sender.clone();
-        Some(stream_consumer(stdout, CommandStream::StdOut, stdout_sender))
+        Some(stream_consumer(
+            stdout,
+            CommandStream::StdOut,
+            stdout_sender,
+        ))
     } else {
         None
     };

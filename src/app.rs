@@ -2,9 +2,12 @@ use {
     crate::*,
     anyhow::Result,
     crokey::CroKey,
-    crossbeam::channel::{bounded, select},
-    termimad::EventSource,
+    crossbeam::channel::{
+        bounded,
+        select,
+    },
     termimad::crossterm::event::Event,
+    termimad::EventSource,
 };
 
 /// Run the mission and return the reference to the next
@@ -17,29 +20,30 @@ pub fn run(
     let keybindings = mission.settings.keybindings.clone();
     let mut ignorer = time!(Info, mission.ignorer());
     let (watch_sender, watch_receiver) = bounded(0);
-    let mut watcher = notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
-        Ok(we) => {
-            debug!("notify event: {we:?}");
-            if let Some(ignorer) = ignorer.as_mut() {
-                match time!(Info, ignorer.excludes_all(&we.paths)) {
-                    Ok(true) => {
-                        debug!("all excluded");
-                        return;
-                    }
-                    Ok(false) => {
-                        debug!("at least one is included");
-                    }
-                    Err(e) => {
-                        warn!("exclusion check failed: {e}");
+    let mut watcher =
+        notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
+            Ok(we) => {
+                debug!("notify event: {we:?}");
+                if let Some(ignorer) = ignorer.as_mut() {
+                    match time!(Info, ignorer.excludes_all(&we.paths)) {
+                        Ok(true) => {
+                            debug!("all excluded");
+                            return;
+                        }
+                        Ok(false) => {
+                            debug!("at least one is included");
+                        }
+                        Err(e) => {
+                            warn!("exclusion check failed: {e}");
+                        }
                     }
                 }
+                if let Err(e) = watch_sender.send(()) {
+                    debug!("error when notifying on inotify event: {}", e);
+                }
             }
-            if let Err(e) = watch_sender.send(()) {
-                debug!("error when notifying on inotify event: {}", e);
-            }
-        }
-        Err(e) => warn!("watch error: {:?}", e),
-    })?;
+            Err(e) => warn!("watch error: {:?}", e),
+        })?;
 
     mission.add_watchs(&mut watcher)?;
 
@@ -115,43 +119,41 @@ pub fn run(
         if let Some(action) = action.take() {
             debug!("requested action: {action:?}");
             match action {
-                Action::Internal(internal) => {
-                    match internal {
-                        Internal::Back => {
-                            if !state.close_help() {
-                                next_job = Some(JobRef::Previous);
-                                break;
-                            }
-                        }
-                        Internal::Help => {
-                            state.toggle_help();
-                        }
-                        Internal::Quit => {
+                Action::Internal(internal) => match internal {
+                    Internal::Back => {
+                        if !state.close_help() {
+                            next_job = Some(JobRef::Previous);
                             break;
                         }
-                        Internal::ToggleRawOutput => {
-                            state.toggle_raw_output();
-                        }
-                        Internal::ToggleSummary => {
-                            state.toggle_summary_mode();
-                        }
-                        Internal::ToggleWrap => {
-                            state.toggle_wrap_mode();
-                        }
-                        Internal::ToggleBacktrace => {
-                            state.toggle_backtrace();
-                            if let Err(e) = executor.start(state.new_task()) {
-                                debug!("error sending task: {}", e);
-                            } else {
-                                state.computation_starts();
-                            }
-                        }
-                        Internal::Scroll(scroll_command) => {
-                            let scroll_command = *scroll_command;
-                            state.apply_scroll_command(scroll_command);
+                    }
+                    Internal::Help => {
+                        state.toggle_help();
+                    }
+                    Internal::Quit => {
+                        break;
+                    }
+                    Internal::ToggleRawOutput => {
+                        state.toggle_raw_output();
+                    }
+                    Internal::ToggleSummary => {
+                        state.toggle_summary_mode();
+                    }
+                    Internal::ToggleWrap => {
+                        state.toggle_wrap_mode();
+                    }
+                    Internal::ToggleBacktrace => {
+                        state.toggle_backtrace();
+                        if let Err(e) = executor.start(state.new_task()) {
+                            debug!("error sending task: {}", e);
+                        } else {
+                            state.computation_starts();
                         }
                     }
-                }
+                    Internal::Scroll(scroll_command) => {
+                        let scroll_command = *scroll_command;
+                        state.apply_scroll_command(scroll_command);
+                    }
+                },
                 Action::Job(job_ref) => {
                     next_job = Some((*job_ref).clone());
                     break;

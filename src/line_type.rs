@@ -44,7 +44,11 @@ impl LineType {
             _ => 0,
         }
     }
-    pub fn draw(self, w: &mut W, item_idx: usize) -> Result<()> {
+    pub fn draw(
+        self,
+        w: &mut W,
+        item_idx: usize,
+    ) -> Result<()> {
         match self {
             Self::Title(Kind::Error) => {
                 write!(w, "{}", format!("{:^3}", item_idx).black().bold().on_red())?;

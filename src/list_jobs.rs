@@ -24,7 +24,8 @@ pub fn print_jobs(settings: &Settings) {
     let mut jobs: Vec<_> = settings.jobs.iter().collect();
     jobs.sort_by_key(|(name, _)| name.to_string());
     for (name, job) in &jobs {
-        expander.sub("jobs")
+        expander
+            .sub("jobs")
             .set("job_name", name)
             .set("job_command", job.command.join(" "));
     }
@@ -32,4 +33,3 @@ pub fn print_jobs(settings: &Settings) {
     let skin = MadSkin::default();
     skin.print_owning_expander(&expander, &TextTemplate::from(MD));
 }
-

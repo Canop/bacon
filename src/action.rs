@@ -1,7 +1,11 @@
 use {
     crate::*,
     lazy_regex::*,
-    serde::{de, Deserialize, Deserializer},
+    serde::{
+        de,
+        Deserialize,
+        Deserializer,
+    },
     std::{
         fmt,
         str::FromStr,
@@ -23,10 +27,16 @@ pub enum ParseActionError {
 }
 
 impl fmt::Display for ParseActionError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
         match self {
             Self::UnknownAction(s) => {
-                write!(f, "Action not understood: {s:?} (did you mean \"job:{s}\"?)")
+                write!(
+                    f,
+                    "Action not understood: {s:?} (did you mean \"job:{s}\"?)"
+                )
             }
             Self::UnknowCategory(s) => {
                 write!(f, "Unknown category: {s:?}")
@@ -77,7 +87,8 @@ impl From<JobRef> for Action {
 
 impl<'de> Deserialize<'de> for Action {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
         FromStr::from_str(&s).map_err(de::Error::custom)

@@ -57,7 +57,9 @@ impl From<&CommandOutputLine> for LineAnalysis {
                             LineType::Title(Kind::Error)
                         }
                         (crate::CSI_BOLD_YELLOW, "warning", _, r2) => {
-                            if is_n_warnings_emitted(r2) || is_generated_n_warnings(content.strings.get(2)) {
+                            if is_n_warnings_emitted(r2)
+                                || is_generated_n_warnings(content.strings.get(2))
+                            {
                                 LineType::Title(Kind::Sum)
                             } else {
                                 LineType::Title(Kind::Warning)
@@ -88,7 +90,9 @@ fn is_n_warnings_emitted(s: &str) -> bool {
 }
 
 fn is_generated_n_warnings(ts: Option<&TString>) -> bool {
-    ts.map_or(false, |ts| regex_is_match!(r#"generated \d+ warnings?$"#, &ts.raw))
+    ts.map_or(false, |ts| {
+        regex_is_match!(r#"generated \d+ warnings?$"#, &ts.raw)
+    })
 }
 
 /// return Some when the line is the non detailled
@@ -108,23 +112,22 @@ fn is_generated_n_warnings(ts: Option<&TString>) -> bool {
 ///  "test tests::another - should panic ... FAILED"
 /// (in this case, the " - should panic" part isn't in the key, see #95)
 fn as_test_result(s: &str) -> Option<(&str, bool)> {
-    regex_captures!(r#"^test\s+(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s+(\w+)$"#, s)
-        .and_then(|(_, key, outcome)| {
-            match outcome {
-                "ok" => Some((key, true)),
-                "FAILED" => Some((key, false)),
-                other => {
-                    warn!("unrecognized doctest outcome: {:?}", other);
-                    None
-                }
-            }
-        })
+    regex_captures!(
+        r#"^test\s+(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s+(\w+)$"#,
+        s
+    )
+    .and_then(|(_, key, outcome)| match outcome {
+        "ok" => Some((key, true)),
+        "FAILED" => Some((key, false)),
+        other => {
+            warn!("unrecognized doctest outcome: {:?}", other);
+            None
+        }
+    })
 }
 
 /// return Some(key) when the line is like this:
 /// "---- key stdout ----"
 fn as_fail_result_title(s: &str) -> Option<&str> {
-    regex_captures!(r#"^---- (.+) stdout ----$"#, s)
-        .map(|(_, key)| key)
+    regex_captures!(r#"^---- (.+) stdout ----$"#, s).map(|(_, key)| key)
 }
-

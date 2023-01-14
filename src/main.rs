@@ -70,7 +70,8 @@ pub use {
     wrapped_report::*,
 };
 
-#[macro_use] extern crate cli_log;
+#[macro_use]
+extern crate cli_log;
 
 /// Knowledge is power
 fn main() -> anyhow::Result<()> {

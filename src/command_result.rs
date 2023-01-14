@@ -18,7 +18,10 @@ pub enum CommandResult {
 }
 
 impl CommandResult {
-    pub fn new(output: CommandOutput, exit_status: Option<ExitStatus>) -> Result<Self> {
+    pub fn new(
+        output: CommandOutput,
+        exit_status: Option<ExitStatus>,
+    ) -> Result<Self> {
         let lines = &output.lines;
         let error_code = exit_status.and_then(|s| s.code()).filter(|&c| c != 0);
         let mut report = Report::from_lines(lines)?;
@@ -59,8 +62,8 @@ impl CommandResult {
                 let mut file = File::create(path)?;
                 report.write_to(&mut file, mission)?;
             }
-            Self::Failure(_) => { }
-            Self::None => { }
+            Self::Failure(_) => {}
+            Self::None => {}
         }
         Ok(())
     }
