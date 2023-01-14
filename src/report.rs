@@ -29,12 +29,13 @@ impl Report {
     pub fn is_success(
         &self,
         allow_warnings: bool,
+        allow_failures: bool,
     ) -> bool {
-        if allow_warnings {
-            self.stats.errors + self.stats.test_fails == 0
-        } else {
-            self.stats.errors + self.stats.warnings + self.stats.test_fails == 0
-        }
+        !(
+            self.stats.errors != 0
+            || (!allow_failures && self.stats.test_fails != 0)
+            || (!allow_warnings && self.stats.warnings != 0)
+        )
     }
     /// compute the report from the lines of stdout and/or stderr of the
     /// `cargo` command.

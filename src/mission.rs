@@ -113,8 +113,8 @@ impl<'s> Mission<'s> {
         &self.job.on_success
     }
 
-    pub fn allow_warnings(&self) -> bool {
-        self.job.allow_warnings
+    pub fn is_success(&self, report: &Report) -> bool {
+        report.is_success(self.job.allow_warnings, self.job.allow_failures)
     }
 
     /// configure the watcher with files and directories to watch

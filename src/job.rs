@@ -18,23 +18,28 @@ pub struct Job {
     #[serde(default)]
     pub watch: Vec<String>,
 
-    /// whether we need to capture stdout too (stderr is
+    /// Whether we need to capture stdout too (stderr is
     /// always captured)
     #[serde(default)]
     pub need_stdout: bool,
 
-    /// the optional action to run when there's no
+    /// The optional action to run when there's no
     /// error, warning or test failures
     #[serde(default)]
     pub on_success: Option<Action>,
 
-    /// whether to consider that we have a success when
-    /// we only have warnings. This is especially useful
+    /// Whether to consider that we can have a success
+    /// when we have warnings. This is especially useful
     /// for "cargo run" jobs
     #[serde(default)]
     pub allow_warnings: bool,
 
-    /// whether gitignore rules must be applied
+    /// Whether to consider that we can have a success
+    /// when we have test failures
+    #[serde(default)]
+    pub allow_failures: bool,
+
+    /// Thether gitignore rules must be applied
     pub apply_gitignore: Option<bool>,
 }
 
@@ -62,6 +67,7 @@ impl Job {
             need_stdout: false,
             on_success: None,
             allow_warnings: false,
+            allow_failures: false,
             apply_gitignore: None,
         }
     }

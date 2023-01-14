@@ -279,7 +279,7 @@ impl<'s> AppState<'s> {
     }
     fn content_height(&self) -> usize {
         if let CommandResult::Report(report) = &self.cmd_result {
-            if report.is_success(self.mission.allow_warnings()) || self.raw_output {
+            if self.mission.is_success(&report) || self.raw_output {
                 if let Some(wrapped_output) = self.wrapped_output.as_ref() {
                     wrapped_output.sub_lines.len()
                 } else {
@@ -414,7 +414,7 @@ impl<'s> AppState<'s> {
         self.cmd_result
             .report()
             .filter(|_| !self.raw_output)
-            .filter(|report| !report.is_success(self.mission.allow_warnings()))
+            .filter(|report| !self.mission.is_success(report))
     }
     fn update_wrap(
         &mut self,
