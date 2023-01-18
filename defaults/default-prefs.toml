@@ -29,6 +29,7 @@
 # ctrl-c = "quit"
 # ctrl-q = "quit"
 # q = "quit"
+# F5 = "rerun"
 # s = "toggle-summary"
 # w = "toggle-wrap"
 # t = "toggle-backtrace"
