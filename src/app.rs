@@ -132,6 +132,13 @@ pub fn run(
                     Internal::Quit => {
                         break;
                     }
+                    Internal::ReRun => {
+                        if let Err(e) = executor.start(state.new_task()) {
+                            debug!("error sending task on re-rerun: {}", e);
+                        } else {
+                            state.computation_starts();
+                        }
+                    }
                     Internal::ToggleRawOutput => {
                         state.toggle_raw_output();
                     }
