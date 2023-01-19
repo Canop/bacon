@@ -31,11 +31,9 @@ impl Report {
         allow_warnings: bool,
         allow_failures: bool,
     ) -> bool {
-        !(
-            self.stats.errors != 0
+        !(self.stats.errors != 0
             || (!allow_failures && self.stats.test_fails != 0)
-            || (!allow_warnings && self.stats.warnings != 0)
-        )
+            || (!allow_warnings && self.stats.warnings != 0))
     }
     /// compute the report from the lines of stdout and/or stderr of the
     /// `cargo` command.

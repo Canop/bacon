@@ -9,7 +9,7 @@
 # Uncomment and change the value (true/false) to
 # specify whether bacon should start with lines wrapped
 #
-# wrap = true
+# wrap = false
 
 # In "reverse" mode, the focus is at the bottom, item
 # order is reversed, and the status bar is on top
@@ -19,6 +19,8 @@
 # Uncomment this to have bacon always export locations
 # This is equivalent to always adding -e to bacon commands
 # but can still be cancelled on specific launches with -E
+# 
+# See https://dystroy.org/bacon/config/#export-locations
 # 
 # export_locations = true
 

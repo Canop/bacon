@@ -12,7 +12,7 @@ use {
 /// directory) and by the launch arguments.
 ///
 /// They're immutable during the execution of the missions.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     pub arg_job: Option<ConcreteJobRef>,
     pub additional_job_args: Vec<String>,
@@ -27,6 +27,26 @@ pub struct Settings {
     pub export_locations: bool,
     pub jobs: HashMap<String, Job>,
     pub default_job: ConcreteJobRef,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            arg_job: Default::default(),
+            additional_job_args: Default::default(),
+            additional_alias_args: Default::default(),
+            summary: false,
+            wrap: true,
+            reverse: false,
+            no_default_features: Default::default(),
+            all_features: Default::default(),
+            features: Default::default(),
+            keybindings: Default::default(),
+            export_locations: Default::default(),
+            jobs: Default::default(),
+            default_job: Default::default(),
+        }
+    }
 }
 
 impl Settings {

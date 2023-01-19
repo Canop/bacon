@@ -113,7 +113,10 @@ impl<'s> Mission<'s> {
         &self.job.on_success
     }
 
-    pub fn is_success(&self, report: &Report) -> bool {
+    pub fn is_success(
+        &self,
+        report: &Report,
+    ) -> bool {
         report.is_success(self.job.allow_warnings, self.job.allow_failures)
     }
 

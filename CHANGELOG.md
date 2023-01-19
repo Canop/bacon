@@ -1,3 +1,6 @@
+### next
+- change default value of 'wrap' setting to true
+
 <a name="v2.5.0"></a>
 ### v2.5.0 - 2023/01/19
 - new `allow_failures` job parameter - Fix #99
