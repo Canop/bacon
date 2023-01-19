@@ -279,7 +279,7 @@ impl<'s> AppState<'s> {
     }
     fn content_height(&self) -> usize {
         if let CommandResult::Report(report) = &self.cmd_result {
-            if self.mission.is_success(&report) || self.raw_output {
+            if self.mission.is_success(report) || self.raw_output {
                 if let Some(wrapped_output) = self.wrapped_output.as_ref() {
                     wrapped_output.sub_lines.len()
                 } else {

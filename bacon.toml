@@ -13,10 +13,6 @@ need_stdout = false
 watch = ["tests", "benches", "examples"]
 
 [jobs.clippy]
-command = ["cargo", "clippy", "--color", "always"]
-need_stdout = false
-
-[jobs.clippy-all]
 command = [
 	"cargo", "clippy",
     "--all-targets",
@@ -71,7 +67,6 @@ command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "al
 [keybindings]
 a = "job:check-all"
 i = "job:initial"
-c = "job:clippy-all"
 d = "job:doc-open"
 t = "job:test"
 r = "job:run"
