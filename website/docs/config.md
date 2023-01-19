@@ -143,12 +143,17 @@ toggle-summary | <kbd>s</kbd> | display results as abstracts
 toggle-wrap | <kbd>w</kbd> | toggle line wrapping
 scroll-to-top | <kbd>Home</kbd> | scroll to top
 scroll-to-bottom | <kbd>End</kbd> | scroll to bottom
-scroll-lines(1) | <kbd>↑</kbd> | move one line up
-scroll-lines(-1) | <kbd>↓</kbd> | move one line down
-scroll-pages(1) | <kbd>PageUp</kbd> | move one page up
-scroll-pages(-1) | <kbd>PageDown</kbd> | move one page down
+scroll-lines(-1) | <kbd>↑</kbd> | move one line up
+scroll-lines(1) | <kbd>↓</kbd> | move one line down
+scroll-pages(-1) | <kbd>PageUp</kbd> | move one page up
+scroll-pages(1) | <kbd>PageDown</kbd> | move one page down
 
 The `scroll-lines` and `scroll-pages` internals are parameterized.
+You can for example define a shortcut to move down 5 lines:
+
+```toml
+shift-d = "scroll-lines(5)"
+```
 
 ## Job References
 
