@@ -1,4 +1,5 @@
-### next
+<a name="v2.5.0"></a>
+### v2.5.0 - 2023/01/19
 - new `allow_failures` job parameter - Fix #99
 - `rerun` internal bound by default to F5 - Fix #105
 
