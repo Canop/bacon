@@ -136,7 +136,7 @@ internal | default binding | meaning
 back | <kbd>Esc</kbd> | get back to the previous page or job
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
-rerun | | run current job again
+rerun | <kbd>F5</kbd> | run current job again
 toggle-raw-output |  | display the untransformed command output
 toggle-backtrace | <kbd>b</kbd> | enable rust backtrace (for example on test failing)
 toggle-summary | <kbd>s</kbd> | display results as abstracts
