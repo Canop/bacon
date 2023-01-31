@@ -9,6 +9,8 @@ It's designed for minimal interaction so that you can just let it run, side to y
 
 It conveys the information you need even in a small terminal so that you can keep more screen estate for your other tasks.
 
+It shows you errors before warnings, and the first errors before the last ones, so you don't have to scroll up to find what's relevant.
+
 ![vi-and-bacon](img/vi-and-bacon.png)
 
 You don't have to remember commands: the essential ones are listed on bottom and the few other ones are shown on a hit on the <kbd>h</kbd> key.
