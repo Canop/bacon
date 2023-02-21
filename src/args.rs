@@ -45,6 +45,10 @@ pub struct Args {
     #[clap(short = 'l', long = "list-jobs")]
     pub list_jobs: bool,
 
+    /// don't access the network (jobs must use it, though)
+    #[clap(long = "offline")]
+    pub offline: bool,
+
     /// create a bacon.toml file, ready to be customized
     #[clap(long = "init")]
     pub init: bool,
