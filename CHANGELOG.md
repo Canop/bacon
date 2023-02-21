@@ -1,5 +1,6 @@
 <a name="v2.6.0"></a>
 - change default value of 'wrap' setting to true
+- `--offline` experimental launch argument, prevents bacon (but not jobs) from accessing the network. Downside is a potentially less relevant list of watched files and directories - Fix #110
 
 <a name="v2.5.0"></a>
 ### v2.5.0 - 2023/01/19
