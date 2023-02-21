@@ -1,4 +1,4 @@
-### next
+<a name="v2.6.0"></a>
 - change default value of 'wrap' setting to true
 
 <a name="v2.5.0"></a>
