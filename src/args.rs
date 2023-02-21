@@ -45,7 +45,7 @@ pub struct Args {
     #[clap(short = 'l', long = "list-jobs")]
     pub list_jobs: bool,
 
-    /// don't access the network (jobs must use it, though)
+    /// don't access the network (jobs may use it, though)
     #[clap(long = "offline")]
     pub offline: bool,
 
