@@ -24,7 +24,7 @@ git-repository = "0.30.2"
 lazy-regex = "2.3.1"
 notify = "5.0.0"
 serde = { version = "1.0.136", features = ["derive"] }
-termimad = "0.20.6"
+termimad = "0.21.0"
 tokio = { version = "1.17.0", default-features = false, features = ["net", "sync", "process", "rt", "macros", "io-util"] }
 toml = "0.5.8"
 unicode-width = "0.1.10"

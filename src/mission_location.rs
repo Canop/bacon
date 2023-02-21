@@ -42,7 +42,18 @@ impl MissionLocation {
             .path
             .as_ref()
             .map_or_else(|| env::current_dir().unwrap(), PathBuf::from);
-        let metadata = match MetadataCommand::new().current_dir(&intended_dir).exec() {
+        let metadata = if args.offline {
+            MetadataCommand::new()
+                .current_dir(&intended_dir)
+                .no_deps()
+                .other_options(["--frozen".to_string(), "--offline".to_string()])
+                .exec()
+        } else {
+            MetadataCommand::new()
+                .current_dir(&intended_dir)
+                .exec()
+        };
+        let metadata = match metadata {
             Ok(m) => m,
             Err(cargo_metadata::Error::CargoMetadata { stderr })
                 if cargo_manifest_not_found(&stderr) =>
@@ -59,12 +70,9 @@ impl MissionLocation {
             Err(other) => bail!(other),
         };
         let workspace_root = metadata.workspace_root.clone().into();
-        let resolve = metadata
-            .resolve
-            .expect("cargo metadata should resolve workspace without --no-deps");
         let cargo_toml_file;
         let package_directory;
-        if let Some(resolved_root) = resolve.root {
+        if let Some(resolved_root) = metadata.resolve.and_then(|resolve| resolve.root) {
             // resolved to a single package
             cargo_toml_file = metadata
                 .packages
