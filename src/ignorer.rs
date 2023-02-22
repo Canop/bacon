@@ -3,7 +3,7 @@ use {
         Context,
         Result,
     },
-    git_repository::{
+    gix::{
         self as git,
         prelude::FindExt,
         Repository,

@@ -20,7 +20,7 @@ coolor = "=0.5.0"
 crokey = "0.4.1"
 crossbeam = "0.8.2"
 directories-next = "2.0.0"
-git-repository = "0.30.2"
+gix = "0.37.1"
 lazy-regex = "2.3.1"
 notify = "5.0.0"
 serde = { version = "1.0.136", features = ["derive"] }
