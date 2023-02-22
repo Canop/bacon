@@ -1,3 +1,7 @@
+<a name="v2.6.1"></a>
+### v2.6.1 - 2023/02/22
+- fix a dependency compilation problem - Fix #112
+
 <a name="v2.6.0"></a>
 ### v2.6.0 - 2023/02/21
 - change default value of 'wrap' setting to true
