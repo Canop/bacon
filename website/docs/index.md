@@ -5,7 +5,7 @@
 
 **bacon** is a background rust code checker.
 
-It's designed for minimal interaction so that you can just let it run, side to your editor, and be notified of warnings, errors, or test failures in your Rust code.
+It's designed for minimal interaction so that you can just let it run, alongside your editor, and be notified of warnings, errors, or test failures in your Rust code.
 
 It conveys the information you need even in a small terminal so that you can keep more screen estate for your other tasks.
 
@@ -31,7 +31,7 @@ Launch bacon in a terminal you'll keep visible
 bacon
 ```
 
-This launches the default job, most usually based on `cargo check` :
+This launches the default job, usually based on `cargo check` :
 Bacon will watch the source directories and shows you the errors and warnings found by the cargo command.
 
 You may decide to launch and watch tests by either hitting the <kbd>t</kbd> key, or by launching bacon with
