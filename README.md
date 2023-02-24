@@ -13,7 +13,7 @@
 
 **bacon** is a background rust code checker.
 
-It's designed for minimal interaction so that you can just let it running, side to your editor, and be notified of warnings, errors, or test failures in your Rust code.
+It's designed for minimal interaction so that you can just let it run, alongside your editor, and be notified of warnings, errors, or test failures in your Rust code.
 
 ![screenshot](doc/screenshot.png)
 
@@ -27,7 +27,7 @@ Below is a short overview.
 
     bacon
 
-That's how you'll most usually launch bacon, because other jobs like `test`, `clippy`, `doc`, your own ones, are just a key away: You'll hit <kbd>c</kbd> to see Clippy warnings, <kbd>t</kbd> for the tests, <kbd>d</kbd> to open the documentation, etc.
+That's how you'll usually launch bacon, because other jobs like `test`, `clippy`, `doc`, your own ones, are just a key away: You'll hit <kbd>c</kbd> to see Clippy warnings, <kbd>t</kbd> for the tests, <kbd>d</kbd> to open the documentation, etc.
 
 
 ## check another project
