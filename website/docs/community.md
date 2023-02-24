@@ -9,9 +9,14 @@ The logo has been designed by [Peter Varo](https://petervaro.com).
 
 **Bacon** is free for all uses.
 
-If it helps your company make money, consider [helping me](https://github.com/sponsors/Canop) find time to add features and to develop new free open-source software.
+If it helps your company make money, consider helping me find time to add features and to develop new free open-source software.
 
-There's no moral obligation to do so, though, even if you're an avid user.
+<div class=sponsorship>
+<script src="https://liberapay.com/dystroy/widgets/button.js"></script>
+<noscript><a href="https://liberapay.com/dystroy/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
+
+<iframe src="https://github.com/sponsors/Canop/button" title="Sponsor Canop" height="35" width="114" style="border: 0; border-radius: 6px;"></iframe>
+</div>
 
 # Chat
 
@@ -40,9 +45,9 @@ Errors and test failures are displayed before warnings because you usually want 
 
 Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report. And bacon manages rewrapping on resize.
 
-## Several bacon in parallel ?
+## Parallel bacon ?
 
-It's perfectly OK and can be useful to check several compilation targets.
+It's perfectly OK to have several bacon running in paralle, and can be useful to check several compilation targets.
 
 Similarly you don't have to stop bacon when you want to use cargo to build the application, or when you're just working on something else. You may have a dozen bacon running without problem.
 
