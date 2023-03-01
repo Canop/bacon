@@ -1,3 +1,6 @@
+### next
+- more consistent "pass!" - Thanks @zolrath
+
 <a name="v2.6.1"></a>
 ### v2.6.1 - 2023/02/22
 - fix a dependency compilation problem - Fix #112
