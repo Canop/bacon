@@ -364,12 +364,11 @@ impl<'s> AppState<'s> {
             }
             if stats.test_fails > 0 {
                 t_line.add_badge(TString::num_badge(stats.test_fails, "fail", 235, 208));
+            } else if stats.passed_tests > 0 {
+                t_line.add_badge(TString::badge("pass!", 254, 2));
             }
             if stats.warnings > 0 {
                 t_line.add_badge(TString::num_badge(stats.warnings, "warning", 235, 11));
-            }
-            if stats.items() == 0 {
-                t_line.add_badge(TString::badge("pass!", 254, 2));
             }
         } else if let CommandResult::Failure(failure) = &self.cmd_result {
             t_line.add_badge(TString::badge(
