@@ -1,4 +1,5 @@
-### next
+<a name="v2.6.2"></a>
+### v2.6.2 - 2023/03/03
 - more consistent "pass!" - Thanks @zolrath
 
 <a name="v2.6.1"></a>
