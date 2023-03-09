@@ -49,9 +49,7 @@ impl MissionLocation {
                 .other_options(["--frozen".to_string(), "--offline".to_string()])
                 .exec()
         } else {
-            MetadataCommand::new()
-                .current_dir(&intended_dir)
-                .exec()
+            MetadataCommand::new().current_dir(&intended_dir).exec()
         };
         let metadata = match metadata {
             Ok(m) => m,

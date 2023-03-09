@@ -65,10 +65,5 @@ command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "al
 # Shortcuts to internal functions (scrolling, toggling, etc.)
 # should go in your personal prefs.toml file instead.
 [keybindings]
-a = "job:check-all"
-i = "job:initial"
-d = "job:doc-open"
-t = "job:test"
-r = "job:run"
 alt-w = "job:check-win"
 shift-d = "scroll-lines(5)"
