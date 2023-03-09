@@ -40,6 +40,13 @@ impl Default for KeyBindings {
         bindings.set(key!(Space), Internal::Scroll(ScrollCommand::Pages(1)));
         bindings.set(key!(esc), Internal::Back);
         bindings.set(key!(ctrl - d), JobRef::Default);
+        bindings.set(key!(i), JobRef::Initial);
+        // keybindings for some common jobs
+        bindings.set(key!(a), JobRef::from_job_name("check-all"));
+        bindings.set(key!(c), JobRef::from_job_name("clippy"));
+        bindings.set(key!(d), JobRef::from_job_name("doc-open"));
+        bindings.set(key!(t), JobRef::from_job_name("test"));
+        bindings.set(key!(r), JobRef::from_job_name("run"));
         bindings
     }
 }

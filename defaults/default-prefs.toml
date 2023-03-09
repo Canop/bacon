@@ -25,7 +25,8 @@
 # export_locations = true
 
 # Uncomment and change the key-bindings you want to define
-# (some of those ones are the defaults)
+# (some of those ones are the defaults and are just here
+#  for illustration)
 [keybindings]
 # esc = "back"
 # ctrl-c = "quit"
@@ -46,3 +47,9 @@
 # shift-g = "scroll-to-bottom"
 # k = "scroll-lines(-1)"
 # j = "scroll-lines(1)"
+# a = "job:check-all"
+# i = "job:initial"
+# c = "job:clippy"
+# d = "job:doc-open"
+# t = "job:test"
+# r = "job:run"
