@@ -1,3 +1,7 @@
+<a name="v2.6.3"></a>
+### v2.6.3 - 2023/03/09
+- remove keybindings from default bacon.toml - Fix #116
+
 <a name="v2.6.2"></a>
 ### v2.6.2 - 2023/03/03
 - more consistent "pass!" - Thanks @zolrath

@@ -1,6 +1,6 @@
 [package]
 name = "bacon"
-version = "2.6.2"
+version = "2.6.3"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/bacon"
 description = "background rust compiler"
@@ -21,7 +21,7 @@ crokey = "0.4.1"
 crossbeam = "0.8.2"
 directories-next = "2.0.0"
 gix = "0.37.1"
-lazy-regex = "2.3.1"
+lazy-regex = "2.5.0"
 notify = "5.0.0"
 serde = { version = "1.0.136", features = ["derive"] }
 termimad = "0.21.0"
