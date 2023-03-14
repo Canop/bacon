@@ -1,3 +1,7 @@
+### next
+- watch "examples" directory in default run job
+- fix warnings not recognized on Windows - Fix #70 - Thanks @crillon
+
 <a name="v2.6.3"></a>
 ### v2.6.3 - 2023/03/09
 - remove keybindings from default bacon.toml - Fix #116
