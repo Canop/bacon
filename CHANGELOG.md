@@ -1,4 +1,5 @@
-### next
+<a name="v2.7.0"></a>
+### v2.7.0 - 2023/03/14
 - watch "examples" directory in default run job
 - fix warnings not recognized on Windows - Fix #70 - Thanks @crillon
 
