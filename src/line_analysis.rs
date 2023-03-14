@@ -3,6 +3,11 @@ use {
     lazy_regex::*,
 };
 
+#[cfg(not(windows))]
+const CSI_ERROR_BODY: &str = CSI_BOLD;
+#[cfg(windows)]
+const CSI_ERROR_BODY: &str = CSI_BOLD_WHITE;
+
 /// result of the "parsing" of the line
 #[derive(Debug, Clone)]
 pub struct LineAnalysis {
@@ -41,32 +46,34 @@ impl From<&CommandOutputLine> for LineAnalysis {
                 }
             }
             CommandStream::StdErr => {
-                if let (Some(ts1), Some(ts2)) = (content.strings.get(0), content.strings.get(1)) {
+                if let (Some(title), Some(body)) = (content.strings.get(0), content.strings.get(1))
+                {
                     match (
-                        ts1.csi.as_ref(),
-                        ts1.raw.as_ref(),
-                        ts2.csi.as_ref(),
-                        ts2.raw.as_ref(),
+                        title.csi.as_ref(),
+                        title.raw.as_ref(),
+                        body.csi.as_ref(),
+                        body.raw.as_ref(),
                     ) {
-                        (crate::CSI_BOLD_RED, "error", CSI_BOLD, r2)
-                            if r2.starts_with(": aborting due to") =>
+                        (CSI_BOLD_RED, "error", CSI_ERROR_BODY, body_raw)
+                            if body_raw.starts_with(": aborting due to") =>
                         {
                             LineType::Title(Kind::Sum)
                         }
-                        (crate::CSI_BOLD_RED, r1, CSI_BOLD, _) if r1.starts_with("error") => {
+                        (CSI_BOLD_RED, title_raw, CSI_ERROR_BODY, _)
+                            if title_raw.starts_with("error") =>
+                        {
                             LineType::Title(Kind::Error)
                         }
-                        (crate::CSI_BOLD_YELLOW, "warning", _, r2) => {
-                            if is_n_warnings_emitted(r2)
-                                || is_generated_n_warnings(content.strings.get(2))
-                            {
-                                LineType::Title(Kind::Sum)
-                            } else {
-                                LineType::Title(Kind::Warning)
-                            }
+                        #[cfg(not(windows))]
+                        (CSI_BOLD_YELLOW, "warning", _, body_raw) => {
+                            determine_warning_type(body_raw, content)
                         }
-                        ("", r1, crate::CSI_BOLD_BLUE, "--> ") if is_spaces(r1) => {
-                            debug!("LOCATION {:#?}", &cmd_line.content);
+                        #[cfg(windows)]
+                        (CSI_BOLD_YELLOW | CSI_BOLD_4BIT_YELLOW, "warning", _, body_raw) => {
+                            determine_warning_type(body_raw, content)
+                        }
+                        ("", title_raw, CSI_BOLD_BLUE, "--> ") if is_spaces(title_raw) => {
+                            debug!("LOCATION {:#?}", &content);
                             LineType::Location
                         }
                         _ => LineType::Normal,
@@ -77,6 +84,17 @@ impl From<&CommandOutputLine> for LineAnalysis {
             }
         };
         LineAnalysis { line_type, key }
+    }
+}
+
+fn determine_warning_type(
+    body_raw: &str,
+    content: &TLine,
+) -> LineType {
+    if is_n_warnings_emitted(body_raw) || is_generated_n_warnings(content.strings.get(2)) {
+        LineType::Title(Kind::Sum)
+    } else {
+        LineType::Title(Kind::Warning)
     }
 }
 
@@ -94,7 +112,6 @@ fn is_generated_n_warnings(ts: Option<&TString>) -> bool {
         regex_is_match!(r#"generated \d+ warnings?$"#, &ts.raw)
     })
 }
-
 /// return Some when the line is the non detailled
 /// result of a test, for example
 ///
