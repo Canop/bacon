@@ -8,11 +8,12 @@ use {
     },
     std::{
         collections::HashSet,
-        iter,
         path::PathBuf,
         process::Command,
     },
 };
+
+static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples"];
 
 /// the description of the mission of bacon
 /// after analysis of the args, env, and surroundings
@@ -49,9 +50,14 @@ impl<'s> Mission<'s> {
                     .parent()
                     .expect("parent of a target folder is a root folder");
                 if add_all_src {
-                    let src_watch_iter = iter::once("src");
-                    let other_watch_iter = job.watch.iter().map(String::as_ref);
-                    for dir in src_watch_iter.chain(other_watch_iter) {
+                    let mut watches: Vec<&str> = job.watch.iter().map(|s| s.as_str()).collect();
+                    for watch in DEFAULT_WATCHES {
+                        if !watches.contains(watch) {
+                            watches.push(watch);
+                        }
+                    }
+                    debug!("watches: {watches:?}");
+                    for dir in &watches {
                         let full_path = item_path.join(dir);
                         if full_path.exists() {
                             directories_to_watch.push(full_path.into());
