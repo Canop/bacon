@@ -1,3 +1,6 @@
+### next
+- By default, "src", "tests", "benches", "examples" are now watched - Fix #119
+
 <a name="v2.7.0"></a>
 ### v2.7.0 - 2023/03/14
 - watch "examples" directory in default run job
