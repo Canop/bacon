@@ -85,13 +85,14 @@ It's defined by the following fields:
 
 field | optional | meaning
 :-|:-:|:-
-command | no | The tokens making the command to execute (first one is the executable)
-watch | yes | A list of directories that will be watched if the job is run on a package. `src` is implicitly included.
+command | no | the tokens making the command to execute (first one is the executable)
+watch | yes | a list of directories that will be watched if the job is run on a package. `src`, `tests`, `examples`, and `benches` are implicitly included unles `default_watch` is set to false
+default_watch | yes | whether to watch default directories (`src`, `tests`, `examples`, and `benches`). `true` by default. When it's set to `false`, only the directories in `watch` are watched (none if `watch` is empty or not supplied)
 need_stdout | yes |whether we need to capture stdout too (stderr is always captured). Default is `false`
 on_success | yes | the action to run when there's no error, warning or test failures
-allow_warnings | yes | if true, the action is considered a success even when there are warnings. Default is `false` but the standard `run` job is configured with `allow_warnings=false`
-allow_failures | yes | if true, the action is considered a success even when there are test failures. Default is `false`
-apply_gitignore | yes | if true (which is default) the job isn't triggered when the modified file is excluded by gitignore rules
+allow_warnings | yes | if `true`, the action is considered a success even when there are warnings. Default is `false` but the standard `run` job is configured with `allow_warnings=false`
+allow_failures | yes | if `true`, the action is considered a success even when there are test failures. Default is `false`
+apply_gitignore | yes | if `true` (which is default) the job isn't triggered when the modified file is excluded by gitignore rules
 
 Example:
 
@@ -171,4 +172,4 @@ job reference | meaning
 -|-
 `job:default` | the job defined as *default* in the bacon.toml file
 `job:initial` | the job specified as argument, or the default one if there was none explicit
-`job:previous` | the job which ran before, if any (or we would quit). The `back` action has usually the same effect
+`job:previous` | the job which ran before, if any (or we would quit). The `back` internal has usually the same effect
