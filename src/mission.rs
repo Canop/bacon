@@ -51,9 +51,11 @@ impl<'s> Mission<'s> {
                     .expect("parent of a target folder is a root folder");
                 if add_all_src {
                     let mut watches: Vec<&str> = job.watch.iter().map(|s| s.as_str()).collect();
-                    for watch in DEFAULT_WATCHES {
-                        if !watches.contains(watch) {
-                            watches.push(watch);
+                    if job.default_watch {
+                        for watch in DEFAULT_WATCHES {
+                            if !watches.contains(watch) {
+                                watches.push(watch);
+                            }
                         }
                     }
                     debug!("watches: {watches:?}");

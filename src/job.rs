@@ -12,9 +12,19 @@ pub struct Job {
     /// by the PackageConfig::from_path loader
     pub command: Vec<String>,
 
+    /// Whether to apply the default watch list, which is
+    /// `["src", "tests", "benches", "examples"]`
+    ///
+    /// This is true by default. Set it to false if you want
+    /// to watch nothing, or only the directories you set in
+    /// `watch`.
+    #[serde(default = "default_true")]
+    pub default_watch: bool,
+
     /// A list of directories that will be watched if the job
     /// is run on a package.
-    /// src is implicitly included.
+    /// src, examples, tests, and benches are implicitly included
+    /// unless you `set default_watch` to false.
     #[serde(default)]
     pub watch: Vec<String>,
 
@@ -45,6 +55,11 @@ pub struct Job {
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
 
+// waiting for https://github.com/serde-rs/serde/issues/368
+fn default_true() -> bool {
+    true
+}
+
 impl Job {
     /// Builds a `Job` for a cargo alias
     pub fn from_alias(
@@ -63,6 +78,7 @@ impl Job {
         }
         Self {
             command,
+            default_watch: true,
             watch: Vec::new(),
             need_stdout: false,
             on_success: None,
