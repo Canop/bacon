@@ -1,5 +1,4 @@
-# This is a configuration file for the bacon tool
-# More info at https://github.com/Canop/bacon
+# Documentation at https://dystroy.org/bacon
 
 default_job = "check"
 
@@ -10,7 +9,6 @@ need_stdout = false
 [jobs.check-all]
 command = ["cargo", "check", "--all-targets", "--color", "always"]
 need_stdout = false
-watch = ["tests", "benches", "examples"]
 
 [jobs.clippy]
 command = [
@@ -30,12 +28,10 @@ command = [
 	"-A", "clippy::manual_clamp",
 ]
 need_stdout = false
-watch = ["tests", "benches", "examples"]
 
 [jobs.test]
-command = ["cargo", "test", "--color", "always"]
+command = ["cargo", "test", "--color", "always", "--", "--color", "always"]
 need_stdout = true
-watch = ["tests"]
 
 [jobs.doc]
 command = ["cargo", "doc", "--color", "always", "--no-deps"]
@@ -48,10 +44,6 @@ command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
 need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 
-# You can run your application and have the result displayed in bacon,
-# *if* it makes sense for this crate. You can run an example the same
-# way. Don't forget the `--color always` part or the errors won't be
-# properly parsed.
 [jobs.run]
 command = ["cargo", "run", "--color", "always"]
 need_stdout = true
@@ -60,10 +52,6 @@ allow_warnings = true
 [jobs.check-win]
 command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "always"]
 
-# You may define here keybindings that would be specific to
-# a project, for example a shortcut to launch a specific job.
-# Shortcuts to internal functions (scrolling, toggling, etc.)
-# should go in your personal prefs.toml file instead.
 [keybindings]
 alt-w = "job:check-win"
 shift-d = "scroll-lines(5)"

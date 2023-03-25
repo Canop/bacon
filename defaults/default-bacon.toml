@@ -2,6 +2,8 @@
 #
 # Bacon repository: https://github.com/Canop/bacon
 # Complete help on configuration: https://dystroy.org/bacon/config/
+# You can also check bacon's own bacon.toml file
+#  as an example: https://github.com/Canop/bacon/blob/main/bacon.toml
 
 default_job = "check"
 
@@ -14,11 +16,18 @@ command = ["cargo", "check", "--all-targets", "--color", "always"]
 need_stdout = false
 
 [jobs.clippy]
-command = ["cargo", "clippy", "--all-targets", "--color", "always"]
+command = [
+    "cargo", "clippy",
+    "--all-targets",
+    "--color", "always",
+]
 need_stdout = false
 
 [jobs.test]
-command = ["cargo", "test", "--color", "always"]
+command = [
+    "cargo", "test", "--color", "always",
+    "--", "--color", "always", # see https://github.com/Canop/bacon/issues/124
+]
 need_stdout = true
 
 [jobs.doc]
@@ -36,10 +45,12 @@ on_success = "back" # so that we don't open the browser at each change
 # *if* it makes sense for this crate. You can run an example the same
 # way. Don't forget the `--color always` part or the errors won't be
 # properly parsed.
-# If you want to pass options to your program, a `--` separator
-# will be needed.
 [jobs.run]
-command = [ "cargo", "run", "--color", "always" ]
+command = [
+    "cargo", "run",
+    "--color", "always",
+    # put launch parameters for your program behind a `--` separator
+]
 need_stdout = true
 allow_warnings = true
 

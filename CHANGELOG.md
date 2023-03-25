@@ -1,3 +1,6 @@
+### next
+- color rendering of cargo test - Fix #124
+
 <a name="v2.8.0"></a>
 ### v2.8.0 - 2023/03/23
 - By default, "src", "tests", "benches", "examples" are now watched - Fix #119
