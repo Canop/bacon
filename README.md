@@ -23,6 +23,10 @@ The **[bacon website](https://dystroy.org/bacon)** is a complete guide.
 
 Below is a short overview.
 
+## install
+
+    cargo install --locked bacon
+
 ## check the current project
 
     bacon
