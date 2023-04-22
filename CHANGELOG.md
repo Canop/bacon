@@ -1,4 +1,5 @@
-### next
+<a name="v2.8.1"></a>
+### v2.8.1 - 2023/04/22
 - color rendering of cargo test - Fix #124
 
 <a name="v2.8.0"></a>
