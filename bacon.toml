@@ -42,7 +42,7 @@ need_stdout = false
 [jobs.doc-open]
 command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
 need_stdout = false
-on_success = "back" # so that we don't open the browser at each change
+on_success = "job:doc" # so that we don't open the browser at each change
 
 [jobs.run]
 command = ["cargo", "run", "--color", "always"]
