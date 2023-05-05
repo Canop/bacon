@@ -54,9 +54,7 @@ When there's no ambiguity, you may omit the `--job` part:
 
     bacon clippy
 
-or, if you want it to run against all targets (tests, examples, benches etc):
-
-    bacon clippy-all
+This will run against all targets like `check-all` does.
 
 ## run tests
 
