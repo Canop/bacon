@@ -11,5 +11,3 @@ pub struct ExportConfig {
     pub path: Option<PathBuf>,
     pub line_format: Option<String>,
 }
-
-

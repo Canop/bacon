@@ -20,9 +20,9 @@ pub struct Config {
     pub summary: Option<bool>,
     pub wrap: Option<bool>,
     pub reverse: Option<bool>,
-    #[deprecated(since="2.0.0", note="use keybindings")]
+    #[deprecated(since = "2.0.0", note = "use keybindings")]
     pub vim_keys: Option<bool>,
-    #[deprecated(since="2.9.0", note="use export.enabled")]
+    #[deprecated(since = "2.9.0", note = "use export.enabled")]
     pub export_locations: Option<bool>,
     pub keybindings: Option<KeyBindings>,
     pub additional_alias_args: Option<Vec<String>>,

@@ -20,11 +20,12 @@ impl Line {
     /// If the line is a title, get its message
     pub fn title_message(&self) -> Option<&str> {
         match self.line_type {
-            LineType::Title(_) => {
-                self.content.strings.get(1)
-                    .map(|ts| ts.raw.as_str())
-                    .map(|s| s.trim_start_matches(|c: char| c.is_whitespace() || c == ':'))
-            }
+            LineType::Title(_) => self
+                .content
+                .strings
+                .get(1)
+                .map(|ts| ts.raw.as_str())
+                .map(|s| s.trim_start_matches(|c: char| c.is_whitespace() || c == ':')),
             _ => None,
         }
     }

@@ -4,7 +4,6 @@ use {
     std::path::PathBuf,
 };
 
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct ExportSettings {
     pub enabled: bool,
@@ -48,4 +47,3 @@ impl ExportSettings {
         }
     }
 }
-

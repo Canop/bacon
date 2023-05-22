@@ -190,15 +190,18 @@ impl Report {
                 _ => {}
             }
             let Some(location) = line.location() else { continue };
-            let (_, mut path, file_line, file_column) = regex_captures!(
-                r#"^([^:]+):(\d+):(\d+)$"#,
-                location,
-            ).unwrap_or(("", location, "", ""));
+            let (_, mut path, file_line, file_column) =
+                regex_captures!(r#"^([^:]+):(\d+):(\d+)$"#, location,)
+                    .unwrap_or(("", location, "", ""));
             // we need to make sure the path is absolute
             let path_buf = PathBuf::from(path);
             let path_string;
             if path_buf.is_relative() {
-                path_string = mission.workspace_root.join(path).to_string_lossy().to_string();
+                path_string = mission
+                    .workspace_root
+                    .join(path)
+                    .to_string_lossy()
+                    .to_string();
                 path = &path_string;
             }
             let exported = regex_replace_all!(
