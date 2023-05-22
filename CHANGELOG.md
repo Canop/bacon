@@ -1,5 +1,6 @@
 ### next
-- export format and path can now be configured - Fix #127
+- export format and path can now be configured
+- default export format includes error/warning summary (nvim-bacon has been updated in parallel) - Fix #127
 
 <a name="v2.8.1"></a>
 ### v2.8.1 - 2023/04/22
