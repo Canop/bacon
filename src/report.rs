@@ -1,9 +1,11 @@
 use {
     crate::*,
     anyhow::Result,
+    lazy_regex::*,
     std::{
         collections::HashSet,
         io,
+        path::PathBuf,
     },
 };
 
@@ -169,23 +171,57 @@ impl Report {
         w: &mut W,
         mission: &Mission,
     ) -> Result<(), io::Error> {
-        let mut last_cat = "???";
+        let mut last_kind = "???";
+        let mut message = None;
         for line in &self.lines {
             match line.line_type {
                 LineType::Title(Kind::Warning) => {
-                    last_cat = "warning";
+                    last_kind = "warning";
+                    message = line.title_message();
                 }
                 LineType::Title(Kind::Error) => {
-                    last_cat = "error";
+                    last_kind = "error";
+                    message = line.title_message();
                 }
                 LineType::Title(Kind::TestFail) => {
-                    last_cat = "test";
+                    last_kind = "test";
+                    message = line.title_message();
                 }
                 _ => {}
             }
-            if let Some(location) = line.location_path(mission) {
-                writeln!(w, "{} {}", last_cat, location.to_string_lossy())?;
+            let Some(location) = line.location() else { continue };
+            let (_, mut path, file_line, file_column) =
+                regex_captures!(r#"^([^:]+):(\d+):(\d+)$"#, location,)
+                    .unwrap_or(("", location, "", ""));
+            // we need to make sure the path is absolute
+            let path_buf = PathBuf::from(path);
+            let path_string;
+            if path_buf.is_relative() {
+                path_string = mission
+                    .workspace_root
+                    .join(path)
+                    .to_string_lossy()
+                    .to_string();
+                path = &path_string;
             }
+            let exported = regex_replace_all!(
+                r#"\{([^\s}]+)\}"#,
+                &mission.settings.export.line_format,
+                |_, key| {
+                    match key {
+                        "kind" => last_kind,
+                        "path" => path,
+                        "line" => file_line,
+                        "column" => file_column,
+                        "message" => message.unwrap_or(""),
+                        _ => {
+                            debug!("unknown export key: {key:?}");
+                            ""
+                        }
+                    }
+                }
+            );
+            writeln!(w, "{}", exported)?;
         }
         debug!("exported locations");
         Ok(())

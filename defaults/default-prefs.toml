@@ -16,13 +16,18 @@
 #
 # reverse = true
 
-# Uncomment this to have bacon always export locations
-# This is equivalent to always adding -e to bacon commands
-# but can still be cancelled on specific launches with -E
+# Exporting "locations" lets you use them in an external
+# tool, for example as a list of jump locations in an IDE.
 # 
 # See https://dystroy.org/bacon/config/#export-locations
-# 
-# export_locations = true
+#
+# Set 'enabled' to true to have bacon always export locations
+# This is equivalent to always adding -e to bacon commands
+# but can still be cancelled on specific launches with -E
+[export]
+enabled = false
+path = ".bacon-locations"
+line_format = "{kind} {path}:{line}:{column} {message}"
 
 # Uncomment and change the key-bindings you want to define
 # (some of those ones are the defaults and are just here

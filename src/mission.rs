@@ -113,7 +113,12 @@ impl<'s> Mission<'s> {
 
     /// Return the path to the bacon-locations file
     pub fn bacon_locations_path(&self) -> PathBuf {
-        self.workspace_root.join(".bacon-locations")
+        let path = &self.settings.export.path;
+        if path.is_relative() {
+            self.workspace_root.join(path)
+        } else {
+            path.to_path_buf()
+        }
     }
 
     /// the action bound to success on this job

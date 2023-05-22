@@ -11,19 +11,25 @@ use {
 };
 
 /// A configuration item which may be stored either as `bacon.toml`
-/// along a `Cargo.toml` file or as `prefs.toml` in the xdg config directory
+/// along a `Cargo.toml` file or as `prefs.toml` in the xdg config directory.
+///
+/// Leaf values are options (and not Default) so that they don't
+/// override previously set values when applied to settings.
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
     pub summary: Option<bool>,
     pub wrap: Option<bool>,
     pub reverse: Option<bool>,
-    pub vim_keys: Option<bool>, // deprecated thanks to keybindings
+    #[deprecated(since = "2.0.0", note = "use keybindings")]
+    pub vim_keys: Option<bool>,
+    #[deprecated(since = "2.9.0", note = "use export.enabled")]
     pub export_locations: Option<bool>,
     pub keybindings: Option<KeyBindings>,
     pub additional_alias_args: Option<Vec<String>>,
     #[serde(default)]
     pub jobs: HashMap<String, Job>,
     pub default_job: Option<ConcreteJobRef>,
+    pub export: Option<ExportConfig>,
 }
 
 impl Config {

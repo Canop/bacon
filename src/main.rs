@@ -8,6 +8,8 @@ mod config;
 mod defaults;
 mod drawing;
 mod executor;
+mod export_config;
+mod export_settings;
 mod failure;
 mod help_line;
 mod help_page;
@@ -44,6 +46,8 @@ pub use {
     defaults::*,
     drawing::*,
     executor::*,
+    export_config::*,
+    export_settings::*,
     failure::*,
     help_line::*,
     help_page::*,

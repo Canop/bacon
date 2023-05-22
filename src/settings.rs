@@ -24,9 +24,9 @@ pub struct Settings {
     pub all_features: bool,
     pub features: Option<String>, // comma separated list
     pub keybindings: KeyBindings,
-    pub export_locations: bool,
     pub jobs: HashMap<String, Job>,
     pub default_job: ConcreteJobRef,
+    pub export: ExportSettings,
 }
 
 impl Default for Settings {
@@ -42,14 +42,16 @@ impl Default for Settings {
             all_features: Default::default(),
             features: Default::default(),
             keybindings: Default::default(),
-            export_locations: Default::default(),
             jobs: Default::default(),
             default_job: Default::default(),
+            export: Default::default(),
         }
     }
 }
 
 impl Settings {
+    /// Apply one of the configuration element, overriding
+    /// defaults and previously applied configuration elements
     pub fn apply_config(
         &mut self,
         config: &Config,
@@ -63,9 +65,11 @@ impl Settings {
         if let Some(b) = config.reverse {
             self.reverse = b;
         }
+        #[allow(deprecated)] // for compatibility
         if let Some(b) = config.export_locations {
-            self.export_locations = b;
+            self.export.enabled = b;
         }
+        #[allow(deprecated)] // for compatibility
         if config.vim_keys == Some(true) {
             self.keybindings.add_vim_keys();
         }
@@ -80,6 +84,9 @@ impl Settings {
         }
         if let Some(default_job) = &config.default_job {
             self.default_job = default_job.clone();
+        }
+        if let Some(export_config) = &config.export {
+            self.export.apply_config(export_config);
         }
     }
     pub fn apply_args(
@@ -105,10 +112,10 @@ impl Settings {
             self.reverse = false;
         }
         if args.export_locations {
-            self.export_locations = true;
+            self.export.enabled = true;
         }
         if args.no_export_locations {
-            self.export_locations = false;
+            self.export.enabled = false;
         }
         if args.reverse {
             self.reverse = true;

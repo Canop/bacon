@@ -17,7 +17,20 @@ pub struct Line {
 }
 
 impl Line {
-    /// Return the location as given by cargo (usually relative)
+    /// If the line is a title, get its message
+    pub fn title_message(&self) -> Option<&str> {
+        match self.line_type {
+            LineType::Title(_) => self
+                .content
+                .strings
+                .get(1)
+                .map(|ts| ts.raw.as_str())
+                .map(|s| s.trim_start_matches(|c: char| c.is_whitespace() || c == ':')),
+            _ => None,
+        }
+    }
+    /// Return the location as given by cargo
+    /// It's usually relative and may contain the line and column
     pub fn location(&self) -> Option<&str> {
         match self.line_type {
             LineType::Location => self.content.strings.get(2).map(|ts| ts.raw.as_str()),
