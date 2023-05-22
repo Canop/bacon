@@ -115,9 +115,16 @@ It's also the one you can run with the `job:default` action.
 
 If you use neovim, you probably want to use the [nvim-bacon](https://github.com/Canop/nvim-bacon) plugin.
 
-This plugin needs bacon to be launched with the `-e` argument which makes it keep a `.bacon-locations` file up to date (you'll probably want to put the `.bacon-locations` in your global .gitignore).
+This plugin needs location export to be enabled in your configuration:
 
-If you write `export_locations = true` in the prefs.toml file, you can omit passing `-e` to every bacon command.
+```TOML
+[export]
+enabled = true
+path = ".bacon-locations"
+line_format = "{kind} {path}:{line}:{column} {message}"
+```
+
+You may change the path or line format for other tools.
 
 # Actions
 

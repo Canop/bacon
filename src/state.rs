@@ -161,7 +161,7 @@ impl<'s> AppState<'s> {
             }
         }
         // we update the location file if required
-        if self.mission.settings.export_locations {
+        if self.mission.settings.export.enabled {
             if let Err(err) = cmd_result.update_location_file(&self.mission) {
                 // FIXME user info
                 error!("Error writing location file: {}", err);

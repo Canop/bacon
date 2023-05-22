@@ -1,3 +1,6 @@
+### next
+- export format and path can now be configured - Fix #127
+
 <a name="v2.8.1"></a>
 ### v2.8.1 - 2023/04/22
 - color rendering of cargo test - Fix #124
