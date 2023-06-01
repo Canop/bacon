@@ -1,3 +1,1 @@
-rustup default nightly
-cargo fmt
-rustup default stable
+cargo +nightly fmt
