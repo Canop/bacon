@@ -37,7 +37,6 @@ mod wrapped_report;
 
 pub use {
     action::*,
-    app::*,
     args::*,
     cli::*,
     command_output::*,

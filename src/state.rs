@@ -292,8 +292,11 @@ impl<'s> AppState<'s> {
                     report.stats.lines(self.summary)
                 }
             }
-        } else if let Some(output) = &self.output {
-            output.len()
+        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
+            match (self.wrap, self.wrapped_output.as_ref()) {
+                (true, Some(wrapped_output)) => wrapped_output.sub_lines.len(),
+                _ => output.len(),
+            }
         } else {
             0
         }
@@ -522,10 +525,8 @@ impl<'s> AppState<'s> {
             }
             self.top_item_idx = top_item_idx.unwrap_or(0);
         } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
-            debug!("MODE output");
             match (self.wrap, self.wrapped_output.as_ref()) {
                 (true, Some(wrapped_output)) => {
-                    debug!("wrap mode");
                     let mut sub_lines = wrapped_output.sub_lines.iter().skip(self.scroll);
                     for row_idx in 0..area.height {
                         let y = row_idx + top;
