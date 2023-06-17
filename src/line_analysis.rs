@@ -19,68 +19,72 @@ impl From<&CommandOutputLine> for LineAnalysis {
     fn from(cmd_line: &CommandOutputLine) -> Self {
         let content = &cmd_line.content;
         let mut key = None;
-        let line_type = match cmd_line.origin {
-            CommandStream::StdOut => {
-                // there's currently a not understood bug preventing us from getting
-                // style information in stdout.
-                if cmd_line.content.is_blank() {
-                    LineType::Normal
-                } else if let Some(content) = cmd_line.content.if_unstyled() {
-                    if let Some((k, r)) = as_test_result(content) {
-                        key = Some(k.to_string());
-                        LineType::TestResult(r)
-                    } else if let Some(k) = as_fail_result_title(content) {
-                        key = Some(k.to_string());
-                        LineType::Title(Kind::TestFail)
-                    } else if regex_is_match!("^failures:$", content) {
-                        // this isn't very discriminant...
-                        LineType::Title(Kind::Sum)
-                    } else if regex_is_match!("^note: run with `RUST_BACKTRACE=", content) {
-                        LineType::BacktraceSuggestion
-                    } else {
-                        LineType::Normal
-                    }
-                } else {
-                    warn!("unexpected styled stdout: {:#?}", &cmd_line);
-                    LineType::Normal // unexpected styled content
-                }
+        let line_type = if cmd_line.content.is_blank() {
+            LineType::Normal
+        } else if let Some(content) = cmd_line.content.if_unstyled() {
+            if let Some((k, r)) = as_test_result(content) {
+                key = Some(k.to_string());
+                LineType::TestResult(r)
+            } else if let Some(k) = as_fail_result_title(content) {
+                key = Some(k.to_string());
+                LineType::Title(Kind::TestFail)
+            } else if regex_is_match!("^failures:$", content) {
+                // this isn't very discriminant...
+                LineType::Title(Kind::Sum)
+            } else if regex_is_match!("^note: run with `RUST_BACKTRACE=", content) {
+                LineType::BacktraceSuggestion
+            } else {
+                LineType::Normal
             }
-            CommandStream::StdErr => {
-                if let (Some(title), Some(body)) = (content.strings.get(0), content.strings.get(1))
-                {
-                    match (
-                        title.csi.as_ref(),
-                        title.raw.as_ref(),
-                        body.csi.as_ref(),
-                        body.raw.as_ref(),
-                    ) {
-                        (CSI_BOLD_RED, "error", CSI_ERROR_BODY, body_raw)
-                            if body_raw.starts_with(": aborting due to") =>
-                        {
-                            LineType::Title(Kind::Sum)
-                        }
-                        (CSI_BOLD_RED, title_raw, CSI_ERROR_BODY, _)
-                            if title_raw.starts_with("error") =>
-                        {
-                            LineType::Title(Kind::Error)
-                        }
-                        #[cfg(not(windows))]
-                        (CSI_BOLD_YELLOW, "warning", _, body_raw) => {
-                            determine_warning_type(body_raw, content)
-                        }
-                        #[cfg(windows)]
-                        (CSI_BOLD_YELLOW | CSI_BOLD_4BIT_YELLOW, "warning", _, body_raw) => {
-                            determine_warning_type(body_raw, content)
-                        }
-                        ("", title_raw, CSI_BOLD_BLUE, "--> ") if is_spaces(title_raw) => {
-                            debug!("LOCATION {:#?}", &content);
-                            LineType::Location
-                        }
-                        _ => LineType::Normal,
+        } else {
+            if let (Some(title), Some(body)) = (content.strings.get(0), content.strings.get(1)) {
+                match (
+                    title.csi.as_ref(),
+                    title.raw.as_ref(),
+                    body.csi.as_ref(),
+                    body.raw.as_ref(),
+                ) {
+                    (CSI_BOLD_RED, "error", CSI_ERROR_BODY, body_raw)
+                        if body_raw.starts_with(": aborting due to") =>
+                    {
+                        LineType::Title(Kind::Sum)
                     }
-                } else {
-                    LineType::Normal // empty line
+                    (CSI_BOLD_RED, title_raw, CSI_ERROR_BODY, _)
+                        if title_raw.starts_with("error") =>
+                    {
+                        LineType::Title(Kind::Error)
+                    }
+                    #[cfg(not(windows))]
+                    (CSI_BOLD_YELLOW, "warning", _, body_raw) => {
+                        determine_warning_type(body_raw, content)
+                    }
+                    #[cfg(windows)]
+                    (CSI_BOLD_YELLOW | CSI_BOLD_4BIT_YELLOW, "warning", _, body_raw) => {
+                        determine_warning_type(body_raw, content)
+                    }
+                    ("", title_raw, CSI_BOLD_BLUE, "--> ") if is_spaces(title_raw) => {
+                        LineType::Location
+                    }
+                    ("", k, CSI_BOLD_RED|CSI_RED, "FAILED") if content.strings.len() == 2 => {
+                        if let Some(k) = as_test_name(k) {
+                            key = Some(k.to_string());
+                            LineType::TestResult(false)
+                        } else {
+                            LineType::Normal
+                        }
+                    }
+                    ("", k, CSI_GREEN, "ok") => {
+                        if let Some(k) = as_test_name(k) {
+                            key = Some(k.to_string());
+                            LineType::TestResult(true)
+                        } else {
+                            LineType::Normal
+                        }
+                    }
+                    _ => LineType::Normal,
                 }
+            } else {
+                LineType::Normal // empty line
             }
         };
         LineAnalysis { line_type, key }
@@ -91,7 +95,11 @@ fn determine_warning_type(
     body_raw: &str,
     content: &TLine,
 ) -> LineType {
-    if is_n_warnings_emitted(body_raw) || is_generated_n_warnings(content.strings.get(2)) {
+    info!("DETER WT {:?}", &content);
+    if is_n_warnings_emitted(body_raw)
+        || is_generated_n_warnings(&content.strings)
+        || is_build_failed(content.strings.get(2))
+    {
         LineType::Title(Kind::Sum)
     } else {
         LineType::Title(Kind::Warning)
@@ -106,12 +114,29 @@ fn is_spaces(s: &str) -> bool {
 fn is_n_warnings_emitted(s: &str) -> bool {
     regex_is_match!(r#"^: \d+ warnings? emitted"#, s)
 }
-
-fn is_generated_n_warnings(ts: Option<&TString>) -> bool {
-    ts.map_or(false, |ts| {
+fn is_generated_n_warnings(ts: &[TString]) -> bool {
+    ts.iter().any(|ts| {
         regex_is_match!(r#"generated \d+ warnings?$"#, &ts.raw)
     })
 }
+fn is_build_failed(ts: Option<&TString>) -> bool {
+    ts.map_or(false, |ts| {
+        regex_is_match!(r#"^\s*build failed"#, &ts.raw)
+    })
+}
+
+
+/// similar to as_test_result but without the FAILED|ok part
+/// This is used in case of styled output (because the FAILED|ok
+/// part is in another TString)
+fn as_test_name(s: &str) -> Option<&str> {
+    regex_captures!(
+        r#"^test\s+(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s*$"#,
+        s
+    )
+    .map(|(_, key)| key)
+}
+
 /// return Some when the line is the non detailled
 /// result of a test, for example
 ///

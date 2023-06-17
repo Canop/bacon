@@ -53,79 +53,78 @@ impl Report {
         let mut is_in_out_fail = false;
         let mut suggest_backtrace = false;
         for cmd_line in cmd_lines {
-            debug!("cmd_line={:?}", &cmd_line);
             let line_analysis = LineAnalysis::from(cmd_line);
-            debug!("line_analysis={:?}", &line_analysis);
             let line_type = line_analysis.line_type;
             let mut line = Line {
                 item_idx: 0, // will be filled later
                 line_type,
                 content: cmd_line.content.clone(),
             };
-            match cmd_line.origin {
-                CommandStream::StdErr => {
-                    match line_type {
-                        LineType::Title(Kind::Sum) => {
-                            // we're not interested in this section
-                            cur_err_kind = None;
-                        }
-                        LineType::Title(kind) => {
-                            cur_err_kind = Some(kind);
-                        }
-                        _ => {}
+            debug!("{:?}> [{line_type:?}][{:?}]", cmd_line.origin, line_analysis.key);
+            match (line_type, line_analysis.key) {
+                (LineType::TestResult(r), Some(key)) => {
+                    if r {
+                        passed_tests += 1;
+                    } else {
+                        // we should receive the test failure section later,
+                        // right now we just whitelist it
+                        failure_names.insert(key);
                     }
+                }
+                (LineType::Title(Kind::TestFail), Some(key)) => {
+                    if failure_names.contains(&key) {
+                        failure_names.remove(&key);
+                        line.content = TLine::failed(&key);
+                        fails.push(line);
+                        is_in_out_fail = true;
+                        cur_err_kind = Some(Kind::TestFail);
+                    } else {
+                        warn!(
+                            "unexpected test result failure_names={:?}, key={:?}",
+                            &failure_names, &key,
+                        );
+                    }
+                }
+                (LineType::Normal, None) => {
+                    if line.content.is_blank() && cur_err_kind != Some(Kind::TestFail) {
+                        is_in_out_fail = false;
+                    }
+                    if is_in_out_fail {
+                        fails.push(line);
+                    } else {
+                        match cur_err_kind {
+                            Some(Kind::Warning) => warnings.push(line),
+                            Some(Kind::Error) => errors.push(line),
+                            _ => {}
+                        }
+                    }
+                }
+                (LineType::Title(Kind::Sum), None) => {
+                    // we're not interested in this section
+                    cur_err_kind = None;
+                    is_in_out_fail = false;
+                }
+                (LineType::Title(kind), _) => {
+                    cur_err_kind = Some(kind);
                     match cur_err_kind {
                         Some(Kind::Warning) => warnings.push(line),
                         Some(Kind::Error) => errors.push(line),
                         _ => {} // before warnings and errors, or in a sum
                     }
                 }
-                CommandStream::StdOut => {
-                    match (line_type, line_analysis.key) {
-                        (LineType::TestResult(r), Some(key)) => {
-                            if r {
-                                passed_tests += 1;
-                            } else {
-                                // we should receive the test failure section later,
-                                // right now we just whitelist it
-                                failure_names.insert(key);
-                            }
-                        }
-                        (LineType::Title(Kind::TestFail), Some(key)) => {
-                            if failure_names.contains(&key) {
-                                failure_names.remove(&key);
-                                line.content = TLine::failed(&key);
-                                fails.push(line);
-                                is_in_out_fail = true;
-                                cur_err_kind = Some(Kind::TestFail);
-                            } else {
-                                warn!(
-                                    "unexpected test result failure_names={:?}, key={:?}",
-                                    &failure_names, &key,
-                                );
-                            }
-                        }
-                        (LineType::Normal, None) => {
-                            if line.content.is_blank() && cur_err_kind != Some(Kind::TestFail) {
-                                is_in_out_fail = false;
-                            } else if is_in_out_fail {
-                                fails.push(line);
-                            }
-                        }
-                        (LineType::Title(Kind::Sum), None) => {
-                            // we're not interested in this section
-                            cur_err_kind = None;
-                            is_in_out_fail = false;
-                        }
-                        (LineType::BacktraceSuggestion, _) => {
-                            suggest_backtrace = true;
-                        }
-                        _ => {
-                            // TODO add normal if not broken with blank line
-                            warn!("unexpected line: {:#?}", &line);
-                        }
-                    }
+                (LineType::BacktraceSuggestion, _) => {
+                    suggest_backtrace = true;
                 }
+                (LineType::Location, _) => {
+                    match cur_err_kind {
+                        Some(Kind::Warning) => warnings.push(line),
+                        Some(Kind::Error) => errors.push(line),
+                        Some(Kind::TestFail) => fails.push(line),
+                        _ => {} // before warnings and errors, or in a sum
+                    }
+                    suggest_backtrace = true;
+                }
+                _ => {}
             }
         }
         // for now, we only added the test failures for which there was an output.
@@ -158,6 +157,7 @@ impl Report {
         // have been read but not added (at start or end)
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
+        debug!("stats: {:#?}", &stats);
         Ok(Report {
             lines,
             stats,
