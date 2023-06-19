@@ -250,10 +250,11 @@ impl TLine {
             None
         }
     }
-    pub fn has(&self, part: &str) -> bool {
-        self.strings
-            .iter()
-            .any(|s| s.raw.contains(part))
+    pub fn has(
+        &self,
+        part: &str,
+    ) -> bool {
+        self.strings.iter().any(|s| s.raw.contains(part))
     }
 }
 

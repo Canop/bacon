@@ -65,7 +65,7 @@ impl From<&CommandOutputLine> for LineAnalysis {
                     ("", title_raw, CSI_BOLD_BLUE, "--> ") if is_spaces(title_raw) => {
                         LineType::Location
                     }
-                    ("", k, CSI_BOLD_RED|CSI_RED, "FAILED") if content.strings.len() == 2 => {
+                    ("", k, CSI_BOLD_RED | CSI_RED, "FAILED") if content.strings.len() == 2 => {
                         if let Some(k) = as_test_name(k) {
                             key = Some(k.to_string());
                             LineType::TestResult(false)
@@ -115,16 +115,12 @@ fn is_n_warnings_emitted(s: &str) -> bool {
     regex_is_match!(r#"^: \d+ warnings? emitted"#, s)
 }
 fn is_generated_n_warnings(ts: &[TString]) -> bool {
-    ts.iter().any(|ts| {
-        regex_is_match!(r#"generated \d+ warnings?$"#, &ts.raw)
-    })
+    ts.iter()
+        .any(|ts| regex_is_match!(r#"generated \d+ warnings?$"#, &ts.raw))
 }
 fn is_build_failed(ts: Option<&TString>) -> bool {
-    ts.map_or(false, |ts| {
-        regex_is_match!(r#"^\s*build failed"#, &ts.raw)
-    })
+    ts.map_or(false, |ts| regex_is_match!(r#"^\s*build failed"#, &ts.raw))
 }
-
 
 /// similar to as_test_result but without the FAILED|ok part
 /// This is used in case of styled output (because the FAILED|ok

@@ -60,7 +60,10 @@ impl Report {
                 line_type,
                 content: cmd_line.content.clone(),
             };
-            debug!("{:?}> [{line_type:?}][{:?}]", cmd_line.origin, line_analysis.key);
+            debug!(
+                "{:?}> [{line_type:?}][{:?}]",
+                cmd_line.origin, line_analysis.key
+            );
             match (line_type, line_analysis.key) {
                 (LineType::TestResult(r), Some(key)) => {
                     if r {
