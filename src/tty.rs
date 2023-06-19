@@ -12,6 +12,9 @@ pub const CSI_RESET: &str = "\u{1b}[0m\u{1b}[0m";
 pub const CSI_BOLD: &str = "\u{1b}[1m";
 pub const CSI_ITALIC: &str = "\u{1b}[3m";
 
+pub const CSI_GREEN: &str = "\u{1b}[32m";
+
+pub const CSI_RED: &str = "\u{1b}[31m";
 pub const CSI_BOLD_RED: &str = "\u{1b}[1m\u{1b}[38;5;9m";
 pub const CSI_BOLD_ORANGE: &str = "\u{1b}[1m\u{1b}[38;5;208m";
 
@@ -246,6 +249,11 @@ impl TLine {
         } else {
             None
         }
+    }
+    pub fn has(&self, part: &str) -> bool {
+        self.strings
+            .iter()
+            .any(|s| s.raw.contains(part))
     }
 }
 
