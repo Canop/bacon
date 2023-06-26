@@ -282,6 +282,7 @@ body .toc-header {
 	font-size: 18px;
 	margin-left: 20px;
 	padding-bottom: 8px;
+	align-self: start;
 	/*border-bottom: thin solid #ff5f87;*/
 }
 .admonition.note {
