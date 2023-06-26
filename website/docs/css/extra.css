@@ -45,6 +45,13 @@ body {
 	color: var(--text);
 }
 
+body .bg-secondary {
+	background-color: transparent !important;
+}
+body .card {
+	border: none;
+}
+
 .sponsorship {
 	margin-top: 20px;
 	display: flex;
@@ -86,17 +93,31 @@ h4 {
 	color: #111;
 }
 
-.navbar {
+body .navbar {
 	background: var(--top-nav-bg);
 	border-bottom: 1px solid var(--accent);
+	padding: 0;
 }
 
-.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:focus {
+html body .navbar-default .navbar-nav > .active > a.nav-link,
+html body .navbar-default .navbar-nav > .active > a.nav-link:focus,
+html body .navbar .navbar-nav > .active > a.nav-link,
+html body .navbar .navbar-nav > .active > a.nav-link:focus {
 	background-image: linear-gradient(#111,#162020);
 	color: var(--accent);
 }
-.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus,
-.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+.navbar-default .navbar-nav > .open > a,
+.navbar .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus,
+.navbar .navbar-nav > .open > a:focus,
+.navbar-default .navbar-nav > li > a:hover,
+.navbar .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:hover,
+.navbar .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus,
+.navbar .navbar-nav > li > a:focus {
 	background: var(--hovered-menu-bg);
 	/*color: var(--accent);*/
 }
@@ -121,10 +142,16 @@ code {
 	background: var(--code-bg);
 }
 
-a {
+body a,
+body a.nav-link,
+body .navbar-dark .navbar-nav a,
+body .navbar-dark .navbar-nav a.nav-link
+{
 	color: var(--sidenav-fg);
 }
-a:hover {
+body a:hover,
+body a.nav-link:hover
+{
 	color: var(--accent);
 }
 [role="main"] a {
@@ -171,17 +198,21 @@ kbd.b {
 	background: var(--sidenav-bg);
 }
 .bs-sidenav.nav li {
-	padding-left: 10px;
+	padding-left: 15px;
 }
 .bs-sidenav.nav li.main {
 	padding-left: 0px;
 }
-.navbar-brand {
+body .navbar {
+	line-height: 36px;
+}
+body .navbar-brand {
 	background: url(../img/logo-white.svg) no-repeat;
 	background-position: 5px center;
 	background-size: 70px 40px;
 	padding-left: 85px;
 	font-size: 0;
+	line-height: 24px;
 }
 
 .bs-sidebar .nav > li > a {
@@ -198,6 +229,9 @@ kbd.b {
 .bs-sidebar .nav > .main.active:hover > a,
 .bs-sidebar .nav > .main.active:focus > a {
 	font-weight: bold;
+}
+.bs-sidebar .nav > li > a {
+  font-weight: normal;
 }
 
 .table-striped > tbody > tr:nth-of-type(2n+1) {
