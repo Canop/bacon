@@ -55,7 +55,17 @@ pub fn run() -> anyhow::Result<()> {
     let location = MissionLocation::new(&args)?;
     info!("mission location: {:#?}", &location);
 
+    let workspace_config_path = location.workspace_config_path();
     let package_config_path = location.package_config_path();
+
+    if package_config_path != workspace_config_path {
+        if workspace_config_path.exists() {
+            info!("loading workspace level bacon.toml");
+            let workspace_config = Config::from_path(&workspace_config_path)?;
+            settings.apply_config(&workspace_config);
+        }
+    }
+
     if args.init {
         if !package_config_path.exists() {
             fs::write(&package_config_path, DEFAULT_PACKAGE_CONFIG.trim_start())?;
