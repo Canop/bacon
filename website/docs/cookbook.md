@@ -51,7 +51,7 @@ command = [
 need_stdout = false
 ```
 
-# Check compilation on other platforms
+# Check for other platforms
 
 You may define specific jobs for specific targets:
 
@@ -90,7 +90,6 @@ Depending on the desired output, you would have to add a setting to the run job,
 ```toml
 command = ["cargo", "run", "--color", "always", "--", "--color", "yes"]
 ```
-
 
 # Variable arguments
 
