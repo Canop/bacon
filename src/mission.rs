@@ -64,7 +64,7 @@ impl<'s> Mission<'s> {
                         if full_path.exists() {
                             directories_to_watch.push(full_path.into());
                         } else {
-                            warn!("missing {} dir: {:?}", dir, full_path);
+                            info!("missing {} dir: {:?}", dir, full_path);
                         }
                     }
                 }

@@ -108,6 +108,11 @@ impl MissionLocation {
     pub fn package_config_path(&self) -> PathBuf {
         self.package_directory.join("bacon.toml")
     }
+    /// return the location of the workspace level bacon.toml file
+    /// (it may be the same path than the package config)
+    pub fn workspace_config_path(&self) -> PathBuf {
+        self.workspace_root.join("bacon.toml")
+    }
 }
 
 fn cargo_manifest_not_found(err: &str) -> bool {
