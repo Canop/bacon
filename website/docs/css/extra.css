@@ -220,7 +220,11 @@ body .navbar-brand {
 }
 .bs-sidebar .nav > .active > a,
 .bs-sidebar .nav > .active:hover > a,
-.bs-sidebar .nav > .active:focus > a {
+.bs-sidebar .nav > .active:focus > a,
+.bs-sidebar .nav > li > a.active,
+.bs-sidebar .nav > li > a.active:hover,
+.bs-sidebar .nav > li > a.active:focus
+{
 	font-weight: initial;
 	background-color: #bed7e632;
 	border-right: 1px solid;
@@ -228,7 +232,7 @@ body .navbar-brand {
 .bs-sidebar .nav > .main.active > a,
 .bs-sidebar .nav > .main.active:hover > a,
 .bs-sidebar .nav > .main.active:focus > a {
-	font-weight: bold;
+	font-weight: normal;
 }
 .bs-sidebar .nav > li > a {
   font-weight: normal;
