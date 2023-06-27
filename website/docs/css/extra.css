@@ -44,6 +44,17 @@ body {
 	background-color: var(--bg);
 	color: var(--text);
 }
+.modal-dialog {
+	font-size: 15px;
+	color: #ccc;
+}
+.modal-dialog a {
+	color: var(--accent);
+}
+.modal-dialog a:hover {
+	text-decoration: underline;
+	color: var(--accent);
+}
 
 body .bg-secondary {
 	background-color: transparent !important;
@@ -70,7 +81,7 @@ p.logo {
 	box-shadow: none;
 }
 
-h1 {
+.container h1 {
 	font-size: 22px;
 	border-bottom: solid 1px;
 	padding-bottom: 8px;
@@ -80,16 +91,26 @@ h1 {
 	border-image-slice: 1;
 	color: #111;
 }
-h2 {
+.modal-body h2 {
+	font-size: 18px;
+}
+.container h2 {
 	font-size: 20px;
 	color: #111;
 	margin: 25px 0 20px 0;
 }
-h3 {
+.modal-body h3 {
+	font-size: 14px;
+}
+.container h3 {
 	font-size: 16px;
 	color: #111;
 }
-h4 {
+.modal-body h4, .modal-dialog h4 {
+	font-size: 16px;
+	color: #ddd;
+}
+.container h4 {
 	color: #111;
 }
 
@@ -149,7 +170,7 @@ body .navbar-dark .navbar-nav a.nav-link
 {
 	color: var(--sidenav-fg);
 }
-body a:hover,
+body li.nav-item a:hover,
 body a.nav-link:hover
 {
 	color: var(--accent);

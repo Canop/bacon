@@ -1,17 +1,17 @@
 
 # Configuration Files
 
-The behavior of bacon is defined by both a global `prefs.toml` file and a project specific `bacon.toml` file.
+The behavior of bacon is defined by a global `prefs.toml` file and project specific `bacon.toml` files.
 
-Both configuration files are optional but you'll fast need specific jobs for your targets, examples, etc.
+All configuration files are optional but you'll fast need specific jobs for your targets, examples, etc.
+
+All accept the same properties (preferences, keybindings, jobs, etc.).
+The properties of the global `prefs.toml` file are overriden by the workspace level `bacon.toml` file, then by the package level `bacon.toml` file.
 
 When you modified those files and bacon evolved since, you may want to have a look at the current default ones and pick the changes you like:
 
 * [Current default prefs.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-prefs.toml)
 * [Current default bacon.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-bacon.toml)
-
-The two files can accept the same properties (preferences, keybindings, jobs, etc.).
-What's defined in the `bacon.toml` file overrides the global `prefs.toml` file.
 
 ## Global Preferences
 
@@ -57,7 +57,7 @@ You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bac
 
 ## Key Bindings
 
-This section, that you can also define in the project specific `bacon.toml` file, lets you change the key combinations to use to trigger [actions](#actions).
+This section lets you change the key combinations to use to trigger [actions](#actions).
 
 For example:
 
@@ -73,7 +73,7 @@ ctrl-u = "scroll-page(-1)"
 ctrl-d = "scroll-page(1)"
 ```
 
-Note that you may have keybindings for jobs which aren't defined in all projects, this isn't an error.
+Note that you may have keybindings for jobs which aren't defined in your project, this isn't an error, and it's convenient to help keep define your personal keybindings in one place.
 
 Your operating system and console intercept many key combinations. If you want to know which one are available, and the key syntax to use, you may find [print_key](https://github.com/Canop/print_key) useful.
 
