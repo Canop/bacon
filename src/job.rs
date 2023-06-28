@@ -1,6 +1,7 @@
 use {
     crate::*,
     serde::Deserialize,
+    std::collections::HashMap,
 };
 
 /// One of the possible job that bacon can run
@@ -49,8 +50,12 @@ pub struct Job {
     #[serde(default)]
     pub allow_failures: bool,
 
-    /// Thether gitignore rules must be applied
+    /// Whether gitignore rules must be applied
     pub apply_gitignore: Option<bool>,
+
+    /// Env vars to set for this job execution
+    #[serde(default)]
+    pub env: HashMap<String, String>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -61,7 +66,7 @@ fn default_true() -> bool {
 }
 
 impl Job {
-    /// Builds a `Job` for a cargo alias
+    /// Build a `Job` for a cargo alias
     pub fn from_alias(
         alias_name: &str,
         settings: &Settings,
@@ -85,6 +90,7 @@ impl Job {
             allow_warnings: false,
             allow_failures: false,
             apply_gitignore: None,
+            env: Default::default(),
         }
     }
 }

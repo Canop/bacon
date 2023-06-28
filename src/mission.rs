@@ -215,6 +215,7 @@ impl<'s> Mission<'s> {
             }
         }
         command.current_dir(&self.cargo_execution_directory);
+        command.envs(&self.job.env);
         debug!("command: {:#?}", &command);
         command
     }

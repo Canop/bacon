@@ -1,3 +1,6 @@
+## next
+- allow defining env vars for jobs - Fix #145
+
 <a name="v2.10.0"></a>
 ### v2.10.0 - 2023/06/27
 - accept bacon.toml file at workspace level - Fix #141

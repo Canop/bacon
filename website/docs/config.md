@@ -93,6 +93,7 @@ on_success | yes | the action to run when there's no error, warning or test fail
 allow_warnings | yes | if `true`, the action is considered a success even when there are warnings. Default is `false` but the standard `run` job is configured with `allow_warnings=false`
 allow_failures | yes | if `true`, the action is considered a success even when there are test failures. Default is `false`
 apply_gitignore | yes | if `true` (which is default) the job isn't triggered when the modified file is excluded by gitignore rules
+env | yes | a map of environment vars, for example `env.LOG_LEVEL="die"`
 
 Example:
 
