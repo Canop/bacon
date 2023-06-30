@@ -1,4 +1,5 @@
-## next
+<a name="v2.11.0"></a>
+### v2.11.0 - 2023/06/30
 - allow defining env vars for jobs - Fix #145
 
 <a name="v2.10.0"></a>
