@@ -95,7 +95,6 @@ fn determine_warning_type(
     body_raw: &str,
     content: &TLine,
 ) -> LineType {
-    info!("DETER WT {:?}", &content);
     if is_n_warnings_emitted(body_raw)
         || is_generated_n_warnings(&content.strings)
         || is_build_failed(content.strings.get(2))
@@ -116,7 +115,7 @@ fn is_n_warnings_emitted(s: &str) -> bool {
 }
 fn is_generated_n_warnings(ts: &[TString]) -> bool {
     ts.iter()
-        .any(|ts| regex_is_match!(r#"generated \d+ warnings?$"#, &ts.raw))
+        .any(|ts| regex_is_match!(r#"generated \d+ warnings?"#, &ts.raw))
 }
 fn is_build_failed(ts: Option<&TString>) -> bool {
     ts.map_or(false, |ts| regex_is_match!(r#"^\s*build failed"#, &ts.raw))
