@@ -192,7 +192,9 @@ impl Report {
                 }
                 _ => {}
             }
-            let Some(location) = line.location() else { continue };
+            let Some(location) = line.location() else {
+                continue;
+            };
             let (_, mut path, file_line, file_column) =
                 regex_captures!(r#"^([^:]+):(\d+):(\d+)$"#, location,)
                     .unwrap_or(("", location, "", ""));

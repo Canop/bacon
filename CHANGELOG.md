@@ -1,5 +1,6 @@
-### next
-- fix occasional additional warning counted - Fix #149
+<a name="v2.11.1"></a>
+### v2.11.1 - 2023/07/13
+- fix warning summary sometimes confused with a warning - Fix #149
 
 <a name="v2.11.0"></a>
 ### v2.11.0 - 2023/06/30
