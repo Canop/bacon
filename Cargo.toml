@@ -1,6 +1,6 @@
 [package]
 name = "bacon"
-version = "2.11.1"
+version = "2.12.0-dev"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/bacon"
 description = "background rust compiler"
@@ -14,7 +14,8 @@ rust-version = "1.65"
 [dependencies]
 anyhow = "1.0.68"
 cargo_metadata = "0.14.0"
-clap = { version = "3.1", features = ["derive"] }
+clap = { version = "4.3", features = ["derive", "cargo"] }
+clap-help = "0.5"
 cli-log = "2.0.0"
 crokey = "0.4.1"
 crossbeam = "0.8.2"
@@ -34,5 +35,6 @@ lto = true
 strip = true
 
 [patch.crates-io]
+# clap-help = { path = "../clap-help" }
 # termimad = { path = "../termimad" }
 # lazy-regex = { path = "../lazy-regex" }

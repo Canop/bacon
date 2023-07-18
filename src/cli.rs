@@ -30,6 +30,16 @@ pub fn run() -> anyhow::Result<()> {
     args.fix()?;
     info!("args: {:#?}", &args);
 
+    if args.help {
+        args.print_help();
+        return Ok(());
+    }
+
+    if args.version {
+        println!("bacon {}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+
     let mut settings = Settings::default();
 
     if let Some(project_dir) = ProjectDirs::from("org", "dystroy", "bacon") {

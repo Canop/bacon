@@ -1,3 +1,6 @@
+### next
+- better `--help`
+
 <a name="v2.11.1"></a>
 ### v2.11.1 - 2023/07/13
 - fix warning summary sometimes confused with a warning - Fix #149

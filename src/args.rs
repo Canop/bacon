@@ -4,90 +4,105 @@ use {
         bail,
         Result,
     },
-    clap::Parser,
+    clap::{CommandFactory, Parser},
+    termimad::ansi,
 };
 
+static INTRO: &str = "
+
+**bacon** watches your rust project and runs jobs in background.
+
+Documentation at https://dystroy.org/bacon
+";
+
+/// Launch arguments
 #[derive(Debug, Parser)]
-/// bacon watches your source and run code checks in background.
-///
-/// Documentation at <https://dystroy.org/bacon>
-#[clap(author, version, about)]
+#[command(author, about, version, disable_version_flag = true, disable_help_flag = true)]
 pub struct Args {
-    /// print the path to the prefs file, create it if it doesn't exist
-    #[clap(long = "prefs")]
+
+    /// Print help information
+    #[arg(long)]
+    pub help: bool,
+
+    /// Print the version
+    #[arg(long)]
+    pub version: bool,
+
+    /// Print the path to the prefs file, create it if it doesn't exist
+    #[clap(long)]
     pub prefs: bool,
 
-    /// start in summary mode
-    #[clap(short = 's', long = "summary")]
+    /// Start in summary mode
+    #[clap(short = 's', long)]
     pub summary: bool,
 
-    /// start in full mode (not summary)
-    #[clap(short = 'S', long = "no-summary")]
+    /// Start in full mode (not summary)
+    #[clap(short = 'S', long)]
     pub no_summary: bool,
 
-    /// start with lines wrapped
-    #[clap(short = 'w', long = "wrap")]
+    /// Start with lines wrapped
+    #[clap(short = 'w', long)]
     pub wrap: bool,
 
-    /// start with lines not wrapped
-    #[clap(short = 'W', long = "no-wrap")]
+    /// Start with lines not wrapped
+    #[clap(short = 'W', long)]
     pub no_wrap: bool,
 
-    /// start with gui vertical order reversed
-    #[clap(long = "reverse")]
+    /// Start with gui vertical order reversed
+    #[clap(long)]
     pub reverse: bool,
 
-    /// start with standard gui order (focus on top)
-    #[clap(long = "no-reverse")]
+    /// Start with standard gui order (focus on top)
+    #[clap(long)]
     pub no_reverse: bool,
 
-    /// list available jobs
-    #[clap(short = 'l', long = "list-jobs")]
+    /// List available jobs
+    #[clap(short = 'l', long)]
     pub list_jobs: bool,
 
-    /// don't access the network (jobs may use it, though)
-    #[clap(long = "offline")]
+    /// Don't access the network (jobs may use it, though)
+    #[clap(long)]
     pub offline: bool,
 
-    /// create a bacon.toml file, ready to be customized
-    #[clap(long = "init")]
+    /// Create a bacon.toml file, ready to be customized
+    #[clap(long)]
     pub init: bool,
 
-    /// job to launch ("check", "clippy", customized ones, ...)
-    #[clap(short = 'j', long = "job")]
+    /// Job to launch eg `check`, `clippy`, customized ones, ...
+    #[clap(short = 'j', long, value_name = "job")]
     pub job: Option<ConcreteJobRef>,
 
-    /// ignore features of both the package and the bacon job
-    #[clap(long = "no-default-features")]
+    /// Ignore features of both the package and the bacon job
+    #[clap(long)]
     pub no_default_features: bool,
 
-    /// activate all available features
-    #[clap(long = "all-features")]
-    pub all_features: bool,
-
-    /// comma separated list of features to ask cargo to compile with
+    /// Comma separated list of features to ask cargo to compile with
     /// (if the job defines some, they're merged)
-    #[clap(long = "features")]
+    #[clap(long, value_name = "features")]
     pub features: Option<String>,
 
-    /// export locations in .bacon-locations file
-    #[clap(short = 'e', long = "export-locations")]
+    /// Activate all available features
+    #[clap(long)]
+    pub all_features: bool,
+
+    /// Export locations in `.bacon-locations` file
+    #[clap(short = 'e', long)]
     pub export_locations: bool,
 
-    /// don't export locations
-    #[clap(short = 'E', long = "no-export-locations")]
+    /// Don't export locations
+    #[clap(short = 'E', long)]
     pub no_export_locations: bool,
 
-    /// path to watch (must be a rust directory or inside)
-    #[clap(short = 'p', long = "path")]
+    /// Path to watch (must be a rust directory or inside)
+    #[clap(short = 'p', long, value_name = "path")]
     pub path: Option<String>,
 
     #[clap()]
-    /// either a job, or a path, or both
+    /// What to do: either a job, or a path, or both
     pub args: Vec<String>,
 
     #[clap(last = true)]
-    /// arguments given to the job
+    /// Arguments given to the job
     pub additional_job_args: Vec<String>,
 }
 
@@ -129,5 +144,14 @@ impl Args {
             _ => {}
         }
         Ok(())
+    }
+    pub fn print_help(&self) {
+        let mut printer = clap_help::Printer::new(Args::command())
+            .with("introduction", INTRO)
+            .without("author");
+        let skin = printer.skin_mut();
+        skin.headers[0].compound_style.set_fg(ansi(204));
+        skin.bold.set_fg(ansi(204));
+        printer.print_help();
     }
 }
