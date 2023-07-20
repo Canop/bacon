@@ -63,17 +63,25 @@ For example:
 
 ```TOML
 [keybindings]
-k = "scroll-lines(-1)"
-j = "scroll-lines(1)"
 h = "job:clippy"
-esc = "job:previous"
 shift-F9 = "toggle-backtrace"
 ctrl-r = "toggle-raw-output"
-ctrl-u = "scroll-page(-1)"
-ctrl-d = "scroll-page(1)"
 ```
 
 Note that you may have keybindings for jobs which aren't defined in your project, this isn't an error, and it's convenient to help keep define your personal keybindings in one place.
+
+Another example, if you want vim-like shortcuts:
+
+```TOML
+[keybindings]
+esc = "back"
+g = "scroll-to-top"
+shift-g = "scroll-to-bottom"
+k = "scroll-lines(-1)"
+j = "scroll-lines(1)"
+ctrl-u = "scroll-page(-1)"
+ctrl-d = "scroll-page(1)"
+```
 
 Your operating system and console intercept many key combinations. If you want to know which one are available, and the key syntax to use, you may find [print_key](https://github.com/Canop/print_key) useful.
 
