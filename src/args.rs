@@ -152,6 +152,7 @@ impl Args {
         let skin = printer.skin_mut();
         skin.headers[0].compound_style.set_fg(ansi(204));
         skin.bold.set_fg(ansi(204));
+        //skin.italic = termimad::CompoundStyle::with_fg(ansi(2));
         printer.print_help();
     }
 }
