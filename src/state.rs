@@ -101,6 +101,9 @@ impl<'s> AppState<'s> {
         let auto_scroll = self.is_scroll_at_bottom();
         if let Some(output) = self.output.as_mut() {
             output.push(line);
+            if self.wrap {
+                self.update_wrap(self.width - 1);
+            }
             if auto_scroll {
                 // if the user never scrolled, we'll stick to the bottom
                 self.scroll_to_bottom();
@@ -177,6 +180,9 @@ impl<'s> AppState<'s> {
             self.reset_scroll();
         }
         self.raw_output = false;
+        if self.wrap {
+            self.update_wrap(self.width - 1);
+        }
     }
     pub fn computation_starts(&mut self) {
         self.computing = true;
@@ -191,7 +197,7 @@ impl<'s> AppState<'s> {
     fn scroll_to_bottom(&mut self) {
         let ch = self.content_height();
         let ph = self.page_height();
-        self.scroll = if ch > ph { ch - ph - 1 } else { 0 };
+        self.scroll = if ch > ph { ch - ph } else { 0 };
         // we don't set top_item_idx - does it matter?
     }
     fn is_scroll_at_bottom(&self) -> bool {
@@ -315,6 +321,9 @@ impl<'s> AppState<'s> {
         }
         self.width = width;
         self.height = height;
+        if self.wrap {
+            self.update_wrap(self.width - 1);
+        }
         self.try_scroll_to_last_top_item();
     }
     pub fn apply_scroll_command(
@@ -431,7 +440,7 @@ impl<'s> AppState<'s> {
             match self.wrapped_output.as_mut() {
                 None => {
                     self.wrapped_output = Some(WrappedCommandOutput::new(output, width));
-                    self.scroll = 0;
+                    self.reset_scroll();
                 }
                 Some(wo) => {
                     wo.update(output, width);
@@ -450,14 +459,11 @@ impl<'s> AppState<'s> {
             return Ok(());
         }
         let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
-        if self.wrap {
-            self.update_wrap(area.width); // must be done before call to content_height
-        }
         let content_height = self.content_height();
         let scrollbar = area.scrollbar(self.scroll, content_height);
         let mut top_item_idx = None;
         let top = if self.reverse && self.page_height() > content_height {
-            self.page_height() - content_height + 1
+            self.page_height() - content_height
         } else {
             0
         };
