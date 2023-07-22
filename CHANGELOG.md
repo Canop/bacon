@@ -1,3 +1,7 @@
+<a name="v2.12.1"></a>
+### v2.12.1 - 2023/07/22
+- fix some scroll problem, especially in reverse - Fix #86
+
 <a name="v2.12.0"></a>
 ### v2.12.0 - 2023/07/20
 - better `--help`
