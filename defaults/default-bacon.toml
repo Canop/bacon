@@ -54,6 +54,15 @@ command = [
 need_stdout = true
 allow_warnings = true
 
+# This parameterized job runs the example of your choice, as soon
+# as the code compiles.
+# Call it as
+#    bacon ex -- my-example
+[jobs.ex]
+command = ["cargo", "run", "--color", "always", "--example"]
+allow_warnings = true
+need_stdout = true
+
 # You may define here keybindings that would be specific to
 # a project, for example a shortcut to launch a specific job.
 # Shortcuts to internal functions (scrolling, toggling, etc.)
