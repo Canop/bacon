@@ -1,3 +1,6 @@
+### next
+- fix mouse wheel scrolling not working on Windows - Fix #153 - Thanks @Adham-A
+
 <a name="v2.12.1"></a>
 ### v2.12.1 - 2023/07/22
 - fix some scroll problem, especially in reverse - Fix #86
