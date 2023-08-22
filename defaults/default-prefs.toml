@@ -18,7 +18,7 @@
 
 # Exporting "locations" lets you use them in an external
 # tool, for example as a list of jump locations in an IDE.
-# 
+#
 # See https://dystroy.org/bacon/config/#export-locations
 #
 # Set 'enabled' to true to have bacon always export locations
