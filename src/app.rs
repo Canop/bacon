@@ -6,8 +6,18 @@ use {
         bounded,
         select,
     },
-    termimad::crossterm::event::Event,
-    termimad::EventSource,
+    termimad::{
+        crossterm::event::Event,
+        EventSource,
+    },
+};
+#[cfg(windows)]
+use {
+    crokey::key,
+    termimad::crossterm::event::{
+        MouseEvent,
+        MouseEventKind,
+    },
 };
 
 /// Run the mission and return the reference to the next
@@ -76,6 +86,14 @@ pub fn run(
                     Event::Key(key_event) => {
                         debug!("key pressed: {}", CroKey::from(key_event));
                         action = keybindings.get(key_event);
+                    }
+                    #[cfg(windows)]
+                    Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollDown, .. }) => {
+                        action = keybindings.get(key!(down));
+                    }
+                    #[cfg(windows)]
+                    Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollUp, .. }) => {
+                        action = keybindings.get(key!(up));
                     }
                     _ => {}
                 }
