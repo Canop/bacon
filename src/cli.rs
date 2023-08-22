@@ -17,6 +17,11 @@ use {
     termimad::EventSource,
 };
 
+#[cfg(windows)]
+use termimad::crossterm::event::{
+    EnableMouseCapture,
+    DisableMouseCapture,
+};
 /// The Write type used by all GUI writing functions
 pub type W = std::io::BufWriter<std::io::Stdout>;
 
@@ -106,6 +111,8 @@ pub fn run() -> anyhow::Result<()> {
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
+    #[cfg(windows)]
+    w.queue(EnableMouseCapture)?;
 
     let event_source = EventSource::new()?;
     let mut job_stack = JobStack::new(&settings);
@@ -141,6 +148,8 @@ pub fn run() -> anyhow::Result<()> {
 
     w.queue(cursor::Show)?;
     w.queue(LeaveAlternateScreen)?;
+    #[cfg(windows)]
+    w.queue(DisableMouseCapture)?;
     w.flush()?;
     result
 }

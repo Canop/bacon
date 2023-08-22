@@ -9,6 +9,13 @@ use {
     termimad::crossterm::event::Event,
     termimad::EventSource,
 };
+#[cfg(windows)]
+use termimad::crossterm::event::{
+    MouseEventKind,
+    KeyCode,
+    KeyEvent,
+    KeyModifiers,
+};
 
 /// Run the mission and return the reference to the next
 /// job to run, if any
@@ -77,6 +84,17 @@ pub fn run(
                         debug!("key pressed: {}", CroKey::from(key_event));
                         action = keybindings.get(key_event);
                     }
+                    #[cfg(windows)]
+                    Event::Mouse(mouse_event) => {
+                        let key_code =
+                        match mouse_event.kind {
+                            MouseEventKind::ScrollDown => {KeyCode::Down}
+                            MouseEventKind::ScrollUp => {KeyCode::Up}
+                            _ => {KeyCode::Null}
+                        };
+                        action = keybindings.get(KeyEvent::new(key_code,KeyModifiers::NONE));
+                    }
+                    #[cfg(not(windows))]
                     _ => {}
                 }
                 event_source.unblock(false);
