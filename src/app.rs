@@ -6,15 +6,18 @@ use {
         bounded,
         select,
     },
-    termimad::crossterm::event::Event,
-    termimad::EventSource,
+    termimad::{
+        crossterm::event::Event,
+        EventSource,
+    },
 };
 #[cfg(windows)]
-use termimad::crossterm::event::{
-    MouseEventKind,
-    KeyCode,
-    KeyEvent,
-    KeyModifiers,
+use {
+    crokey::key,
+    termimad::crossterm::event::{
+        MouseEvent,
+        MouseEventKind,
+    },
 };
 
 /// Run the mission and return the reference to the next
@@ -85,16 +88,13 @@ pub fn run(
                         action = keybindings.get(key_event);
                     }
                     #[cfg(windows)]
-                    Event::Mouse(mouse_event) => {
-                        let key_code =
-                        match mouse_event.kind {
-                            MouseEventKind::ScrollDown => {KeyCode::Down}
-                            MouseEventKind::ScrollUp => {KeyCode::Up}
-                            _ => {KeyCode::Null}
-                        };
-                        action = keybindings.get(KeyEvent::new(key_code,KeyModifiers::NONE));
+                    Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollDown, .. }) => {
+                        action = keybindings.get(key!(down));
                     }
-                    #[cfg(not(windows))]
+                    #[cfg(windows)]
+                    Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollUp, .. }) => {
+                        action = keybindings.get(key!(up));
+                    }
                     _ => {}
                 }
                 event_source.unblock(false);

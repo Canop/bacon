@@ -6,21 +6,23 @@ use {
         fs,
         io::Write,
     },
-    termimad::crossterm::{
-        cursor,
-        terminal::{
-            EnterAlternateScreen,
-            LeaveAlternateScreen,
+    termimad::{
+        crossterm::{
+            cursor,
+            terminal::{
+                EnterAlternateScreen,
+                LeaveAlternateScreen,
+            },
+            QueueableCommand,
         },
-        QueueableCommand,
+        EventSource,
     },
-    termimad::EventSource,
 };
 
 #[cfg(windows)]
 use termimad::crossterm::event::{
-    EnableMouseCapture,
     DisableMouseCapture,
+    EnableMouseCapture,
 };
 /// The Write type used by all GUI writing functions
 pub type W = std::io::BufWriter<std::io::Stdout>;
@@ -146,10 +148,10 @@ pub fn run() -> anyhow::Result<()> {
         }
     }
 
-    w.queue(cursor::Show)?;
-    w.queue(LeaveAlternateScreen)?;
     #[cfg(windows)]
     w.queue(DisableMouseCapture)?;
+    w.queue(cursor::Show)?;
+    w.queue(LeaveAlternateScreen)?;
     w.flush()?;
     result
 }
