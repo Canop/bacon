@@ -33,6 +33,9 @@ impl From<&CommandOutputLine> for LineAnalysis {
                 LineType::Title(Kind::Sum)
             } else if regex_is_match!("^note: run with `RUST_BACKTRACE=", content) {
                 LineType::BacktraceSuggestion
+            } else if regex_is_match!(r#", [^:\s'"]+:\d+:\d+$"#, content) {
+                // this kind of location comes up in test failures
+                LineType::Location
             } else {
                 LineType::Normal
             }

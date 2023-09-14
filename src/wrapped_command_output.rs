@@ -20,7 +20,6 @@ impl WrappedCommandOutput {
         cmd_output: &CommandOutput,
         width: u16,
     ) -> Self {
-        debug!("wrapping cmd_output");
         let sub_lines = wrap(&cmd_output.lines, width);
         Self {
             sub_lines,
@@ -35,7 +34,6 @@ impl WrappedCommandOutput {
         cmd_output: &CommandOutput,
         width: u16,
     ) {
-        debug!("updating cmd_output");
         let mut new_lines = wrap(&cmd_output.lines[self.wrapped_lines_count..], width);
         for mut line in new_lines.drain(..) {
             line.line_idx += self.wrapped_lines_count;

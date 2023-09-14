@@ -1,34 +1,36 @@
-use crate::*;
-use anyhow::{
-    anyhow,
-    Context,
-    Result,
-};
-use std::{
-    process::{
-        ExitStatus,
-        Stdio,
+use {
+    crate::*,
+    anyhow::{
+        anyhow,
+        Context,
+        Result,
     },
-    thread,
-};
-use tokio::{
-    io::{
-        AsyncBufReadExt,
-        AsyncRead,
-        BufReader,
-    },
-    process::{
-        Child,
-        Command,
-    },
-    sync::{
-        mpsc::{
-            channel,
-            Sender,
+    std::{
+        process::{
+            ExitStatus,
+            Stdio,
         },
-        oneshot,
+        thread,
     },
-    task::JoinHandle,
+    tokio::{
+        io::{
+            AsyncBufReadExt,
+            AsyncRead,
+            BufReader,
+        },
+        process::{
+            Child,
+            Command,
+        },
+        sync::{
+            mpsc::{
+                channel,
+                Sender,
+            },
+            oneshot,
+        },
+        task::JoinHandle,
+    },
 };
 
 /// an executor calling a cargo (or similar) command in a separate

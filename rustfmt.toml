@@ -1,4 +1,5 @@
 edition = "2021"
 version = "Two"
+imports_granularity = "one"
 imports_layout = "Vertical"
 fn_params_layout = "Vertical"

@@ -1,4 +1,7 @@
 ### next
+- fix mouse wheel scrolling not working on Windows - Fix #153 - Thanks @Adham-A
+- detect locations in test failures, thus enabling jumps to those failures
+- more relevant suggestions in help line
 - add a default job for running examples
 
 <a name="v2.12.1"></a>
