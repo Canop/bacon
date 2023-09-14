@@ -195,7 +195,7 @@ impl Report {
                 continue;
             };
             let (_, mut path, file_line, file_column) =
-                regex_captures!(r#"^([^:]+):(\d+):(\d+)$"#, location,)
+                regex_captures!(r#"^([^:\s]+):(\d+):(\d+)$"#, location)
                     .unwrap_or(("", location, "", ""));
             // we need to make sure the path is absolute
             let path_buf = PathBuf::from(path);

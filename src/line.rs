@@ -1,5 +1,6 @@
 use {
     crate::*,
+    lazy_regex::regex_captures,
     std::path::PathBuf,
 };
 
@@ -33,7 +34,13 @@ impl Line {
     /// It's usually relative and may contain the line and column
     pub fn location(&self) -> Option<&str> {
         match self.line_type {
-            LineType::Location => self.content.strings.get(2).map(|ts| ts.raw.as_str()),
+            LineType::Location => {
+                // the location part is a string at end like src/truc:15:3
+                // or src/truc
+                self.content.strings.last()
+                    .and_then(|ts| regex_captures!(r"(\S+)$", ts.raw.as_str()))
+                    .map(|(_, path)| path)
+            }
             _ => None,
         }
     }
