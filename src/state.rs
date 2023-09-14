@@ -2,16 +2,16 @@ use {
     crate::*,
     anyhow::Result,
     std::io::Write,
-    termimad::crossterm::{
-        cursor,
-        execute,
-        style::{
-            Attribute,
-            Color::*,
-            Print,
-        },
-    },
     termimad::{
+        crossterm::{
+            cursor,
+            execute,
+            style::{
+                Attribute,
+                Color::*,
+                Print,
+            },
+        },
         minimad::{
             Alignment,
             Composite,
