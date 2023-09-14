@@ -1,3 +1,6 @@
+### next
+- add a default job for running examples
+
 <a name="v2.12.1"></a>
 ### v2.12.1 - 2023/07/22
 - fix some scroll problem, especially in reverse - Fix #86
