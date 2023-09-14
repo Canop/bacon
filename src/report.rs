@@ -125,7 +125,6 @@ impl Report {
                         Some(Kind::TestFail) => fails.push(line),
                         _ => {} // before warnings and errors, or in a sum
                     }
-                    suggest_backtrace = true;
                 }
                 _ => {}
             }
