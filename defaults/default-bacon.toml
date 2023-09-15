@@ -24,9 +24,9 @@ command = [
 need_stdout = false
 
 # This job lets you run
-# * all tests: bacon test
-# * a specific test: bacon test -- config::test_default_files
-# * the tests of a package: bacon test -- -- -p config
+# - all tests: bacon test
+# - a specific test: bacon test -- config::test_default_files
+# - the tests of a package: bacon test -- -- -p config
 [jobs.test]
 command = [
     "cargo", "test", "--color", "always",

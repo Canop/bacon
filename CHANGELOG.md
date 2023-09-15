@@ -1,4 +1,5 @@
-### next
+<a name="v2.13.0"></a>
+### v2.13.0 - 2023/09/15
 - fix mouse wheel scrolling not working on Windows - Fix #153 - Thanks @Adham-A
 - detect locations in test failures, thus enabling jumps to those failures
 - more relevant suggestions in help line

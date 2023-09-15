@@ -37,7 +37,9 @@ impl Line {
             LineType::Location => {
                 // the location part is a string at end like src/truc:15:3
                 // or src/truc
-                self.content.strings.last()
+                self.content
+                    .strings
+                    .last()
                     .and_then(|ts| regex_captures!(r"(\S+)$", ts.raw.as_str()))
                     .map(|(_, path)| path)
             }
