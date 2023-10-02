@@ -10,6 +10,7 @@ pub enum Internal {
     Back,
     Help,
     Quit,
+    Refresh, // clear and rerun
     ReRun,
     Scroll(ScrollCommand),
     ToggleBacktrace,
@@ -27,6 +28,7 @@ impl fmt::Display for Internal {
             Self::Back => write!(f, "back to previous page or job"),
             Self::Help => write!(f, "help"),
             Self::Quit => write!(f, "quit"),
+            Self::Refresh => write!(f, "clear then run current job again"),
             Self::ReRun => write!(f, "run current job again"),
             Self::Scroll(scroll_command) => scroll_command.fmt(f),
             Self::ToggleBacktrace => write!(f, "toggle backtrace"),
@@ -47,6 +49,7 @@ impl std::str::FromStr for Internal {
             "back" => Ok(Self::Back),
             "help" => Ok(Self::Help),
             "quit" => Ok(Self::Quit),
+            "refresh" => Ok(Self::Refresh),
             "rerun" => Ok(Self::ReRun),
             "toggle-raw-output" => Ok(Self::ToggleRawOutput),
             "toggle-backtrace" => Ok(Self::ToggleBacktrace),

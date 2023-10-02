@@ -184,6 +184,10 @@ impl<'s> AppState<'s> {
             self.update_wrap(self.width - 1);
         }
     }
+    pub fn clear(&mut self) {
+        self.take_output();
+        self.cmd_result = CommandResult::None;
+    }
     pub fn computation_starts(&mut self) {
         self.computing = true;
     }
