@@ -46,9 +46,12 @@ need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 
 # You can run your application and have the result displayed in bacon,
-# *if* it makes sense for this crate. You can run an example the same
-# way. Don't forget the `--color always` part or the errors won't be
+# *if* it makes sense for this crate.
+# Don't forget the `--color always` part or the errors won't be
 # properly parsed.
+# If your program never stops (eg a server), you may set `background`
+# to false to have the cargo run output immediately displayed instead
+# of waiting for program's end.
 [jobs.run]
 command = [
     "cargo", "run",
@@ -57,6 +60,7 @@ command = [
 ]
 need_stdout = true
 allow_warnings = true
+background = true
 
 # This parameterized job runs the example of your choice, as soon
 # as the code compiles.
@@ -64,8 +68,8 @@ allow_warnings = true
 #    bacon ex -- my-example
 [jobs.ex]
 command = ["cargo", "run", "--color", "always", "--example"]
-allow_warnings = true
 need_stdout = true
+allow_warnings = true
 
 # You may define here keybindings that would be specific to
 # a project, for example a shortcut to launch a specific job.
