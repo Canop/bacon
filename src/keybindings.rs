@@ -27,7 +27,7 @@ impl Default for KeyBindings {
         bindings.set(key!(ctrl - c), Internal::Quit);
         bindings.set(key!(ctrl - q), Internal::Quit);
         bindings.set(key!(q), Internal::Quit);
-        bindings.set(key!(F5), Internal::ReRun);
+        bindings.set(key!(F5), Internal::Refresh);
         bindings.set(key!(s), Internal::ToggleSummary);
         bindings.set(key!(w), Internal::ToggleWrap);
         bindings.set(key!(b), Internal::ToggleBacktrace);

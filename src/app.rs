@@ -150,9 +150,17 @@ pub fn run(
                     Internal::Quit => {
                         break;
                     }
+                    Internal::Refresh => {
+                        if let Err(e) = executor.start(state.new_task()) {
+                            debug!("error sending task on rerun: {}", e);
+                        } else {
+                            state.clear();
+                            state.computation_starts();
+                        }
+                    }
                     Internal::ReRun => {
                         if let Err(e) = executor.start(state.new_task()) {
-                            debug!("error sending task on re-rerun: {}", e);
+                            debug!("error sending task on refresh: {}", e);
                         } else {
                             state.computation_starts();
                         }
