@@ -56,6 +56,15 @@ pub struct Job {
     /// Env vars to set for this job execution
     #[serde(default)]
     pub env: HashMap<String, String>,
+
+    /// Whether to wait for the computation to finish before
+    /// to display it on screen
+    ///
+    /// This is true by default. Set it to false if you want
+    /// the previous computation result to be replaced with
+    /// the new one as soon as it starts.
+    #[serde(default = "default_true")]
+    pub background: bool,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -91,6 +100,7 @@ impl Job {
             allow_failures: false,
             apply_gitignore: None,
             env: Default::default(),
+            background: true,
         }
     }
 }

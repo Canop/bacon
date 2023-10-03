@@ -102,6 +102,7 @@ allow_warnings | yes | if `true`, the action is considered a success even when t
 allow_failures | yes | if `true`, the action is considered a success even when there are test failures. Default is `false`
 apply_gitignore | yes | if `true` (which is default) the job isn't triggered when the modified file is excluded by gitignore rules
 env | yes | a map of environment vars, for example `env.LOG_LEVEL="die"`
+background | yes | compute in background and display only on end. Default is `true`
 
 Example:
 
@@ -153,7 +154,8 @@ internal | default binding | meaning
 back | <kbd>Esc</kbd> | get back to the previous page or job
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
-rerun | <kbd>F5</kbd> | run current job again
+refresh | <kbd>F5</kbd> | clear output then run current job again
+rerun |  | run current job again
 toggle-raw-output |  | display the untransformed command output
 toggle-backtrace | <kbd>b</kbd> | enable rust backtrace (for example on test failing)
 toggle-summary | <kbd>s</kbd> | display results as abstracts
