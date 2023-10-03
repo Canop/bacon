@@ -100,11 +100,7 @@ pub fn run(
                 event_source.unblock(false);
             }
             recv(watch_receiver) -> _ => {
-                if let Err(e) = executor.start(state.new_task()) {
-                    debug!("error sending task: {}", e);
-                } else {
-                    state.computation_starts();
-                }
+                state.start_computation(&executor);
             }
             recv(executor.line_receiver) -> info => {
                 match info? {
@@ -151,19 +147,11 @@ pub fn run(
                         break;
                     }
                     Internal::Refresh => {
-                        if let Err(e) = executor.start(state.new_task()) {
-                            debug!("error sending task on rerun: {}", e);
-                        } else {
-                            state.clear();
-                            state.computation_starts();
-                        }
+                        state.clear();
+                        state.start_computation(&executor);
                     }
                     Internal::ReRun => {
-                        if let Err(e) = executor.start(state.new_task()) {
-                            debug!("error sending task on refresh: {}", e);
-                        } else {
-                            state.computation_starts();
-                        }
+                        state.start_computation(&executor);
                     }
                     Internal::ToggleRawOutput => {
                         state.toggle_raw_output();
@@ -176,11 +164,7 @@ pub fn run(
                     }
                     Internal::ToggleBacktrace => {
                         state.toggle_backtrace();
-                        if let Err(e) = executor.start(state.new_task()) {
-                            debug!("error sending task: {}", e);
-                        } else {
-                            state.computation_starts();
-                        }
+                        state.start_computation(&executor);
                     }
                     Internal::Scroll(scroll_command) => {
                         let scroll_command = *scroll_command;

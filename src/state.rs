@@ -188,7 +188,20 @@ impl<'s> AppState<'s> {
         self.take_output();
         self.cmd_result = CommandResult::None;
     }
+    /// Start a new task on the current mission
+    pub fn start_computation(&mut self, executor: &Executor) {
+        if let Err(e) = executor.start(self.new_task()) {
+            // unlikely
+            debug!("error sending task: {}", e);
+            return;
+        }
+        self.computation_starts();
+    }
+    /// Called when a task has started
     pub fn computation_starts(&mut self) {
+        if !self.mission.job.background {
+            self.clear();
+        }
         self.computing = true;
     }
     pub fn computation_stops(&mut self) {
