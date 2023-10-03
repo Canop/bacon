@@ -1,3 +1,7 @@
+### next
+- F5 now clears the output before running the job (now bound to `refresh` internal)
+- new optional `background` job parameter, should be set to `false` for never ending jobs - Fix #161
+
 <a name="v2.13.0"></a>
 ### v2.13.0 - 2023/09/15
 - fix mouse wheel scrolling not working on Windows - Fix #153 - Thanks @Adham-A
