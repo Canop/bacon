@@ -1,4 +1,5 @@
-### next
+<a name="v2.14.0"></a>
+### v2.14.0 - 2023/10/04
 - F5 now clears the output before running the job (now bound to `refresh` internal)
 - new optional `background` job parameter, should be set to `false` for never ending jobs - Fix #161
 

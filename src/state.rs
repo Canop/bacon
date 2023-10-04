@@ -189,7 +189,10 @@ impl<'s> AppState<'s> {
         self.cmd_result = CommandResult::None;
     }
     /// Start a new task on the current mission
-    pub fn start_computation(&mut self, executor: &Executor) {
+    pub fn start_computation(
+        &mut self,
+        executor: &Executor,
+    ) {
         if let Err(e) = executor.start(self.new_task()) {
             // unlikely
             debug!("error sending task: {}", e);
