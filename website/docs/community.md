@@ -31,6 +31,10 @@ We use [GitHub's issue manager](https://github.com/Canop/bacon/issues).
 
 Before posting a new issue, check your problem hasn't already been raised and in case of doubt **please come first discuss it on the chat**.
 
+# Contribute
+
+If you think you might help, as a tester or coder, you're welcome, but please read [Contributing to my FOSS projects](https://dystroy.org/blog/contributing/) before starting a PR.
+
 # FAQ
 
 ## What does it exactly do ?
