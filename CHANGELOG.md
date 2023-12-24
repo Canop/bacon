@@ -1,3 +1,6 @@
+### next
+- fix output not cleared when cargo is in quiet mode and there's nothing - Fix #131
+
 <a name="v2.14.0"></a>
 ### v2.14.0 - 2023/10/04
 - F5 now clears the output before running the job (now bound to `refresh` internal)

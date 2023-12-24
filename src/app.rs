@@ -110,14 +110,10 @@ pub fn run(
                     CommandExecInfo::End { status } => {
                         info!("execution finished with status: {:?}", status);
                         // computation finished
-                        if let Some(output) = state.take_output() {
-                            let cmd_result = CommandResult::new(output, status)?;
-                            state.set_result(cmd_result);
-                            action = state.action();
-                        } else {
-                            warn!("a computation finished but didn't start?");
-                            state.computation_stops();
-                        }
+                        let output = state.take_output().unwrap_or_default();
+                        let cmd_result = CommandResult::new(output, status)?;
+                        state.set_result(cmd_result);
+                        action = state.action();
                     }
                     CommandExecInfo::Error(e) => {
                         warn!("error in computation: {}", e);
