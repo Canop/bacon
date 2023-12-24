@@ -1,0 +1,50 @@
+# a bacon.toml file dedicated to the bacon tool
+
+default_job = "check-all"
+
+[jobs]
+
+[jobs.check-all]
+command = ["cargo", "check", "--all-targets", "--color", "always"]
+need_stdout = false
+watch = ["tests", "benches", "examples"]
+
+[jobs.check]
+command = [
+	"cargo", "check",
+	"--color", "always",
+	"--features", "clipboard",
+]
+need_stdout = false
+watch = ["benches"]
+
+[jobs.test]
+command = [
+    "cargo", "test", "--color", "always",
+]
+need_stdout = true
+
+[jobs.doc]
+command = ["cargo", "doc", "--color", "always", "--no-deps"]
+need_stdout = false
+
+# If the doc compiles, then it opens in your browser and bacon switches
+# to the previous job
+[jobs.doc-open]
+command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
+need_stdout = false
+on_success = "back" # so that we don't open the browser at each change
+
+[jobs.clippy]
+command = [
+	"cargo", "clippy",
+	"--color", "always",
+	"--",
+	"-A", "clippy::bool_to_int_with_if",
+	"-A", "clippy::collapsible_else_if",
+	"-A", "clippy::collapsible_if",
+	"-A", "clippy::derive_partial_eq_without_eq",
+	"-A", "clippy::len_without_is_empty",
+]
+need_stdout = false
+
