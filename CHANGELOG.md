@@ -1,4 +1,5 @@
-### next
+<a name="v2.14.1"></a>
+### v2.14.0 - 2023/12/24
 - fix output not cleared when cargo is in quiet mode and there's nothing - Fix #131
 
 <a name="v2.14.0"></a>
