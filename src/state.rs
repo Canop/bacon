@@ -191,14 +191,10 @@ impl<'s> AppState<'s> {
     /// Start a new task on the current mission
     pub fn start_computation(
         &mut self,
-        executor: &Executor,
-    ) {
-        if let Err(e) = executor.start(self.new_task()) {
-            // unlikely
-            debug!("error sending task: {}", e);
-            return;
-        }
+        executor: &mut MissionExecutor,
+    ) -> Result<TaskExecutor> {
         self.computation_starts();
+        executor.start(self.new_task())
     }
     /// Called when a task has started
     pub fn computation_starts(&mut self) {

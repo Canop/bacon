@@ -22,10 +22,9 @@ crossbeam = "0.8.2"
 directories-next = "2.0.0"
 gix = "0.37.2"
 lazy-regex = "3"
-notify = "5.0.0"
+notify = "6.1.0"
 serde = { version = "1.0.164", features = ["derive"] }
 termimad = "0.26.1"
-tokio = { version = "1.28", default-features = false, features = ["net", "sync", "process", "rt", "macros", "io-util"] }
 toml = "0.7.4"
 unicode-width = "0.1.10"
 vte = "0.8"
