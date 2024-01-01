@@ -18,6 +18,9 @@ pub const CSI_RED: &str = "\u{1b}[31m";
 pub const CSI_BOLD_RED: &str = "\u{1b}[1m\u{1b}[38;5;9m";
 pub const CSI_BOLD_ORANGE: &str = "\u{1b}[1m\u{1b}[38;5;208m";
 
+/// Used for "Blocking"
+pub const CSI_BLUE: &str = "\u{1b}[1m\u{1b}[36m";
+
 #[cfg(windows)]
 pub const CSI_BOLD_YELLOW: &str = "\u{1b}[1m\u{1b}[38;5;11m";
 #[cfg(not(windows))]
