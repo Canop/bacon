@@ -5,7 +5,6 @@ use {
     },
     gix::{
         self as git,
-        prelude::FindExt,
         Repository,
     },
     std::path::{
@@ -38,10 +37,9 @@ impl Ignorer {
         file_path: &Path,
     ) -> Result<bool> {
         let worktree = self.repo.worktree().context("a worktree should exist")?;
-        let index = worktree.index()?;
 
         // the "Cache" is the structure allowing checking exclusion
-        let mut cache = worktree.excludes(&index, None)?;
+        let mut cache = worktree.excludes(None)?;
 
         // cache.at_path panics if not provided a path relative
         // to the work directory, so we compute the relative path
@@ -58,9 +56,7 @@ impl Ignorer {
             return Ok(true);
         };
 
-        let platform = cache.at_path(relative_path, Some(file_path.is_dir()), |oid, buf| {
-            self.repo.objects.find_blob(oid, buf)
-        })?;
+        let platform = cache.at_path(relative_path, Some(file_path.is_dir()))?;
 
         Ok(platform.is_excluded())
     }
