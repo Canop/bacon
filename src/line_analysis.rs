@@ -18,6 +18,7 @@ pub struct LineAnalysis {
 impl From<&CommandOutputLine> for LineAnalysis {
     fn from(cmd_line: &CommandOutputLine) -> Self {
         let content = &cmd_line.content;
+        //debug!("content: {:?}", &content);
         let mut key = None;
         let line_type = if cmd_line.content.is_blank() {
             LineType::Normal
