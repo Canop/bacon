@@ -149,7 +149,7 @@ dependencies = [
 
 [[package]]
 name = "bacon"
-version = "2.14.2-dev"
+version = "2.14.2"
 dependencies = [
  "anyhow",
  "cargo_metadata",
