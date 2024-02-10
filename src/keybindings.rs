@@ -14,7 +14,7 @@ use {
 #[derive(Debug, Clone, Deserialize)]
 pub struct KeyBindings {
     #[serde(flatten)]
-    map: HashMap<CroKey, Action>,
+    map: HashMap<KeyCombination, Action>,
 }
 
 impl Default for KeyBindings {
@@ -52,12 +52,12 @@ impl Default for KeyBindings {
 }
 
 impl KeyBindings {
-    pub fn set<CK: Into<CroKey>, A: Into<Action>>(
+    pub fn set<A: Into<Action>>(
         &mut self,
-        ck: CK,
+        ck: KeyCombination,
         action: A,
     ) {
-        self.map.insert(ck.into(), action.into());
+        self.map.insert(ck, action.into());
     }
     pub fn add_vim_keys(&mut self) {
         self.set(key!(g), Internal::Scroll(ScrollCommand::Top));
@@ -73,11 +73,11 @@ impl KeyBindings {
             self.map.insert(*ck, action.clone());
         }
     }
-    pub fn get<CK: Into<CroKey>>(
+    pub fn get(
         &self,
-        key: CK,
+        key: KeyCombination,
     ) -> Option<&Action> {
-        self.map.get(&key.into())
+        self.map.get(&key)
     }
     /// return the shortest key.to_string for the internal, if any
     pub fn shortest_internal_key(
@@ -100,7 +100,7 @@ impl KeyBindings {
         shortest
     }
     /// build and return a map from actions to all the possible shortcuts
-    pub fn build_reverse_map(&self) -> HashMap<&Action, Vec<CroKey>> {
+    pub fn build_reverse_map(&self) -> HashMap<&Action, Vec<KeyCombination>> {
         let mut reverse_map = HashMap::new();
         for (ck, action) in &self.map {
             reverse_map.entry(action).or_insert_with(Vec::new).push(*ck);
@@ -110,8 +110,8 @@ impl KeyBindings {
 }
 
 impl<'a> IntoIterator for &'a KeyBindings {
-    type Item = (&'a CroKey, &'a Action);
-    type IntoIter = hash_map::Iter<'a, CroKey, Action>;
+    type Item = (&'a KeyCombination, &'a Action);
+    type IntoIter = hash_map::Iter<'a, KeyCombination, Action>;
     fn into_iter(self) -> Self::IntoIter {
         self.map.iter()
     }

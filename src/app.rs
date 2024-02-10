@@ -1,7 +1,7 @@
 use {
     crate::*,
     anyhow::Result,
-    crokey::CroKey,
+    crokey::*,
     crossbeam::channel::{
         bounded,
         select,
@@ -84,8 +84,9 @@ pub fn run(
                         state.resize(width, height);
                     }
                     Event::Key(key_event) => {
-                        debug!("key pressed: {}", CroKey::from(key_event));
-                        action = keybindings.get(key_event);
+                        let key_combination = KeyCombination::from(key_event);
+                        debug!("key combination pressed: {}", key_combination);
+                        action = keybindings.get(key_combination);
                     }
                     #[cfg(windows)]
                     Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollDown, .. }) => {

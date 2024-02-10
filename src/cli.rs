@@ -16,6 +16,7 @@ use {
             QueueableCommand,
         },
         EventSource,
+        EventSourceOptions,
     },
 };
 
@@ -115,8 +116,11 @@ pub fn run() -> anyhow::Result<()> {
     w.queue(cursor::Hide)?;
     #[cfg(windows)]
     w.queue(EnableMouseCapture)?;
-
-    let event_source = EventSource::new()?;
+    w.flush()?;
+    let event_source = EventSource::with_options(EventSourceOptions {
+        combine_keys: false,
+        ..Default::default()
+    })?;
     let mut job_stack = JobStack::new(&settings);
     let mut next_job = JobRef::Initial;
     let mut result = Ok(());

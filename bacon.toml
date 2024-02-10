@@ -45,6 +45,7 @@ command = [
 	"-A", "clippy::collapsible_if",
 	"-A", "clippy::derive_partial_eq_without_eq",
 	"-A", "clippy::len_without_is_empty",
+	"-A", "clippy::get_first",
 ]
 need_stdout = false
 
