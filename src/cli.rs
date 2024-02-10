@@ -116,7 +116,7 @@ pub fn run() -> anyhow::Result<()> {
     w.queue(cursor::Hide)?;
     #[cfg(windows)]
     w.queue(EnableMouseCapture)?;
-
+    w.flush()?;
     let event_source = EventSource::with_options(EventSourceOptions {
         combine_keys: false,
         ..Default::default()
