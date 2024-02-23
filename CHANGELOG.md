@@ -1,3 +1,6 @@
+### next
+- insert features related arguments before the -- when there's some - Fix #171
+
 <a name="v2.14.2"></a>
 ### v2.14.2 - 2024/02/10
 - update dependencies to fix bacon not compiling on nightly - Fix #168
