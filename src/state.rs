@@ -185,6 +185,7 @@ impl<'s> AppState<'s> {
         }
     }
     pub fn clear(&mut self) {
+        debug!("state.clear");
         self.take_output();
         self.cmd_result = CommandResult::None;
     }
@@ -193,6 +194,7 @@ impl<'s> AppState<'s> {
         &mut self,
         executor: &mut MissionExecutor,
     ) -> Result<TaskExecutor> {
+        debug!("state.start_computation");
         self.computation_starts();
         executor.start(self.new_task())
     }

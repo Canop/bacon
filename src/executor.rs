@@ -52,20 +52,18 @@ pub struct Task {
 }
 
 impl TaskExecutor {
-    /// Interrupt the process. Normally it's not needed: dropping
-    /// the executor cleanly ends the process.
+    /// Interrupt the process
     pub fn interrupt(self) {
         let _ = self.stop_sender.send(StopMessage::Kill);
     }
     /// Kill the process, and wait until it finished
-    pub fn die(self) -> Result<()> {
+    pub fn die(self) {
         if let Err(e) = self.stop_sender.send(StopMessage::Kill) {
             debug!("failed to send 'die' signal: {e}");
         }
         if self.child_thread.join().is_err() {
             warn!("child_thread.join() failed"); // should not happen
         }
-        Ok(())
     }
 }
 
@@ -95,7 +93,7 @@ impl MissionExecutor {
         &mut self,
         task: Task,
     ) -> Result<TaskExecutor> {
-        debug!("start task {task:?}");
+        info!("start task {task:?}");
         let mut child = self
             .command
             .env("RUST_BACKTRACE", if task.backtrace { "1" } else { "0" })

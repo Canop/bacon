@@ -82,6 +82,7 @@ pub fn run(
         let mut action: Option<&Action> = None;
         select! {
             recv(watch_receiver) -> _ => {
+                task_executor.die();
                 task_executor = state.start_computation(&mut executor)?;
             }
             recv(executor.line_receiver) -> info => {
@@ -157,9 +158,11 @@ pub fn run(
                     }
                     Internal::Refresh => {
                         state.clear();
+                        task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
                     }
                     Internal::ReRun => {
+                        task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
                     }
                     Internal::ToggleRawOutput => {
@@ -173,6 +176,7 @@ pub fn run(
                     }
                     Internal::ToggleBacktrace => {
                         state.toggle_backtrace();
+                        task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
                     }
                     Internal::Scroll(scroll_command) => {
@@ -188,6 +192,6 @@ pub fn run(
         }
         state.draw(w)?;
     }
-    task_executor.die()?;
+    task_executor.die();
     Ok(next_job)
 }
