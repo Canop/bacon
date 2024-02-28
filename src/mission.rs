@@ -158,8 +158,16 @@ impl<'s> Mission<'s> {
         let mut no_default_features_done = false;
         let mut features_done = false;
         let mut last_is_features = false;
-        let tokens = tokens.chain(&self.settings.additional_job_args);
-        for arg in tokens {
+        let mut tokens = tokens.chain(&self.settings.additional_job_args);
+        let mut has_double_dash = false;
+        while let Some(arg) = tokens.next() {
+            if arg == "--" {
+                // we'll defer addition of the following arguments to after
+                // the addition of the features stuff, so that the features
+                // arguments are given to the cargo command.
+                has_double_dash = true;
+                break;
+            }
             if last_is_features {
                 if self.settings.all_features {
                     debug!("ignoring features given along --all-features");
@@ -212,6 +220,12 @@ impl<'s> Mission<'s> {
                     command.arg("--features");
                     command.arg(features);
                 }
+            }
+        }
+        if has_double_dash {
+            command.arg("--");
+            for arg in tokens {
+                command.arg(arg);
             }
         }
         command.current_dir(&self.cargo_execution_directory);
