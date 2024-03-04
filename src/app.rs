@@ -113,13 +113,6 @@ pub fn run(
             recv(user_events) -> user_event => {
                 match user_event?.event {
                     Event::Resize(mut width, mut height) => {
-                        // I don't know why but Crossterm seems to always report an
-                        // understimated size on Windows
-                        #[cfg(windows)]
-                        {
-                            width += 1;
-                            height += 1;
-                        }
                         state.resize(width, height);
                     }
                     Event::Key(key_event) => {

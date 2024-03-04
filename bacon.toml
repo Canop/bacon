@@ -18,6 +18,14 @@ command = [
 need_stdout = false
 watch = ["benches"]
 
+
+[jobs.win]
+command = [
+	"cross", "build",
+	"--target", "x86_64-pc-windows-gnu",
+]
+
+
 [jobs.test]
 command = [
     "cargo", "test", "--color", "always",
@@ -46,6 +54,7 @@ command = [
 	"-A", "clippy::derive_partial_eq_without_eq",
 	"-A", "clippy::len_without_is_empty",
 	"-A", "clippy::get_first",
+	"-A", "clippy::while_let_on_iterator",
 ]
 need_stdout = false
 

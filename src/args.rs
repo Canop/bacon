@@ -76,7 +76,7 @@ pub struct Args {
     #[clap(long)]
     pub init: bool,
 
-    /// Job to launch eg `check`, `clippy`, customized ones, ...
+    /// Job to launch eg `check`, `clippy`, customized ones
     #[clap(short = 'j', long, value_name = "job")]
     pub job: Option<ConcreteJobRef>,
 
