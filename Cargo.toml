@@ -15,7 +15,7 @@ rust-version = "1.65"
 anyhow = "1.0.68"
 cargo_metadata = "0.18"
 clap = { version = "4.4", features = ["derive", "cargo"] }
-clap-help = "1.1"
+clap-help = "1.1.2"
 cli-log = "2.0.0"
 crokey = "0.6.3"
 crossbeam = "0.8.2"
