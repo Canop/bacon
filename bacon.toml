@@ -46,6 +46,7 @@ command = [
 	"-A", "clippy::derive_partial_eq_without_eq",
 	"-A", "clippy::len_without_is_empty",
 	"-A", "clippy::get_first",
+	"-A", "clippy::while_let_on_iterator",
 ]
 need_stdout = false
 
