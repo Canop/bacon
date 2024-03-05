@@ -1,6 +1,9 @@
-### next
+<a name="v2.15.0"></a>
+### v2.15.0 - 2024/03/05
 - insert features related arguments before the -- when there's some - Fix #171
 - fix offset in Windows terminal - Fix #175
+- better `--help` with examples and main shortcuts
+- rewriten execution engine
 
 <a name="v2.14.2"></a>
 ### v2.14.2 - 2024/02/10
