@@ -1,5 +1,5 @@
 use {
-    crate::ConcreteJobRef,
+    crate::*,
     anyhow::{
         bail,
         Result,
@@ -15,7 +15,11 @@ static INTRO: &str = "
 
 **bacon** watches your rust project and runs jobs in background.
 
-Documentation at https://dystroy.org/bacon
+Use shortcuts to:
+* switch job: *t* for `test`, *c* for `clippy`, *d* to open rust doc, etc.
+* toggle display: *s* for summary, *w* for wrapped lines, etc.
+* see all shortcuts: *?*
+Complete documentation at https://dystroy.org/bacon
 ";
 
 /// Launch arguments
@@ -60,7 +64,7 @@ pub struct Args {
     #[clap(long)]
     pub reverse: bool,
 
-    /// Start with standard gui order (focus on top)
+    /// Start with standard gui order
     #[clap(long)]
     pub no_reverse: bool,
 
@@ -68,7 +72,7 @@ pub struct Args {
     #[clap(short = 'l', long)]
     pub list_jobs: bool,
 
-    /// Don't access the network (jobs may use it, though)
+    /// Don't access the network
     #[clap(long)]
     pub offline: bool,
 
@@ -76,7 +80,7 @@ pub struct Args {
     #[clap(long)]
     pub init: bool,
 
-    /// Job to launch eg `check`, `clippy`, customized ones
+    /// Job to launch: `check`, `clippy`, custom ones...
     #[clap(short = 'j', long, value_name = "job")]
     pub job: Option<ConcreteJobRef>,
 
@@ -84,7 +88,7 @@ pub struct Args {
     #[clap(long)]
     pub no_default_features: bool,
 
-    /// Comma separated list of features to ask cargo to compile with
+    /// Comma separated list of features
     /// (if the job defines some, they're merged)
     #[clap(long, value_name = "features")]
     pub features: Option<String>,
@@ -156,11 +160,22 @@ impl Args {
     pub fn print_help(&self) {
         let mut printer = clap_help::Printer::new(Args::command())
             .with("introduction", INTRO)
+            .with("options", clap_help::TEMPLATE_OPTIONS_MERGED_VALUE)
             .without("author");
         let skin = printer.skin_mut();
         skin.headers[0].compound_style.set_fg(ansi(204));
         skin.bold.set_fg(ansi(204));
-        //skin.italic = termimad::CompoundStyle::with_fg(ansi(2));
+        skin.italic = termimad::CompoundStyle::with_fg(ansi(204)); // 2, 81, 73, 38
+        printer.template_keys_mut().push("examples");
+        printer.set_template("examples", EXAMPLES_TEMPLATE);
+        for (i, example) in EXAMPLES.iter().enumerate() {
+            printer
+                .expander_mut()
+                .sub("examples")
+                .set("example-number", i + 1)
+                .set("example-title", example.title)
+                .set("example-cmd", example.cmd);
+        }
         printer.print_help();
     }
 }
