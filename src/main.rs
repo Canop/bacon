@@ -7,6 +7,7 @@ mod command_result;
 mod config;
 mod defaults;
 mod drawing;
+mod examples;
 mod executor;
 mod export_config;
 mod export_settings;
@@ -44,6 +45,7 @@ pub use {
     config::*,
     defaults::*,
     drawing::*,
+    examples::*,
     executor::*,
     export_config::*,
     export_settings::*,
