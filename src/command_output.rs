@@ -23,6 +23,7 @@ pub struct CommandOutput {
 }
 
 /// a piece of information about the execution of a command
+#[derive(Debug)]
 pub enum CommandExecInfo {
     /// Command ended
     End { status: Option<ExitStatus> },
