@@ -185,20 +185,18 @@ impl<'s> AppState<'s> {
         }
     }
     pub fn clear(&mut self) {
+        debug!("state.clear");
         self.take_output();
         self.cmd_result = CommandResult::None;
     }
     /// Start a new task on the current mission
     pub fn start_computation(
         &mut self,
-        executor: &Executor,
-    ) {
-        if let Err(e) = executor.start(self.new_task()) {
-            // unlikely
-            debug!("error sending task: {}", e);
-            return;
-        }
+        executor: &mut MissionExecutor,
+    ) -> Result<TaskExecutor> {
+        debug!("state.start_computation");
         self.computation_starts();
+        executor.start(self.new_task())
     }
     /// Called when a task has started
     pub fn computation_starts(&mut self) {

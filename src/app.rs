@@ -6,11 +6,16 @@ use {
         bounded,
         select,
     },
+    notify::event::{
+        EventKind,
+        ModifyKind,
+    },
     termimad::{
         crossterm::event::Event,
         EventSource,
     },
 };
+
 #[cfg(windows)]
 use {
     crokey::key,
@@ -20,8 +25,7 @@ use {
     },
 };
 
-/// Run the mission and return the reference to the next
-/// job to run, if any
+/// Run the mission and return the reference to the next job to run, if any
 pub fn run(
     w: &mut W,
     mission: Mission,
@@ -33,7 +37,13 @@ pub fn run(
     let mut watcher =
         notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
             Ok(we) => {
-                debug!("notify event: {we:?}");
+                info!("notify event: {we:?}");
+                match we.kind {
+                    EventKind::Modify(ModifyKind::Data(_)) => {}
+                    EventKind::Create(_) => {} // just in case, not sure useful in Rust
+                    EventKind::Remove(_) => {} // just in case, not sure useful in Rust
+                    _ => {}                    // useless event
+                }
                 if let Some(ignorer) = ignorer.as_mut() {
                     match time!(Info, ignorer.excludes_all(&we.paths)) {
                         Ok(true) => {
@@ -57,13 +67,13 @@ pub fn run(
 
     mission.add_watchs(&mut watcher)?;
 
-    let executor = Executor::new(&mission)?;
+    let mut executor = MissionExecutor::new(&mission)?;
 
     let mut state = AppState::new(mission)?;
     state.computation_starts();
     state.draw(w)?;
 
-    executor.start(state.new_task())?; // first computation
+    let mut task_executor = executor.start(state.new_task())?; // first computation
 
     let user_events = event_source.receiver();
     let mut next_job: Option<JobRef> = None;
@@ -71,6 +81,35 @@ pub fn run(
     loop {
         let mut action: Option<&Action> = None;
         select! {
+            recv(watch_receiver) -> _ => {
+                task_executor.die();
+                task_executor = state.start_computation(&mut executor)?;
+            }
+            recv(executor.line_receiver) -> info => {
+                if let Ok(info) = info {
+                    match info {
+                        CommandExecInfo::Line(line) => {
+                            state.add_line(line);
+                        }
+                        CommandExecInfo::End { status } => {
+                            info!("execution finished with status: {:?}", status);
+                            // computation finished
+                            let output = state.take_output().unwrap_or_default();
+                            let cmd_result = CommandResult::new(output, status)?;
+                            state.set_result(cmd_result);
+                            action = state.action();
+                        }
+                        CommandExecInfo::Error(e) => {
+                            warn!("error in computation: {}", e);
+                            state.computation_stops();
+                            break;
+                        }
+                        CommandExecInfo::Interruption => {
+                            debug!("command was interrupted (by us)");
+                        }
+                    }
+                }
+            }
             recv(user_events) -> user_event => {
                 match user_event?.event {
                     Event::Resize(mut width, mut height) => {
@@ -93,32 +132,6 @@ pub fn run(
                 }
                 event_source.unblock(false);
             }
-            recv(watch_receiver) -> _ => {
-                state.start_computation(&executor);
-            }
-            recv(executor.line_receiver) -> info => {
-                match info? {
-                    CommandExecInfo::Line(line) => {
-                        state.add_line(line);
-                    }
-                    CommandExecInfo::End { status } => {
-                        info!("execution finished with status: {:?}", status);
-                        // computation finished
-                        let output = state.take_output().unwrap_or_default();
-                        let cmd_result = CommandResult::new(output, status)?;
-                        state.set_result(cmd_result);
-                        action = state.action();
-                    }
-                    CommandExecInfo::Error(e) => {
-                        warn!("error in computation: {}", e);
-                        state.computation_stops();
-                        break;
-                    }
-                    CommandExecInfo::Interruption => {
-                        debug!("command was interrupted (by us)");
-                    }
-                }
-            }
         }
         if let Some(action) = action.take() {
             debug!("requested action: {action:?}");
@@ -138,10 +151,12 @@ pub fn run(
                     }
                     Internal::Refresh => {
                         state.clear();
-                        state.start_computation(&executor);
+                        task_executor.die();
+                        task_executor = state.start_computation(&mut executor)?;
                     }
                     Internal::ReRun => {
-                        state.start_computation(&executor);
+                        task_executor.die();
+                        task_executor = state.start_computation(&mut executor)?;
                     }
                     Internal::ToggleRawOutput => {
                         state.toggle_raw_output();
@@ -154,7 +169,8 @@ pub fn run(
                     }
                     Internal::ToggleBacktrace => {
                         state.toggle_backtrace();
-                        state.start_computation(&executor);
+                        task_executor.die();
+                        task_executor = state.start_computation(&mut executor)?;
                     }
                     Internal::Scroll(scroll_command) => {
                         let scroll_command = *scroll_command;
@@ -169,6 +185,6 @@ pub fn run(
         }
         state.draw(w)?;
     }
-    executor.die()?;
+    task_executor.die();
     Ok(next_job)
 }
