@@ -22,8 +22,12 @@ pub static EXAMPLES: &[Example] = &[
         cmd: "bacon clippy",
     },
     Example {
-        title: "Start a specific job on another path, with features",
-        cmd: "bacon ../broot --features clipboard test",
+        title: "Start with features",
+        cmd: "bacon --features clipboard",
+    },
+    Example {
+        title: "Start a specific job on another path",
+        cmd: "bacon ../broot test",
     },
     Example {
         title: "Start in summary mode",
