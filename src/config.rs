@@ -3,11 +3,7 @@ use {
     anyhow::*,
     lazy_regex::regex_is_match,
     serde::Deserialize,
-    std::{
-        collections::HashMap,
-        fs,
-        path::Path,
-    },
+    std::{collections::HashMap, fs, path::Path},
 };
 
 /// A configuration item which may be stored either as `bacon.toml`
@@ -20,6 +16,7 @@ pub struct Config {
     pub summary: Option<bool>,
     pub wrap: Option<bool>,
     pub reverse: Option<bool>,
+    pub help_line: Option<bool>,
     #[deprecated(since = "2.0.0", note = "use keybindings")]
     pub vim_keys: Option<bool>,
     #[deprecated(since = "2.9.0", note = "use export.enabled")]

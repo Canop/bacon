@@ -4,21 +4,11 @@ use {
     std::io::Write,
     termimad::{
         crossterm::{
-            cursor,
-            execute,
-            style::{
-                Attribute,
-                Color::*,
-                Print,
-            },
+            cursor, execute,
+            style::{Attribute, Color::*, Print},
         },
-        minimad::{
-            Alignment,
-            Composite,
-        },
-        Area,
-        CompoundStyle,
-        MadSkin,
+        minimad::{Alignment, Composite},
+        Area, CompoundStyle, MadSkin,
     },
 };
 
@@ -56,7 +46,7 @@ pub struct AppState<'s> {
     /// item_idx of the item which was on top on last draw
     top_item_idx: usize,
     /// the tool building the help line
-    help_line: HelpLine,
+    help_line: Option<HelpLine>,
     /// the help page displayed over the rest, if any
     help_page: Option<HelpPage>,
     /// display the raw output instead of the report
@@ -71,7 +61,11 @@ impl<'s> AppState<'s> {
             .set_fgbg(AnsiValue(252), AnsiValue(239));
         status_skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
         let (width, height) = termimad::terminal_size();
-        let help_line = HelpLine::new(mission.settings);
+        let help_line = mission
+            .settings
+            .help_line
+            .then(|| HelpLine::new(mission.settings));
+
         Ok(Self {
             output: None,
             wrapped_output: None,
@@ -362,15 +356,17 @@ impl<'s> AppState<'s> {
         w: &mut W,
         y: u16,
     ) -> Result<()> {
-        let markdown = self.help_line.markdown(self);
-        if self.height > 1 {
-            goto(w, y)?;
-            self.status_skin.write_composite_fill(
-                w,
-                Composite::from_inline(&markdown),
-                self.width.into(),
-                Alignment::Left,
-            )?;
+        if let Some(help_line) = &self.help_line {
+            let markdown = help_line.markdown(self);
+            if self.height > 1 {
+                goto(w, y)?;
+                self.status_skin.write_composite_fill(
+                    w,
+                    Composite::from_inline(&markdown),
+                    self.width.into(),
+                    Alignment::Left,
+                )?;
+            }
         }
         Ok(())
     }

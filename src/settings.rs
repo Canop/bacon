@@ -1,8 +1,4 @@
-use {
-    crate::*,
-    anyhow::*,
-    std::collections::HashMap,
-};
+use {crate::*, anyhow::*, std::collections::HashMap};
 
 /// The settings used in the application.
 ///
@@ -20,6 +16,7 @@ pub struct Settings {
     pub summary: bool,
     pub wrap: bool,
     pub reverse: bool,
+    pub help_line: bool,
     pub no_default_features: bool,
     pub all_features: bool,
     pub features: Option<String>, // comma separated list
@@ -38,6 +35,7 @@ impl Default for Settings {
             summary: false,
             wrap: true,
             reverse: false,
+            help_line: true,
             no_default_features: Default::default(),
             all_features: Default::default(),
             features: Default::default(),
@@ -64,6 +62,9 @@ impl Settings {
         }
         if let Some(b) = config.reverse {
             self.reverse = b;
+        }
+        if let Some(b) = config.help_line {
+            self.help_line = b;
         }
         #[allow(deprecated)] // for compatibility
         if let Some(b) = config.export_locations {
@@ -110,6 +111,12 @@ impl Settings {
         }
         if args.no_reverse {
             self.reverse = false;
+        }
+        if args.help_line {
+            self.help_line = true;
+        }
+        if args.no_help_line {
+            self.help_line = false;
         }
         if args.export_locations {
             self.export.enabled = true;

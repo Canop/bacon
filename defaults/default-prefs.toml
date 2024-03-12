@@ -16,6 +16,11 @@
 #
 # reverse = true
 
+# Uncomment and change the value (true/false) to
+# specify whether bacon should show a help line.
+#
+# help_line = false
+
 # Exporting "locations" lets you use them in an external
 # tool, for example as a list of jump locations in an IDE.
 #

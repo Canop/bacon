@@ -1,13 +1,7 @@
 use {
     crate::*,
-    anyhow::{
-        bail,
-        Result,
-    },
-    clap::{
-        CommandFactory,
-        Parser,
-    },
+    anyhow::{bail, Result},
+    clap::{CommandFactory, Parser},
     termimad::ansi,
 };
 
@@ -67,6 +61,14 @@ pub struct Args {
     /// Start with standard gui order
     #[clap(long)]
     pub no_reverse: bool,
+
+    /// Display a help line
+    #[clap(long)]
+    pub help_line: bool,
+
+    /// Do not display a help line
+    #[clap(long)]
+    pub no_help_line: bool,
 
     /// List available jobs
     #[clap(short = 'l', long)]
