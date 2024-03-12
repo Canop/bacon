@@ -34,4 +34,3 @@ pub static EXAMPLES: &[Example] = &[
         cmd: "bacon -s",
     },
 ];
-

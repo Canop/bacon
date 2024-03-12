@@ -4,11 +4,21 @@ use {
     std::io::Write,
     termimad::{
         crossterm::{
-            cursor, execute,
-            style::{Attribute, Color::*, Print},
+            cursor,
+            execute,
+            style::{
+                Attribute,
+                Color::*,
+                Print,
+            },
         },
-        minimad::{Alignment, Composite},
-        Area, CompoundStyle, MadSkin,
+        minimad::{
+            Alignment,
+            Composite,
+        },
+        Area,
+        CompoundStyle,
+        MadSkin,
     },
 };
 

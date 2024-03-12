@@ -1,7 +1,13 @@
 use {
     crate::*,
-    anyhow::{bail, Result},
-    clap::{CommandFactory, Parser},
+    anyhow::{
+        bail,
+        Result,
+    },
+    clap::{
+        CommandFactory,
+        Parser,
+    },
     termimad::ansi,
 };
 
