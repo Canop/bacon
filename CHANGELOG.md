@@ -1,3 +1,6 @@
+### next
+- `--no-help-line` option. This is experimental and may be removed depending on feedback and future additions to this line - Thanks @danielwolbach
+
 <a name="v2.15.0"></a>
 ### v2.15.0 - 2024/03/05
 - insert features related arguments before the -- when there's some - Fix #171
