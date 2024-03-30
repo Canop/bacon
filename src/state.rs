@@ -440,10 +440,12 @@ impl<'s> AppState<'s> {
     }
     /// the action to execute now
     pub fn action(&self) -> Option<&Action> {
-        self.mission
-            .on_success()
-            .as_ref()
-            .filter(|_| self.cmd_result.is_success())
+        if let CommandResult::Report(report) = &self.cmd_result {
+            if self.mission.is_success(report) {
+                return self.mission.on_success().as_ref();
+            }
+        }
+        None
     }
     fn report_to_draw(&self) -> Option<&Report> {
         self.cmd_result
