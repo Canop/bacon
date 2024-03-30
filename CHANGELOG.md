@@ -1,4 +1,6 @@
-### next
+<a name="v2.16.0"></a>
+### v2.16.0 - 2024/03/30
+- `on_success` triggered with warning or errors depending on `allow_warnings` and `allow_failures` - Fix #179
 - `--no-help-line` option. This is experimental and may be removed depending on feedback and future additions to this line - Thanks @danielwolbach
 
 <a name="v2.15.0"></a>
