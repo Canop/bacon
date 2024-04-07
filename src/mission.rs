@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::Result,
+    lazy_regex::regex_replace_all,
     notify::{
         RecommendedWatcher,
         RecursiveMode,
@@ -151,7 +152,30 @@ impl<'s> Mission<'s> {
 
     /// build (and doesn't call) the external cargo command
     pub fn get_command(&self) -> Command {
-        let mut tokens = self.job.command.iter();
+        let expanded;
+        let command = if self.job.expand_env_vars {
+            expanded = self
+                .job
+                .command
+                .iter()
+                .map(|token| {
+                    regex_replace_all!(r"\$([A-Z_]+)", token, |whole: &str, name| {
+                        match std::env::var(name) {
+                            Ok(value) => value,
+                            Err(_) => {
+                                warn!("variable {whole} not found in env");
+                                whole.to_string()
+                            }
+                        }
+                    })
+                    .to_string()
+                })
+                .collect();
+            &expanded
+        } else {
+            &self.job.command
+        };
+        let mut tokens = command.iter();
         let mut command = Command::new(
             tokens.next().unwrap(), // implies a check in the job
         );

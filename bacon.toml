@@ -4,27 +4,28 @@ default_job = "check-all"
 
 [jobs]
 
-[jobs.check-all]
-command = ["cargo", "check", "--all-targets", "--color", "always"]
-need_stdout = false
-watch = ["tests", "benches", "examples"]
-
 [jobs.check]
 command = [
 	"cargo", "check",
 	"--color", "always",
-	"--features", "clipboard",
 ]
 need_stdout = false
 watch = ["benches"]
 
+[jobs.check-all]
+command = [
+	"cargo", "check",
+	"--all-targets",
+	"--color", "always",
+]
+need_stdout = false
+watch = ["tests", "benches", "examples"]
 
 [jobs.win]
 command = [
 	"cross", "build",
 	"--target", "x86_64-pc-windows-gnu",
 ]
-
 
 [jobs.test]
 command = [
