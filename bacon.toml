@@ -43,7 +43,7 @@ command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
 need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 
-[jobs.clippy]
+[jobs.clippy-all]
 command = [
 	"cargo", "clippy",
 	"--color", "always",
@@ -58,3 +58,5 @@ command = [
 ]
 need_stdout = false
 
+[keybindings]
+c = "job:clippy-all"

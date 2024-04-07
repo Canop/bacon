@@ -1,3 +1,6 @@
+### next
+- default binding for 'c' in bacon.toml is now the new 'clippy-all' job which does what the old 'clippy' job was doing. 'clippy' job changed to not run on all targets. Default bacon.toml explain how to bind 'c' to clippy instead of 'clippy-all' - Fix #167
+
 <a name="v2.16.0"></a>
 ### v2.16.0 - 2024/03/30
 - `on_success` triggered with warning or errors depending on `allow_warnings` and `allow_failures` - Fix #179
