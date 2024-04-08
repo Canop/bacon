@@ -42,7 +42,9 @@ pub fn run(
                     EventKind::Modify(ModifyKind::Data(_)) => {}
                     EventKind::Create(_) => {} // just in case, not sure useful in Rust
                     EventKind::Remove(_) => {} // just in case, not sure useful in Rust
-                    _ => {}                    // useless event
+                    _ => {
+                        return; // useless event
+                    }
                 }
                 if let Some(ignorer) = ignorer.as_mut() {
                     match time!(Info, ignorer.excludes_all(&we.paths)) {

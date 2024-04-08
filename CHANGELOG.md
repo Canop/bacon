@@ -1,4 +1,5 @@
 ### next
+- default binding for 'c' in bacon.toml is now the new 'clippy-all' job which does what the old 'clippy' job was doing. 'clippy' job changed to not run on all targets. Default bacon.toml explain how to bind 'c' to clippy instead of 'clippy-all' - Fix #167
 - expand env vars in job command unless the job specifies `expand_env_vars = false` - Fix #181
 
 <a name="v2.16.0"></a>
