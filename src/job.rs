@@ -7,6 +7,29 @@ use {
 /// One of the possible job that bacon can run
 #[derive(Debug, Clone, Deserialize)]
 pub struct Job {
+    /// Whether to consider that we can have a success
+    /// when we have test failures
+    #[serde(default)]
+    pub allow_failures: bool,
+
+    /// Whether to consider that we can have a success
+    /// when we have warnings. This is especially useful
+    /// for "cargo run" jobs
+    #[serde(default)]
+    pub allow_warnings: bool,
+
+    /// Whether gitignore rules must be applied
+    pub apply_gitignore: Option<bool>,
+
+    /// Whether to wait for the computation to finish before
+    /// to display it on screen
+    ///
+    /// This is true by default. Set it to false if you want
+    /// the previous computation result to be replaced with
+    /// the new one as soon as it starts.
+    #[serde(default = "default_true")]
+    pub background: bool,
+
     /// The tokens making the command to execute (first one
     /// is the executable).
     /// This vector is guaranteed not empty
@@ -22,12 +45,13 @@ pub struct Job {
     #[serde(default = "default_true")]
     pub default_watch: bool,
 
-    /// A list of directories that will be watched if the job
-    /// is run on a package.
-    /// src, examples, tests, and benches are implicitly included
-    /// unless you `set default_watch` to false.
+    /// Env vars to set for this job execution
     #[serde(default)]
-    pub watch: Vec<String>,
+    pub env: HashMap<String, String>,
+
+    /// Whether to expand environment variables in the command
+    #[serde(default = "default_true")]
+    pub expand_env_vars: bool,
 
     /// Whether we need to capture stdout too (stderr is
     /// always captured)
@@ -39,32 +63,12 @@ pub struct Job {
     #[serde(default)]
     pub on_success: Option<Action>,
 
-    /// Whether to consider that we can have a success
-    /// when we have warnings. This is especially useful
-    /// for "cargo run" jobs
+    /// A list of directories that will be watched if the job
+    /// is run on a package.
+    /// src, examples, tests, and benches are implicitly included
+    /// unless you `set default_watch` to false.
     #[serde(default)]
-    pub allow_warnings: bool,
-
-    /// Whether to consider that we can have a success
-    /// when we have test failures
-    #[serde(default)]
-    pub allow_failures: bool,
-
-    /// Whether gitignore rules must be applied
-    pub apply_gitignore: Option<bool>,
-
-    /// Env vars to set for this job execution
-    #[serde(default)]
-    pub env: HashMap<String, String>,
-
-    /// Whether to wait for the computation to finish before
-    /// to display it on screen
-    ///
-    /// This is true by default. Set it to false if you want
-    /// the previous computation result to be replaced with
-    /// the new one as soon as it starts.
-    #[serde(default = "default_true")]
-    pub background: bool,
+    pub watch: Vec<String>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -93,6 +97,7 @@ impl Job {
         Self {
             command,
             default_watch: true,
+            expand_env_vars: true,
             watch: Vec::new(),
             need_stdout: false,
             on_success: None,
