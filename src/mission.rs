@@ -159,7 +159,7 @@ impl<'s> Mission<'s> {
                 .command
                 .iter()
                 .map(|token| {
-                    regex_replace_all!(r"\$([A-Z_]+)", token, |whole: &str, name| {
+                    regex_replace_all!(r"\$([A-Z0-9a-z_]+)", token, |whole: &str, name| {
                         match std::env::var(name) {
                             Ok(value) => value,
                             Err(_) => {
