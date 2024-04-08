@@ -7,6 +7,9 @@ use {
         select,
     },
     notify::event::{
+        AccessKind,
+        AccessMode,
+        DataChange,
         EventKind,
         ModifyKind,
     },
@@ -37,13 +40,24 @@ pub fn run(
     let mut watcher =
         notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
             Ok(we) => {
-                info!("notify event: {we:?}");
                 match we.kind {
-                    EventKind::Modify(ModifyKind::Data(_)) => {}
-                    EventKind::Create(_) => {} // just in case, not sure useful in Rust
-                    EventKind::Remove(_) => {} // just in case, not sure useful in Rust
-                    _ => {
+                    EventKind::Modify(ModifyKind::Metadata(_)) => {
+                        info!("ignoring metadata change");
                         return; // useless event
+                    }
+                    EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
+                        info!("ignoring 'any' data change");
+                        return; // probably useless event with no real change
+                    }
+                    EventKind::Access(AccessKind::Close(AccessMode::Write)) => {
+                        info!("close write event: {we:?}");
+                    }
+                    EventKind::Access(_) => {
+                        info!("ignoring access event: {we:?}");
+                        return; // probably useless event
+                    }
+                    _ => {
+                        info!("notify event: {we:?}");
                     }
                 }
                 if let Some(ignorer) = ignorer.as_mut() {
