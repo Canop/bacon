@@ -1,5 +1,5 @@
 ### next
-- expand env vars in job command unless the job specifies `expand_and_vars = false` - Fix #181
+- expand env vars in job command unless the job specifies `expand_env_vars = false` - Fix #181
 
 <a name="v2.16.0"></a>
 ### v2.16.0 - 2024/03/30
