@@ -130,7 +130,7 @@ fn is_build_failed(ts: Option<&TString>) -> bool {
 /// part is in another TString)
 fn as_test_name(s: &str) -> Option<&str> {
     regex_captures!(
-        r#"^test\s+(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s*$"#,
+        r#"^(?:test\s+)?(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s*$"#,
         s
     )
     .map(|(_, key)| key)
@@ -154,7 +154,7 @@ fn as_test_name(s: &str) -> Option<&str> {
 /// (in this case, the " - should panic" part isn't in the key, see #95)
 fn as_test_result(s: &str) -> Option<(&str, bool)> {
     regex_captures!(
-        r#"^test\s+(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s+(\w+)$"#,
+        r#"^(?:test\s+)?(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s+(\w+)$"#,
         s
     )
     .and_then(|(_, key, outcome)| match outcome {
