@@ -40,10 +40,10 @@ impl ExportSettings {
             self.enabled = enabled;
         }
         if let Some(path) = &config.path {
-            self.path = path.clone();
+            self.path.clone_from(path);
         }
         if let Some(line_format) = &config.line_format {
-            self.line_format = line_format.clone();
+            self.line_format.clone_from(line_format);
         }
     }
 }
