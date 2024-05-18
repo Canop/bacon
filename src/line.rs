@@ -30,6 +30,22 @@ impl Line {
             _ => None,
         }
     }
+
+    /// If the line is normal. get its messages
+    pub fn context(&self) -> Option<String> {
+        match self.line_type {
+            LineType::Normal => Some(
+                self.content
+                    .strings
+                    .iter()
+                    .map(|ts| ts.raw.as_str())
+                    .collect::<Vec<&str>>()
+                    .join(""),
+            ),
+            _ => None,
+        }
+    }
+
     /// Return the location as given by cargo
     /// It's usually relative and may contain the line and column
     pub fn location(&self) -> Option<&str> {

@@ -29,8 +29,15 @@
 # Set 'enabled' to true to have bacon always export locations
 # This is equivalent to always adding -e to bacon commands
 # but can still be cancelled on specific launches with -E
+#
+# 'add_context_to_message' is used to control whether to ad
+# any normal line linked to the diagnostic title. When this 
+# is on, carriage returns are escaped to ensure we generate
+# everything on a single line. They can be expande by replacing
+# '\\n' with '\n' when read from the export locations file.
 [export]
 enabled = false
+add_context_to_message = false
 path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
 

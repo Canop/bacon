@@ -2,11 +2,7 @@ use {
     crate::*,
     anyhow::Result,
     lazy_regex::*,
-    std::{
-        collections::HashSet,
-        io,
-        path::PathBuf,
-    },
+    std::{collections::HashSet, io, path::PathBuf},
 };
 
 /// the usable content of cargo watch's output,
@@ -167,6 +163,51 @@ impl Report {
             output: CommandOutput::default(),
         })
     }
+
+    /// Extract all the diagnostic context.
+    fn extract_diagnostic_context(
+        &self,
+        line: &Line,
+    ) -> Option<String> {
+        let mut context = String::new();
+        for l in &self.lines {
+            if let LineType::Normal = l.line_type {
+                if l.item_idx == line.item_idx {
+                    if let Some(ctx) = l.context() {
+                        context = format!("{context}\n{ctx}");
+                    }
+                }
+            }
+        }
+        if context.is_empty() {
+            None
+        } else {
+            Some(context.replace("\n", "\\n"))
+        }
+    }
+
+    /// Compose the message.
+    ///
+    /// If `add_context_to_message` is true and there is context to this error,
+    /// it will be added to the exported line.
+    fn compose_message(
+        &self,
+        message: Option<&str>,
+        context: Option<String>,
+        add_context_to_message: bool,
+    ) -> String {
+        if let Some(message) = message {
+            if add_context_to_message {
+                if let Some(context) = context {
+                    return format!("{message}{context}");
+                }
+            }
+            message.to_string()
+        } else {
+            "".to_string()
+        }
+    }
+
     /// export the report in a file
     pub fn write_to<W: io::Write>(
         &self,
@@ -175,19 +216,29 @@ impl Report {
     ) -> Result<(), io::Error> {
         let mut last_kind = "???";
         let mut message = None;
+        let mut context = None;
         for line in &self.lines {
             match line.line_type {
                 LineType::Title(Kind::Warning) => {
                     last_kind = "warning";
                     message = line.title_message();
+                    if mission.settings.export.add_context_to_message {
+                        context = self.extract_diagnostic_context(line);
+                    }
                 }
                 LineType::Title(Kind::Error) => {
                     last_kind = "error";
                     message = line.title_message();
+                    if mission.settings.export.add_context_to_message {
+                        context = self.extract_diagnostic_context(line);
+                    }
                 }
                 LineType::Title(Kind::TestFail) => {
                     last_kind = "test";
                     message = line.title_message();
+                    if mission.settings.export.add_context_to_message {
+                        context = self.extract_diagnostic_context(line);
+                    }
                 }
                 _ => {}
             }
@@ -208,6 +259,12 @@ impl Report {
                     .to_string();
                 path = &path_string;
             }
+            let message = self.compose_message(
+                message,
+                context,
+                mission.settings.export.add_context_to_message,
+            );
+            context = None;
             let exported = regex_replace_all!(
                 r#"\{([^\s}]+)\}"#,
                 &mission.settings.export.line_format,
@@ -217,7 +274,7 @@ impl Report {
                         "path" => path,
                         "line" => file_line,
                         "column" => file_column,
-                        "message" => message.unwrap_or(""),
+                        "message" => &message,
                         _ => {
                             debug!("unknown export key: {key:?}");
                             ""
