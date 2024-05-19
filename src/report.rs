@@ -2,7 +2,11 @@ use {
     crate::*,
     anyhow::Result,
     lazy_regex::*,
-    std::{collections::HashSet, io, path::PathBuf},
+    std::{
+        collections::HashSet,
+        io,
+        path::PathBuf,
+    },
 };
 
 /// the usable content of cargo watch's output,
@@ -171,8 +175,7 @@ impl Report {
         &self,
         line: &Line,
     ) -> String {
-        self
-            .lines
+        self.lines
             .iter()
             .filter(|l| l.line_type == LineType::Normal && l.item_idx == line.item_idx)
             .map(|l| l.content.to_raw())
@@ -188,11 +191,7 @@ impl Report {
     ) -> Result<(), io::Error> {
         let mut last_kind = "???";
         let mut message = None;
-        let format_has_context = mission
-            .settings
-            .export
-            .line_format
-            .contains("{context}");
+        let format_has_context = mission.settings.export.line_format.contains("{context}");
         for line in &self.lines {
             match line.line_type {
                 LineType::Title(Kind::Warning) => {
@@ -228,8 +227,7 @@ impl Report {
             }
             let extracted_context;
             let context = if format_has_context {
-                extracted_context = self.
-                    extract_raw_diagnostic_context(line);
+                extracted_context = self.extract_raw_diagnostic_context(line);
                 &extracted_context
             } else {
                 ""

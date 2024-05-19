@@ -10,5 +10,4 @@ pub struct ExportConfig {
     pub enabled: Option<bool>,
     pub path: Option<PathBuf>,
     pub line_format: Option<String>,
-    pub add_context_to_message: Option<bool>
 }

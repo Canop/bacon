@@ -82,7 +82,8 @@ impl Settings {
             self.keybindings.add_all(keybindings);
         }
         if config.additional_alias_args.is_some() {
-            self.additional_alias_args.clone_from(&config.additional_alias_args);
+            self.additional_alias_args
+                .clone_from(&config.additional_alias_args);
         }
         for (name, job) in &config.jobs {
             self.jobs.insert(name.clone(), job.clone());
@@ -140,7 +141,8 @@ impl Settings {
         if args.features.is_some() {
             self.features.clone_from(&args.features);
         }
-        self.additional_job_args.clone_from(&args.additional_job_args);
+        self.additional_job_args
+            .clone_from(&args.additional_job_args);
     }
     pub fn check(&self) -> Result<()> {
         if self.jobs.is_empty() {
