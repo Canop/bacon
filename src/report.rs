@@ -2,11 +2,7 @@ use {
     crate::*,
     anyhow::Result,
     lazy_regex::*,
-    std::{
-        collections::HashSet,
-        io,
-        path::PathBuf,
-    },
+    std::{collections::HashSet, io, path::PathBuf},
 };
 
 /// the usable content of cargo watch's output,
@@ -167,6 +163,23 @@ impl Report {
             output: CommandOutput::default(),
         })
     }
+
+    /// Extract all the diagnostic context, that is all the normal lines
+    /// which have the same item index as the given line.
+    /// Those lines are taken without style and joined with an escaped newline.
+    fn extract_raw_diagnostic_context(
+        &self,
+        line: &Line,
+    ) -> String {
+        self
+            .lines
+            .iter()
+            .filter(|l| l.line_type == LineType::Normal && l.item_idx == line.item_idx)
+            .map(|l| l.content.to_raw())
+            .collect::<Vec<String>>()
+            .join("\\n")
+    }
+
     /// export the report in a file
     pub fn write_to<W: io::Write>(
         &self,
@@ -175,6 +188,11 @@ impl Report {
     ) -> Result<(), io::Error> {
         let mut last_kind = "???";
         let mut message = None;
+        let format_has_context = mission
+            .settings
+            .export
+            .line_format
+            .contains("{context}");
         for line in &self.lines {
             match line.line_type {
                 LineType::Title(Kind::Warning) => {
@@ -208,16 +226,25 @@ impl Report {
                     .to_string();
                 path = &path_string;
             }
+            let extracted_context;
+            let context = if format_has_context {
+                extracted_context = self.
+                    extract_raw_diagnostic_context(line);
+                &extracted_context
+            } else {
+                ""
+            };
             let exported = regex_replace_all!(
                 r#"\{([^\s}]+)\}"#,
                 &mission.settings.export.line_format,
                 |_, key| {
                     match key {
-                        "kind" => last_kind,
-                        "path" => path,
-                        "line" => file_line,
                         "column" => file_column,
+                        "context" => context,
+                        "kind" => last_kind,
+                        "line" => file_line,
                         "message" => message.unwrap_or(""),
+                        "path" => path,
                         _ => {
                             debug!("unknown export key: {key:?}");
                             ""

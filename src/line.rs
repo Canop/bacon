@@ -30,6 +30,7 @@ impl Line {
             _ => None,
         }
     }
+
     /// Return the location as given by cargo
     /// It's usually relative and may contain the line and column
     pub fn location(&self) -> Option<&str> {
