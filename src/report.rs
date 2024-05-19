@@ -164,48 +164,20 @@ impl Report {
         })
     }
 
-    /// Extract all the diagnostic context.
-    fn extract_diagnostic_context(
+    /// Extract all the diagnostic context, that is all the normal lines
+    /// which have the same item index as the given line.
+    /// Those lines are taken without style and joined with an escaped newline.
+    fn extract_raw_diagnostic_context(
         &self,
         line: &Line,
-    ) -> Option<String> {
-        let mut context = String::new();
-        for l in &self.lines {
-            if let LineType::Normal = l.line_type {
-                if l.item_idx == line.item_idx {
-                    if let Some(ctx) = l.context() {
-                        context = format!("{context}\n{ctx}");
-                    }
-                }
-            }
-        }
-        if context.is_empty() {
-            None
-        } else {
-            Some(context.replace("\n", "\\n"))
-        }
-    }
-
-    /// Compose the message.
-    ///
-    /// If `add_context_to_message` is true and there is context to this error,
-    /// it will be added to the exported line.
-    fn compose_message(
-        &self,
-        message: Option<&str>,
-        context: Option<String>,
-        add_context_to_message: bool,
     ) -> String {
-        if let Some(message) = message {
-            if add_context_to_message {
-                if let Some(context) = context {
-                    return format!("{message}{context}");
-                }
-            }
-            message.to_string()
-        } else {
-            "".to_string()
-        }
+        self
+            .lines
+            .iter()
+            .filter(|l| l.line_type == LineType::Normal && l.item_idx == line.item_idx)
+            .map(|l| l.content.to_raw())
+            .collect::<Vec<String>>()
+            .join("\\n")
     }
 
     /// export the report in a file
@@ -216,29 +188,24 @@ impl Report {
     ) -> Result<(), io::Error> {
         let mut last_kind = "???";
         let mut message = None;
-        let mut context = None;
+        let format_has_context = mission
+            .settings
+            .export
+            .line_format
+            .contains("{context}");
         for line in &self.lines {
             match line.line_type {
                 LineType::Title(Kind::Warning) => {
                     last_kind = "warning";
                     message = line.title_message();
-                    if mission.settings.export.add_context_to_message {
-                        context = self.extract_diagnostic_context(line);
-                    }
                 }
                 LineType::Title(Kind::Error) => {
                     last_kind = "error";
                     message = line.title_message();
-                    if mission.settings.export.add_context_to_message {
-                        context = self.extract_diagnostic_context(line);
-                    }
                 }
                 LineType::Title(Kind::TestFail) => {
                     last_kind = "test";
                     message = line.title_message();
-                    if mission.settings.export.add_context_to_message {
-                        context = self.extract_diagnostic_context(line);
-                    }
                 }
                 _ => {}
             }
@@ -259,22 +226,25 @@ impl Report {
                     .to_string();
                 path = &path_string;
             }
-            let message = self.compose_message(
-                message,
-                context,
-                mission.settings.export.add_context_to_message,
-            );
-            context = None;
+            let extracted_context;
+            let context = if format_has_context {
+                extracted_context = self.
+                    extract_raw_diagnostic_context(line);
+                &extracted_context
+            } else {
+                ""
+            };
             let exported = regex_replace_all!(
                 r#"\{([^\s}]+)\}"#,
                 &mission.settings.export.line_format,
                 |_, key| {
                     match key {
-                        "kind" => last_kind,
-                        "path" => path,
-                        "line" => file_line,
                         "column" => file_column,
-                        "message" => &message,
+                        "context" => context,
+                        "kind" => last_kind,
+                        "line" => file_line,
+                        "message" => message.unwrap_or(""),
+                        "path" => path,
                         _ => {
                             debug!("unknown export key: {key:?}");
                             ""

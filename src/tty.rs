@@ -174,6 +174,13 @@ impl TLine {
             }],
         }
     }
+    pub fn to_raw(&self) -> String {
+        let mut s = String::new();
+        for ts in &self.strings {
+            s.push_str(&ts.raw);
+        }
+        s
+    }
     pub fn bold(raw: String) -> Self {
         Self {
             strings: vec![TString {
