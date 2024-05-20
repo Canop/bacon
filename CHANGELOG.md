@@ -1,4 +1,5 @@
-### next
+<a name="v2.18.0"></a>
+### v2.18.0 - 2024/05/20
 - new `{context}` possible part for exported locations, originally designed for [bacon-ls](https://github.com/crisidev/bacon-ls) but available for other purposes - Thanks @crisidev
 
 <a name="v2.17.0"></a>
