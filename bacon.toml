@@ -21,6 +21,17 @@ command = [
 need_stdout = false
 watch = ["tests", "benches", "examples"]
 
+[jobs.nightly]
+command = [
+	"cargo",
+	"+nightly",
+	"check",
+	"--all-targets",
+	"--color", "always",
+]
+need_stdout = false
+watch = ["tests", "benches", "examples"]
+
 [jobs.win]
 command = [
 	"cross", "build",
