@@ -37,6 +37,9 @@ impl From<&CommandOutputLine> for LineAnalysis {
             } else if regex_is_match!(r#", [^:\s'"]+:\d+:\d+$"#, content) {
                 // this kind of location comes up in test failures
                 LineType::Location
+            } else if regex_is_match!(r#"^\s+--> [^:\s'"]+:\d+:\d+$"#, content) {
+                // this comes up in test failures to compile
+                LineType::Location
             } else {
                 LineType::Normal
             }
