@@ -1,3 +1,7 @@
+<a name="v2.18.2"></a>
+### v2.18.2 - 2024/05/31
+- fix failure to recognize location in test compilation output - Fix #190
+
 <a name="v2.18.1"></a>
 ### v2.18.1 - 2024/05/21
 - update dependencies (especially locked ones) to fix compilation on nightly
