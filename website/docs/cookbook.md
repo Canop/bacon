@@ -93,7 +93,7 @@ command = ["cargo", "run", "--color", "always", "--", "--color", "yes"]
 
 # Variable arguments
 
-Launch arguments after the `--` aren't interpreted by bacon but sent inchanged to the job commands.
+Launch arguments after the `--` aren't interpreted by bacon but sent unchanged to the job commands.
 
 This may be useful to add an argument only for one run without changing the `bacon.toml` file.
 
