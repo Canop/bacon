@@ -3,7 +3,7 @@
 
 The behavior of bacon is defined by a global `prefs.toml` file and project specific `bacon.toml` files.
 
-All configuration files are optional but you'll fast need specific jobs for your targets, examples, etc.
+All configuration files are optional but you'll soon need specific jobs for your targets, examples, etc.
 
 All accept the same properties (preferences, keybindings, jobs, etc.).
 The properties of the global `prefs.toml` file are overriden by the workspace level `bacon.toml` file, then by the package level `bacon.toml` file.
