@@ -181,9 +181,7 @@ impl<'s> Mission<'s> {
         );
 
         if !self.job.extraneous_args {
-            for arg in tokens {
-                command.arg(arg);
-            }
+            command.args(tokens);
 
             command.current_dir(&self.cargo_execution_directory);
             command.envs(&self.job.env);
