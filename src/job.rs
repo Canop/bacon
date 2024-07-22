@@ -69,6 +69,12 @@ pub struct Job {
     /// unless you `set default_watch` to false.
     #[serde(default)]
     pub watch: Vec<String>,
+
+    // Whether to insert extraneous arguments provided by bacon or end users
+    //
+    // Eg: --all-features or anything after -- in bacon incantation
+    #[serde(default = "default_true")]
+    pub extraneous_args: bool,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -106,6 +112,7 @@ impl Job {
             apply_gitignore: None,
             env: Default::default(),
             background: true,
+            extraneous_args: true,
         }
     }
 }

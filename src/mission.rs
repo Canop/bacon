@@ -179,6 +179,18 @@ impl<'s> Mission<'s> {
         let mut command = Command::new(
             tokens.next().unwrap(), // implies a check in the job
         );
+
+        if !self.job.extraneous_args {
+            for arg in tokens {
+                command.arg(arg);
+            }
+
+            command.current_dir(&self.cargo_execution_directory);
+            command.envs(&self.job.env);
+            debug!("command: {:#?}", &command);
+            return command
+        }
+
         let mut no_default_features_done = false;
         let mut features_done = false;
         let mut last_is_features = false;

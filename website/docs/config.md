@@ -103,6 +103,7 @@ allow_failures | yes | if `true`, the action is considered a success even when t
 apply_gitignore | yes | if `true` (which is default) the job isn't triggered when the modified file is excluded by gitignore rules
 env | yes | a map of environment vars, for example `env.LOG_LEVEL="die"`
 background | yes | compute in background and display only on end. Default is `true`
+extraneous_args | yes | if `false`, the action is run "as is" from `bacon.toml`, eg: no `--all-features` or `--features` inclusion. Default is `true`.
 
 Example:
 
