@@ -79,21 +79,12 @@ impl ScrollCommand {
 impl std::str::FromStr for ScrollCommand {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, ()> {
-        if s == "scroll-to-top" {
-            Ok(Self::Top)
-        } else if s == "scroll-to-bottom" {
-            Ok(Self::Bottom)
-        } else if let Some((_, lines)) = regex_captures!(r#"^scroll-lines?\(([+-]?\d{1,4})\)$"#, s)
-        {
-            let lines = lines.parse().unwrap(); // can't fail
-            Ok(Self::Lines(lines))
-        } else if let Some((_, pages)) = regex_captures!(r#"^scroll-pages?\(([+-]?\d{1,4})\)$"#, s)
-        {
-            let pages = pages.parse().unwrap(); // can't fail
-            Ok(Self::Pages(pages))
-        } else {
-            Err(())
-        }
+        regex_switch!(s,
+            "^scroll-to-top$" => Self::Top,
+            "^scroll-to-bottom$" => Self::Bottom,
+            r#"^scroll-lines?\((?<n>[+-]?\d{1,4})\)$"# => Self::Lines(n.parse().unwrap()),
+            r#"^scroll-pages?\((?<n>[+-]?\d{1,4})\)$"# => Self::Pages(n.parse().unwrap()),
+        ).ok_or(())
     }
 }
 

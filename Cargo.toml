@@ -21,7 +21,7 @@ crokey = "0.6.3"
 crossbeam = "0.8.2"
 directories-next = "2.0.0"
 gix = "0.58"
-lazy-regex = "3"
+lazy-regex = "3.2"
 notify = "6.1.0"
 serde = { version = "1.0.202", features = ["derive"] }
 termimad = "0.29"
