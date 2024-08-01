@@ -182,11 +182,10 @@ impl<'s> Mission<'s> {
 
         if !self.job.extraneous_args {
             command.args(tokens);
-
             command.current_dir(&self.cargo_execution_directory);
             command.envs(&self.job.env);
             debug!("command: {:#?}", &command);
-            return command
+            return command;
         }
 
         let mut no_default_features_done = false;

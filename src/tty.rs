@@ -45,6 +45,7 @@ static TAB_REPLACEMENT: &str = "    ";
 /// cargo's output:
 /// - styles and colors are always reset on changes
 /// - they're always in the same order (bold then fg color)
+///
 /// A more generic parsing would have to:
 /// - parse the csi params (it's simple enough to map but takes code)
 /// - use a simple state machine to keep style (bold, italic, etc.),

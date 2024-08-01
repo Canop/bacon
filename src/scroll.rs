@@ -84,7 +84,8 @@ impl std::str::FromStr for ScrollCommand {
             "^scroll-to-bottom$" => Self::Bottom,
             r#"^scroll-lines?\((?<n>[+-]?\d{1,4})\)$"# => Self::Lines(n.parse().unwrap()),
             r#"^scroll-pages?\((?<n>[+-]?\d{1,4})\)$"# => Self::Pages(n.parse().unwrap()),
-        ).ok_or(())
+        )
+        .ok_or(())
     }
 }
 
