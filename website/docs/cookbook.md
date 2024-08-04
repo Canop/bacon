@@ -51,6 +51,12 @@ command = [
 need_stdout = false
 ```
 
+You may also add some modifiers on spot sessions, eg
+
+```bash
+bacon clippy -- -W clippy::pedantic
+```
+
 # Check for other platforms
 
 You may define specific jobs for specific targets:
