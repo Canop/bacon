@@ -8,6 +8,8 @@ pub struct HelpLine {
     toggle_backtrace: Option<String>,
     help: Option<String>,
     close_help: Option<String>,
+    pause: Option<String>,
+    unpause: Option<String>,
 }
 
 impl HelpLine {
@@ -36,6 +38,14 @@ impl HelpLine {
             .shortest_internal_key(Internal::Back)
             .or_else(|| kb.shortest_internal_key(Internal::Help))
             .map(|k| format!("*{k}* to close this help"));
+        let pause = kb
+            .shortest_internal_key(Internal::Pause)
+            .or(kb.shortest_internal_key(Internal::TogglePause))
+            .map(|k| format!("*{k}* to pause"));
+        let unpause = kb
+            .shortest_internal_key(Internal::Unpause)
+            .or(kb.shortest_internal_key(Internal::TogglePause))
+            .map(|k| format!("*{k}* to unpause"));
         Self {
             quit,
             toggle_summary,
@@ -44,6 +54,8 @@ impl HelpLine {
             toggle_backtrace,
             help,
             close_help,
+            pause,
+            unpause,
         }
     }
     pub fn markdown(
@@ -56,6 +68,11 @@ impl HelpLine {
                 parts.push(s);
             }
         } else {
+            if state.auto_refresh.is_paused() {
+                if let Some(s) = &self.unpause {
+                    parts.push(s);
+                }
+            }
             if let CommandResult::Report(report) = &state.cmd_result {
                 if report.suggest_backtrace {
                     if let Some(s) = &self.toggle_backtrace {
@@ -73,6 +90,11 @@ impl HelpLine {
                 }
             } else {
                 if let Some(s) = &self.wrap {
+                    parts.push(s);
+                }
+            }
+            if state.auto_refresh.is_enabled() {
+                if let Some(s) = &self.pause {
                     parts.push(s);
                 }
             }

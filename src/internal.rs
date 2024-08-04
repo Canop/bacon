@@ -17,6 +17,9 @@ pub enum Internal {
     ToggleRawOutput,
     ToggleSummary,
     ToggleWrap,
+    Pause,
+    Unpause,
+    TogglePause, // either pause or unpause
 }
 
 impl fmt::Display for Internal {
@@ -35,6 +38,9 @@ impl fmt::Display for Internal {
             Self::ToggleRawOutput => write!(f, "toggle raw output"),
             Self::ToggleSummary => write!(f, "toggle summary"),
             Self::ToggleWrap => write!(f, "toggle wrap"),
+            Self::Pause => write!(f, "pause"),
+            Self::Unpause => write!(f, "unpause"),
+            Self::TogglePause => write!(f, "toggle pause"),
         }
     }
 }
@@ -55,6 +61,9 @@ impl std::str::FromStr for Internal {
             "toggle-backtrace" => Ok(Self::ToggleBacktrace),
             "toggle-summary" => Ok(Self::ToggleSummary),
             "toggle-wrap" => Ok(Self::ToggleWrap),
+            "pause" => Ok(Self::Pause),
+            "unpause" => Ok(Self::Unpause),
+            "toggle pause" => Ok(Self::TogglePause),
             _ => Err(()),
         }
     }

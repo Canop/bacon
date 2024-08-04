@@ -98,8 +98,12 @@ pub fn run(
         let mut action: Option<&Action> = None;
         select! {
             recv(watch_receiver) -> _ => {
-                task_executor.die();
-                task_executor = state.start_computation(&mut executor)?;
+                if state.auto_refresh.is_enabled() {
+                    task_executor.die();
+                    task_executor = state.start_computation(&mut executor)?;
+                } else {
+                    state.auto_refresh = AutoRefresh::PausedWithMisses;
+                }
             }
             recv(executor.line_receiver) -> info => {
                 if let Ok(info) = info {
@@ -192,6 +196,31 @@ pub fn run(
                         let scroll_command = *scroll_command;
                         state.apply_scroll_command(scroll_command);
                     }
+                    Internal::Pause => {
+                        state.auto_refresh = AutoRefresh::Paused;
+                    }
+                    Internal::Unpause => {
+                        if state.auto_refresh == AutoRefresh::PausedWithMisses {
+                            state.clear();
+                            task_executor.die();
+                            task_executor = state.start_computation(&mut executor)?;
+                        }
+                        state.auto_refresh = AutoRefresh::Enabled;
+                    }
+                    Internal::TogglePause => match state.auto_refresh {
+                        AutoRefresh::Enabled => {
+                            state.auto_refresh = AutoRefresh::Paused;
+                        }
+                        AutoRefresh::Paused => {
+                            state.auto_refresh = AutoRefresh::Enabled;
+                        }
+                        AutoRefresh::PausedWithMisses => {
+                            state.auto_refresh = AutoRefresh::Enabled;
+                            state.clear();
+                            task_executor.die();
+                            task_executor = state.start_computation(&mut executor)?;
+                        }
+                    },
                 },
                 Action::Job(job_ref) => {
                     next_job = Some((*job_ref).clone());
