@@ -1,5 +1,6 @@
 ### next
 - `extraneous_args` job parameter - Thanks @TheTollingBell
+- pause/unpause bound to 'p' - Fix #194
 
 <a name="v2.18.2"></a>
 ### v2.18.2 - 2024/05/31
