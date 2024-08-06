@@ -61,6 +61,8 @@ pub struct AppState<'s> {
     help_page: Option<HelpPage>,
     /// display the raw output instead of the report
     raw_output: bool,
+    /// whether auto-refresh is enabled
+    pub auto_refresh: AutoRefresh,
 }
 
 impl<'s> AppState<'s> {
@@ -95,6 +97,7 @@ impl<'s> AppState<'s> {
             help_page: None,
             mission,
             raw_output: false,
+            auto_refresh: AutoRefresh::Enabled,
         })
     }
 

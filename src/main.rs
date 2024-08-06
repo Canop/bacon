@@ -1,6 +1,7 @@
 mod action;
 mod app;
 mod args;
+mod auto_refresh;
 mod cli;
 mod command_output;
 mod command_result;
@@ -39,6 +40,7 @@ mod wrapped_report;
 pub use {
     action::*,
     args::*,
+    auto_refresh::*,
     cli::*,
     command_output::*,
     command_result::*,
