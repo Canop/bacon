@@ -14,7 +14,7 @@ use {
     },
 };
 
-static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples"];
+static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples", "build.rs"];
 
 /// the description of the mission of bacon
 /// after analysis of the args, env, and surroundings
@@ -63,9 +63,13 @@ impl<'s> Mission<'s> {
                     for dir in &watches {
                         let full_path = item_path.join(dir);
                         if full_path.exists() {
-                            directories_to_watch.push(full_path.into());
+                            if full_path.is_dir() {
+                                directories_to_watch.push(full_path.into());
+                            } else {
+                                files_to_watch.push(full_path.into());
+                            }
                         } else {
-                            info!("missing {} dir: {:?}", dir, full_path);
+                            info!("missing {} : {:?}", dir, full_path);
                         }
                     }
                 }
