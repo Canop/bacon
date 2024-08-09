@@ -14,6 +14,7 @@ use {
             BufReader,
         },
         process::{
+            Child,
             Command,
             Stdio,
         },
@@ -27,6 +28,7 @@ use {
 /// Channel sizes are designed to avoid useless computations.
 pub struct MissionExecutor {
     command: Command,
+    kill_command: Vec<String>,
     /// whether it's necessary to transmit stdout lines
     with_stdout: bool,
     line_sender: Sender<CommandExecInfo>,
@@ -71,6 +73,7 @@ impl MissionExecutor {
     /// Prepare the executor (no task/process/thread is started at this point)
     pub fn new(mission: &Mission) -> Result<Self> {
         let mut command = mission.get_command();
+        let kill_command = mission.kill_command();
         let with_stdout = mission.need_stdout();
         let (line_sender, line_receiver) = crossbeam::channel::unbounded();
         command
@@ -83,6 +86,7 @@ impl MissionExecutor {
             });
         Ok(Self {
             command,
+            kill_command,
             with_stdout,
             line_sender,
             line_receiver,
@@ -99,6 +103,7 @@ impl MissionExecutor {
             .env("RUST_BACKTRACE", if task.backtrace { "1" } else { "0" })
             .spawn()
             .context("failed to launch command")?;
+        let kill_command = self.kill_command.clone();
         let with_stdout = self.with_stdout;
         let line_sender = self.line_sender.clone();
         let (stop_sender, stop_receiver) = crossbeam::channel::bounded(1);
@@ -183,7 +188,9 @@ impl MissionExecutor {
                     }
                     StopMessage::Kill => {
                         debug!("explicit interrupt received");
-                        child.kill().expect("command couldn't be killed");
+                        kill(&kill_command, &mut child).unwrap_or_else({
+                            || child.kill().expect("command couldn't be killed")
+                        });
                     }
                 },
                 Err(e) => {
@@ -201,4 +208,34 @@ impl MissionExecutor {
             stop_sender,
         })
     }
+}
+
+fn kill(
+    kill_command: &Vec<String>,
+    child: &mut Child,
+) -> Option<()> {
+    let (exe, args) = kill_command.split_first()?;
+    let mut kill = Command::new(exe);
+    kill.args(args);
+    kill.arg(child.id().to_string());
+    let mut proc = kill
+        .spawn()
+        .map_err(|e| {
+            warn!("could not kill child: {e}");
+            e
+        })
+        .ok()?;
+    let status = proc
+        .wait()
+        .map_err(|e| {
+            warn!("command could not be killed: {e}");
+            e
+        })
+        .ok()?;
+    if !status.success() {
+        warn!("kill command returned nonzero status: {status}");
+        return None;
+    }
+    child.wait().ok();
+    Some(())
 }

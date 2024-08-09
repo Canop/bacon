@@ -271,6 +271,10 @@ impl<'s> Mission<'s> {
         command
     }
 
+    pub fn kill_command(&self) -> Vec<String> {
+        self.job.kill.clone().unwrap_or(Vec::new())
+    }
+
     /// whether we need stdout and not just stderr
     pub fn need_stdout(&self) -> bool {
         self.job.need_stdout
