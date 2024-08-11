@@ -22,8 +22,8 @@ use {
     },
 };
 
-/// contains the currently rendered state of the application,
-/// including scroll position and the current report (if any)
+/// Currently rendered state of the application, including scroll position
+/// and the current report (if any)
 pub struct AppState<'s> {
     /// the mission to run, with settings
     pub mission: Mission<'s>,

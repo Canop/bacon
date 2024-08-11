@@ -33,6 +33,8 @@ pub struct MissionExecutor {
     pub line_receiver: Receiver<CommandExecInfo>,
 }
 
+/// Dedicated to one execution of the job (so there's usually
+/// several task executors during the lifetime of a mission executor)
 pub struct TaskExecutor {
     /// the thread running the current task
     child_thread: thread::JoinHandle<()>,
@@ -46,6 +48,7 @@ enum StopMessage {
     Kill,       // kill the process, don't bother about the status
 }
 
+/// Settings for one execution of job's command
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct Task {
     pub backtrace: bool,
@@ -89,6 +92,7 @@ impl MissionExecutor {
         })
     }
 
+    /// Start the job's command, once, with the given settings
     pub fn start(
         &mut self,
         task: Task,

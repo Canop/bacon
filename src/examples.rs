@@ -12,6 +12,7 @@ ${examples
 }
 ";
 
+/// Examples to display in the --help message
 pub static EXAMPLES: &[Example] = &[
     Example {
         title: "Start with the default job",
