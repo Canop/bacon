@@ -36,6 +36,9 @@ pub struct Job {
     /// by the PackageConfig::from_path loader
     pub command: Vec<String>,
 
+    /// A kill command. If not provided, SIGKILL is used.
+    pub kill: Option<Vec<String>>,
+
     /// Whether to apply the default watch list, which is
     /// `["src", "tests", "benches", "examples"]`
     ///
@@ -102,6 +105,7 @@ impl Job {
         }
         Self {
             command,
+            kill: None,
             default_watch: true,
             expand_env_vars: true,
             watch: Vec::new(),
