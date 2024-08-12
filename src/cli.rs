@@ -50,6 +50,9 @@ pub fn run() -> anyhow::Result<()> {
 
     let mut settings = Settings::default();
 
+    let default_package_config = Config::default_package_config();
+    settings.apply_config(&default_package_config);
+
     if let Some(project_dir) = ProjectDirs::from("org", "dystroy", "bacon") {
         let prefs_path = project_dir.config_dir().join("prefs.toml");
         if args.prefs {
@@ -94,12 +97,10 @@ pub fn run() -> anyhow::Result<()> {
         println!("{}", package_config_path.to_string_lossy());
         return Ok(());
     }
-    let package_config = if package_config_path.exists() {
-        Config::from_path(&package_config_path)?
-    } else {
-        Config::default_package_config()
-    };
-    settings.apply_config(&package_config);
+    if package_config_path.exists() {
+        let config = Config::from_path(&package_config_path)?;
+        settings.apply_config(&config);
+    }
 
     // args are applied after prefs, and package config so that they can override them
     settings.apply_args(&args);
