@@ -1,3 +1,6 @@
+### next
+- `kill` job parameter - Thanks @pcapriotti
+
 <a name="v2.19.0"></a>
 ### v2.19.0 - 2024/08/07
 - `extraneous_args` job parameter - Thanks @TheTollingBell
