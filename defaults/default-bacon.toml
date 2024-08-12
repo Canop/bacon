@@ -82,7 +82,6 @@ command = [
 need_stdout = true
 allow_warnings = true
 background = true
-# kill = ["kill", "-s", "TERM"]
 
 # This parameterized job runs the example of your choice, as soon
 # as the code compiles.

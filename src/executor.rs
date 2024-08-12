@@ -10,6 +10,7 @@ use {
     },
     std::{
         io::{
+            self,
             BufRead,
             BufReader,
         },
@@ -28,7 +29,7 @@ use {
 /// Channel sizes are designed to avoid useless computations.
 pub struct MissionExecutor {
     command: Command,
-    kill_command: Vec<String>,
+    kill_command: Option<Vec<String>>,
     /// whether it's necessary to transmit stdout lines
     with_stdout: bool,
     line_sender: Sender<CommandExecInfo>,
@@ -192,21 +193,18 @@ impl MissionExecutor {
                     }
                     StopMessage::Kill => {
                         debug!("explicit interrupt received");
-                        kill(&kill_command, &mut child).unwrap_or_else({
-                            || child.kill().expect("command couldn't be killed")
-                        });
+                        kill(kill_command.as_deref(), &mut child);
                     }
                 },
                 Err(e) => {
                     debug!("recv error: {e}"); // probably just the executor dropped
-                    child.kill().expect("command couldn't be killed");
+                    kill(kill_command.as_deref(), &mut child);
                 }
             }
             if let Err(e) = child.wait() {
                 warn!("waiting for child failed: {e}");
             }
         });
-        //self.line_receiver = line_receiver;
         Ok(TaskExecutor {
             child_thread,
             stop_sender,
@@ -214,32 +212,41 @@ impl MissionExecutor {
     }
 }
 
+/// kill the child process, either by using a specific command or by
+/// using the default platform kill method if the specific command
+/// failed or wasn't provided.
 fn kill(
-    kill_command: &Vec<String>,
+    kill_command: Option<&[String]>,
     child: &mut Child,
-) -> Option<()> {
-    let (exe, args) = kill_command.split_first()?;
+) {
+    if let Some(kill_command) = kill_command {
+        info!("launch specific kill command {kill_command:?}");
+        let Err(e) = run_kill_command(kill_command, child) else {
+            return;
+        };
+        warn!("specific kill command failed: {e}");
+    }
+    child.kill().expect("command couldn't be killed")
+}
+
+fn run_kill_command(
+    kill_command: &[String],
+    child: &mut Child,
+) -> io::Result<()> {
+    let (exe, args) = kill_command
+        .split_first()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "empty kill command"))?;
     let mut kill = Command::new(exe);
     kill.args(args);
     kill.arg(child.id().to_string());
-    let mut proc = kill
-        .spawn()
-        .map_err(|e| {
-            warn!("could not kill child: {e}");
-            e
-        })
-        .ok()?;
-    let status = proc
-        .wait()
-        .map_err(|e| {
-            warn!("command could not be killed: {e}");
-            e
-        })
-        .ok()?;
+    let mut proc = kill.spawn()?;
+    let status = proc.wait()?;
     if !status.success() {
-        warn!("kill command returned nonzero status: {status}");
-        return None;
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            format!("kill command returned nonzero status: {status}"),
+        ));
     }
-    child.wait().ok();
-    Some(())
+    child.wait()?;
+    Ok(())
 }

@@ -271,8 +271,8 @@ impl<'s> Mission<'s> {
         command
     }
 
-    pub fn kill_command(&self) -> Vec<String> {
-        self.job.kill.clone().unwrap_or(Vec::new())
+    pub fn kill_command(&self) -> Option<Vec<String>> {
+        self.job.kill.clone()
     }
 
     /// whether we need stdout and not just stderr

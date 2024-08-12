@@ -91,19 +91,20 @@ A job is a command which is ran by bacon in background, and whose result is anal
 
 It's defined by the following fields:
 
-field | optional | meaning
-:-|:-:|:-
-command | no | the tokens making the command to execute (first one is the executable)
-watch | yes | a list of directories that will be watched if the job is run on a package. `src`, `tests`, `examples`, and `benches` are implicitly included unles `default_watch` is set to false
-default_watch | yes | whether to watch default directories (`src`, `tests`, `examples`, and `benches`). `true` by default. When it's set to `false`, only the directories in `watch` are watched (none if `watch` is empty or not supplied)
-need_stdout | yes |whether we need to capture stdout too (stderr is always captured). Default is `false`
-on_success | yes | the action to run when there's no error, warning or test failures
-allow_warnings | yes | if `true`, the action is considered a success even when there are warnings. Default is `false` but the standard `run` job is configured with `allow_warnings=true`
-allow_failures | yes | if `true`, the action is considered a success even when there are test failures. Default is `false`
-apply_gitignore | yes | if `true` (which is default) the job isn't triggered when the modified file is excluded by gitignore rules
-env | yes | a map of environment vars, for example `env.LOG_LEVEL="die"`
-background | yes | compute in background and display only on end. Default is `true`
-extraneous_args | yes | if `false`, the action is run "as is" from `bacon.toml`, eg: no `--all-features` or `--features` inclusion. Default is `true`.
+field | meaning | default
+:-|:-|:-
+allow_failures | if `true`, the action is considered a success even when there are test failures | `false`
+allow_warnings | if `true`, the action is considered a success even when there are warnings | `false`
+apply_gitignore | if `true` the job isn't triggered when the modified file is excluded by gitignore rules | `true`
+background | compute in background and display only on end | `true`
+command | the tokens making the command to execute (first one is the executable) |
+default_watch | whether to watch default files (`src`, `tests`, `examples`, `build.rs`, and `benches`). When it's set to `false`, only the files in your `watch` parameter are watched | `true`
+env | a map of environment vars, for example `env.LOG_LEVEL="die"` |
+kill | a command replacing the default job interruption (platform dependant, `SIGKILL` on unix). For example `kill = ["kill", "-s", "INT"]` |
+extraneous_args | if `false`, the action is run "as is" from `bacon.toml`, eg: no `--all-features` or `--features` inclusion | `true`
+need_stdout |whether we need to capture stdout too (stderr is always captured) | `false`
+on_success | the action to run when there's no error, warning or test failures |
+watch | a list of files and directories that will be watched if the job is run on a package. Usual source directories are implicitly included unless `default_watch` is set to false |
 
 Example:
 

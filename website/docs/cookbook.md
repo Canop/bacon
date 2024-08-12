@@ -3,7 +3,7 @@ Those few recipes illustrate the logic of using bacon, and may serve as inspirat
 
 Tell me about your recipes so that I may share them there.
 
-# Jump to the next location in neovim
+# Jump to location in neovim
 
 With the [nvim-bacon](https://github.com/Canop/nvim-bacon) plugin, you can navigate between errors and warnings without leaving nvim, just hitting a key.
 
@@ -95,6 +95,20 @@ Depending on the desired output, you would have to add a setting to the run job,
 
 ```toml
 command = ["cargo", "run", "--color", "always", "--", "--color", "yes"]
+```
+
+# Gentler Kill
+
+The standard interruption of a job, occuring on quitting bacon and on refresh, may be too harsh for the program you run, especially if it's a long running program which should properly release resource.
+
+You may configure a `kill` command for a different interrupt. For example
+
+
+```toml
+[jobs.run]
+command = ["cargo", "run", "--color", "always", "--", "--serve"]
+need_stdout = true
+kill = ["kill", "-s", "INT"]
 ```
 
 # Variable arguments
