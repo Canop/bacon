@@ -15,16 +15,16 @@ rust-version = "1.76"
 anyhow = "1.0.68"
 cargo_metadata = "0.18"
 clap = { version = "4.5", features = ["derive", "cargo"] }
-clap-help = "1.2.0"
+clap-help = "1.3"
 cli-log = "2.0.0"
-crokey = "0.6.3"
+crokey = "1.1"
 crossbeam = "0.8.2"
 directories-next = "2.0.0"
 gix = "0.58"
 lazy-regex = "3.2"
 notify = "6.1.0"
 serde = { version = "1.0.202", features = ["derive"] }
-termimad = "0.29"
+termimad = "0.30"
 toml = "0.8"
 unicode-width = "0.1.12"
 vte = "0.8"
@@ -36,4 +36,6 @@ strip = true
 [patch.crates-io]
 # clap-help = { path = "../clap-help" }
 # termimad = { path = "../termimad" }
+# crokey = { path = "../crokey" }
+# coolor = { path = "../coolor" }
 # lazy-regex = { path = "../lazy-regex" }
