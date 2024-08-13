@@ -1,5 +1,6 @@
-### next
-- until now, when there was no `bacon.toml` file, a default invisible one was applied, overriding the settings of `prefs.toml`. This is no longer the case: this default file is now applied before `prefs.toml` - Fix #157
+<a name="v2.20.0"></a>
+### v2.20.0 - 2024/08/13
+- until now, when there was no `bacon.toml` file, the default one was applied, overriding the settings of `prefs.toml`. This is no longer the case: this default file is now applied before `prefs.toml` (which overrides it) - Fix #157
 - `kill` job parameter - Thanks @pcapriotti
 
 <a name="v2.19.0"></a>
