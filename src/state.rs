@@ -94,6 +94,7 @@ impl<'s> AppState<'s> {
             wrap: mission.settings.wrap,
             backtrace: false,
             reverse: mission.settings.reverse,
+            show_changes_count: mission.settings.show_changes_count,
             status_skin,
             scroll: 0,
             top_item_idx: 0,
@@ -103,7 +104,6 @@ impl<'s> AppState<'s> {
             raw_output: false,
             auto_refresh: AutoRefresh::Enabled,
             changes_since_last_job_start: 0,
-            show_changes_count: true,
         })
     }
 

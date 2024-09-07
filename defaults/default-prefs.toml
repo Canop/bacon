@@ -21,6 +21,10 @@
 #
 # help_line = false
 
+# Uncomment and change the value (true/false) to
+# set whether to display the count of changes since last job start
+# show_changes_count = false
+
 # Exporting "locations" lets you use them in an external
 # tool, for example as a list of jump locations in an IDE
 # or in a language server.

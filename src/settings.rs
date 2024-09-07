@@ -28,6 +28,7 @@ pub struct Settings {
     pub jobs: HashMap<String, Job>,
     pub default_job: ConcreteJobRef,
     pub export: ExportSettings,
+    pub show_changes_count: bool,
 }
 
 impl Default for Settings {
@@ -47,6 +48,7 @@ impl Default for Settings {
             jobs: Default::default(),
             default_job: Default::default(),
             export: Default::default(),
+            show_changes_count: false,
         }
     }
 }
@@ -93,6 +95,9 @@ impl Settings {
         }
         if let Some(export_config) = &config.export {
             self.export.apply_config(export_config);
+        }
+        if let Some(b) = config.show_changes_count {
+            self.show_changes_count = b;
         }
     }
     pub fn apply_args(
