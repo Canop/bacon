@@ -98,11 +98,9 @@ pub fn run(
         let mut action: Option<&Action> = None;
         select! {
             recv(watch_receiver) -> _ => {
-                if state.auto_refresh.is_enabled() {
-                    task_executor.die();
-                    task_executor = state.start_computation(&mut executor)?;
-                } else {
-                    state.auto_refresh = AutoRefresh::PausedWithMisses;
+                state.receive_watch_event();
+                if state.auto_refresh.is_enabled() && !state.is_computing() {
+                    action = Some(&Action::Internal(Internal::ReRun));
                 }
             }
             recv(executor.line_receiver) -> info => {
@@ -153,6 +151,7 @@ pub fn run(
                 event_source.unblock(false);
             }
         }
+        info!("action: {action:?}");
         if let Some(action) = action.take() {
             debug!("requested action: {action:?}");
             match action {
@@ -200,7 +199,7 @@ pub fn run(
                         state.auto_refresh = AutoRefresh::Paused;
                     }
                     Internal::Unpause => {
-                        if state.auto_refresh == AutoRefresh::PausedWithMisses {
+                        if state.changes_since_last_job_start > 0 {
                             state.clear();
                             task_executor.die();
                             task_executor = state.start_computation(&mut executor)?;
@@ -212,13 +211,12 @@ pub fn run(
                             state.auto_refresh = AutoRefresh::Paused;
                         }
                         AutoRefresh::Paused => {
+                            if state.changes_since_last_job_start > 0 {
+                                state.clear();
+                                task_executor.die();
+                                task_executor = state.start_computation(&mut executor)?;
+                            }
                             state.auto_refresh = AutoRefresh::Enabled;
-                        }
-                        AutoRefresh::PausedWithMisses => {
-                            state.auto_refresh = AutoRefresh::Enabled;
-                            state.clear();
-                            task_executor.die();
-                            task_executor = state.start_computation(&mut executor)?;
                         }
                     },
                 },

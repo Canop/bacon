@@ -63,6 +63,10 @@ pub struct AppState<'s> {
     raw_output: bool,
     /// whether auto-refresh is enabled
     pub auto_refresh: AutoRefresh,
+    /// How many watch events were received since last job start
+    pub changes_since_last_job_start: usize,
+    /// whether to display the count of changes
+    pub show_changes_count: bool,
 }
 
 impl<'s> AppState<'s> {
@@ -98,6 +102,8 @@ impl<'s> AppState<'s> {
             mission,
             raw_output: false,
             auto_refresh: AutoRefresh::Enabled,
+            changes_since_last_job_start: 0,
+            show_changes_count: true,
         })
     }
 
@@ -191,6 +197,9 @@ impl<'s> AppState<'s> {
             self.update_wrap(self.width - 1);
         }
     }
+    pub fn is_computing(&self) -> bool {
+        self.computing
+    }
     pub fn clear(&mut self) {
         debug!("state.clear");
         self.take_output();
@@ -211,9 +220,13 @@ impl<'s> AppState<'s> {
             self.clear();
         }
         self.computing = true;
+        self.changes_since_last_job_start = 0;
     }
     pub fn computation_stops(&mut self) {
         self.computing = false;
+    }
+    pub fn receive_watch_event(&mut self) {
+        self.changes_since_last_job_start += 1;
     }
     fn scroll_to_top(&mut self) {
         self.scroll = 0;
@@ -416,6 +429,9 @@ impl<'s> AppState<'s> {
                 9,
             ));
         }
+        if self.show_changes_count {
+            t_line.add_badge(TString::num_badge(self.changes_since_last_job_start, "change", 235, 6));
+        }
         let width = self.width as usize;
         let cols = t_line.draw_in(w, width)?;
         clear_line(w)?;
@@ -445,10 +461,17 @@ impl<'s> AppState<'s> {
     pub fn action(&self) -> Option<&Action> {
         if let CommandResult::Report(report) = &self.cmd_result {
             if self.mission.is_success(report) {
-                return self.mission.on_success().as_ref();
+                let on_success = self.mission.on_success().as_ref();
+                if on_success.is_some() {
+                    return on_success;
+                }
             }
         }
-        None
+        if self.changes_since_last_job_start > 0 && self.auto_refresh.is_enabled() {
+            Some(&Action::Internal(Internal::ReRun))
+        } else {
+            None
+        }
     }
     fn report_to_draw(&self) -> Option<&Report> {
         self.cmd_result
