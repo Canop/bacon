@@ -29,6 +29,7 @@ pub struct Settings {
     pub default_job: ConcreteJobRef,
     pub export: ExportSettings,
     pub show_changes_count: bool,
+    pub on_change_strategy: Option<OnChangeStrategy>,
 }
 
 impl Default for Settings {
@@ -49,6 +50,7 @@ impl Default for Settings {
             default_job: Default::default(),
             export: Default::default(),
             show_changes_count: false,
+            on_change_strategy: None,
         }
     }
 }
@@ -98,6 +100,9 @@ impl Settings {
         }
         if let Some(b) = config.show_changes_count {
             self.show_changes_count = b;
+        }
+        if let Some(b) = config.on_change_strategy {
+            self.on_change_strategy = Some(b);
         }
     }
     pub fn apply_args(

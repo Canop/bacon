@@ -78,6 +78,11 @@ pub struct Job {
     // Eg: --all-features or anything after -- in bacon incantation
     #[serde(default = "default_true")]
     pub extraneous_args: bool,
+
+    /// How to handle changes: either immediately kill the current job
+    /// then restart it, or wait for the current job to finish before
+    /// restarting it.
+    pub on_change_strategy: Option<OnChangeStrategy>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -117,6 +122,7 @@ impl Job {
             env: Default::default(),
             background: true,
             extraneous_args: true,
+            on_change_strategy: None,
         }
     }
 }

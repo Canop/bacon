@@ -27,6 +27,7 @@ mod line_type;
 mod list_jobs;
 mod mission;
 mod mission_location;
+mod on_change_strategy;
 mod report;
 mod scroll;
 mod settings;
@@ -66,6 +67,7 @@ pub use {
     list_jobs::*,
     mission::*,
     mission_location::*,
+    on_change_strategy::*,
     report::*,
     scroll::*,
     settings::*,

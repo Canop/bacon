@@ -37,6 +37,11 @@ pub fn run(
     let keybindings = mission.settings.keybindings.clone();
     let mut ignorer = time!(Info, mission.ignorer());
     let (watch_sender, watch_receiver) = bounded(0);
+    let on_change_strategy = mission
+        .job
+        .on_change_strategy
+        .or(mission.settings.on_change_strategy)
+        .unwrap_or(OnChangeStrategy::WaitThenRestart);
     let mut watcher =
         notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
             Ok(we) => {
@@ -99,8 +104,10 @@ pub fn run(
         select! {
             recv(watch_receiver) -> _ => {
                 state.receive_watch_event();
-                if state.auto_refresh.is_enabled() && !state.is_computing() {
-                    action = Some(&Action::Internal(Internal::ReRun));
+                if state.auto_refresh.is_enabled() {
+                    if !state.is_computing() || on_change_strategy == OnChangeStrategy::KillThenRestart {
+                        action = Some(&Action::Internal(Internal::ReRun));
+                    }
                 }
             }
             recv(executor.line_receiver) -> info => {

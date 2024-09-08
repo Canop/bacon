@@ -430,7 +430,12 @@ impl<'s> AppState<'s> {
             ));
         }
         if self.show_changes_count {
-            t_line.add_badge(TString::num_badge(self.changes_since_last_job_start, "change", 235, 6));
+            t_line.add_badge(TString::num_badge(
+                self.changes_since_last_job_start,
+                "change",
+                235,
+                6,
+            ));
         }
         let width = self.width as usize;
         let cols = t_line.draw_in(w, width)?;
