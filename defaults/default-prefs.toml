@@ -21,6 +21,18 @@
 #
 # help_line = false
 
+# Uncomment and change the value (true/false) to
+# set whether to display the count of changes since last job start
+#
+# show_changes_count = false
+
+# Uncomment one of those lines if you don't want the default
+# behavior triggered by a file change. This property can also
+# be set directly in a specific job.
+#
+# on_change_strategy = "kill_then_restart"
+# on_change_strategy = "wait_then_restart"
+
 # Exporting "locations" lets you use them in an external
 # tool, for example as a list of jump locations in an IDE
 # or in a language server.

@@ -15,6 +15,8 @@ pub fn goto(
     execute!(w, cursor::MoveTo(0, y))?;
     Ok(())
 }
+
+/// Clear from the current position to the end of the line
 pub fn clear_line(w: &mut W) -> Result<()> {
     execute!(w, terminal::Clear(terminal::ClearType::UntilNewLine))?;
     Ok(())

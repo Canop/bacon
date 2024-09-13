@@ -138,7 +138,7 @@ impl MissionExecutor {
                             Ok(_) => {
                                 let response = CommandExecInfo::Line(CommandOutputLine {
                                     content: TLine::from_tty(&line),
-                                    origin: CommandStream::StdErr,
+                                    origin: CommandStream::StdOut,
                                 });
                                 if sender.send(response).is_err() {
                                     break; // channel closed

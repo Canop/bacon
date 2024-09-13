@@ -31,6 +31,8 @@ pub struct Config {
     pub jobs: HashMap<String, Job>,
     pub default_job: Option<ConcreteJobRef>,
     pub export: Option<ExportConfig>,
+    pub show_changes_count: Option<bool>,
+    pub on_change_strategy: Option<OnChangeStrategy>,
 }
 
 impl Config {

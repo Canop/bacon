@@ -73,8 +73,8 @@ impl TString {
         fg: u8,
         bg: u8,
     ) -> Self {
-        let raw = if num == 1 {
-            format!(" 1 {} ", cat)
+        let raw = if num < 2 {
+            format!(" {} {} ", num, cat)
         } else {
             format!(" {} {}s ", num, cat)
         };
