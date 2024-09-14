@@ -1,8 +1,10 @@
-### next
+<a name="v2.21.0"></a>
+### v2.21.0 - 2024/09/14
 With `show_changes_count=true`, you can see the number of file changes that occurred since last job start.
 #### Major change: the `on_change_strategy` setting and a new default strategy
 * With `on_change_strategy = "kill_then_restart"`, the current job is immediately killed and a new job restarted. This is the behavior that bacon had before this PR. It has the downside of never allowing any job to complete if you're always changing files and the job is just a little too long to finish between changes.
 * With `on_change_strategy = "wait_then_restart"` (which is the new default, so you can omit it), bacon waits for the job to finish before restarting it. This is probably much better when the jobs aren't instant and you want to continue changing files while it's computing.
+
 The on_change_strategy can be defined in the global prefs, in the project settings, and even for a specific job.
 
 <a name="v2.20.0"></a>
