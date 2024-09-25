@@ -1,6 +1,10 @@
 use {
     crate::*,
     anyhow::*,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     std::{
         fmt::Write as _,
         io::Write,
@@ -50,7 +54,7 @@ static TAB_REPLACEMENT: &str = "    ";
 /// - parse the csi params (it's simple enough to map but takes code)
 /// - use a simple state machine to keep style (bold, italic, etc.),
 ///    foreground color, and background color across tstrings
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TString {
     pub csi: String,
     pub raw: String,
@@ -117,7 +121,7 @@ impl TString {
         if self.csi.is_empty() {
             write!(w, "{}", &fit.0)?;
         } else {
-            write!(w, "{}{}{}", &self.csi, &fit.0, CSI_RESET,)?;
+            write!(w, "{}{}{}", &self.csi, &fit.0, CSI_RESET)?;
         }
         Ok(fit.1)
     }
@@ -146,7 +150,7 @@ impl TString {
 /// terminal input or output.
 /// I recommend you to NOT try to reuse this hack in another
 /// project unless you perfectly understand it.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TLine {
     pub strings: Vec<TString>,
 }

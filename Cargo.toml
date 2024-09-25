@@ -24,6 +24,7 @@ gix = "0.58"
 lazy-regex = "3.3"
 notify = "6.1"
 serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0"
 termimad = "0.30"
 toml = "0.8"
 unicode-width = "0.1.12"

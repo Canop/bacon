@@ -2,6 +2,10 @@ use {
     crate::*,
     anyhow::Result,
     lazy_regex::*,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     std::{
         collections::HashSet,
         io,
@@ -11,7 +15,7 @@ use {
 
 /// the usable content of cargo watch's output,
 /// lightly analyzed
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Report {
     pub lines: Vec<Line>,
     pub stats: Stats,
@@ -183,15 +187,16 @@ impl Report {
             .join("\\n")
     }
 
-    /// export the report in a file
-    pub fn write_to<W: io::Write>(
+    /// export the report in a file, as the "locations" format
+    pub fn write_locations<W: io::Write>(
         &self,
         w: &mut W,
-        mission: &Mission,
+        mission: &Mission, // used to get the workspace root to normalize locations
+        line_format: &str,
     ) -> Result<(), io::Error> {
         let mut last_kind = "???";
         let mut message = None;
-        let format_has_context = mission.settings.export.line_format.contains("{context}");
+        let format_has_context = line_format.contains("{context}");
         for line in &self.lines {
             match line.line_type {
                 LineType::Title(Kind::Warning) => {
@@ -232,24 +237,20 @@ impl Report {
             } else {
                 ""
             };
-            let exported = regex_replace_all!(
-                r#"\{([^\s}]+)\}"#,
-                &mission.settings.export.line_format,
-                |_, key| {
-                    match key {
-                        "column" => file_column,
-                        "context" => context,
-                        "kind" => last_kind,
-                        "line" => file_line,
-                        "message" => message.unwrap_or(""),
-                        "path" => path,
-                        _ => {
-                            debug!("unknown export key: {key:?}");
-                            ""
-                        }
+            let exported = regex_replace_all!(r#"\{([^\s}]+)\}"#, line_format, |_, key| {
+                match key {
+                    "column" => file_column,
+                    "context" => context,
+                    "kind" => last_kind,
+                    "line" => file_line,
+                    "message" => message.unwrap_or(""),
+                    "path" => path,
+                    _ => {
+                        debug!("unknown export key: {key:?}");
+                        ""
                     }
                 }
-            );
+            });
             writeln!(w, "{}", exported)?;
         }
         debug!("exported locations");

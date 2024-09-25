@@ -31,6 +31,10 @@ We use [GitHub's issue manager](https://github.com/Canop/bacon/issues).
 
 Before posting a new issue, check your problem hasn't already been raised and in case of doubt **please come first discuss it on the chat**.
 
+Looking into an issue may require bacon to be launched with log enabled (eg `BACON_LOG=DEBUG bacon`) which produces a `bacon.log` file.
+
+If bacon didn't understand correctly the output of a cargo tool, it may also be useful to have a look at the analysis export, which you normally find in a `bacon-analysis.json` file on hitting `ctrl-e`.
+
 # Contribute
 
 If you think you might help, as a tester or coder, you're welcome, but please read [Contributing to my FOSS projects](https://dystroy.org/blog/contributing/) before starting a PR.

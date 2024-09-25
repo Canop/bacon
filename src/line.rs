@@ -1,11 +1,15 @@
 use {
     crate::*,
     lazy_regex::regex_captures,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     std::path::PathBuf,
 };
 
 /// A report line
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Line {
     /// the index among items
     /// (all lines having the same index belong to

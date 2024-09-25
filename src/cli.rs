@@ -7,16 +7,16 @@ use {
         io::Write,
     },
     termimad::{
+        EventSource,
+        EventSourceOptions,
         crossterm::{
+            QueueableCommand,
             cursor,
             terminal::{
                 EnterAlternateScreen,
                 LeaveAlternateScreen,
             },
-            QueueableCommand,
         },
-        EventSource,
-        EventSourceOptions,
     },
 };
 
@@ -68,7 +68,7 @@ pub fn run() -> anyhow::Result<()> {
         }
         if prefs_path.exists() {
             let prefs = Config::from_path(&prefs_path)?;
-            debug!("prefs: {:#?}", &prefs);
+            info!("prefs: {:#?}", &prefs);
             settings.apply_config(&prefs);
         }
     }
@@ -106,6 +106,8 @@ pub fn run() -> anyhow::Result<()> {
     settings.apply_args(&args);
 
     settings.check()?;
+
+    info!("settings: {:#?}", &settings);
 
     if args.list_jobs {
         print_jobs(&settings);

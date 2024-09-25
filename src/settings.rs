@@ -27,7 +27,7 @@ pub struct Settings {
     pub keybindings: KeyBindings,
     pub jobs: HashMap<String, Job>,
     pub default_job: ConcreteJobRef,
-    pub export: ExportSettings,
+    pub exports: ExportsSettings,
     pub show_changes_count: bool,
     pub on_change_strategy: Option<OnChangeStrategy>,
 }
@@ -48,7 +48,7 @@ impl Default for Settings {
             keybindings: Default::default(),
             jobs: Default::default(),
             default_job: Default::default(),
-            export: Default::default(),
+            exports: Default::default(),
             show_changes_count: false,
             on_change_strategy: None,
         }
@@ -75,10 +75,6 @@ impl Settings {
             self.help_line = b;
         }
         #[allow(deprecated)] // for compatibility
-        if let Some(b) = config.export_locations {
-            self.export.enabled = b;
-        }
-        #[allow(deprecated)] // for compatibility
         if config.vim_keys == Some(true) {
             self.keybindings.add_vim_keys();
         }
@@ -95,9 +91,7 @@ impl Settings {
         if let Some(default_job) = &config.default_job {
             self.default_job = default_job.clone();
         }
-        if let Some(export_config) = &config.export {
-            self.export.apply_config(export_config);
-        }
+        self.exports.apply_config(config);
         if let Some(b) = config.show_changes_count {
             self.show_changes_count = b;
         }
@@ -134,10 +128,10 @@ impl Settings {
             self.help_line = false;
         }
         if args.export_locations {
-            self.export.enabled = true;
+            self.exports.set_locations_export_auto(true);
         }
         if args.no_export_locations {
-            self.export.enabled = false;
+            self.exports.set_locations_export_auto(false);
         }
         if args.reverse {
             self.reverse = true;

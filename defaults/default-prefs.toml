@@ -33,15 +33,17 @@
 # on_change_strategy = "kill_then_restart"
 # on_change_strategy = "wait_then_restart"
 
-# Exporting "locations" lets you use them in an external
-# tool, for example as a list of jump locations in an IDE
-# or in a language server.
+# Exports can be executed either
+# - on each job completion (if auto is true)
+# - or called on a key (eg `ctrl-e = "export:analysis"`)
 #
-# See https://dystroy.org/bacon/config/#export-locations
+# They can be used for communication with external tools
+# or for inquiries.
 #
-# Set 'enabled' to true to have bacon always export locations
-# This is equivalent to always adding -e to bacon commands
-# but can still be canceled on specific launches with -E
+# Exporting "locations" (by setting its 'auto' to true) lets you use
+# them in an external tool, for example as a list of jump locations
+# in an IDE or in a language server.
+# (See https://dystroy.org/bacon/config/#export-locations),
 #
 # Possible line_format parts:
 #  - kind: warning|error|test 
@@ -50,14 +52,19 @@
 #  - column: 1-based column
 #  - message: description of the item
 #  - context: unstyled lines of output, separated with escaped newlines (`\\n`)
-[export]
-enabled = false
+[exports.locations]
+auto = false
 path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
+[exports.json-report]
+auto = false
+path = "bacon-report.json"
+[exports.analysis]
+auto = false
+path = "bacon-analysis.json"
 
 # Uncomment and change the key-bindings you want to define
-# (some of those ones are the defaults and are just here
-#  for illustration)
+# (some of those ones are the defaults and are just here for illustration)
 [keybindings]
 # esc = "back"
 # g = "scroll-to-top"
@@ -85,3 +92,4 @@ line_format = "{kind} {path}:{line}:{column} {message}"
 # d = "job:doc-open"
 # t = "job:test"
 # r = "job:run"
+# ctrl-e = "export:analysis"

@@ -1,12 +1,14 @@
 use {
     crate::*,
     anyhow::*,
-    std::{
-        fs::File,
-        process::ExitStatus,
+    serde::{
+        Deserialize,
+        Serialize,
     },
+    std::process::ExitStatus,
 };
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// what we get from the execution of a command
 pub enum CommandResult {
     /// a trustable report with errors and warnings computed
@@ -51,23 +53,6 @@ impl CommandResult {
             Self::Report(report) => Some(report),
             _ => None,
         }
-    }
-
-    pub fn update_location_file(
-        &self,
-        mission: &Mission,
-    ) -> Result<()> {
-        match self {
-            Self::Report(report) => {
-                let path = mission.bacon_locations_path();
-                debug!("locations export path: {:?}", &path);
-                let mut file = File::create(path)?;
-                report.write_to(&mut file, mission)?;
-            }
-            Self::Failure(_) => {}
-            Self::None => {}
-        }
-        Ok(())
     }
 
     /// return true when the report has been computed and there's been no

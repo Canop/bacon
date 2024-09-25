@@ -140,6 +140,7 @@ dependencies = [
  "lazy-regex",
  "notify",
  "serde",
+ "serde_json",
  "termimad",
  "toml",
  "unicode-width",

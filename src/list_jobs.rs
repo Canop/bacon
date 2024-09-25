@@ -1,11 +1,11 @@
 use {
     crate::*,
     termimad::{
+        MadSkin,
         minimad::{
             OwningTemplateExpander,
             TextTemplate,
         },
-        MadSkin,
     },
 };
 

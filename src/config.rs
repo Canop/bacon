@@ -17,22 +17,39 @@ use {
 /// override previously set values when applied to settings.
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
-    pub summary: Option<bool>,
-    pub wrap: Option<bool>,
-    pub reverse: Option<bool>,
-    pub help_line: Option<bool>,
-    #[deprecated(since = "2.0.0", note = "use keybindings")]
-    pub vim_keys: Option<bool>,
-    #[deprecated(since = "2.9.0", note = "use export.enabled")]
-    pub export_locations: Option<bool>,
-    pub keybindings: Option<KeyBindings>,
     pub additional_alias_args: Option<Vec<String>>,
+
+    pub default_job: Option<ConcreteJobRef>,
+
+    /// locations export
+    #[deprecated(since = "2.22.0", note = "use exports.locations")]
+    pub export: Option<ExportConfig>,
+
+    #[deprecated(since = "2.9.0", note = "use exports.locations.auto")]
+    pub export_locations: Option<bool>,
+
+    #[serde(default)]
+    pub exports: HashMap<String, ExportConfig>,
+
+    pub help_line: Option<bool>,
+
     #[serde(default)]
     pub jobs: HashMap<String, Job>,
-    pub default_job: Option<ConcreteJobRef>,
-    pub export: Option<ExportConfig>,
-    pub show_changes_count: Option<bool>,
+
+    pub keybindings: Option<KeyBindings>,
+
     pub on_change_strategy: Option<OnChangeStrategy>,
+
+    pub reverse: Option<bool>,
+
+    pub show_changes_count: Option<bool>,
+
+    pub summary: Option<bool>,
+
+    #[deprecated(since = "2.0.0", note = "use keybindings")]
+    pub vim_keys: Option<bool>,
+
+    pub wrap: Option<bool>,
 }
 
 impl Config {
