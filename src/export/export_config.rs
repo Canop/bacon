@@ -1,13 +1,15 @@
 use {
+    crate::*,
     serde::Deserialize,
     std::path::PathBuf,
 };
 
-/// Configuration of export, may be in prefs.toml
-/// or bacon.toml
+/// A generic configuration for all exports, whatever the exporter.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ExportConfig {
-    pub enabled: Option<bool>,
+    pub exporter: Option<Exporter>,
+    #[serde(alias = "enabled")]
+    pub auto: Option<bool>,
     pub path: Option<PathBuf>,
     pub line_format: Option<String>,
 }

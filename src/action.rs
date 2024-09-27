@@ -2,9 +2,9 @@ use {
     crate::*,
     lazy_regex::*,
     serde::{
-        de,
         Deserialize,
         Deserializer,
+        de,
     },
     std::{
         fmt,
@@ -15,6 +15,7 @@ use {
 /// An action that can be mapped to a key
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Action {
+    Export(String),
     Internal(Internal),
     Job(JobRef),
 }
@@ -54,16 +55,17 @@ impl FromStr for Action {
     type Err = ParseActionError;
     fn from_str(s: &str) -> Result<Self, ParseActionError> {
         if let Some((_, cat, con)) = regex_captures!(r#"^(\w+)\s*:\s*(\S+)$"#, s) {
-            if cat == "internal" {
-                if let Ok(internal) = Internal::from_str(con) {
-                    Ok(Self::Internal(internal))
-                } else {
-                    Err(ParseActionError::UnknownInternal(con.to_string()))
+            match cat {
+                "export" => Ok(Self::Export(con.into())),
+                "internal" => {
+                    if let Ok(internal) = Internal::from_str(con) {
+                        Ok(Self::Internal(internal))
+                    } else {
+                        Err(ParseActionError::UnknownInternal(con.to_string()))
+                    }
                 }
-            } else if cat == "job" {
-                Ok(Self::Job(con.into()))
-            } else {
-                Err(ParseActionError::UnknowCategory(cat.to_string()))
+                "job" => Ok(Self::Job(con.into())),
+                _ => Err(ParseActionError::UnknowCategory(cat.to_string())),
             }
         } else if let Ok(internal) = Internal::from_str(s) {
             Ok(Self::Internal(internal))

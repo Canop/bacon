@@ -1,3 +1,6 @@
+### next
+- new `exports` structure in configuration. New `analysis` export bound by default to `ctrl-e`. The old syntax defining locations export is still supported but won't appear in documentations anymore.
+
 <a name="v2.21.0"></a>
 ### v2.21.0 - 2024/09/14
 With `show_changes_count=true`, you can see the number of file changes that occurred since last job start.

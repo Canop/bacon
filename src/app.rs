@@ -14,8 +14,8 @@ use {
         ModifyKind,
     },
     termimad::{
-        crossterm::event::Event,
         EventSource,
+        crossterm::event::Event,
     },
 };
 
@@ -162,6 +162,13 @@ pub fn run(
         if let Some(action) = action.take() {
             debug!("requested action: {action:?}");
             match action {
+                Action::Export(export_name) => {
+                    state
+                        .mission
+                        .settings
+                        .exports
+                        .do_named_export(export_name, &state);
+                }
                 Action::Internal(internal) => match internal {
                     Internal::Back => {
                         if !state.close_help() {

@@ -1,8 +1,8 @@
 use {
     serde::{
-        de,
         Deserialize,
         Deserializer,
+        de,
     },
     std::{
         fmt,

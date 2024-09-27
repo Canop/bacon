@@ -2,6 +2,11 @@ use {
     crate::*,
     anyhow::Result,
     termimad::{
+        Area,
+        CompoundStyle,
+        FmtText,
+        MadSkin,
+        TextView,
         crossterm::style::{
             Attribute,
             Color::*,
@@ -11,11 +16,6 @@ use {
             OwningTemplateExpander,
             TextTemplate,
         },
-        Area,
-        CompoundStyle,
-        FmtText,
-        MadSkin,
-        TextView,
     },
 };
 
@@ -62,6 +62,7 @@ impl HelpPage {
             .into_iter()
             .map(|(action, cks)| {
                 let action = match action {
+                    Action::Export(export_name) => format!("run *{export_name}* export"),
                     Action::Internal(internal) => internal.to_string(),
                     Action::Job(job_name) => format!("start the *{job_name}* job"),
                 };

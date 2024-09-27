@@ -124,20 +124,30 @@ Beware of job references in `on_success`: you must avoid loops with 2 jobs calli
 The default job is the one which is launched when you don't specify one in argument to the bacon command (ie `bacon test`).
 It's also the one you can run with the `job:default` action.
 
-## export locations
+## Exports
 
-If you use neovim, you probably want to use the [nvim-bacon](https://github.com/Canop/nvim-bacon) plugin.
-
-This plugin needs location export to be enabled in your configuration:
+Here's a standard configuration:
 
 ```TOML
-[export]
-enabled = true
+[exports.locations]
+auto = true
 path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
+[exports.json-report]
+auto = false
+path = "bacon-report.json"
+[exports.analysis]
+auto = false
+path = "bacon-analysis.json"
 ```
 
-You may change the path or line format for other tools.
+3 exporters are defined today:
+
+* `locations`: list of errors/warnings/failures for IDE plugins such as [nvim-bacon](https://github.com/Canop/nvim-bacon).
+* `json-report`: a quite exhaustive and verbose report at end of job execution
+* `analysis`: all the lines produced by the called tool and how bacon understood them
+
+In the example here, locations are exported on each job execution while other exports aren't executed unless one is bound to an action (the `analysis` export is by default bound to `ctrl-e`).
 
 # Actions
 
@@ -148,7 +158,9 @@ Actions are launched
 
 Actions are parsed from strings, for example `quit` (long form: `internal:quit`) is the action of quitting bacon and can be bound to a key.
 
-An action is either an *internal*, based on a hardcoded behavior of bacon, or a *job reference*
+An action is either an *internal*, based on a hardcoded behavior of bacon, a *job reference*, or an *export*.
+
+An export action is defined as `export:` followed by the export name.
 
 ## Internals
 

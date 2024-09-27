@@ -3,6 +3,9 @@ use {
     anyhow::Result,
     std::io::Write,
     termimad::{
+        Area,
+        CompoundStyle,
+        MadSkin,
         crossterm::{
             cursor,
             execute,
@@ -16,9 +19,6 @@ use {
             Alignment,
             Composite,
         },
-        Area,
-        CompoundStyle,
-        MadSkin,
     },
 };
 
@@ -176,13 +176,7 @@ impl<'s> AppState<'s> {
                 report.lines.pop();
             }
         }
-        // we update the location file if required
-        if self.mission.settings.export.enabled {
-            if let Err(err) = cmd_result.update_location_file(&self.mission) {
-                // FIXME user info
-                error!("Error writing location file: {}", err);
-            }
-        }
+
         // we keep the scroll when the number of lines didn't change
         let reset_scroll = self.cmd_result.lines_len() != cmd_result.lines_len();
         self.wrapped_report = None;
@@ -196,6 +190,9 @@ impl<'s> AppState<'s> {
         if self.wrap {
             self.update_wrap(self.width - 1);
         }
+
+        // we do all exports which are set to auto
+        self.mission.settings.exports.do_auto_exports(self);
     }
     pub fn is_computing(&self) -> bool {
         self.computing

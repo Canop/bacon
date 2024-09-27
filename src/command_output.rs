@@ -1,23 +1,27 @@
 use {
     crate::*,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     std::process::ExitStatus,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq)]
 pub enum CommandStream {
     StdOut,
     StdErr,
 }
 
 /// a line coming either from stdout or from stderr
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CommandOutputLine {
     pub content: TLine,
     pub origin: CommandStream,
 }
 
 /// some output lines
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct CommandOutput {
     pub lines: Vec<CommandOutputLine>,
 }

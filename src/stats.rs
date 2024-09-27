@@ -1,7 +1,13 @@
-use crate::*;
+use {
+    crate::*,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+};
 
 /// number of lines per type in a report
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Stats {
     pub warnings: usize,
     pub errors: usize,

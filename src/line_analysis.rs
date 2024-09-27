@@ -1,6 +1,10 @@
 use {
     crate::*,
     lazy_regex::*,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
 };
 
 #[cfg(not(windows))]
@@ -9,7 +13,7 @@ const CSI_ERROR_BODY: &str = CSI_BOLD;
 const CSI_ERROR_BODY: &str = CSI_BOLD_WHITE;
 
 /// result of the "parsing" of the line
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LineAnalysis {
     pub line_type: LineType,
     pub key: Option<String>,

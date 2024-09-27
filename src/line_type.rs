@@ -1,12 +1,16 @@
 use {
     crate::*,
     anyhow::*,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     std::io::Write,
     termimad::crossterm::style::Stylize,
 };
 
 /// a kind of section
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Kind {
     /// a warning
     Warning,
@@ -19,7 +23,7 @@ pub enum Kind {
     Sum,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LineType {
     /// the start of a section
     Title(Kind),

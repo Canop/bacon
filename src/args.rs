@@ -1,8 +1,8 @@
 use {
     crate::*,
     anyhow::{
-        bail,
         Result,
+        bail,
     },
     clap::{
         CommandFactory,
