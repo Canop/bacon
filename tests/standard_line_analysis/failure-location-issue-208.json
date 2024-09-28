@@ -1,0 +1,63 @@
+{
+  "lines": [
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "test tests::test1 ... "
+            },
+            {
+              "csi": "\u001b[31m",
+              "raw": "FAILED"
+            }
+          ]
+        },
+        "origin": "StdOut"
+      },
+      "analysis": {
+        "line_type": {
+          "TestResult": false
+        },
+        "key": "tests::test1"
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "---- tests::test1 stdout ----"
+            }
+          ]
+        },
+        "origin": "StdOut"
+      },
+      "analysis": {
+        "line_type": {
+          "Title": "TestFail"
+        },
+        "key": "tests::test1"
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "thread 'tests::test1' panicked at src/lib.rs:6:9:"
+            }
+          ]
+        },
+        "origin": "StdOut"
+      },
+      "analysis": {
+        "line_type": "Location",
+        "key": null
+      }
+    }
+  ]
+}
