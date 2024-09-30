@@ -8,6 +8,9 @@ use {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnalysisExport {
+    #[serde(default)]
+    pub analyzer: Analyzer,
+    pub result: CommandResultKind,
     pub lines: Vec<LineAnalysisExport>,
 }
 
@@ -17,16 +20,37 @@ pub struct LineAnalysisExport {
     pub analysis: LineAnalysis,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CommandResultKind {
+    Report,
+    Failure,
+}
+
 impl AnalysisExport {
-    pub fn build(cmd_output_lines: &[CommandOutputLine]) -> Self {
+    pub fn build(
+        analyzer: Analyzer,
+        cmd_result: &CommandResult,
+    ) -> Option<Self> {
         let mut lines = Vec::new();
+        let (result, cmd_output_lines) = match cmd_result {
+            CommandResult::Report(report) => (CommandResultKind::Report, &report.output.lines),
+            CommandResult::Failure(failure) => (CommandResultKind::Failure, &failure.output.lines),
+            CommandResult::None => {
+                return None;
+            }
+        };
         for line in cmd_output_lines {
-            let analysis = LineAnalysis::from(line);
+            let analysis = analyzer.analyze_line(line);
             lines.push(LineAnalysisExport {
                 line: line.clone(),
                 analysis,
             });
         }
-        Self { lines }
+        Some(Self {
+            analyzer,
+            result,
+            lines,
+        })
     }
 }

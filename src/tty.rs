@@ -60,6 +60,15 @@ pub struct TString {
     pub raw: String,
 }
 impl TString {
+    pub fn new<S: Into<String>>(
+        csi: S,
+        raw: S,
+    ) -> Self {
+        Self {
+            csi: csi.into(),
+            raw: raw.into(),
+        }
+    }
     /// colors are 8bits ansi values
     pub fn badge(
         con: &str,

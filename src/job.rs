@@ -83,6 +83,10 @@ pub struct Job {
     /// then restart it, or wait for the current job to finish before
     /// restarting it.
     pub on_change_strategy: Option<OnChangeStrategy>,
+
+    /// The analyzer interpreting the output of the command, the
+    /// standard cargo dedicated one if not provided
+    pub analyzer: Option<Analyzer>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -123,6 +127,7 @@ impl Job {
             background: true,
             extraneous_args: true,
             on_change_strategy: None,
+            analyzer: Some(Analyzer::Standard),
         }
     }
 }

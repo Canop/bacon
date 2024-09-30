@@ -20,13 +20,14 @@ pub enum CommandResult {
 }
 
 impl CommandResult {
-    pub fn new(
+    pub fn build(
         output: CommandOutput,
         exit_status: Option<ExitStatus>,
+        analyzer: Analyzer,
     ) -> Result<Self> {
         let lines = &output.lines;
         let error_code = exit_status.and_then(|s| s.code()).filter(|&c| c != 0);
-        let mut report = Report::from_lines(lines)?;
+        let mut report = analyzer.build_report(lines)?;
         debug!("report stats: {:?}", &report.stats);
         if let Some(error_code) = error_code {
             if report.stats.errors + report.stats.test_fails == 0 {
