@@ -200,8 +200,8 @@ pub fn run(
                     Internal::ToggleWrap => {
                         state.toggle_wrap_mode();
                     }
-                    Internal::ToggleBacktrace => {
-                        state.toggle_backtrace();
+                    Internal::ToggleBacktrace(level) => {
+                        state.toggle_backtrace(level);
                         task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
                     }
