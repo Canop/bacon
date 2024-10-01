@@ -212,18 +212,19 @@ impl TLine {
         }
     }
     pub fn failed(key: &str) -> Self {
-        Self {
-            strings: vec![
-                TString {
-                    csi: CSI_BOLD_ORANGE.to_string(),
-                    raw: "failed".to_string(),
-                },
-                TString {
-                    csi: CSI_BOLD.to_string(),
-                    raw: format!(": {}", key),
-                },
-            ],
+        let mut strings = Vec::with_capacity(4);
+        strings.push(TString::new(CSI_BOLD_ORANGE, "failed"));
+        strings.push(TString::new("", ": "));
+        if let Some((module, function)) = key.rsplit_once("::") {
+            strings.push(TString {
+                csi: "".to_string(),
+                raw: format!("{module}::"),
+            });
+            strings.push(TString::new(CSI_BOLD_ORANGE, function));
+        } else {
+            strings.push(TString::new(CSI_BOLD_ORANGE, key));
         }
+        TLine { strings }
     }
     pub fn add_badge(
         &mut self,

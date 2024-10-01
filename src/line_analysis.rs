@@ -10,6 +10,7 @@ use {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LineAnalysis {
     pub line_type: LineType,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub key: Option<String>,
 }
 
