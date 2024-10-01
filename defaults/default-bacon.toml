@@ -72,7 +72,8 @@ on_success = "back" # so that we don't open the browser at each change
 # properly parsed.
 # If your program never stops (eg a server), you may set `background`
 # to false to have the cargo run output immediately displayed instead
-# of waiting for program's end.
+# of waiting for program's end. If you prefer to have it restarted at
+# every change, then uncomment the 'on_change_strategy' line.
 [jobs.run]
 command = [
     "cargo", "run",
@@ -82,6 +83,7 @@ command = [
 need_stdout = true
 allow_warnings = true
 background = true
+#on_change_strategy = "kill_then_restart"
 
 # This parameterized job runs the example of your choice, as soon
 # as the code compiles.
