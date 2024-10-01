@@ -75,12 +75,12 @@ impl HelpLine {
                     parts.push(s);
                 }
             }
-            if let CommandResult::Report(report) = &state.cmd_result {
-                if report.suggest_backtrace {
-                    if let Some(s) = &self.toggle_backtrace {
-                        parts.push(s);
-                    }
-                } else if !state.mission.is_success(report) {
+            if state.cmd_result.suggest_backtrace() {
+                if let Some(s) = &self.toggle_backtrace {
+                    parts.push(s);
+                }
+            } else if let CommandResult::Report(report) = &state.cmd_result {
+                if !state.mission.is_success(report) {
                     if let Some(s) = &self.toggle_summary {
                         parts.push(s);
                     }
