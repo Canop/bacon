@@ -55,9 +55,7 @@ command = [
 ]
 need_stdout = true
 
-#
 [jobs.nextest]
-#command = ["cargo", "nextest", "run", "--color", "always"]
 command = ["cargo", "nextest", "run", "--color", "always", "--hide-progress-bar", "--failure-output", "final"]
 need_stdout = true
 analyzer = "nextest"
