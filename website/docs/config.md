@@ -17,7 +17,7 @@ When you modified those files and bacon evolved since, you may want to have a lo
 
 `bacon --prefs` creates the preferences file if it doesn't exist and returns its path (which is system dependent).
 
-You may run `$EDITOR $(bacon --prefs)` to edit it directly.
+You may run `$EDITOR "$(bacon --prefs)"` to edit it directly.
 
 The default configuration file contains already possible entries that you may uncomment and modify.
 
