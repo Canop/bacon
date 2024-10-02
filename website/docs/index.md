@@ -62,7 +62,7 @@ To create a default preferences file, use `bacon --prefs`.
 
 Shortcut:
 
-    $EDITOR $(bacon --prefs)
+    $EDITOR "$(bacon --prefs)"
 
 ## Project Settings
 
