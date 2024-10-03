@@ -90,6 +90,7 @@ pub fn run(
 
     let mut executor = MissionExecutor::new(&mission)?;
 
+    let analyzer = mission.analyzer();
     let mut state = AppState::new(mission)?;
     state.computation_starts();
     state.draw(w)?;
@@ -120,7 +121,7 @@ pub fn run(
                             info!("execution finished with status: {:?}", status);
                             // computation finished
                             let output = state.take_output().unwrap_or_default();
-                            let cmd_result = CommandResult::new(output, status)?;
+                            let cmd_result = CommandResult::build(output, status, analyzer)?;
                             state.set_result(cmd_result);
                             action = state.action();
                         }

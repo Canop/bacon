@@ -7,8 +7,8 @@ use {
         RecursiveMode,
         Watcher,
     },
+    rustc_hash::FxHashSet,
     std::{
-        collections::HashSet,
         path::PathBuf,
         process::Command,
     },
@@ -269,13 +269,17 @@ impl<'s> Mission<'s> {
     pub fn need_stdout(&self) -> bool {
         self.job.need_stdout
     }
+
+    pub fn analyzer(&self) -> Analyzer {
+        self.job.analyzer.unwrap_or_default()
+    }
 }
 
 fn merge_features(
     a: &str,
     b: &str,
 ) -> String {
-    let mut features = HashSet::new();
+    let mut features = FxHashSet::default();
     for feature in a.split(',') {
         features.insert(feature);
     }

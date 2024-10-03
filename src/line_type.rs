@@ -28,6 +28,9 @@ pub enum LineType {
     /// the start of a section
     Title(Kind),
 
+    /// the end of a section (not part of the section)
+    SectionEnd,
+
     /// a line locating the problem
     Location,
 
@@ -36,6 +39,9 @@ pub enum LineType {
 
     /// a suggestion to try with backtrace
     BacktraceSuggestion,
+
+    /// a line we know is useless noise
+    Garbage,
 
     /// any other line
     Normal,
