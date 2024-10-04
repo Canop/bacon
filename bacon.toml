@@ -64,10 +64,11 @@ command = [
 	"-A", "clippy::collapsible_else_if",
 	"-A", "clippy::collapsible_if",
 	"-A", "clippy::derive_partial_eq_without_eq",
-	"-A", "clippy::len_without_is_empty",
 	"-A", "clippy::get_first",
-	"-A", "clippy::while_let_on_iterator",
 	"-A", "clippy::if_same_then_else",
+	"-A", "clippy::len_without_is_empty",
+	"-A", "clippy::map_entry",
+	"-A", "clippy::while_let_on_iterator",
 ]
 need_stdout = false
 

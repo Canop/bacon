@@ -126,7 +126,7 @@ checksum = "0c4b4d0bd25bd0b74681c0ad21497610ce1b7c91b1022cd21c80c6fbdd9476b0"
 
 [[package]]
 name = "bacon"
-version = "2.21.0"
+version = "2.22.0-nextest"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -139,6 +139,7 @@ dependencies = [
  "gix",
  "lazy-regex",
  "notify",
+ "rustc-hash",
  "serde",
  "serde_json",
  "termimad",
@@ -1902,6 +1903,12 @@ name = "regex-syntax"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
+
+[[package]]
+name = "rustc-hash"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "583034fd73374156e66797ed8e5b0d5690409c9226b22d87cb7f19821c05d152"
 
 [[package]]
 name = "rustix"

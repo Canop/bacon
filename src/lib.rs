@@ -1,4 +1,5 @@
 mod action;
+mod analysis;
 mod app;
 mod args;
 mod auto_refresh;
@@ -39,6 +40,7 @@ mod wrapped_report;
 
 pub use {
     action::*,
+    analysis::*,
     args::*,
     auto_refresh::*,
     cli::*,
