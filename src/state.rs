@@ -313,7 +313,7 @@ impl<'s> AppState<'s> {
         &mut self,
         level: &'static str,
     ) {
-        self.backtrace = if self.backtrace.is_some() {
+        self.backtrace = if self.backtrace == Some(level) {
             None
         } else {
             Some(level)
