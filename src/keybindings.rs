@@ -30,7 +30,7 @@ impl Default for KeyBindings {
         bindings.set(key!(F5), Internal::Refresh);
         bindings.set(key!(s), Internal::ToggleSummary);
         bindings.set(key!(w), Internal::ToggleWrap);
-        bindings.set(key!(b), Internal::ToggleBacktrace);
+        bindings.set(key!(b), Internal::ToggleBacktrace("1"));
         bindings.set(key!(Home), Internal::Scroll(ScrollCommand::Top));
         bindings.set(key!(End), Internal::Scroll(ScrollCommand::Bottom));
         bindings.set(key!(Up), Internal::Scroll(ScrollCommand::Lines(-1)));
@@ -84,14 +84,16 @@ impl KeyBindings {
         self.map.get(&key)
     }
     /// return the shortest key.to_string for the internal, if any
-    pub fn shortest_internal_key(
+    pub fn shortest_action_key<F>(
         &self,
-        internal: Internal,
-    ) -> Option<String> {
+        filter: F,
+    ) -> Option<String>
+    where
+        F: Fn(&Action) -> bool,
+    {
         let mut shortest: Option<String> = None;
-        let searched_action = Action::Internal(internal);
         for (ck, action) in &self.map {
-            if action == &searched_action {
+            if filter(action) {
                 let s = ck.to_string();
                 match &shortest {
                     Some(previous) if previous.len() < s.len() => {}
@@ -102,6 +104,14 @@ impl KeyBindings {
             }
         }
         shortest
+    }
+    /// return the shortest key.to_string for the internal, if any
+    pub fn shortest_internal_key(
+        &self,
+        internal: Internal,
+    ) -> Option<String> {
+        let internal_action = Action::Internal(internal);
+        self.shortest_action_key(|action| action == &internal_action)
     }
     /// build and return a map from actions to all the possible shortcuts
     pub fn build_reverse_map(&self) -> HashMap<&Action, Vec<KeyCombination>> {

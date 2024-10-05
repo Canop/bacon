@@ -64,7 +64,7 @@ For example:
 ```TOML
 [keybindings]
 h = "job:clippy"
-shift-F9 = "toggle-backtrace"
+shift-F9 = "toggle-backtrace(1)"
 ctrl-r = "toggle-raw-output"
 ```
 
@@ -172,7 +172,7 @@ quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd
 refresh | <kbd>F5</kbd> | clear output then run current job again
 rerun |  | run current job again
 toggle-raw-output |  | display the untransformed command output
-toggle-backtrace | <kbd>b</kbd> | enable rust backtrace (for example on test failing)
+toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `1` or `full`
 toggle-summary | <kbd>s</kbd> | display results as abstracts
 toggle-wrap | <kbd>w</kbd> | toggle line wrapping
 scroll-to-top | <kbd>Home</kbd> | scroll to top
