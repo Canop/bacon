@@ -32,6 +32,7 @@ impl Analyzer {
     pub fn build_report(
         &self,
         cmd_lines: &[CommandOutputLine],
+        mission: &Mission,
     ) -> anyhow::Result<Report> {
         #[derive(Debug, Default)]
         struct Failure {
@@ -46,7 +47,20 @@ impl Analyzer {
         let mut cur_err_kind = None; // the current kind among stderr lines
         let mut is_in_out_fail = false;
         let mut suggest_backtrace = false;
+        let ignore_patterns = mission
+            .job
+            .ignored_lines
+            .as_ref()
+            .or(mission.settings.ignored_lines.as_ref())
+            .filter(|p| !p.is_empty());
         for cmd_line in cmd_lines {
+            if let Some(patterns) = ignore_patterns {
+                let raw_line = cmd_line.content.to_raw();
+                if patterns.iter().any(|p| p.raw_line_is_match(&raw_line)) {
+                    debug!("ignoring line: {}", &raw_line);
+                    continue;
+                }
+            }
             let line_analysis = self.analyze_line(cmd_line);
             let line_type = line_analysis.line_type;
             let mut line = Line {

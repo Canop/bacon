@@ -101,6 +101,7 @@ command | the tokens making the command to execute (first one is the executable)
 default_watch | whether to watch default files (`src`, `tests`, `examples`, `build.rs`, and `benches`). When it's set to `false`, only the files in your `watch` parameter are watched | `true`
 env | a map of environment vars, for example `env.LOG_LEVEL="die"` |
 kill | a command replacing the default job interruption (platform dependant, `SIGKILL` on unix). For example `kill = ["kill", "-s", "INT"]` |
+ignored_lines | regular expressions for lines to ignores. If set before all jobs, will apply to all of them | none
 extraneous_args | if `false`, the action is run "as is" from `bacon.toml`, eg: no `--all-features` or `--features` inclusion | `true`
 need_stdout |whether we need to capture stdout too (stderr is always captured) | `false`
 on_change_strategy | `wait_then_restart` or `kill_then_restart` |

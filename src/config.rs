@@ -50,6 +50,10 @@ pub struct Config {
     pub vim_keys: Option<bool>,
 
     pub wrap: Option<bool>,
+
+    /// Patterns of lines which should be ignored. Patterns of
+    /// the prefs or bacon.toml can be overridden at the job
+    pub ignored_lines: Option<Vec<LinePattern>>,
 }
 
 impl Config {

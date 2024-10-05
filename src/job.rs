@@ -87,6 +87,10 @@ pub struct Job {
     /// The analyzer interpreting the output of the command, the
     /// standard cargo dedicated one if not provided
     pub analyzer: Option<Analyzer>,
+
+    /// Patterns of lines which should be ignored. Patterns of
+    /// the prefs or bacon.toml can be overridden at the job
+    pub ignored_lines: Option<Vec<LinePattern>>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -128,6 +132,7 @@ impl Job {
             extraneous_args: true,
             on_change_strategy: None,
             analyzer: Some(Analyzer::Standard),
+            ignored_lines: None,
         }
     }
 }
