@@ -42,6 +42,9 @@ bacon test
 
 ![test](img/test.png)
 
+When there's a failure, hit <kbd>f</kbd> to restrict the job to the failing test.
+Hit <kbd>esc</kbd> to get back to all tests.
+
 While in bacon, you can see Clippy warnings by hitting the <kbd>c</kbd> key. And you get back to your previous job with <kbd>esc</kbd>
 
 You may also open the `cargo doc` in your browser with the <kbd>d</kbd> key.

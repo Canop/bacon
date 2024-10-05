@@ -60,7 +60,13 @@ This will run against all targets like `check-all` does.
 
     bacon test
 
+or `bacon nextest` if you're a nextest user.
+
 ![bacon test](doc/test.png)
+
+
+When there's a failure, hit <kbd>f</kbd> to restrict the job to the failing test.
+Hit <kbd>esc</kbd> to get back to all tests.
 
 ## define your own jobs
 
