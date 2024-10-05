@@ -134,7 +134,7 @@ impl Analyzer {
                 _ => {}
             }
         }
-        for (key, failure) in failures.drain() {
+        for (key, failure) in &failures {
             // if we know of a failure but there was no content, we add some
             if failure.has_title {
                 continue;
@@ -142,7 +142,7 @@ impl Analyzer {
             fails.push(Line {
                 item_idx: 0, // will be filled later
                 line_type: LineType::Title(Kind::TestFail),
-                content: TLine::failed(&key),
+                content: TLine::failed(key),
             });
             fails.push(Line {
                 item_idx: 0,
@@ -167,11 +167,13 @@ impl Analyzer {
         let mut stats = Stats::from(&lines);
         stats.passed_tests = passed_tests;
         debug!("stats: {:#?}", &stats);
+        let failure_keys = failures.keys().cloned().collect();
         let report = Report {
             lines,
             stats,
             suggest_backtrace,
             output: Default::default(),
+            failure_keys,
         };
         Ok(report)
     }

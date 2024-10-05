@@ -38,6 +38,7 @@ impl Default for KeyBindings {
         bindings.set(key!(PageUp), Internal::Scroll(ScrollCommand::Pages(-1)));
         bindings.set(key!(PageDown), Internal::Scroll(ScrollCommand::Pages(1)));
         bindings.set(key!(Space), Internal::Scroll(ScrollCommand::Pages(1)));
+        bindings.set(key!(f), Internal::ScopeToFailures);
         bindings.set(key!(esc), Internal::Back);
         bindings.set(key!(ctrl - d), JobRef::Default);
         bindings.set(key!(i), JobRef::Initial);

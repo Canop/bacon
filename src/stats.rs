@@ -44,4 +44,7 @@ impl Stats {
     pub fn items(&self) -> usize {
         self.warnings + self.errors + self.test_fails
     }
+    pub fn can_scope_tests(&self) -> bool {
+        self.passed_tests > 0 && self.test_fails > 0
+    }
 }

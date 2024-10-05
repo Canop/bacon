@@ -20,6 +20,7 @@ pub struct Report {
     pub stats: Stats,
     pub suggest_backtrace: bool,
     pub output: CommandOutput,
+    pub failure_keys: Vec<String>,
 }
 
 impl Report {

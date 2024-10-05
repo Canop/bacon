@@ -129,7 +129,7 @@ pub fn run() -> anyhow::Result<()> {
     let mut result = Ok(());
     #[allow(clippy::while_let_loop)]
     loop {
-        let (job_name, job) = match job_stack.pick_job(&next_job) {
+        let (concrete_job_ref, job) = match job_stack.pick_job(&next_job) {
             Err(e) => {
                 result = Err(e);
                 break;
@@ -139,7 +139,7 @@ pub fn run() -> anyhow::Result<()> {
                 break;
             }
         };
-        let r = Mission::new(&location, job_name.to_string(), job, &settings)
+        let r = Mission::new(&location, concrete_job_ref, job, &settings)
             .and_then(|mission| app::run(&mut w, mission, &event_source));
         match r {
             Ok(Some(job_ref)) => {

@@ -144,6 +144,19 @@ impl<'s> AppState<'s> {
     pub fn has_report(&self) -> bool {
         matches!(self.cmd_result, CommandResult::Report(_))
     }
+    pub fn can_be_scoped(&self) -> bool {
+        self.cmd_result
+            .report()
+            .map_or(false, |report| report.stats.can_scope_tests())
+    }
+    pub fn failures_scope(&self) -> Option<Scope> {
+        if !self.can_be_scoped() {
+            return None;
+        }
+        self.cmd_result.report().map(|report| Scope {
+            tests: report.failure_keys.clone(),
+        })
+    }
     pub fn toggle_raw_output(&mut self) {
         self.raw_output ^= true;
     }
@@ -155,11 +168,12 @@ impl<'s> AppState<'s> {
             cmd_result.reverse();
         }
         match &cmd_result {
-            CommandResult::Report(_) => {
-                debug!("GOT REPORT");
+            CommandResult::Report(report) => {
+                debug!("Got report");
+                info!("Stats: {:#?}", report.stats);
             }
             CommandResult::Failure(_) => {
-                debug!("GOT FAILURE");
+                debug!("Got failure");
             }
             CommandResult::None => {
                 debug!("GOT NONE ???");
@@ -405,7 +419,8 @@ impl<'s> AppState<'s> {
         let project_name = &self.mission.location_name;
         t_line.add_badge(TString::badge(project_name, 255, 240));
         // black over pink
-        t_line.add_badge(TString::badge(&self.mission.job_name, 235, 204));
+        let job_label = self.mission.concrete_job_ref.badge_label();
+        t_line.add_badge(TString::badge(&job_label, 235, 204));
         if let CommandResult::Report(report) = &self.cmd_result {
             let stats = &report.stats;
             if stats.errors > 0 {

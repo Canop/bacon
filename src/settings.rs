@@ -152,7 +152,7 @@ impl Settings {
         if self.jobs.is_empty() {
             bail!("Invalid configuration : no job found");
         }
-        if let ConcreteJobRef::Name(name) = &self.default_job {
+        if let NameOrAlias::Name(name) = &self.default_job.name_or_alias {
             if !self.jobs.contains_key(name) {
                 bail!("Invalid configuration : default job ({name:?}) not found in jobs");
             }

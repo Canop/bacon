@@ -12,6 +12,7 @@ pub enum Internal {
     Quit,
     Refresh, // clear and rerun
     ReRun,
+    ScopeToFailures,
     Scroll(ScrollCommand),
     ToggleBacktrace,
     ToggleRawOutput,
@@ -33,6 +34,7 @@ impl fmt::Display for Internal {
             Self::Quit => write!(f, "quit"),
             Self::Refresh => write!(f, "clear then run current job again"),
             Self::ReRun => write!(f, "run current job again"),
+            Self::ScopeToFailures => write!(f, "scope to failures"),
             Self::Scroll(scroll_command) => scroll_command.fmt(f),
             Self::ToggleBacktrace => write!(f, "toggle backtrace"),
             Self::ToggleRawOutput => write!(f, "toggle raw output"),
@@ -57,6 +59,7 @@ impl std::str::FromStr for Internal {
             "quit" => Ok(Self::Quit),
             "refresh" => Ok(Self::Refresh),
             "rerun" => Ok(Self::ReRun),
+            "scope-to-failures" => Ok(Self::ScopeToFailures),
             "toggle-raw-output" => Ok(Self::ToggleRawOutput),
             "toggle-backtrace" => Ok(Self::ToggleBacktrace),
             "toggle-summary" => Ok(Self::ToggleSummary),

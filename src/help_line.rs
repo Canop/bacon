@@ -10,6 +10,7 @@ pub struct HelpLine {
     close_help: Option<String>,
     pause: Option<String>,
     unpause: Option<String>,
+    scope: Option<String>,
 }
 
 impl HelpLine {
@@ -46,6 +47,9 @@ impl HelpLine {
             .shortest_internal_key(Internal::Unpause)
             .or(kb.shortest_internal_key(Internal::TogglePause))
             .map(|k| format!("*{k}* to unpause"));
+        let scope = kb
+            .shortest_internal_key(Internal::ScopeToFailures)
+            .map(|k| format!("*{k}* to scope to failures"));
         Self {
             quit,
             toggle_summary,
@@ -56,6 +60,7 @@ impl HelpLine {
             close_help,
             pause,
             unpause,
+            scope,
         }
     }
     pub fn markdown(
@@ -68,6 +73,11 @@ impl HelpLine {
                 parts.push(s);
             }
         } else {
+            if state.can_be_scoped() {
+                if let Some(s) = &self.scope {
+                    parts.push(s);
+                }
+            }
             if state.auto_refresh.is_paused() {
                 if let Some(s) = &self.unpause {
                     parts.push(s);
