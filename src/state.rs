@@ -43,8 +43,8 @@ pub struct AppState<'s> {
     computing: bool,
     /// whether the user wants wrapped lines
     pub wrap: bool,
-    /// whether the user wants backtraces
-    pub backtrace: bool,
+    /// the optional RUST_BACKTRACE env var to set
+    pub backtrace: Option<&'static str>,
     /// whether we should display only titles and locations
     summary: bool,
     /// whether we display the gui bottom-to-top
@@ -92,7 +92,7 @@ impl<'s> AppState<'s> {
             computing: true,
             summary: mission.settings.summary,
             wrap: mission.settings.wrap,
-            backtrace: false,
+            backtrace: None,
             reverse: mission.settings.reverse,
             show_changes_count: mission.settings.show_changes_count,
             status_skin,
@@ -309,8 +309,15 @@ impl<'s> AppState<'s> {
         self.summary ^= true;
         self.try_scroll_to_last_top_item();
     }
-    pub fn toggle_backtrace(&mut self) {
-        self.backtrace ^= true;
+    pub fn toggle_backtrace(
+        &mut self,
+        level: &'static str,
+    ) {
+        self.backtrace = if self.backtrace == Some(level) {
+            None
+        } else {
+            Some(level)
+        };
     }
     pub fn toggle_wrap_mode(&mut self) {
         self.wrap ^= true;

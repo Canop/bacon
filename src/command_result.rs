@@ -33,7 +33,12 @@ impl CommandResult {
             if report.stats.errors + report.stats.test_fails == 0 {
                 // report shows no error while the command exe reported
                 // an error, so the report can't be trusted
-                return Ok(Self::Failure(Failure { error_code, output }));
+                let suggest_backtrace = report.suggest_backtrace;
+                return Ok(Self::Failure(Failure {
+                    error_code,
+                    output,
+                    suggest_backtrace,
+                }));
             }
         }
         report.output = output;
@@ -53,6 +58,14 @@ impl CommandResult {
         match self {
             Self::Report(report) => Some(report),
             _ => None,
+        }
+    }
+
+    pub fn suggest_backtrace(&self) -> bool {
+        match self {
+            Self::Report(report) => report.suggest_backtrace,
+            Self::Failure(failure) => failure.suggest_backtrace,
+            _ => false,
         }
     }
 
