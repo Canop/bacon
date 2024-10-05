@@ -175,6 +175,7 @@ toggle-raw-output |  | display the untransformed command output
 toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `1` or `full`
 toggle-summary | <kbd>s</kbd> | display results as abstracts
 toggle-wrap | <kbd>w</kbd> | toggle line wrapping
+scope-to-failures | <kbd>f</kbd> | restrict job to test failure(s)
 scroll-to-top | <kbd>Home</kbd> | scroll to top
 scroll-to-bottom | <kbd>End</kbd> | scroll to bottom
 scroll-lines(-1) | <kbd>↑</kbd> | move one line up
