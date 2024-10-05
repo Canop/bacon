@@ -54,7 +54,7 @@ enum StopMessage {
 /// Settings for one execution of job's command
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct Task {
-    pub backtrace: bool,
+    pub backtrace: Option<&'static str>,
 }
 
 impl TaskExecutor {
@@ -105,7 +105,7 @@ impl MissionExecutor {
         info!("start task {task:?}");
         let mut child = self
             .command
-            .env("RUST_BACKTRACE", if task.backtrace { "1" } else { "0" })
+            .env("RUST_BACKTRACE", task.backtrace.unwrap_or("0"))
             .spawn()
             .context("failed to launch command")?;
         let kill_command = self.kill_command.clone();

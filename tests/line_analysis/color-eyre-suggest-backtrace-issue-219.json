@@ -1,0 +1,349 @@
+{
+  "result": "report",
+  "lines": [
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "warning: unreachable statement"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "  --> src/main.rs:17:5"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Location",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "   |"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "16 |     panic!();"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "   |     -------- any code following this expression is unreachable"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "17 |     println!(r#\"{{\"test\":\"truc\"}}\"#);"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "   |"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "   = note: `#[warn(unreachable_code)]` on by default"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "   = note: this warning originates in the macro `println` (in Nightly builds, run with -Z macro-backtrace for more info)"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": []
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "warning: `bacon-test` (bin \"bacon-test\") generated 1 warning"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "    Finished dev [unoptimized + debuginfo] target(s) in 0.01s"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "     Running `target/debug/bacon-test`"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "\u001b[31m",
+              "raw": "The application panicked (crashed)."
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "Message:  "
+            },
+            {
+              "csi": "\u001b[36m",
+              "raw": "explicit panic"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "Location: "
+            },
+            {
+              "csi": "\u001b[35m",
+              "raw": "src/main.rs"
+            },
+            {
+              "csi": "",
+              "raw": ":"
+            },
+            {
+              "csi": "\u001b[35m",
+              "raw": "16"
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": []
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "Normal",
+        "key": null
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "Backtrace omitted. Run with RUST_BACKTRACE=1 environment variable to display it."
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "BacktraceSuggestion"
+      }
+    },
+    {
+      "line": {
+        "content": {
+          "strings": [
+            {
+              "csi": "",
+              "raw": "Run with RUST_BACKTRACE=full to include source snippets."
+            }
+          ]
+        },
+        "origin": "StdErr"
+      },
+      "analysis": {
+        "line_type": "BacktraceSuggestion"
+      }
+    }
+  ]
+}
