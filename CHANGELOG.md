@@ -1,6 +1,14 @@
 ### next
-- support for nextest output & default nextest job, bound by default to the 'n' key - Fix #196
-- hit 'f' to have tests "scoped" to the failures - Fix #214
+#### Major feature: nextest support
+Hit `n` to launch the nextest job.
+It's a default job, but you may define your own one by specifying `analyzer = "nextest"` in the job entry.
+Internally, this is supported by a new analyzer framework which will allow easier analysis updates or addition of analysis for other tools.
+Fix #196
+#### Major feature: scope test job to failure
+If you're running a test or nextest job and you want only the failing test to be retried, hit `f`.
+If you want all tests to be executed again, hit `esc`.
+Fix #214
+#### Other features:
 - new `exports` structure in configuration. New `analysis` export bound by default to `ctrl-e`. The old syntax defining locations export is still supported but won't appear in documentations anymore.
 - recognize panic location in test - Fix #208
 - lines to ignore can be specified as a set of regular expressions in a `ignored_lines` field either in the job or at the top of the prefs or bacon.toml - Fix #223
@@ -203,8 +211,9 @@ Minor changes:
 
 <a name="v2.0.0"></a>
 ### v2.0.0 - 2022/02/16
-Major features:
+#### Major features:
 - It's now possible to configure key bindings in the prefs.toml file. Those key bingings can trigger internal actions (scrolling, toggling, quitting) or jobs (for example you can launch `cargo test` on the `t` key. - Fix #52
+#### Other changes:
 - help page, listing all key-bindings
 - a job is said to be *successful* when there's no error, test failure or warning. When a job is successful, its output is displayed by bacon. This makes it possible to have a `cargo run` job, for example.
 - it's possible to define an *action* to run when a job is successful. For example you can launch a `cargo doc --open` job on a key, and have bacon switch to the previous job with the `on_success = "back` trigger so that you don't open a browser page on every change
