@@ -73,6 +73,10 @@ pub fn run() -> anyhow::Result<()> {
         }
     }
 
+    if let Some(config) = Config::from_env("BACON_PREFS")? {
+        settings.apply_config(&config);
+    }
+
     let location = MissionLocation::new(&args)?;
     info!("mission location: {:#?}", &location);
 
@@ -99,6 +103,10 @@ pub fn run() -> anyhow::Result<()> {
     }
     if package_config_path.exists() {
         let config = Config::from_path(&package_config_path)?;
+        settings.apply_config(&config);
+    }
+
+    if let Some(config) = Config::from_env("BACON_CONFIG")? {
         settings.apply_config(&config);
     }
 
