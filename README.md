@@ -2,7 +2,7 @@
 
 [logo]: img/logo-text.png?raw=true "bacon"
 
-[![Latest Version][s1]][l1] [![Chat on Miaou][s2]][l2]
+[![Latest Version][s1]][l1] [![site][s4]][l4] [![Chat on Miaou][s2]][l2] [![License: AGPL v3][s3]][l3]
 
 [s1]: https://img.shields.io/crates/v/bacon.svg
 [l1]: https://crates.io/crates/bacon
@@ -10,6 +10,11 @@
 [s2]: https://miaou.dystroy.org/static/shields/room.svg
 [l2]: https://miaou.dystroy.org/3768?rust
 
+[s3]: https://img.shields.io/badge/License-AGPL_v3-blue.svg
+[l3]: https://www.gnu.org/licenses/agpl-3.0
+
+[s4]: https://dystroy.org/dystroy-doc-pink-shield.svg
+[l4]: https://dystroy.org/bacon
 
 **bacon** is a background rust code checker.
 
