@@ -11,6 +11,7 @@ use {
     },
 };
 
+/// A stateless operator building a report from a list of command output lines.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Analyzer {

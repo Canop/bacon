@@ -9,20 +9,21 @@ use {
 pub enum Internal {
     Back,
     Help,
+    Pause,
     Quit,
-    Refresh, // clear and rerun
     ReRun,
+    Refresh, // clear and rerun
     ScopeToFailures,
     Scroll(ScrollCommand),
     ToggleBacktrace(&'static str),
+    TogglePause, // either pause or unpause
     ToggleRawOutput,
     ToggleSummary,
     ToggleWrap,
-    Pause,
     Unpause,
-    TogglePause, // either pause or unpause
 }
 
+/// A string representation for the help page
 impl fmt::Display for Internal {
     fn fmt(
         &self,
@@ -31,18 +32,18 @@ impl fmt::Display for Internal {
         match self {
             Self::Back => write!(f, "back to previous page or job"),
             Self::Help => write!(f, "help"),
+            Self::Pause => write!(f, "pause"),
             Self::Quit => write!(f, "quit"),
-            Self::Refresh => write!(f, "clear then run current job again"),
             Self::ReRun => write!(f, "run current job again"),
+            Self::Refresh => write!(f, "clear then run current job again"),
             Self::ScopeToFailures => write!(f, "scope to failures"),
             Self::Scroll(scroll_command) => scroll_command.fmt(f),
             Self::ToggleBacktrace(level) => write!(f, "toggle backtrace ({level})"),
+            Self::TogglePause => write!(f, "toggle pause"),
             Self::ToggleRawOutput => write!(f, "toggle raw output"),
             Self::ToggleSummary => write!(f, "toggle summary"),
             Self::ToggleWrap => write!(f, "toggle wrap"),
-            Self::Pause => write!(f, "pause"),
             Self::Unpause => write!(f, "unpause"),
-            Self::TogglePause => write!(f, "toggle pause"),
         }
     }
 }

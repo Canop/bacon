@@ -8,8 +8,8 @@ use {
     std::process::ExitStatus,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 /// what we get from the execution of a command
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CommandResult {
     /// a trustable report with errors and warnings computed
     Report(Report),
