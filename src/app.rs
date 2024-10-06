@@ -163,11 +163,15 @@ pub fn run(
             debug!("requested action: {action:?}");
             match action {
                 Action::Export(export_name) => {
+                    let export_name = export_name.to_string();
                     state
                         .mission
                         .settings
                         .exports
-                        .do_named_export(export_name, &state);
+                        .do_named_export(&export_name, &state);
+                    state
+                        .messages
+                        .push(Message::short(format!("Export *{}* done", &export_name)));
                 }
                 Action::Internal(internal) => match internal {
                     Internal::Back => {

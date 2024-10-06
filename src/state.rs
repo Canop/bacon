@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::Result,
-    std::io::Write,
+    std::{
+        io::Write,
+        time::Instant,
+    },
     termimad::{
         Area,
         CompoundStyle,
@@ -67,6 +70,8 @@ pub struct AppState<'s> {
     pub changes_since_last_job_start: usize,
     /// whether to display the count of changes
     pub show_changes_count: bool,
+    /// messages to display to the user for a short duration
+    pub messages: Vec<Message>,
 }
 
 impl<'s> AppState<'s> {
@@ -104,6 +109,7 @@ impl<'s> AppState<'s> {
             raw_output: false,
             auto_refresh: AutoRefresh::Enabled,
             changes_since_last_job_start: 0,
+            messages: Vec::new(),
         })
     }
 
@@ -481,6 +487,32 @@ impl<'s> AppState<'s> {
         }
         Ok(())
     }
+    /// draw message
+    pub fn draw_message(
+        &mut self,
+        w: &mut W,
+        y: u16,
+    ) -> Result<()> {
+        let Some(message) = self.messages.first_mut() else {
+            return Ok(());
+        };
+        if let Some(start) = message.display_start {
+            if start.elapsed() > message.display_duration {
+                self.messages.remove(0);
+                return Ok(());
+            }
+        } else {
+            message.display_start = Some(Instant::now());
+        }
+        goto(w, y)?;
+        self.status_skin.write_composite_fill(
+            w,
+            Composite::from_inline(&message.markdown),
+            self.width.into(),
+            Alignment::Left,
+        )?;
+        Ok(())
+    }
     /// the action to execute now
     pub fn action(&self) -> Option<&Action> {
         if let CommandResult::Report(report) = &self.cmd_result {
@@ -652,6 +684,7 @@ impl<'s> AppState<'s> {
             } else {
                 self.draw_content(w, 1)?;
                 self.draw_computing(w, self.height - 2)?;
+                self.draw_message(w, self.height - 2)?;
                 self.draw_badges(w, self.height - 1)?;
             }
         } else {
@@ -660,6 +693,7 @@ impl<'s> AppState<'s> {
             } else {
                 self.draw_badges(w, 0)?;
                 self.draw_computing(w, 1)?;
+                self.draw_message(w, 1)?; // drawn over the "computing..." line
                 self.draw_content(w, 2)?;
             }
             self.draw_help_line(w, self.height - 1)?;

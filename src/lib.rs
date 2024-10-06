@@ -26,6 +26,7 @@ mod line_analysis;
 mod line_pattern;
 mod line_type;
 mod list_jobs;
+mod messages;
 mod mission;
 mod mission_location;
 mod on_change_strategy;
@@ -68,6 +69,7 @@ pub use {
     line_pattern::*,
     line_type::*,
     list_jobs::*,
+    messages::*,
     mission::*,
     mission_location::*,
     on_change_strategy::*,
