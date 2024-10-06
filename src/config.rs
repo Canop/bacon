@@ -10,7 +10,7 @@ use {
     },
 };
 
-/// A configuration item which may be stored either as `bacon.toml`
+/// A configuration item which may be stored in various places, eg as `bacon.toml`
 /// along a `Cargo.toml` file or as `prefs.toml` in the xdg config directory.
 ///
 /// Leaf values are options (and not Default) so that they don't
@@ -69,6 +69,27 @@ impl Config {
             }
         }
         Ok(conf)
+    }
+    pub fn from_env(env_var_name: &str) -> Result<Option<Self>> {
+        let Some(path) = std::env::var_os(env_var_name) else {
+            return Ok(None);
+        };
+        let path = Path::new(&path);
+        if !path.exists() {
+            // some users may want to use an env var to point to a file that may not always exist
+            // so we don't bail here
+            warn!(
+                "Env var {:?} points to file {:?} which does not exist",
+                env_var_name, path
+            );
+            return Ok(None);
+        }
+        let config = Self::from_path(path)?;
+        debug!(
+            "Loaded config at {:?} as specified in env var {:?}",
+            path, env_var_name
+        );
+        Ok(Some(config))
     }
     pub fn default_package_config() -> Self {
         toml::from_str(DEFAULT_PACKAGE_CONFIG).unwrap()

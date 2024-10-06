@@ -159,7 +159,6 @@ pub fn run(
                 event_source.unblock(false);
             }
         }
-        info!("action: {action:?}");
         if let Some(action) = action.take() {
             debug!("requested action: {action:?}");
             match action {
@@ -191,6 +190,15 @@ pub fn run(
                     Internal::ReRun => {
                         task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
+                    }
+                    Internal::ScopeToFailures => {
+                        if let Some(scope) = state.failures_scope() {
+                            info!("scoping to failures: {scope:#?}");
+                            next_job = Some(JobRef::Scope(scope));
+                            break;
+                        } else {
+                            warn!("no available failures scope");
+                        }
                     }
                     Internal::ToggleRawOutput => {
                         state.toggle_raw_output();

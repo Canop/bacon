@@ -21,7 +21,7 @@ static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples", "buil
 #[derive(Debug)]
 pub struct Mission<'s> {
     pub location_name: String,
-    pub job_name: String,
+    pub concrete_job_ref: ConcreteJobRef,
     pub cargo_execution_directory: PathBuf,
     pub workspace_root: PathBuf,
     pub job: Job,
@@ -33,7 +33,7 @@ pub struct Mission<'s> {
 impl<'s> Mission<'s> {
     pub fn new(
         location: &MissionLocation,
-        job_name: String,
+        concrete_job_ref: ConcreteJobRef,
         job: Job,
         settings: &'s Settings,
     ) -> Result<Self> {
@@ -69,7 +69,7 @@ impl<'s> Mission<'s> {
                                 files_to_watch.push(full_path.into());
                             }
                         } else {
-                            info!("missing {} : {:?}", dir, full_path);
+                            debug!("missing {} : {:?}", dir, full_path);
                         }
                     }
                 }
@@ -84,7 +84,7 @@ impl<'s> Mission<'s> {
         let cargo_execution_directory = location.package_directory.clone();
         Ok(Mission {
             location_name,
-            job_name,
+            concrete_job_ref,
             cargo_execution_directory,
             workspace_root: location.workspace_root.clone(),
             job,
@@ -146,10 +146,8 @@ impl<'s> Mission<'s> {
 
     /// build (and doesn't call) the external cargo command
     pub fn get_command(&self) -> Command {
-        let expanded;
-        let command = if self.job.expand_env_vars {
-            expanded = self
-                .job
+        let mut command = if self.job.expand_env_vars {
+            self.job
                 .command
                 .iter()
                 .map(|token| {
@@ -164,11 +162,26 @@ impl<'s> Mission<'s> {
                     })
                     .to_string()
                 })
-                .collect();
-            &expanded
+                .collect()
         } else {
-            &self.job.command
+            self.job.command.clone()
         };
+
+        let scope = &self.concrete_job_ref.scope;
+        if scope.has_tests() && command.len() > 2 {
+            let tests = if command[0] == "cargo" && command[1] == "test" {
+                // Here we're going around a limitation of the vanilla cargo test:
+                // it can only be scoped to one test
+                &scope.tests[..1]
+            } else {
+                &scope.tests
+            };
+            for test in tests {
+                command.push(test.to_string());
+            }
+        }
+
+        info!("command: {command:#?}");
         let mut tokens = command.iter();
         let mut command = Command::new(
             tokens.next().unwrap(), // implies a check in the job
