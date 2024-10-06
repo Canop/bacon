@@ -121,7 +121,7 @@ pub fn run(
                             info!("execution finished with status: {:?}", status);
                             // computation finished
                             let output = state.take_output().unwrap_or_default();
-                            let cmd_result = CommandResult::build(output, status, analyzer)?;
+                            let cmd_result = CommandResult::build(output, status, analyzer, &state.mission)?;
                             state.set_result(cmd_result);
                             action = state.action();
                         }

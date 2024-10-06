@@ -23,6 +23,7 @@ mod job_stack;
 mod keybindings;
 mod line;
 mod line_analysis;
+mod line_pattern;
 mod line_type;
 mod list_jobs;
 mod mission;
@@ -63,6 +64,7 @@ pub use {
     keybindings::*,
     line::*,
     line_analysis::*,
+    line_pattern::*,
     line_type::*,
     list_jobs::*,
     mission::*,

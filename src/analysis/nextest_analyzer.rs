@@ -92,9 +92,7 @@ fn is_canceling(content: &TLine) -> bool {
 /// In the future, we might want to return the duration too.
 fn as_test_result(content: &TLine) -> Option<(String, bool)> {
     let mut strings = content.strings.iter();
-    let Some(first) = strings.next() else {
-        return None;
-    };
+    let first = strings.next()?;
     let pass = match (first.csi.as_str(), first.raw.trim()) {
         (CSI_PASS, "PASS") => true,
         (CSI_ERROR, "FAIL") => false,

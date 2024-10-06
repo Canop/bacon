@@ -30,6 +30,7 @@ pub struct Settings {
     pub exports: ExportsSettings,
     pub show_changes_count: bool,
     pub on_change_strategy: Option<OnChangeStrategy>,
+    pub ignored_lines: Option<Vec<LinePattern>>,
 }
 
 impl Default for Settings {
@@ -51,6 +52,7 @@ impl Default for Settings {
             exports: Default::default(),
             show_changes_count: false,
             on_change_strategy: None,
+            ignored_lines: Default::default(),
         }
     }
 }
@@ -97,6 +99,9 @@ impl Settings {
         }
         if let Some(b) = config.on_change_strategy {
             self.on_change_strategy = Some(b);
+        }
+        if let Some(b) = config.ignored_lines.as_ref() {
+            self.ignored_lines = Some(b.clone());
         }
     }
     pub fn apply_args(
