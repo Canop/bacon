@@ -7,7 +7,7 @@
 [s1]: https://img.shields.io/crates/v/bacon.svg
 [l1]: https://crates.io/crates/bacon
 
-[s2]: https://miaou.dystroy.org/static/shields/room.svg
+[s2]: https://dystroy.org/chat-shield.svg
 [l2]: https://miaou.dystroy.org/3768?rust
 
 [s3]: https://img.shields.io/badge/License-AGPL_v3-blue.svg
