@@ -1,12 +1,19 @@
 
 # Configuration Files
 
-The behavior of bacon is defined by a global `prefs.toml` file and project specific `bacon.toml` files.
-
-All configuration files are optional but you'll soon need specific jobs for your targets, examples, etc.
+All configuration files are optional but you'll probably need specific jobs for your targets, examples, etc.
 
 All accept the same properties (preferences, keybindings, jobs, etc.).
-The properties of the global `prefs.toml` file are overriden by the workspace level `bacon.toml` file, then by the package level `bacon.toml` file.
+
+Bacon loads its default configuration then, in order:
+
+* the global `prefs.toml` ([global preferences](#global-preferences))
+* the file whose path is in environment variable `BACON_PREFS`
+* the workspace level `bacon.toml` file
+* the package level `bacon.toml` file ([project settings](#project-settings))
+* the file whose path is in environment variable `BACON_CONFIG`
+
+Each configuration file overrides the properties of previously loaded ones.
 
 When you modified those files and bacon evolved since, you may want to have a look at the current default ones and pick the changes you like:
 
