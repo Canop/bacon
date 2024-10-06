@@ -30,6 +30,7 @@ mod mission;
 mod mission_location;
 mod on_change_strategy;
 mod report;
+mod scope;
 mod scroll;
 mod settings;
 mod state;
@@ -71,6 +72,7 @@ pub use {
     mission_location::*,
     on_change_strategy::*,
     report::*,
+    scope::*,
     scroll::*,
     settings::*,
     state::*,

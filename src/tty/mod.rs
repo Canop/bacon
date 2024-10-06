@@ -1,0 +1,38 @@
+mod tline;
+mod tstring;
+
+pub const CSI_RESET: &str = "\u{1b}[0m\u{1b}[0m";
+pub const CSI_BOLD: &str = "\u{1b}[1m";
+pub const CSI_ITALIC: &str = "\u{1b}[3m";
+
+pub const CSI_GREEN: &str = "\u{1b}[32m";
+
+pub const CSI_RED: &str = "\u{1b}[31m";
+pub const CSI_BOLD_RED: &str = "\u{1b}[1m\u{1b}[38;5;9m";
+pub const CSI_BOLD_ORANGE: &str = "\u{1b}[1m\u{1b}[38;5;208m";
+
+/// Used for "Blocking"
+pub const CSI_BLUE: &str = "\u{1b}[1m\u{1b}[36m";
+
+#[cfg(windows)]
+pub const CSI_BOLD_YELLOW: &str = "\u{1b}[1m\u{1b}[38;5;11m";
+#[cfg(not(windows))]
+pub const CSI_BOLD_YELLOW: &str = "\u{1b}[1m\u{1b}[33m";
+
+#[cfg(windows)]
+pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;14m";
+#[cfg(not(windows))]
+pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;12m";
+
+#[cfg(windows)]
+pub const CSI_BOLD_4BIT_YELLOW: &str = "\u{1b}[1m\u{1b}[33m";
+
+#[cfg(windows)]
+pub const CSI_BOLD_WHITE: &str = "\u{1b}[1m\u{1b}[38;5;15m";
+
+static TAB_REPLACEMENT: &str = "    ";
+
+pub use {
+    tline::*,
+    tstring::*,
+};

@@ -1,5 +1,6 @@
 ### next
 - support for nextest output & default nextest job, bound by default to the 'n' key - Fix #196
+- hit 'f' to have tests "scoped" to the failures - Fix #214
 - new `exports` structure in configuration. New `analysis` export bound by default to `ctrl-e`. The old syntax defining locations export is still supported but won't appear in documentations anymore.
 - recognize panic location in test - Fix #208
 - lines to ignore can be specified as a set of regular expressions in a `ignored_lines` field either in the job or at the top of the prefs or bacon.toml - Fix #223
