@@ -15,7 +15,7 @@ Bacon loads its default configuration then, in order:
 
 Each configuration file overrides the properties of previously loaded ones.
 
-When you modified those files and bacon evolved since, you may want to have a look at the current default ones and pick the changes you like:
+When you modified those files and bacon evolved since, you may want to have a look at the current default ones:
 
 * [Current default prefs.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-prefs.toml)
 * [Current default bacon.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-bacon.toml)
