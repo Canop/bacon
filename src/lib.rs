@@ -10,7 +10,7 @@ mod config;
 mod defaults;
 mod drawing;
 mod examples;
-mod executor;
+mod exec;
 mod export;
 mod failure;
 mod help_line;
@@ -36,7 +36,6 @@ mod scroll;
 mod settings;
 mod state;
 mod stats;
-mod task;
 mod tty;
 mod wrap;
 mod wrapped_command_output;
@@ -54,7 +53,7 @@ pub use {
     defaults::*,
     drawing::*,
     examples::*,
-    executor::*,
+    exec::*,
     export::*,
     failure::*,
     help_line::*,
@@ -80,7 +79,6 @@ pub use {
     settings::*,
     state::*,
     stats::*,
-    task::*,
     tty::*,
     wrap::*,
     wrapped_command_output::*,

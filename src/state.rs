@@ -144,7 +144,7 @@ impl<'s> AppState<'s> {
     pub fn new_task(&self) -> Task {
         Task {
             backtrace: self.backtrace,
-            grace_period: Duration::from_millis(2), //self.mission.settings.grace_period,
+            grace_period: Duration::from_millis(5), //self.mission.settings.grace_period,
         }
     }
     pub fn take_output(&mut self) -> Option<CommandOutput> {
