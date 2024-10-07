@@ -14,6 +14,8 @@ Fix #214
 - lines to ignore can be specified as a set of regular expressions in a `ignored_lines` field either in the job or at the top of the prefs or bacon.toml - Fix #223
 - `toggle-backtrace` accepts an optional level: `toggle-backtrace(1)` or `toggle-backtrace(full)` - Experimental - Fix #210
 - configuration can be passed in `BACON_PREFS` and `BACON_CONFIG` env vars - Fix #76
+#### Fixes:
+- fix changing wrapping mode not always working in raw output mode - Fix #234
 
 <a name="v2.21.0"></a>
 ### v2.21.0 - 2024/09/14
