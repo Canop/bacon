@@ -181,7 +181,6 @@ impl<'s> Mission<'s> {
             }
         }
 
-        info!("command: {command:#?}");
         let mut tokens = command.iter();
         let mut command = Command::new(
             tokens.next().unwrap(), // implies a check in the job
@@ -200,7 +199,7 @@ impl<'s> Mission<'s> {
         let mut last_is_features = false;
         let mut tokens = tokens.chain(&self.settings.additional_job_args);
         let mut has_double_dash = false;
-        while let Some(arg) = tokens.next() {
+        for arg in tokens.by_ref() {
             if arg == "--" {
                 // we'll defer addition of the following arguments to after
                 // the addition of the features stuff, so that the features

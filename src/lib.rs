@@ -36,6 +36,7 @@ mod scroll;
 mod settings;
 mod state;
 mod stats;
+mod task;
 mod tty;
 mod wrap;
 mod wrapped_command_output;
@@ -79,6 +80,7 @@ pub use {
     settings::*,
     state::*,
     stats::*,
+    task::*,
     tty::*,
     wrap::*,
     wrapped_command_output::*,

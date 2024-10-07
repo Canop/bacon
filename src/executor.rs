@@ -20,6 +20,10 @@ use {
             Stdio,
         },
         thread,
+        time::{
+            Duration,
+            Instant,
+        },
     },
 };
 
@@ -42,6 +46,8 @@ pub struct TaskExecutor {
     /// the thread running the current task
     child_thread: thread::JoinHandle<()>,
     stop_sender: Sender<StopMessage>,
+    grace_period_start: Option<Instant>, // forgotten at end of grace period
+    grace_period: Duration,
 }
 
 /// A message sent to the child_thread on end
@@ -49,12 +55,6 @@ pub struct TaskExecutor {
 enum StopMessage {
     SendStatus, // process already finished, just get status
     Kill,       // kill the process, don't bother about the status
-}
-
-/// Settings for one execution of job's command
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct Task {
-    pub backtrace: Option<&'static str>,
 }
 
 impl TaskExecutor {
@@ -70,6 +70,15 @@ impl TaskExecutor {
         if self.child_thread.join().is_err() {
             warn!("child_thread.join() failed"); // should not happen
         }
+    }
+    pub fn is_in_grace_period(&mut self) -> bool {
+        if let Some(grace_period_start) = self.grace_period_start {
+            if grace_period_start.elapsed() < self.grace_period {
+                return true;
+            }
+            self.grace_period_start = None;
+        }
+        false
     }
 }
 
@@ -103,6 +112,8 @@ impl MissionExecutor {
         task: Task,
     ) -> Result<TaskExecutor> {
         info!("start task {task:?}");
+        let grace_period_start = Some(Instant::now());
+        let grace_period = task.grace_period;
         let mut child = self
             .command
             .env("RUST_BACKTRACE", task.backtrace.unwrap_or("0"))
@@ -208,6 +219,8 @@ impl MissionExecutor {
         Ok(TaskExecutor {
             child_thread,
             stop_sender,
+            grace_period_start,
+            grace_period,
         })
     }
 }
