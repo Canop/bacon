@@ -6,6 +6,7 @@ use {
         fs,
         io::Write,
     },
+    shlex::try_quote,
     termimad::{
         EventSource,
         EventSourceOptions,
@@ -63,7 +64,7 @@ pub fn run() -> anyhow::Result<()> {
                 //  $EDITOR "$(bacon --prefs)"
                 eprintln!("Preferences file written.");
             }
-            println!("{}", prefs_path.to_string_lossy());
+            println!("{}", try_quote(&prefs_path.to_string_lossy())?);
             return Ok(());
         }
         if prefs_path.exists() {
