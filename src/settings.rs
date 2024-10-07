@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::*,
-    std::collections::HashMap,
+    std::{
+        collections::HashMap,
+        time::Duration,
+    },
 };
 
 /// The settings used in the application.
@@ -31,6 +34,7 @@ pub struct Settings {
     pub show_changes_count: bool,
     pub on_change_strategy: Option<OnChangeStrategy>,
     pub ignored_lines: Option<Vec<LinePattern>>,
+    pub grace_period: Period,
 }
 
 impl Default for Settings {
@@ -53,6 +57,7 @@ impl Default for Settings {
             show_changes_count: false,
             on_change_strategy: None,
             ignored_lines: Default::default(),
+            grace_period: Duration::from_millis(5).into(),
         }
     }
 }
@@ -102,6 +107,9 @@ impl Settings {
         }
         if let Some(b) = config.ignored_lines.as_ref() {
             self.ignored_lines = Some(b.clone());
+        }
+        if let Some(p) = config.grace_period {
+            self.grace_period = p;
         }
     }
     pub fn apply_args(

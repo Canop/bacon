@@ -1,0 +1,57 @@
+use {
+    anyhow::anyhow,
+    lazy_regex::*,
+    serde::{
+        Deserialize,
+        Deserializer,
+        de,
+    },
+    std::{
+        str::FromStr,
+        time::Duration,
+    },
+};
+
+/// A small wrapper over time::Duration, to allow reading from a string in
+/// config. There's no symetric serialization and the input format is
+/// quite crude (eg "25ms" or "254ns" or "none")
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Period {
+    pub duration: Duration,
+}
+
+impl Period {
+    pub const fn is_zero(&self) -> bool {
+        self.duration.is_zero()
+    }
+}
+
+impl From<Duration> for Period {
+    fn from(duration: Duration) -> Self {
+        Self { duration }
+    }
+}
+
+impl FromStr for Period {
+    type Err = anyhow::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let duration = regex_switch!(s,
+            r"^(?<n>\d+)\s*ns$" => Duration::from_nanos(n.parse()?),
+            r"^(?<n>\d+)\s*ms$" => Duration::from_millis(n.parse()?),
+            r"^(?<n>\d+)\s*s$" => Duration::from_secs(n.parse()?),
+            r"^[^1-9]*$" => Duration::new(0, 0), // eg "none", "0", "off"
+        )
+        .ok_or_else(|| anyhow!("Invalid period: {}", s))?;
+        Ok(Self { duration })
+    }
+}
+
+impl<'de> Deserialize<'de> for Period {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}

@@ -15,10 +15,7 @@ use {
             Command,
         },
         thread,
-        time::{
-            Duration,
-            Instant,
-        },
+        time::Instant,
     },
 };
 
@@ -40,7 +37,7 @@ pub struct TaskExecutor {
     child_thread: thread::JoinHandle<()>,
     stop_sender: Sender<StopMessage>,
     grace_period_start: Option<Instant>, // forgotten at end of grace period
-    grace_period: Duration,
+    grace_period: Period,
 }
 
 /// A message sent to the child_thread on end
@@ -66,7 +63,7 @@ impl TaskExecutor {
     }
     pub fn is_in_grace_period(&mut self) -> bool {
         if let Some(grace_period_start) = self.grace_period_start {
-            if grace_period_start.elapsed() < self.grace_period {
+            if grace_period_start.elapsed() < self.grace_period.duration {
                 return true;
             }
             self.grace_period_start = None;
@@ -95,8 +92,12 @@ impl MissionExecutor {
         task: Task,
     ) -> anyhow::Result<TaskExecutor> {
         info!("start task {task:?}");
-        let grace_period_start = Some(Instant::now());
         let grace_period = task.grace_period;
+        let grace_period_start = if grace_period.is_zero() {
+            None
+        } else {
+            Some(Instant::now())
+        };
         let mut command_builder = self.command_builder.clone();
         command_builder.env("RUST_BACKTRACE", task.backtrace.unwrap_or("0"));
         let kill_command = self.kill_command.clone();
@@ -110,7 +111,9 @@ impl MissionExecutor {
             // before starting the command, we wait some time, so that a bunch
             // of quasi-simultaneous file events can be finished before the command
             // starts (during this time, no other command is started by bacon in app.rs)
-            thread::sleep(grace_period);
+            if !grace_period.is_zero() {
+                thread::sleep(grace_period.duration);
+            }
 
             let child = command_builder.build().spawn();
             let mut child = match child {
