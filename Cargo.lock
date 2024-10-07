@@ -142,6 +142,7 @@ dependencies = [
  "rustc-hash",
  "serde",
  "serde_json",
+ "shlex",
  "termimad",
  "toml",
  "unicode-width",
