@@ -167,6 +167,8 @@ impl<'s> AppState<'s> {
         self.raw_output ^= true;
         if self.wrapped_output.is_some() {
             self.wrapped_output = None;
+        }
+        if self.wrap {
             self.update_wrap(self.width - 1);
         }
     }
@@ -345,12 +347,14 @@ impl<'s> AppState<'s> {
     }
     pub fn toggle_wrap_mode(&mut self) {
         self.wrap ^= true;
-        if self.wrapped_report.is_some() {
-            self.try_scroll_to_last_top_item();
-        }
         if self.wrapped_output.is_some() {
             self.wrapped_output = None;
+        }
+        if self.wrap {
             self.update_wrap(self.width - 1);
+        }
+        if self.wrapped_report.is_some() {
+            self.try_scroll_to_last_top_item();
         }
     }
     fn content_height(&self) -> usize {
