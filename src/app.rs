@@ -47,22 +47,22 @@ pub fn run(
             Ok(we) => {
                 match we.kind {
                     EventKind::Modify(ModifyKind::Metadata(_)) => {
-                        info!("ignoring metadata change");
+                        debug!("ignoring metadata change");
                         return; // useless event
                     }
                     EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
-                        info!("ignoring 'any' data change");
+                        debug!("ignoring 'any' data change");
                         return; // probably useless event with no real change
                     }
                     EventKind::Access(AccessKind::Close(AccessMode::Write)) => {
-                        info!("close write event: {we:?}");
+                        debug!("close write event: {we:?}");
                     }
                     EventKind::Access(_) => {
-                        info!("ignoring access event: {we:?}");
+                        debug!("ignoring access event: {we:?}");
                         return; // probably useless event
                     }
                     _ => {
-                        info!("notify event: {we:?}");
+                        debug!("notify event: {we:?}");
                     }
                 }
                 if let Some(ignorer) = ignorer.as_mut() {
@@ -104,6 +104,11 @@ pub fn run(
         let mut action: Option<&Action> = None;
         select! {
             recv(watch_receiver) -> _ => {
+                debug!("watch event received");
+                if task_executor.is_in_grace_period() {
+                    debug!("ignoring notify event in grace period");
+                    continue;
+                }
                 state.receive_watch_event();
                 if state.auto_refresh.is_enabled() {
                     if !state.is_computing() || on_change_strategy == OnChangeStrategy::KillThenRestart {

@@ -10,7 +10,7 @@ mod config;
 mod defaults;
 mod drawing;
 mod examples;
-mod executor;
+mod exec;
 mod export;
 mod failure;
 mod help_line;
@@ -53,7 +53,7 @@ pub use {
     defaults::*,
     drawing::*,
     examples::*,
-    executor::*,
+    exec::*,
     export::*,
     failure::*,
     help_line::*,

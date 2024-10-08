@@ -1,9 +1,5 @@
 use {
     crate::*,
-    anyhow::{
-        Context,
-        Result,
-    },
     crossbeam::channel::{
         Receiver,
         Sender,
@@ -17,9 +13,9 @@ use {
         process::{
             Child,
             Command,
-            Stdio,
         },
         thread,
+        time::Instant,
     },
 };
 
@@ -28,10 +24,8 @@ use {
 /// and finishing by None.
 /// Channel sizes are designed to avoid useless computations.
 pub struct MissionExecutor {
-    command: Command,
+    command_builder: CommandBuilder,
     kill_command: Option<Vec<String>>,
-    /// whether it's necessary to transmit stdout lines
-    with_stdout: bool,
     line_sender: Sender<CommandExecInfo>,
     pub line_receiver: Receiver<CommandExecInfo>,
 }
@@ -42,6 +36,8 @@ pub struct TaskExecutor {
     /// the thread running the current task
     child_thread: thread::JoinHandle<()>,
     stop_sender: Sender<StopMessage>,
+    grace_period_start: Option<Instant>, // forgotten at end of grace period
+    grace_period: Period,
 }
 
 /// A message sent to the child_thread on end
@@ -49,12 +45,6 @@ pub struct TaskExecutor {
 enum StopMessage {
     SendStatus, // process already finished, just get status
     Kill,       // kill the process, don't bother about the status
-}
-
-/// Settings for one execution of job's command
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct Task {
-    pub backtrace: Option<&'static str>,
 }
 
 impl TaskExecutor {
@@ -71,27 +61,26 @@ impl TaskExecutor {
             warn!("child_thread.join() failed"); // should not happen
         }
     }
+    pub fn is_in_grace_period(&mut self) -> bool {
+        if let Some(grace_period_start) = self.grace_period_start {
+            if grace_period_start.elapsed() < self.grace_period.duration {
+                return true;
+            }
+            self.grace_period_start = None;
+        }
+        false
+    }
 }
 
 impl MissionExecutor {
     /// Prepare the executor (no task/process/thread is started at this point)
-    pub fn new(mission: &Mission) -> Result<Self> {
-        let mut command = mission.get_command();
+    pub fn new(mission: &Mission) -> anyhow::Result<Self> {
+        let command_builder = mission.get_command();
         let kill_command = mission.kill_command();
-        let with_stdout = mission.need_stdout();
         let (line_sender, line_receiver) = crossbeam::channel::unbounded();
-        command
-            .stdin(Stdio::null())
-            .stderr(Stdio::piped())
-            .stdout(if with_stdout {
-                Stdio::piped()
-            } else {
-                Stdio::null()
-            });
         Ok(Self {
-            command,
+            command_builder,
             kill_command,
-            with_stdout,
             line_sender,
             line_receiver,
         })
@@ -101,21 +90,40 @@ impl MissionExecutor {
     pub fn start(
         &mut self,
         task: Task,
-    ) -> Result<TaskExecutor> {
+    ) -> anyhow::Result<TaskExecutor> {
         info!("start task {task:?}");
-        let mut child = self
-            .command
-            .env("RUST_BACKTRACE", task.backtrace.unwrap_or("0"))
-            .spawn()
-            .context("failed to launch command")?;
+        let grace_period = task.grace_period;
+        let grace_period_start = if grace_period.is_zero() {
+            None
+        } else {
+            Some(Instant::now())
+        };
+        let mut command_builder = self.command_builder.clone();
+        command_builder.env("RUST_BACKTRACE", task.backtrace.unwrap_or("0"));
         let kill_command = self.kill_command.clone();
-        let with_stdout = self.with_stdout;
+        let with_stdout = command_builder.is_with_stdout();
         let line_sender = self.line_sender.clone();
         let (stop_sender, stop_receiver) = crossbeam::channel::bounded(1);
         let err_stop_sender = stop_sender.clone();
 
         // Global task executor thread
         let child_thread = thread::spawn(move || {
+            // before starting the command, we wait some time, so that a bunch
+            // of quasi-simultaneous file events can be finished before the command
+            // starts (during this time, no other command is started by bacon in app.rs)
+            if !grace_period.is_zero() {
+                thread::sleep(grace_period.duration);
+            }
+
+            let child = command_builder.build().spawn();
+            let mut child = match child {
+                Ok(child) => child,
+                Err(e) => {
+                    let _ = line_sender.send(CommandExecInfo::Error(e.to_string()));
+                    return;
+                }
+            };
+
             // thread piping the stdout lines
             if with_stdout {
                 let sender = line_sender.clone();
@@ -208,6 +216,8 @@ impl MissionExecutor {
         Ok(TaskExecutor {
             child_thread,
             stop_sender,
+            grace_period_start,
+            grace_period,
         })
     }
 }
