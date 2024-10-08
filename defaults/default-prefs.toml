@@ -16,6 +16,14 @@
 #
 # reverse = true
 
+# The grace period is a delay after a file event before the real
+# task is launched and during which other events will be ignored.
+# This is useful if several events are often sent quasi-simultaneously
+# (eg your editor backups before saving, then renames).
+# You can set it to "none" if it's useless for you.
+#
+# grace_period = "5ms"
+
 # Uncomment and change the value (true/false) to
 # specify whether bacon should show a help line.
 #
@@ -46,7 +54,7 @@
 # (See https://dystroy.org/bacon/config/#export-locations),
 #
 # Possible line_format parts:
-#  - kind: warning|error|test 
+#  - kind: warning|error|test
 #  - path: complete absolute path to the file
 #  - line: 1-based line number
 #  - column: 1-based column

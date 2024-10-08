@@ -54,6 +54,11 @@ pub struct Config {
     /// Patterns of lines which should be ignored. Patterns of
     /// the prefs or bacon.toml can be overridden at the job
     pub ignored_lines: Option<Vec<LinePattern>>,
+
+    /// The delay between a file event and the real start of the
+    /// task. Other file events occuring during this period will be
+    /// ignored.
+    pub grace_period: Option<Period>,
 }
 
 impl Config {

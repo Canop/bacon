@@ -8,10 +8,7 @@ use {
         Watcher,
     },
     rustc_hash::FxHashSet,
-    std::{
-        path::PathBuf,
-        process::Command,
-    },
+    std::path::PathBuf,
 };
 
 static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples", "build.rs"];
@@ -145,7 +142,7 @@ impl<'s> Mission<'s> {
     }
 
     /// build (and doesn't call) the external cargo command
-    pub fn get_command(&self) -> Command {
+    pub fn get_command(&self) -> CommandBuilder {
         let mut command = if self.job.expand_env_vars {
             self.job
                 .command
@@ -181,11 +178,11 @@ impl<'s> Mission<'s> {
             }
         }
 
-        info!("command: {command:#?}");
         let mut tokens = command.iter();
-        let mut command = Command::new(
+        let mut command = CommandBuilder::new(
             tokens.next().unwrap(), // implies a check in the job
         );
+        command.with_stdout(self.need_stdout());
 
         if !self.job.extraneous_args {
             command.args(tokens);
@@ -200,7 +197,7 @@ impl<'s> Mission<'s> {
         let mut last_is_features = false;
         let mut tokens = tokens.chain(&self.settings.additional_job_args);
         let mut has_double_dash = false;
-        while let Some(arg) = tokens.next() {
+        for arg in tokens.by_ref() {
             if arg == "--" {
                 // we'll defer addition of the following arguments to after
                 // the addition of the features stuff, so that the features
@@ -270,7 +267,7 @@ impl<'s> Mission<'s> {
         }
         command.current_dir(&self.cargo_execution_directory);
         command.envs(&self.job.env);
-        debug!("command: {:#?}", &command);
+        debug!("command builder: {:#?}", &command);
         command
     }
 
