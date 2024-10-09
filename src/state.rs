@@ -166,6 +166,12 @@ impl<'s> AppState<'s> {
     }
     pub fn toggle_raw_output(&mut self) {
         self.raw_output ^= true;
+        if self.wrapped_output.is_some() {
+            self.wrapped_output = None;
+        }
+        if self.wrap {
+            self.update_wrap(self.width - 1);
+        }
     }
     pub fn set_result(
         &mut self,
@@ -342,6 +348,12 @@ impl<'s> AppState<'s> {
     }
     pub fn toggle_wrap_mode(&mut self) {
         self.wrap ^= true;
+        if self.wrapped_output.is_some() {
+            self.wrapped_output = None;
+        }
+        if self.wrap {
+            self.update_wrap(self.width - 1);
+        }
         if self.wrapped_report.is_some() {
             self.try_scroll_to_last_top_item();
         }
