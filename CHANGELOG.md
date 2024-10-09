@@ -1,12 +1,18 @@
-### next (will be 3.0)
+<a name="v3.0.0"></a>
+### v3.0.0 - 2024/10/09
 #### Major feature: nextest support
 Hit `n` to launch the nextest job.
+
 It's a default job, but you may define your own one by specifying `analyzer = "nextest"` in the job entry.
-Internally, this is supported by a new analyzer framework which will allow easier analysis updates or addition of analysis for other tools.
+
+Internally, this is supported by a new analyzer framework which will allow easier analysis updates or addition of analysis for other tools (or languages).
+
 Fix #196
 #### Major feature: scope test job to failure
 If you're running a test or nextest job and you want only the failing test to be retried, hit `f`.
+
 If you want all tests to be executed again, hit `esc`.
+
 Fix #214
 #### Other features:
 - grace period (by default 5ms) after a file event before the real launch of the command and during which other file events may be disregarded. Helps when saving a file changes several ones (eg backup then rename).
