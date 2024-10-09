@@ -40,6 +40,8 @@ You may decide to launch and watch tests by either hitting the <kbd>t</kbd> key,
 bacon test
 ```
 
+or `bacon nextest` if you're a nextest user.
+
 ![test](img/test.png)
 
 When there's a failure, hit <kbd>f</kbd> to restrict the job to the failing test.
