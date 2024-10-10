@@ -26,11 +26,13 @@ It's designed for minimal interaction so that you can just let it run, alongside
 
 The **[bacon website](https://dystroy.org/bacon)** is a complete guide.
 
-Below is a short overview.
+Below is only a short overview.
 
 ## install
 
     cargo install --locked bacon
+
+Run this command too if you want to update bacon. Configuration has always been retro-compatible so you won't lose anything.
 
 ## check the current project
 
