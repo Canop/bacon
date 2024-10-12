@@ -163,10 +163,9 @@ impl From<&str> for JobRef {
     fn from(s: &str) -> Self {
         regex_switch!(s,
             "^default$"i => Self::Default,
-            "^default$"i => Self::Default,
             "^initial$"i => Self::Initial,
             "^previous$"i => Self::Previous,
-            "^scope:(?<tests>.+)$" => Self::Scope(Scope {
+            "^scope:(?<tests>.+)$"i => Self::Scope(Scope {
                 tests: tests
                     .split(',')
                     .filter(|t| !t.trim().is_empty())
