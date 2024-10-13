@@ -61,14 +61,9 @@ impl HelpPage {
             .build_reverse_map()
             .into_iter()
             .map(|(action, cks)| {
-                let action = match action {
-                    Action::Export(export_name) => format!("run *{export_name}* export"),
-                    Action::Internal(internal) => internal.to_string(),
-                    Action::Job(job_name) => format!("start the *{job_name}* job"),
-                };
                 let cks: Vec<String> = cks.iter().map(|ck| format!("*{ck}*")).collect();
                 let cks = cks.join(" or ");
-                (action, cks)
+                (action.doc(), cks)
             })
             .collect();
         bindings.sort_by(|a, b| a.0.cmp(&b.0));

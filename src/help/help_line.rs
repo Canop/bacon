@@ -1,4 +1,4 @@
-use super::*;
+use crate::*;
 
 pub struct HelpLine {
     quit: String,

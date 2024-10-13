@@ -4,6 +4,8 @@ use {
     serde::{
         Deserialize,
         Deserializer,
+        Serialize,
+        Serializer,
         de,
     },
     std::{
@@ -96,7 +98,6 @@ impl fmt::Display for ConcreteJobRef {
         Ok(())
     }
 }
-
 impl FromStr for ConcreteJobRef {
     type Err = &'static str;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -105,6 +106,17 @@ impl FromStr for ConcreteJobRef {
         } else {
             Ok(s.into())
         }
+    }
+}
+impl Serialize for ConcreteJobRef {
+    fn serialize<S>(
+        &self,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
     }
 }
 impl<'de> Deserialize<'de> for ConcreteJobRef {
