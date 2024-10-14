@@ -23,7 +23,6 @@ impl SubString {
         w: &mut W,
         content: &TLine,
     ) -> Result<()> {
-        //let line = &report.lines[line_idx];
         let string = &content.strings[self.string_idx];
         if string.csi.is_empty() {
             write!(w, "{}", &string.raw[self.byte_start..self.byte_end])?;
@@ -96,6 +95,7 @@ impl SubLine {
     }
 }
 
+/// Wrap lines into sublines containing positions in the original lines
 pub fn wrap<WL: WrappableLine>(
     lines: &[WL],
     width: u16,

@@ -13,6 +13,7 @@ use {
     },
 };
 
+/// information on the paths which are relevant for a mission
 pub struct MissionLocation {
     pub intended_dir: PathBuf,
     pub workspace_root: PathBuf,

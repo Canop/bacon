@@ -13,6 +13,7 @@ use {
     },
 };
 
+/// A scroll related command
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ScrollCommand {
     Top,
@@ -88,8 +89,8 @@ impl fmt::Display for ScrollCommand {
         match self {
             Self::Top => write!(f, "scroll-to-top"),
             Self::Bottom => write!(f, "scroll-to-bottom"),
-            Self::Lines(n) => write!(f, "scroll-lines({})", n),
-            Self::Pages(n) => write!(f, "scroll-pages({})", n),
+            Self::Lines(n) => write!(f, "scroll-lines({n})"),
+            Self::Pages(n) => write!(f, "scroll-pages({n})"),
         }
     }
 }

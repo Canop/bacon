@@ -8,6 +8,7 @@ use {
     },
 };
 
+/// Move the curstor to the start of the provided line
 pub fn goto(
     w: &mut W,
     y: u16,
