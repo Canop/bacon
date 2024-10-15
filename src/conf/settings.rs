@@ -3,6 +3,7 @@ use {
     anyhow::*,
     std::{
         collections::HashMap,
+        path::PathBuf,
         time::Duration,
     },
 };
@@ -35,6 +36,9 @@ pub struct Settings {
     pub on_change_strategy: Option<OnChangeStrategy>,
     pub ignored_lines: Option<Vec<LinePattern>>,
     pub grace_period: Period,
+    /// Path of the files which were used to build the settings
+    /// (note that not all settings come from files)
+    pub config_files: Vec<PathBuf>,
 }
 
 impl Default for Settings {
@@ -58,12 +62,86 @@ impl Default for Settings {
             on_change_strategy: None,
             ignored_lines: Default::default(),
             grace_period: Duration::from_millis(5).into(),
+            config_files: Default::default(),
         }
     }
 }
 
 impl Settings {
-    /// Apply one of the configuration element, overriding
+    /// Read the settings from all configuration files and arguments.
+    ///
+    ///
+    /// Hardcoded defaults are overriden by the following configuration elements, in order:
+    /// * the global `prefs.toml`
+    /// * the file whose path is in environment variable `BACON_PREFS`
+    /// * the workspace level `bacon.toml` file
+    /// * the package level `bacon.toml` file
+    /// * the file whose path is in environment variable `BACON_CONFIG`
+    /// * args given as arguments, coming from the cli call
+    pub fn read(
+        args: &Args,
+        location: &MissionLocation,
+    ) -> Result<Self> {
+        let mut settings = Settings::default();
+
+        let default_package_config = Config::default_package_config();
+        settings.apply_config(&default_package_config);
+
+        if let Some(prefs_path) = bacon_prefs_path() {
+            if prefs_path.exists() {
+                let prefs = Config::from_path(&prefs_path)?;
+                info!("prefs: {:#?}", &prefs);
+                settings.register_config_file(prefs_path);
+                settings.apply_config(&prefs);
+            }
+        }
+
+        if let Some(config_path) = config_path_from_env("BACON_PREFS") {
+            let config = Config::from_path(&config_path)?;
+            info!("config from env: {:#?}", &config);
+            settings.register_config_file(config_path);
+            settings.apply_config(&config);
+        }
+
+        let workspace_config_path = location.workspace_config_path();
+        let package_config_path = location.package_config_path();
+
+        if package_config_path != workspace_config_path {
+            if workspace_config_path.exists() {
+                info!("loading workspace level bacon.toml");
+                let workspace_config = Config::from_path(&workspace_config_path)?;
+                settings.register_config_file(workspace_config_path);
+                settings.apply_config(&workspace_config);
+            }
+        }
+
+        if package_config_path.exists() {
+            let config = Config::from_path(&package_config_path)?;
+            settings.register_config_file(package_config_path);
+            settings.apply_config(&config);
+        }
+
+        if let Some(config_path) = config_path_from_env("BACON_CONFIG") {
+            let config = Config::from_path(&config_path)?;
+            info!("config from env: {:#?}", &config);
+            settings.register_config_file(config_path);
+            settings.apply_config(&config);
+        }
+
+        settings.apply_args(args);
+        settings.check()?;
+        info!("settings: {:#?}", &settings);
+        Ok(settings)
+    }
+
+    pub fn register_config_file(
+        &mut self,
+        path: PathBuf,
+    ) {
+        self.config_files.push(path);
+    }
+
+    /// Apply one of the configuration elements, overriding
     /// defaults and previously applied configuration elements
     pub fn apply_config(
         &mut self,
@@ -161,6 +239,7 @@ impl Settings {
         self.additional_job_args
             .clone_from(&args.additional_job_args);
     }
+
     pub fn check(&self) -> Result<()> {
         if self.jobs.is_empty() {
             bail!("Invalid configuration : no job found");

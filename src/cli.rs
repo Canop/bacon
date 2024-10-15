@@ -1,21 +1,17 @@
 use {
     crate::*,
+    anyhow::anyhow,
     clap::Parser,
-    directories_next::ProjectDirs,
     std::{
         fs,
         io::Write,
     },
-    termimad::{
-        EventSource,
-        EventSourceOptions,
-        crossterm::{
-            QueueableCommand,
-            cursor,
-            terminal::{
-                EnterAlternateScreen,
-                LeaveAlternateScreen,
-            },
+    termimad::crossterm::{
+        QueueableCommand,
+        cursor,
+        terminal::{
+            EnterAlternateScreen,
+            LeaveAlternateScreen,
         },
     },
 };
@@ -48,50 +44,25 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let mut settings = Settings::default();
-
-    let default_package_config = Config::default_package_config();
-    settings.apply_config(&default_package_config);
-
-    if let Some(project_dir) = ProjectDirs::from("org", "dystroy", "bacon") {
-        let prefs_path = project_dir.config_dir().join("prefs.toml");
-        if args.prefs {
-            if !prefs_path.exists() {
-                fs::create_dir_all(prefs_path.parent().unwrap())?;
-                fs::write(&prefs_path, DEFAULT_PREFS.trim_start())?;
-                // written to stderr to allow initialization with commands like
-                //  $EDITOR "$(bacon --prefs)"
-                eprintln!("Preferences file written.");
-            }
-            println!("{}", prefs_path.to_string_lossy());
-            return Ok(());
+    if args.prefs {
+        let prefs_path =
+            bacon_prefs_path().ok_or(anyhow!("No preferences location known for this system."))?;
+        if !prefs_path.exists() {
+            fs::create_dir_all(prefs_path.parent().unwrap())?;
+            fs::write(&prefs_path, DEFAULT_PREFS.trim_start())?;
+            // written to stderr to allow initialization with commands like
+            //  $EDITOR "$(bacon --prefs)"
+            eprintln!("Preferences file written.");
         }
-        if prefs_path.exists() {
-            let prefs = Config::from_path(&prefs_path)?;
-            info!("prefs: {:#?}", &prefs);
-            settings.apply_config(&prefs);
-        }
-    }
-
-    if let Some(config) = Config::from_env("BACON_PREFS")? {
-        settings.apply_config(&config);
+        println!("{}", prefs_path.to_string_lossy());
+        return Ok(());
     }
 
     let location = MissionLocation::new(&args)?;
     info!("mission location: {:#?}", &location);
 
-    let workspace_config_path = location.workspace_config_path();
-    let package_config_path = location.package_config_path();
-
-    if package_config_path != workspace_config_path {
-        if workspace_config_path.exists() {
-            info!("loading workspace level bacon.toml");
-            let workspace_config = Config::from_path(&workspace_config_path)?;
-            settings.apply_config(&workspace_config);
-        }
-    }
-
     if args.init {
+        let package_config_path = location.package_config_path();
         if !package_config_path.exists() {
             fs::write(&package_config_path, DEFAULT_PACKAGE_CONFIG.trim_start())?;
             eprintln!("bacon project configuration file written.");
@@ -101,21 +72,8 @@ pub fn run() -> anyhow::Result<()> {
         println!("{}", package_config_path.to_string_lossy());
         return Ok(());
     }
-    if package_config_path.exists() {
-        let config = Config::from_path(&package_config_path)?;
-        settings.apply_config(&config);
-    }
 
-    if let Some(config) = Config::from_env("BACON_CONFIG")? {
-        settings.apply_config(&config);
-    }
-
-    // args are applied after prefs, and package config so that they can override them
-    settings.apply_args(&args);
-
-    settings.check()?;
-
-    info!("settings: {:#?}", &settings);
+    let settings = Settings::read(&args, &location)?;
 
     if args.list_jobs {
         print_jobs(&settings);
@@ -128,41 +86,7 @@ pub fn run() -> anyhow::Result<()> {
     #[cfg(windows)]
     w.queue(EnableMouseCapture)?;
     w.flush()?;
-    let event_source = EventSource::with_options(EventSourceOptions {
-        combine_keys: false,
-        ..Default::default()
-    })?;
-    let mut job_stack = JobStack::new(&settings);
-    let mut next_job = JobRef::Initial;
-    let mut result = Ok(());
-    #[allow(clippy::while_let_loop)]
-    loop {
-        let (concrete_job_ref, job) = match job_stack.pick_job(&next_job) {
-            Err(e) => {
-                result = Err(e);
-                break;
-            }
-            Ok(Some(t)) => t,
-            Ok(None) => {
-                break;
-            }
-        };
-        let r = Mission::new(&location, concrete_job_ref, job, &settings)
-            .and_then(|mission| app::run(&mut w, mission, &event_source));
-        match r {
-            Ok(Some(job_ref)) => {
-                next_job = job_ref;
-            }
-            Ok(None) => {
-                break;
-            }
-            Err(e) => {
-                result = Err(e);
-                break;
-            }
-        }
-    }
-
+    let result = app::run(&mut w, settings, &args, location);
     #[cfg(windows)]
     w.queue(DisableMouseCapture)?;
     w.queue(cursor::Show)?;

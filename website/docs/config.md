@@ -20,6 +20,8 @@ When you modified those files and bacon evolved since, you may want to have a lo
 * [Current default prefs.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-prefs.toml)
 * [Current default bacon.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-bacon.toml)
 
+Bacon watches those files and reload them when necessary, so you don't have to relaunch it if you add a key-binding, or a job, or [an allowed lint](../cookbook/#configure-clippy-lints) in your clippy job.
+
 ## Global Preferences
 
 `bacon --prefs` creates the preferences file if it doesn't exist and returns its path (which is system dependent).
@@ -178,6 +180,7 @@ back | <kbd>Esc</kbd> | get back to the previous page or job
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
 refresh | <kbd>F5</kbd> | clear output then run current job again
+reload-config | | reload all configuration files
 rerun |  | run current job again
 toggle-raw-output |  | display the untransformed command output
 toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `1` or `full`

@@ -2,19 +2,10 @@ use {
     crate::*,
     anyhow::Result,
     crokey::*,
-    crossbeam::channel::{
-        bounded,
-        select,
-    },
-    notify::event::{
-        AccessKind,
-        AccessMode,
-        DataChange,
-        EventKind,
-        ModifyKind,
-    },
+    crossbeam::channel::select,
     termimad::{
         EventSource,
+        EventSourceOptions,
         crossterm::event::Event,
     },
 };
@@ -28,82 +19,106 @@ use {
     },
 };
 
-/// Run the mission and return the reference to the next job to run, if any
+enum DoAfterMission {
+    NextJob(JobRef),
+    ReloadConfig,
+    Quit,
+}
+
+impl From<JobRef> for DoAfterMission {
+    fn from(job_ref: JobRef) -> Self {
+        Self::NextJob(job_ref)
+    }
+}
+
+/// Run the application until the user quits
 pub fn run(
+    w: &mut W,
+    mut settings: Settings,
+    args: &Args,
+    location: MissionLocation,
+) -> Result<()> {
+    let event_source = EventSource::with_options(EventSourceOptions {
+        combine_keys: false,
+        ..Default::default()
+    })?;
+    let mut job_stack = JobStack::default();
+    let mut next_job = JobRef::Initial;
+    let mut message = None;
+    loop {
+        let (concrete_job_ref, job) = match job_stack.pick_job(&next_job, &settings)? {
+            Some(t) => t,
+            None => {
+                break;
+            }
+        };
+        let mission = Mission::new(&location, concrete_job_ref, job, &settings)?;
+        let do_after = app::run_mission(w, mission, &event_source, message.take())?;
+        match do_after {
+            DoAfterMission::NextJob(job_ref) => {
+                next_job = job_ref;
+            }
+            DoAfterMission::ReloadConfig => match Settings::read(args, &location) {
+                Ok(new_settings) => {
+                    settings = new_settings;
+                    message = Some(Message::short("Config reloaded"));
+                }
+                Err(e) => {
+                    message = Some(Message::short(format!("Invalid config: {e}")));
+                }
+            },
+            DoAfterMission::Quit => {
+                break;
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Run the mission and return what to do afterwards
+fn run_mission(
     w: &mut W,
     mission: Mission,
     event_source: &EventSource,
-) -> Result<Option<JobRef>> {
+    message: Option<Message>,
+) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
-    let mut ignorer = time!(Info, mission.ignorer());
-    let (watch_sender, watch_receiver) = bounded(0);
+
+    // build the watcher detecting and transmitting mission file changes
+    let ignorer = time!(Info, mission.ignorer());
+    let mission_watcher = Watcher::new(
+        &mission.files_to_watch,
+        &mission.directories_to_watch,
+        ignorer,
+    )?;
+
+    // create the watcher for config file changes
+    let config_watcher = Watcher::new(&mission.settings.config_files, &[], None)?;
+
+    // create the executor, mission, and state
+    let mut executor = MissionExecutor::new(&mission)?;
+    let analyzer = mission.analyzer();
     let on_change_strategy = mission
         .job
         .on_change_strategy
         .or(mission.settings.on_change_strategy)
         .unwrap_or(OnChangeStrategy::WaitThenRestart);
-    let mut watcher =
-        notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
-            Ok(we) => {
-                match we.kind {
-                    EventKind::Modify(ModifyKind::Metadata(_)) => {
-                        debug!("ignoring metadata change");
-                        return; // useless event
-                    }
-                    EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
-                        debug!("ignoring 'any' data change");
-                        return; // probably useless event with no real change
-                    }
-                    EventKind::Access(AccessKind::Close(AccessMode::Write)) => {
-                        debug!("close write event: {we:?}");
-                    }
-                    EventKind::Access(_) => {
-                        debug!("ignoring access event: {we:?}");
-                        return; // probably useless event
-                    }
-                    _ => {
-                        debug!("notify event: {we:?}");
-                    }
-                }
-                if let Some(ignorer) = ignorer.as_mut() {
-                    match time!(Info, ignorer.excludes_all(&we.paths)) {
-                        Ok(true) => {
-                            debug!("all excluded");
-                            return;
-                        }
-                        Ok(false) => {
-                            debug!("at least one is included");
-                        }
-                        Err(e) => {
-                            warn!("exclusion check failed: {e}");
-                        }
-                    }
-                }
-                if let Err(e) = watch_sender.send(()) {
-                    debug!("error when notifying on inotify event: {}", e);
-                }
-            }
-            Err(e) => warn!("watch error: {:?}", e),
-        })?;
-
-    mission.add_watchs(&mut watcher)?;
-
-    let mut executor = MissionExecutor::new(&mission)?;
-
-    let analyzer = mission.analyzer();
     let mut state = AppState::new(mission)?;
+    if let Some(message) = message {
+        state.messages.push(message);
+    }
     state.computation_starts();
     state.draw(w)?;
-
     let mut task_executor = executor.start(state.new_task())?; // first computation
 
+    // loop on events
     let user_events = event_source.receiver();
-    let mut next_job: Option<JobRef> = None;
+    let mut do_after_mission = DoAfterMission::Quit;
     #[allow(unused_mut)]
     loop {
         let mut action: Option<&Action> = None;
         select! {
-            recv(watch_receiver) -> _ => {
+            recv(mission_watcher.receiver) -> _ => {
                 debug!("watch event received");
                 if task_executor.is_in_grace_period() {
                     debug!("ignoring notify event in grace period");
@@ -115,6 +130,10 @@ pub fn run(
                         action = Some(&Action::Internal(Internal::ReRun));
                     }
                 }
+            }
+            recv(config_watcher.receiver) -> _ => {
+                info!("config watch event received");
+                action = Some(&Action::Internal(Internal::ReloadConfig));
             }
             recv(executor.line_receiver) -> info => {
                 if let Ok(info) = info {
@@ -181,7 +200,7 @@ pub fn run(
                 Action::Internal(internal) => match internal {
                     Internal::Back => {
                         if !state.close_help() {
-                            next_job = Some(JobRef::Previous);
+                            do_after_mission = DoAfterMission::NextJob(JobRef::Previous);
                             break;
                         }
                     }
@@ -196,6 +215,10 @@ pub fn run(
                         task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
                     }
+                    Internal::ReloadConfig => {
+                        do_after_mission = DoAfterMission::ReloadConfig;
+                        break;
+                    }
                     Internal::ReRun => {
                         task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
@@ -203,7 +226,7 @@ pub fn run(
                     Internal::ScopeToFailures => {
                         if let Some(scope) = state.failures_scope() {
                             info!("scoping to failures: {scope:#?}");
-                            next_job = Some(JobRef::Scope(scope));
+                            do_after_mission = JobRef::from(scope).into();
                             break;
                         } else {
                             warn!("no available failures scope");
@@ -253,7 +276,7 @@ pub fn run(
                     },
                 },
                 Action::Job(job_ref) => {
-                    next_job = Some((*job_ref).clone());
+                    do_after_mission = job_ref.clone().into();
                     break;
                 }
             }
@@ -261,5 +284,5 @@ pub fn run(
         state.draw(w)?;
     }
     task_executor.die();
-    Ok(next_job)
+    Ok(do_after_mission)
 }
