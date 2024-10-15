@@ -17,6 +17,7 @@ mod result;
 mod scroll;
 mod state;
 mod tty;
+mod watcher;
 mod wrap;
 
 pub use {
@@ -38,6 +39,7 @@ pub use {
     scroll::*,
     state::*,
     tty::*,
+    watcher::*,
     wrap::*,
 };
 

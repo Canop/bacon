@@ -518,9 +518,10 @@ impl<'s> AppState<'s> {
             message.display_start = Some(Instant::now());
         }
         goto(w, y)?;
+        let markdown = format!(" {}", message.markdown);
         self.status_skin.write_composite_fill(
             w,
-            Composite::from_inline(&message.markdown),
+            Composite::from_inline(&markdown),
             self.width.into(),
             Alignment::Left,
         )?;

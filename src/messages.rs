@@ -15,9 +15,9 @@ pub struct Message {
 impl Message {
     /// build a short message, typically to answer to a user action
     /// (thus when the user is looking at bacon)
-    pub fn short(markdown: String) -> Self {
+    pub fn short<S: Into<String>>(markdown: S) -> Self {
         Self {
-            markdown,
+            markdown: markdown.into(),
             display_start: None,
             display_duration: Duration::from_secs(5),
         }

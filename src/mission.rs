@@ -2,11 +2,6 @@ use {
     crate::*,
     anyhow::Result,
     lazy_regex::regex_replace_all,
-    notify::{
-        RecommendedWatcher,
-        RecursiveMode,
-        Watcher,
-    },
     rustc_hash::FxHashSet,
     std::path::PathBuf,
 };
@@ -22,8 +17,8 @@ pub struct Mission<'s> {
     pub cargo_execution_directory: PathBuf,
     pub workspace_root: PathBuf,
     pub job: Job,
-    files_to_watch: Vec<PathBuf>,
-    directories_to_watch: Vec<PathBuf>,
+    pub files_to_watch: Vec<PathBuf>,
+    pub directories_to_watch: Vec<PathBuf>,
     pub settings: &'s Settings,
 }
 
@@ -123,22 +118,6 @@ impl<'s> Mission<'s> {
         report: &Report,
     ) -> bool {
         report.is_success(self.job.allow_warnings, self.job.allow_failures)
-    }
-
-    /// configure the watcher with files and directories to watch
-    pub fn add_watchs(
-        &self,
-        watcher: &mut RecommendedWatcher,
-    ) -> Result<()> {
-        for file in &self.files_to_watch {
-            debug!("add watch file {:?}", file);
-            watcher.watch(file, RecursiveMode::NonRecursive)?;
-        }
-        for dir in &self.directories_to_watch {
-            debug!("add watch dir {:?}", dir);
-            watcher.watch(dir, RecursiveMode::Recursive)?;
-        }
-        Ok(())
     }
 
     /// build (and doesn't call) the external cargo command

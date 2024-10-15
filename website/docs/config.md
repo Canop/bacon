@@ -178,6 +178,7 @@ back | <kbd>Esc</kbd> | get back to the previous page or job
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
 refresh | <kbd>F5</kbd> | clear output then run current job again
+reload-config | | reload all configuration files
 rerun |  | run current job again
 toggle-raw-output |  | display the untransformed command output
 toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `1` or `full`
