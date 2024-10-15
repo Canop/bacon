@@ -20,6 +20,8 @@ When you modified those files and bacon evolved since, you may want to have a lo
 * [Current default prefs.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-prefs.toml)
 * [Current default bacon.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-bacon.toml)
 
+Bacon watches those files and reload them when necessary, so you don't have to relaunch it if you add a key-binding, or a job, or [an allowed lint](../cookbook/#configure-clippy-lints) in your clippy job.
+
 ## Global Preferences
 
 `bacon --prefs` creates the preferences file if it doesn't exist and returns its path (which is system dependent).

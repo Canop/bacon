@@ -27,6 +27,8 @@ pub fn bacon_prefs_path() -> Option<std::path::PathBuf> {
         .map(|project_dir| project_dir.config_dir().join("prefs.toml"))
 }
 
+/// Return the path given by the env var, if it exists (doesn't check whether
+/// it's a correct configuration file)
 pub fn config_path_from_env(env_var_name: &str) -> Option<PathBuf> {
     let path = std::env::var_os(env_var_name)?;
     let path = Path::new(&path);
