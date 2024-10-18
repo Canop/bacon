@@ -97,6 +97,17 @@ Depending on the desired output, you would have to add a setting to the run job,
 command = ["cargo", "run", "--color", "always", "--", "--color", "yes"]
 ```
 
+## Servers
+
+If your program never stops (e.g. a server), you may set `background = false` to have the `cargo run` output immediately displayed instead of waiting for the program's end. Additionally, if you prefer to have it restarted at every change, use `on_change_strategy = "kill_then_restart"`:
+
+```toml
+[jobs.webserver]
+command = ["cargo", "run", "--color", "always"]
+background = false
+on_change_strategy = "kill_then_restart"
+```
+
 # Gentler Kill
 
 The standard interruption of a job, occuring on quitting bacon and on refresh, may be too harsh for the program you run, especially if it's a long running program which should properly release resource.
