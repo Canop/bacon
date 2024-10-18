@@ -1,4 +1,5 @@
-### next
+<a name="v3.1.0"></a>
+### v3.1.0 - 2024/10/18
 #### Major feature: hot reload of config files
 When a configuration file is modified, bacon automatically reloads its config. So you don't need to quit/relaunch when you add a new job, add a key-binding, change the allowed lints of clippy, etc. - Fix #29
 
