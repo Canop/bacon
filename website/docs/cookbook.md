@@ -33,7 +33,7 @@ d = "job:doc-open"
 
 # Configure Clippy lints
 
-The jobs in the `bacon.toml` file are specific to your projects, there's no reason not to adapt them for its specificities.
+Jobs in the `bacon.toml` file are specific to your projects, there's no reason not to adapt them for its specificities.
 
 You may for example want to tune the clippy rules:
 
@@ -56,6 +56,8 @@ You may also add some modifiers on spot sessions, eg
 ```bash
 bacon clippy -- -W clippy::pedantic
 ```
+
+Note that bacon doesn't need to be killed and relaunched when you change the job config.
 
 # Check for other platforms
 
@@ -97,30 +99,27 @@ Depending on the desired output, you would have to add a setting to the run job,
 command = ["cargo", "run", "--color", "always", "--", "--color", "yes"]
 ```
 
-## Servers
+# Long running programs
 
-If your program never stops (e.g. a server), you may set `background = false` to have the `cargo run` output immediately displayed instead of waiting for the program's end. Additionally, if you prefer to have it restarted at every change, use `on_change_strategy = "kill_then_restart"`:
+If your program never stops (e.g. a server), you may set `background = false` to have the output of `cargo run` immediately displayed instead of waiting for the program's end.
+
+If you want your program to restart at every change, use `on_change_strategy = "kill_then_restart"`.
+
+You may also want to change the way your program is killed if it should release resources.
+In this case, you can replace the standard interrupution by specifying your own `kill` command.
+
+Combining all those changes would give you something like this:
 
 ```toml
 [jobs.webserver]
-command = ["cargo", "run", "--color", "always"]
-background = false
-on_change_strategy = "kill_then_restart"
-```
-
-# Gentler Kill
-
-The standard interruption of a job, occuring on quitting bacon and on refresh, may be too harsh for the program you run, especially if it's a long running program which should properly release resource.
-
-You may configure a `kill` command for a different interrupt. For example
-
-
-```toml
-[jobs.run]
 command = ["cargo", "run", "--color", "always", "--", "--serve"]
 need_stdout = true
+background = false
+on_change_strategy = "kill_then_restart"
 kill = ["kill", "-s", "INT"]
 ```
+
+Of course you don't have to take them all, depending on your precise case.
 
 # Variable arguments
 
