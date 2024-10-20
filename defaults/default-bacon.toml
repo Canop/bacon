@@ -1,9 +1,9 @@
 # This is a configuration file for the bacon tool
 #
-# Bacon repository: https://github.com/Canop/bacon
 # Complete help on configuration: https://dystroy.org/bacon/config/
-# You can also check bacon's own bacon.toml file
-#  as an example: https://github.com/Canop/bacon/blob/main/bacon.toml
+# 
+# You may check the current default at
+#   https://github.com/Canop/bacon/blob/main/defaults/default-bacon.toml
 
 default_job = "check"
 
@@ -72,7 +72,7 @@ need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 
 # You can run your application and have the result displayed in bacon,
-# *if* it makes sense for this crate.
+# if it makes sense for this crate.
 # Don't forget the `--color always` part or the errors won't be
 # properly parsed.
 [jobs.run]
@@ -85,11 +85,14 @@ need_stdout = true
 allow_warnings = true
 background = true
 
-# Run your long-running application and have the result displayed in bacon.
+# Run your long-running application (eg server) and have the result displayed in bacon.
 # For programs that never stop (eg a server), `background` is set to false
 # to have the cargo run output immediately displayed instead of waiting for
-# program's end. 'on_change_strategy' is set to `kill_then_restart` to have
-# your program restart on every change.
+# program's end.
+# 'on_change_strategy' is set to `kill_then_restart` to have your program restart
+# on every change (an alternative would be to use the 'F5' key manually in bacon).
+# If you often use this job, it makes sense to override the 'r' key by adding
+# a binding `r = job:run-long` at the end of this file .
 [jobs.run-long]
 command = [
     "cargo", "run",
