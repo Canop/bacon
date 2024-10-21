@@ -5,12 +5,13 @@ All configuration files are optional but you'll probably need specific jobs for 
 
 All accept the same properties (preferences, keybindings, jobs, etc.).
 
-Bacon loads its default configuration then, in order:
+Bacon loads in order:
 
+* its default internal configuration
 * the global `prefs.toml` ([global preferences](#global-preferences))
 * the file whose path is in environment variable `BACON_PREFS`
-* the workspace level `bacon.toml` file
-* the package level `bacon.toml` file ([project settings](#project-settings))
+* the workspace level `bacon.toml` file ([project settings](#project-settings))
+* the package level `bacon.toml` file
 * the file whose path is in environment variable `BACON_CONFIG`
 
 Each configuration file overrides the properties of previously loaded ones.
@@ -40,65 +41,31 @@ It's a good idea to put here the triggers for specific jobs.
 
 The [default bacon.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-bacon.toml) is used when you don't create a file.
 
-# Configuration Properties
 
-## summary, wrap, reverse
-
-You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bacon --help`), in the application using keys, and you may set the initial values in this preferences file:
-
-```TOML
-# Uncomment and change the value (true/false) to
-# specify whether bacon should start in summary mode
-#
-# summary = true
-
-# Uncomment and change the value (true/false) to
-# specify whether bacon should start with lines wrapped
-#
-# wrap = true
-
-# In "reverse" mode, the focus is at the bottom, item
-# order is reversed, and the status bar is on top
-#
-# reverse = true
-```
-
-
-## Key Bindings
-
-This section lets you change the key combinations to use to trigger [actions](#actions).
-
-For example:
-
-```TOML
-[keybindings]
-h = "job:clippy"
-shift-F9 = "toggle-backtrace(1)"
-ctrl-r = "toggle-raw-output"
-```
-
-Note that you may have keybindings for jobs which aren't defined in your project, this isn't an error, and it's convenient to help keep define your personal keybindings in one place.
-
-Another example, if you want vim-like shortcuts:
-
-```TOML
-[keybindings]
-esc = "back"
-g = "scroll-to-top"
-shift-g = "scroll-to-bottom"
-k = "scroll-lines(-1)"
-j = "scroll-lines(1)"
-ctrl-u = "scroll-page(-1)"
-ctrl-d = "scroll-page(1)"
-```
-
-Your operating system and console intercept many key combinations. If you want to know which one are available, and the key syntax to use, you may find [print_key](https://github.com/Canop/print_key) useful.
-
-## Jobs
+# Jobs
 
 A job is a command which is ran by bacon in background, and whose result is analyzed and displayed on end.
 
-It's defined by the following fields:
+There's always an active job in bacon, be it the default one or one you selected at launch or using a bound key.
+
+A job declaration in a TOML file looks like this:
+
+```TOML
+[jobs.clippy-all]
+command = [
+	"cargo", "clippy",
+	"--color", "always",
+	"--",
+	"-A", "clippy::derive_partial_eq_without_eq",
+	"-A", "clippy::len_without_is_empty",
+	"-A", "clippy::map_entry",
+]
+need_stdout = false
+```
+
+## Job Properties
+
+The job is defined by the following fields:
 
 field | meaning | default
 :-|:-|:-
@@ -134,30 +101,36 @@ Beware of job references in `on_success`: you must avoid loops with 2 jobs calli
 The default job is the one which is launched when you don't specify one in argument to the bacon command (ie `bacon test`).
 It's also the one you can run with the `job:default` action.
 
-## Exports
 
-Here's a standard configuration:
+# Key Bindings
+
+This section lets you change the key combinations to use to trigger [actions](#actions).
+
+For example:
 
 ```TOML
-[exports.locations]
-auto = true
-path = ".bacon-locations"
-line_format = "{kind} {path}:{line}:{column} {message}"
-[exports.json-report]
-auto = false
-path = "bacon-report.json"
-[exports.analysis]
-auto = false
-path = "bacon-analysis.json"
+[keybindings]
+h = "job:clippy"
+shift-F9 = "toggle-backtrace(1)"
+ctrl-r = "toggle-raw-output"
 ```
 
-3 exporters are defined today:
+Note that you may have keybindings for jobs which aren't defined in your project, this isn't an error, and it's convenient to help keep define your personal keybindings in one place.
 
-* `locations`: list of errors/warnings/failures for IDE plugins such as [nvim-bacon](https://github.com/Canop/nvim-bacon).
-* `json-report`: a quite exhaustive and verbose report at end of job execution
-* `analysis`: all the lines produced by the called tool and how bacon understood them
+Another example, if you want vim-like shortcuts:
 
-In the example here, locations are exported on each job execution while other exports aren't executed unless one is bound to an action (the `analysis` export is by default bound to `ctrl-e`).
+```TOML
+[keybindings]
+esc = "back"
+g = "scroll-to-top"
+shift-g = "scroll-to-bottom"
+k = "scroll-lines(-1)"
+j = "scroll-lines(1)"
+ctrl-u = "scroll-page(-1)"
+ctrl-d = "scroll-page(1)"
+```
+
+Your operating system and console intercept many key combinations. If you want to know which one are available, and the key syntax to use, you may find [print_key](https://github.com/Canop/print_key) useful.
 
 # Actions
 
@@ -221,3 +194,57 @@ job reference | meaning
 `job:default` | the job defined as *default* in the bacon.toml file
 `job:initial` | the job specified as argument, or the default one if there was none explicit
 `job:previous` | the job which ran before, if any (or we would quit). The `back` internal has usually the same effect
+
+# Exports
+
+If necessary, exports can be defined to write files either on end of task or on key presses.
+
+Here's an example configuration:
+
+```TOML
+[exports.locations]
+auto = true
+path = ".bacon-locations"
+line_format = "{kind} {path}:{line}:{column} {message}"
+[exports.json-report]
+auto = false
+path = "bacon-report.json"
+[exports.analysis]
+auto = false
+path = "bacon-analysis.json"
+```
+
+3 exporters are defined today:
+
+* `locations`: list of errors/warnings/failures for IDE plugins such as [nvim-bacon](https://github.com/Canop/nvim-bacon).
+* `json-report`: a quite exhaustive and verbose report at end of job execution
+* `analysis`: all the lines produced by the called tool and how bacon understood them
+
+In the example here, locations are exported on each job execution while other exports aren't executed unless one is bound to an action (the `analysis` export is by default bound to `ctrl-e`).
+
+# Other config properties
+
+Have a loot, at least once, at the default configuration files.
+They contain many other properties, commented out, that you may find more
+
+## summary, wrap, reverse
+
+You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bacon --help`), in the application using keys, and you may set the initial values in this preferences file:
+
+```TOML
+# Uncomment and change the value (true/false) to
+# specify whether bacon should start in summary mode
+#
+# summary = true
+
+# Uncomment and change the value (true/false) to
+# specify whether bacon should start with lines wrapped
+#
+# wrap = true
+
+# In "reverse" mode, the focus is at the bottom, item
+# order is reversed, and the status bar is on top
+#
+# reverse = true
+```
+
