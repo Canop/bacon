@@ -42,6 +42,14 @@ It's a good idea to put here the triggers for specific jobs.
 The [default bacon.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-bacon.toml) is used when you don't create a file.
 
 
+# Global Settings
+
+field | meaning | default
+:-|:-|:-
+default_job | the job which should be executed at start if none is specified | `check`
+default_watch | list of files/directories to watch for changes in each project directory | `["src", "tests", "benches", "examples", "build.rs"]`
+
+
 # Jobs
 
 A job is a command which is ran by bacon in background, and whose result is analyzed and displayed on end.
