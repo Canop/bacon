@@ -1,11 +1,7 @@
 use {
     crate::*,
     anyhow::*,
-    std::{
-        collections::HashMap,
-        path::PathBuf,
-        time::Duration,
-    },
+    std::{collections::HashMap, path::PathBuf, time::Duration},
 };
 
 /// The settings used in the application.
@@ -31,6 +27,7 @@ pub struct Settings {
     pub keybindings: KeyBindings,
     pub jobs: HashMap<String, Job>,
     pub default_job: ConcreteJobRef,
+    pub default_watch: Vec<String>,
     pub exports: ExportsSettings,
     pub show_changes_count: bool,
     pub on_change_strategy: Option<OnChangeStrategy>,
@@ -57,6 +54,9 @@ impl Default for Settings {
             keybindings: Default::default(),
             jobs: Default::default(),
             default_job: Default::default(),
+            default_watch: ["src", "tests", "benches", "examples", "build.rs"]
+                .map(String::from)
+                .into(),
             exports: Default::default(),
             show_changes_count: false,
             on_change_strategy: None,
@@ -175,6 +175,9 @@ impl Settings {
         }
         if let Some(default_job) = &config.default_job {
             self.default_job = default_job.clone();
+        }
+        if let Some(default_watch) = &config.default_watch {
+            self.default_watch = default_watch.clone();
         }
         self.exports.apply_config(config);
         if let Some(b) = config.show_changes_count {

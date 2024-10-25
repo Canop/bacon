@@ -1,12 +1,7 @@
 use {
-    crate::*,
-    anyhow::Result,
-    lazy_regex::regex_replace_all,
-    rustc_hash::FxHashSet,
+    crate::*, anyhow::Result, lazy_regex::regex_replace_all, rustc_hash::FxHashSet,
     std::path::PathBuf,
 };
-
-static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples", "build.rs"];
 
 /// the description of the mission of bacon
 /// after analysis of the args, env, and surroundings
@@ -45,8 +40,8 @@ impl<'s> Mission<'s> {
                 if add_all_src {
                     let mut watches: Vec<&str> = job.watch.iter().map(|s| s.as_str()).collect();
                     if job.default_watch {
-                        for watch in DEFAULT_WATCHES {
-                            if !watches.contains(watch) {
+                        for watch in settings.default_watch.iter() {
+                            if !watches.contains(&watch.as_str()) {
                                 watches.push(watch);
                             }
                         }

@@ -3,11 +3,7 @@ use {
     anyhow::*,
     lazy_regex::regex_is_match,
     serde::Deserialize,
-    std::{
-        collections::HashMap,
-        fs,
-        path::Path,
-    },
+    std::{collections::HashMap, fs, path::Path},
 };
 
 /// A configuration item which may be stored in various places, eg as `bacon.toml`
@@ -20,6 +16,8 @@ pub struct Config {
     pub additional_alias_args: Option<Vec<String>>,
 
     pub default_job: Option<ConcreteJobRef>,
+
+    pub default_watch: Option<Vec<String>>,
 
     /// locations export
     #[deprecated(since = "2.22.0", note = "use exports.locations")]

@@ -6,6 +6,7 @@
 #   https://github.com/Canop/bacon/blob/main/defaults/default-bacon.toml
 
 default_job = "check"
+default_watch = ["src", "tests", "benches", "examples", "build.rs"]
 
 [jobs.check]
 command = ["cargo", "check", "--color", "always"]
