@@ -1,9 +1,5 @@
 use {
     crate::*,
-    crossbeam::channel::{
-        Receiver,
-        Sender,
-    },
     std::{
         io::{
             self,
@@ -16,6 +12,11 @@ use {
         },
         thread,
         time::Instant,
+    },
+    termimad::crossbeam::channel::{
+        self,
+        Receiver,
+        Sender,
     },
 };
 
@@ -77,7 +78,7 @@ impl MissionExecutor {
     pub fn new(mission: &Mission) -> anyhow::Result<Self> {
         let command_builder = mission.get_command();
         let kill_command = mission.kill_command();
-        let (line_sender, line_receiver) = crossbeam::channel::unbounded();
+        let (line_sender, line_receiver) = channel::unbounded();
         Ok(Self {
             command_builder,
             kill_command,
@@ -103,7 +104,7 @@ impl MissionExecutor {
         let kill_command = self.kill_command.clone();
         let with_stdout = command_builder.is_with_stdout();
         let line_sender = self.line_sender.clone();
-        let (stop_sender, stop_receiver) = crossbeam::channel::bounded(1);
+        let (stop_sender, stop_receiver) = channel::bounded(1);
         let err_stop_sender = stop_sender.clone();
 
         // Global task executor thread

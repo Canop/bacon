@@ -1,10 +1,6 @@
 use {
     crate::*,
     anyhow::Result,
-    crossbeam::channel::{
-        Receiver,
-        bounded,
-    },
     notify::{
         RecommendedWatcher,
         RecursiveMode,
@@ -18,6 +14,10 @@ use {
         },
     },
     std::path::PathBuf,
+    termimad::crossbeam::channel::{
+        Receiver,
+        bounded,
+    },
 };
 
 /// A file watcher, providing a channel to receive notifications

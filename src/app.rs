@@ -2,10 +2,12 @@ use {
     crate::*,
     anyhow::Result,
     crokey::*,
-    crossbeam::channel::select,
+    std::time::Duration,
     termimad::{
         EventSource,
         EventSourceOptions,
+        Ticker,
+        crossbeam::channel::select,
         crossterm::event::Event,
     },
 };
@@ -111,6 +113,11 @@ fn run_mission(
     state.draw(w)?;
     let mut task_executor = executor.start(state.new_task())?; // first computation
 
+    // A very low frequency tick generator, to ensure "config loaded" message doesn't stick
+    // too long on the screen
+    let mut ticker = Ticker::new();
+    ticker.tick_infinitely((), Duration::from_secs(5));
+
     // loop on events
     let user_events = event_source.receiver();
     let mut do_after_mission = DoAfterMission::Quit;
@@ -118,6 +125,9 @@ fn run_mission(
     loop {
         let mut action: Option<&Action> = None;
         select! {
+            recv(ticker.tick_receiver) -> _ => {
+                // just redraw
+            }
             recv(mission_watcher.receiver) -> _ => {
                 debug!("watch event received");
                 if task_executor.is_in_grace_period() {
