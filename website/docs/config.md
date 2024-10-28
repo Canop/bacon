@@ -101,6 +101,8 @@ Beware of job references in `on_success`: you must avoid loops with 2 jobs calli
 The default job is the one which is launched when you don't specify one in argument to the bacon command (ie `bacon test`).
 It's also the one you can run with the `job:default` action.
 
+You can set the default job by setting the `default_job` key in your `bacon.toml` file.
+
 
 # Key Bindings
 
