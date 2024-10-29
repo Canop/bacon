@@ -1,3 +1,7 @@
+<a name="v3.1.2"></a>
+### v3.1.2 - 2024/10/29
+- "config loaded" message always automatically disappears after a few seconds
+
 <a name="v3.1.1"></a>
 ### v3.1.1 - 2024/10/18
 #### Major feature: hot reload of config files
