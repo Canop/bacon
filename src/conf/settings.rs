@@ -39,6 +39,8 @@ pub struct Settings {
     /// Path of the files which were used to build the settings
     /// (note that not all settings come from files)
     pub config_files: Vec<PathBuf>,
+    pub default_watch: bool,
+    pub watch: Vec<String>,
 }
 
 impl Default for Settings {
@@ -63,6 +65,8 @@ impl Default for Settings {
             ignored_lines: Default::default(),
             grace_period: Duration::from_millis(5).into(),
             config_files: Default::default(),
+            default_watch: true,
+            watch: Default::default(),
         }
     }
 }
@@ -188,6 +192,12 @@ impl Settings {
         }
         if let Some(p) = config.grace_period {
             self.grace_period = p;
+        }
+        if let Some(b) = config.default_watch {
+            self.default_watch = b;
+        }
+        if let Some(watch) = config.watch.as_ref() {
+            self.watch = watch.clone();
         }
     }
     pub fn apply_args(

@@ -10,7 +10,8 @@ command = [
 	"--color", "always",
 ]
 need_stdout = false
-watch = ["benches"]
+default_watch = false
+watch = ["src"]
 
 [jobs.check-all]
 command = [
@@ -19,7 +20,6 @@ command = [
 	"--color", "always",
 ]
 need_stdout = false
-watch = ["tests", "benches", "examples"]
 
 [jobs.nightly]
 command = [
@@ -30,7 +30,6 @@ command = [
 	"--color", "always",
 ]
 need_stdout = false
-watch = ["tests", "benches", "examples"]
 
 [jobs.win]
 command = [
