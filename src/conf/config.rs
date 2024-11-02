@@ -59,6 +59,21 @@ pub struct Config {
     /// task. Other file events occuring during this period will be
     /// ignored.
     pub grace_period: Option<Period>,
+
+    /// Whether to apply the default watch list, which is
+    /// `["src", "tests", "benches", "examples", "build.rs"]`
+    ///
+    /// This is true by default. Set it to false if you want
+    /// to watch nothing, or only the directories you set in
+    /// `watch`.
+    pub default_watch: Option<bool>,
+
+    /// A list of files and directories that will be watched if the job
+    /// is run on a package.
+    ///
+    /// src, examples, tests, benches, and build.rs are implicitly
+    /// included unless you `set default_watch` to false.
+    pub watch: Option<Vec<String>>,
 }
 
 impl Config {

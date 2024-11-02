@@ -1,3 +1,6 @@
+### next
+Allow defining default_watch and watch at global level, so that they apply to all jobs unless overridden.
+
 <a name="v3.1.2"></a>
 ### v3.1.2 - 2024/10/29
 - "config loaded" message always automatically disappears after a few seconds

@@ -39,15 +39,6 @@ pub struct Job {
     /// A kill command. If not provided, SIGKILL is used.
     pub kill: Option<Vec<String>>,
 
-    /// Whether to apply the default watch list, which is
-    /// `["src", "tests", "benches", "examples"]`
-    ///
-    /// This is true by default. Set it to false if you want
-    /// to watch nothing, or only the directories you set in
-    /// `watch`.
-    #[serde(default = "default_true")]
-    pub default_watch: bool,
-
     /// Env vars to set for this job execution
     #[serde(default)]
     pub env: HashMap<String, String>,
@@ -66,16 +57,23 @@ pub struct Job {
     #[serde(default)]
     pub on_success: Option<Action>,
 
+    /// Whether to apply the default watch list, which is
+    /// `["src", "tests", "benches", "examples", "build.rs"]`
+    ///
+    /// This is true by default. Set it to false if you want
+    /// to watch nothing, or only the directories you set in
+    /// `watch`.
+    pub default_watch: Option<bool>,
+
     /// A list of directories that will be watched if the job
     /// is run on a package.
     /// src, examples, tests, and benches are implicitly included
     /// unless you `set default_watch` to false.
-    #[serde(default)]
-    pub watch: Vec<String>,
+    pub watch: Option<Vec<String>>,
 
-    // Whether to insert extraneous arguments provided by bacon or end users
-    //
-    // Eg: --all-features or anything after -- in bacon incantation
+    /// Whether to insert extraneous arguments provided by bacon or end users
+    ///
+    /// Eg: --all-features or anything after -- in bacon incantation
     #[serde(default = "default_true")]
     pub extraneous_args: bool,
 
@@ -119,9 +117,9 @@ impl Job {
         Self {
             command,
             kill: None,
-            default_watch: true,
+            default_watch: None,
             expand_env_vars: true,
-            watch: Vec::new(),
+            watch: None,
             need_stdout: false,
             on_success: None,
             allow_warnings: false,
