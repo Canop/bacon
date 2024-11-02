@@ -30,45 +30,48 @@ impl Ignorer {
         Ok(Self { repo })
     }
 
-    /// Tell whether the given path is excluded according to
-    /// either the global gitignore rules or the ones of the repository
-    pub fn excludes(
-        &mut self,
-        file_path: &Path,
-    ) -> Result<bool> {
-        let worktree = self.repo.worktree().context("a worktree should exist")?;
-
-        // the "Cache" is the structure allowing checking exclusion
-        let mut cache = worktree.excludes(None)?;
-
-        // cache.at_path panics if not provided a path relative
-        // to the work directory, so we compute the relative path
-        let Some(work_dir) = self.repo.work_dir() else {
-            return Ok(false);
-        };
-        let Ok(relative_path) = file_path.strip_prefix(work_dir) else {
-            return Ok(false);
-        };
-
-        // cache.at_path panics if the relative path is empty, so
-        // we must check that
-        if relative_path.as_os_str().is_empty() {
-            return Ok(true);
-        };
-
-        let platform = cache.at_path(relative_path, Some(file_path.is_dir()))?;
-
-        Ok(platform.is_excluded())
-    }
-
+    /// Tell whether all given paths are excluded according to
+    /// either the global gitignore rules or the ones of the repository.
+    ///
     /// Return Ok(false) when at least one file is included (i.e. we should
     /// execute the job)
     pub fn excludes_all(
         &mut self,
         paths: &[PathBuf],
     ) -> Result<bool> {
+        let worktree = self.repo.worktree().context("a worktree should exist")?;
+
+        // The "Cache" is the structure allowing checking exclusion.
+        // Building it is the most expensive operation, and we could store it
+        // in the Ignorer instead of the repo (by having the repo in the mission),
+        // but it's still about just 1ms and I'm not sure we know if it always
+        // stays valid.
+        let mut cache = time!(Debug, worktree.excludes(None)?);
+
         for path in paths {
-            if !self.excludes(path)? {
+            // cache.at_path panics if not provided a path relative
+            // to the work directory, so we compute the relative path
+            let Some(work_dir) = self.repo.work_dir() else {
+                return Ok(false);
+            };
+            let Ok(relative_path) = path.strip_prefix(work_dir) else {
+                return Ok(false);
+            };
+
+            // cache.at_path panics if the relative path is empty, so
+            // we must check that
+            if relative_path.as_os_str().is_empty() {
+                return Ok(true);
+            };
+
+            if path.is_dir() {
+                // we're not interested in directories (we should not receive them anyway)
+                return Ok(false);
+            }
+
+            let platform = cache.at_path(relative_path, Some(gix::index::entry::Mode::FILE))?;
+
+            if !platform.is_excluded() {
                 return Ok(false);
             }
         }

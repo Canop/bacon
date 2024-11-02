@@ -28,7 +28,6 @@ impl ExportsSettings {
         &self,
         state: &AppState<'_>,
     ) {
-        info!("DOING AUTO EXPORTS");
         for (name, export) in &self.exports {
             if export.auto {
                 info!("doing auto export {:?}", name);
@@ -45,7 +44,6 @@ impl ExportsSettings {
         state: &AppState<'_>,
     ) {
         if let Some(export) = self.exports.get(requested_name) {
-            info!("DOING EXPORT {:?}", requested_name);
             if let Err(e) = export.do_export(state) {
                 error!("error while exporting {:?}: {:?}", requested_name, e);
             }
