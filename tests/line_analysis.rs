@@ -1,4 +1,7 @@
-use bacon::*;
+use {
+    bacon::*,
+    termimad::crossterm::style::Stylize,
+};
 
 /// Check we reproduce all the line analyses from json files in line_analysis directory
 #[test]
@@ -17,12 +20,16 @@ fn line_analysis() {
         let reader = std::io::BufReader::new(file);
         let export: AnalysisExport = serde_json::from_reader(reader).unwrap();
         let analyzer = export.analyzer;
-        println!("Analyzer: {:?}", analyzer);
         for line_entry in export.lines {
             // checking that we reproduce the same analysis
             let analysis = analyzer.analyze_line(&line_entry.line);
             if analysis != line_entry.analysis {
-                println!("Wrong analysis in {:?} for {:#?}", name, line_entry.line);
+                println!(
+                    "Wrong analysis in {} with analyzer {:?} for {:#?}",
+                    name.to_string_lossy().to_string().blue(),
+                    analyzer,
+                    line_entry.line,
+                );
                 println!("Expected: {:?}", line_entry.analysis);
                 println!("Got: {:?}", analysis);
                 panic!("Analysis mismatch");

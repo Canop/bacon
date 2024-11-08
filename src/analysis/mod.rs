@@ -1,4 +1,5 @@
 mod analyzer;
+mod eslint_analyzer;
 mod line_analysis;
 mod line_pattern;
 mod line_type;
