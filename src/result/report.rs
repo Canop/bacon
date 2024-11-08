@@ -94,7 +94,7 @@ impl Report {
             let path_string;
             if path_buf.is_relative() {
                 path_string = mission
-                    .workspace_root
+                    .package_directory
                     .join(path)
                     .to_string_lossy()
                     .to_string();

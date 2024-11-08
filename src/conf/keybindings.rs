@@ -2,16 +2,19 @@ use {
     crate::*,
     crokey::*,
     serde::Deserialize,
-    std::collections::{
-        HashMap,
-        hash_map,
+    std::{
+        collections::{
+            HashMap,
+            hash_map,
+        },
+        fmt,
     },
 };
 
 /// A mapping from key combinations to actions.
 ///
 /// Several key combinations can go to the same action.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct KeyBindings {
     #[serde(flatten)]
     map: HashMap<KeyCombination, Action>,
@@ -128,6 +131,19 @@ impl<'a> IntoIterator for &'a KeyBindings {
     type IntoIter = hash_map::Iter<'a, KeyCombination, Action>;
     fn into_iter(self) -> Self::IntoIter {
         self.map.iter()
+    }
+}
+
+impl fmt::Debug for KeyBindings {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
+        let mut ds = f.debug_struct("KeyBindings");
+        for (kc, action) in &self.map {
+            ds.field(&kc.to_string(), &action.to_string());
+        }
+        ds.finish()
     }
 }
 

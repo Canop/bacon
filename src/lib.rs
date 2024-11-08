@@ -3,6 +3,7 @@ mod app;
 mod auto_refresh;
 mod cli;
 mod conf;
+mod context;
 mod drawing;
 mod exec;
 mod export;
@@ -12,7 +13,6 @@ mod internal;
 mod jobs;
 mod messages;
 mod mission;
-mod mission_location;
 mod result;
 mod scroll;
 mod state;
@@ -25,6 +25,7 @@ pub use {
     auto_refresh::*,
     cli::*,
     conf::*,
+    context::*,
     drawing::*,
     exec::*,
     export::*,
@@ -34,7 +35,6 @@ pub use {
     jobs::*,
     messages::*,
     mission::*,
-    mission_location::*,
     result::*,
     scroll::*,
     state::*,

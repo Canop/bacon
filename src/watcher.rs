@@ -28,8 +28,7 @@ pub struct Watcher {
 
 impl Watcher {
     pub fn new(
-        files_to_watch: &[PathBuf],
-        directories_to_watch: &[PathBuf],
+        paths_to_watch: &[PathBuf],
         mut ignorer: Option<Ignorer>,
     ) -> Result<Self> {
         let (sender, receiver) = bounded(0);
@@ -76,13 +75,18 @@ impl Watcher {
                 }
                 Err(e) => warn!("watch error: {:?}", e),
             })?;
-        for file in files_to_watch {
-            debug!("add watch file {:?}", file);
-            notify_watcher.watch(file, RecursiveMode::NonRecursive)?;
-        }
-        for dir in directories_to_watch {
-            debug!("add watch dir {:?}", dir);
-            notify_watcher.watch(dir, RecursiveMode::Recursive)?;
+        for path in paths_to_watch {
+            if !path.exists() {
+                warn!("watch path doesn't exist: {:?}", path);
+                continue;
+            }
+            if path.is_dir() {
+                debug!("add watch dir {:?}", path);
+                notify_watcher.watch(path, RecursiveMode::Recursive)?;
+            } else if path.is_file() {
+                debug!("add watch file {:?}", path);
+                notify_watcher.watch(path, RecursiveMode::NonRecursive)?;
+            }
         }
         Ok(Self {
             _notify_watcher: notify_watcher,
