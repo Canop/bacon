@@ -8,7 +8,7 @@
 [l1]: https://crates.io/crates/bacon
 
 [s2]: https://dystroy.org/chat-shield.svg
-[l2]: https://miaou.dystroy.org/3768?rust
+[l2]: https://miaou.dystroy.org/4683?bacon
 
 [s3]: https://img.shields.io/badge/License-AGPL_v3-blue.svg
 [l3]: https://www.gnu.org/licenses/agpl-3.0

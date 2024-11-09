@@ -25,8 +25,7 @@ I'm also available for consulting or custom development. Head to [https://dystro
 
 The best place to chat about bacon, to talk about features or bugs, is the Miaou chat.
 
-* [Rust & Bacon room on Miaou](https://miaou.dystroy.org/3490?rust)
-* [French Programmers room on Miaou](https://miaou.dystroy.org/3)
+[Bacon room on Miaou](https://miaou.dystroy.org/4683?bacon)
 
 # Issues
 
