@@ -58,11 +58,11 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let location = MissionLocation::new(&args)?;
-    info!("mission location: {:#?}", &location);
+    let context = Context::new(&args)?;
+    info!("mission context: {:#?}", &context);
 
     if args.init {
-        let package_config_path = location.package_config_path();
+        let package_config_path = context.package_config_path();
         if !package_config_path.exists() {
             fs::write(&package_config_path, DEFAULT_PACKAGE_CONFIG.trim_start())?;
             eprintln!("bacon project configuration file written.");
@@ -73,7 +73,7 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let settings = Settings::read(&args, &location)?;
+    let settings = Settings::read(&args, &context)?;
 
     if args.list_jobs {
         print_jobs(&settings);
@@ -86,7 +86,7 @@ pub fn run() -> anyhow::Result<()> {
     #[cfg(windows)]
     w.queue(EnableMouseCapture)?;
     w.flush()?;
-    let result = app::run(&mut w, settings, &args, location);
+    let result = app::run(&mut w, settings, &args, context);
     #[cfg(windows)]
     w.queue(DisableMouseCapture)?;
     w.queue(cursor::Show)?;

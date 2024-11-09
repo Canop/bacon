@@ -1,6 +1,9 @@
 use {
     crate::*,
-    anyhow::*,
+    anyhow::{
+        Result,
+        bail,
+    },
     std::{
         collections::HashMap,
         path::PathBuf,
@@ -84,7 +87,7 @@ impl Settings {
     /// * args given as arguments, coming from the cli call
     pub fn read(
         args: &Args,
-        location: &MissionLocation,
+        context: &Context,
     ) -> Result<Self> {
         let mut settings = Settings::default();
 
@@ -107,10 +110,10 @@ impl Settings {
             settings.apply_config(&config);
         }
 
-        let workspace_config_path = location.workspace_config_path();
-        let package_config_path = location.package_config_path();
+        let workspace_config_path = context.workspace_config_path();
+        let package_config_path = context.package_config_path();
 
-        if package_config_path != workspace_config_path {
+        if let Some(workspace_config_path) = workspace_config_path {
             if workspace_config_path.exists() {
                 info!("loading workspace level bacon.toml");
                 let workspace_config = Config::from_path(&workspace_config_path)?;

@@ -38,7 +38,7 @@ pub fn run(
     w: &mut W,
     mut settings: Settings,
     args: &Args,
-    location: MissionLocation,
+    location: Context,
 ) -> Result<()> {
     let event_source = EventSource::with_options(EventSourceOptions {
         combine_keys: false,
@@ -54,7 +54,7 @@ pub fn run(
                 break;
             }
         };
-        let mission = Mission::new(&location, concrete_job_ref, job, &settings)?;
+        let mission = location.mission(concrete_job_ref, job, &settings)?;
         let do_after = app::run_mission(w, mission, &event_source, message.take())?;
         match do_after {
             DoAfterMission::NextJob(job_ref) => {
@@ -88,14 +88,10 @@ fn run_mission(
 
     // build the watcher detecting and transmitting mission file changes
     let ignorer = time!(Info, mission.ignorer());
-    let mission_watcher = Watcher::new(
-        &mission.files_to_watch,
-        &mission.directories_to_watch,
-        ignorer,
-    )?;
+    let mission_watcher = Watcher::new(&mission.paths_to_watch, ignorer)?;
 
     // create the watcher for config file changes
-    let config_watcher = Watcher::new(&mission.settings.config_files, &[], None)?;
+    let config_watcher = Watcher::new(&mission.settings.config_files, None)?;
 
     // create the executor, mission, and state
     let mut executor = MissionExecutor::new(&mission)?;

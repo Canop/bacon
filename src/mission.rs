@@ -1,12 +1,9 @@
 use {
     crate::*,
-    anyhow::Result,
     lazy_regex::regex_replace_all,
     rustc_hash::FxHashSet,
     std::path::PathBuf,
 };
-
-static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples", "build.rs"];
 
 /// the description of the mission of bacon
 /// after analysis of the args, env, and surroundings
@@ -14,85 +11,14 @@ static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples", "buil
 pub struct Mission<'s> {
     pub location_name: String,
     pub concrete_job_ref: ConcreteJobRef,
-    pub cargo_execution_directory: PathBuf,
-    pub workspace_root: PathBuf,
+    pub execution_directory: PathBuf,
+    pub package_directory: PathBuf,
     pub job: Job,
-    pub files_to_watch: Vec<PathBuf>,
-    pub directories_to_watch: Vec<PathBuf>,
+    pub paths_to_watch: Vec<PathBuf>,
     pub settings: &'s Settings,
 }
 
 impl<'s> Mission<'s> {
-    pub fn new(
-        location: &MissionLocation,
-        concrete_job_ref: ConcreteJobRef,
-        job: Job,
-        settings: &'s Settings,
-    ) -> Result<Self> {
-        let location_name = location.name();
-        let add_all_src = location.intended_is_package;
-        let mut files_to_watch: Vec<PathBuf> = Vec::new();
-        let mut directories_to_watch = Vec::new();
-        if !location.intended_is_package {
-            directories_to_watch.push(location.intended_dir.clone());
-        }
-        for item in &location.packages {
-            if item.source.is_none() {
-                let item_path = item
-                    .manifest_path
-                    .parent()
-                    .expect("parent of a target folder is a root folder");
-                if add_all_src {
-                    let mut watches: Vec<&str> = job
-                        .watch
-                        .as_ref()
-                        .unwrap_or(&settings.watch)
-                        .iter()
-                        .map(|s| s.as_str())
-                        .collect();
-                    let add_default = job.default_watch.unwrap_or(settings.default_watch);
-                    if add_default {
-                        for watch in DEFAULT_WATCHES {
-                            if !watches.contains(watch) {
-                                watches.push(watch);
-                            }
-                        }
-                    }
-                    debug!("watches: {watches:?}");
-                    for dir in &watches {
-                        let full_path = item_path.join(dir);
-                        if full_path.exists() {
-                            if full_path.is_dir() {
-                                directories_to_watch.push(full_path.into());
-                            } else {
-                                files_to_watch.push(full_path.into());
-                            }
-                        } else {
-                            debug!("missing {} : {:?}", dir, full_path);
-                        }
-                    }
-                }
-                if item.manifest_path.exists() {
-                    files_to_watch.push(item.manifest_path.clone().into());
-                } else {
-                    warn!("missing manifest file: {:?}", item.manifest_path);
-                }
-            }
-        }
-
-        let cargo_execution_directory = location.package_directory.clone();
-        Ok(Mission {
-            location_name,
-            concrete_job_ref,
-            cargo_execution_directory,
-            workspace_root: location.workspace_root.clone(),
-            job,
-            files_to_watch,
-            directories_to_watch,
-            settings,
-        })
-    }
-
     /// Return an Ignorer if required by the job's settings
     /// and if the mission takes place in a git repository
     pub fn ignorer(&self) -> Option<Ignorer> {
@@ -103,7 +29,7 @@ impl<'s> Mission<'s> {
             }
             _ => {
                 // by default we apply gitignore rules
-                match Ignorer::new(&self.workspace_root) {
+                match Ignorer::new(&self.package_directory) {
                     Ok(ignorer) => Some(ignorer),
                     Err(e) => {
                         // might be normal, eg not in a git repo
@@ -172,7 +98,7 @@ impl<'s> Mission<'s> {
 
         if !self.job.extraneous_args {
             command.args(tokens);
-            command.current_dir(&self.cargo_execution_directory);
+            command.current_dir(&self.execution_directory);
             command.envs(&self.job.env);
             debug!("command: {:#?}", &command);
             return command;
@@ -251,7 +177,7 @@ impl<'s> Mission<'s> {
                 command.arg(arg);
             }
         }
-        command.current_dir(&self.cargo_execution_directory);
+        command.current_dir(&self.execution_directory);
         command.envs(&self.job.env);
         debug!("command builder: {:#?}", &command);
         command

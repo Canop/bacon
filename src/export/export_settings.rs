@@ -20,7 +20,7 @@ impl ExportSettings {
         state: &AppState<'_>,
     ) -> anyhow::Result<()> {
         let path = if self.path.is_relative() {
-            state.mission.workspace_root.join(&self.path)
+            state.mission.package_directory.join(&self.path)
         } else {
             self.path.to_path_buf()
         };
