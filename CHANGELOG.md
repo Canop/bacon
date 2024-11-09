@@ -1,3 +1,6 @@
+### next
+- bacon can now be launched without Cargo.toml file
+
 <a name="v3.2.0"></a>
 ### v3.2.0 - 2024/11/04
 - allow defining `default_watch` and `watch` at global level, so that they apply to all jobs unless overridden.
