@@ -30,9 +30,9 @@ pub struct TString {
     pub raw: String,
 }
 impl TString {
-    pub fn new<S: Into<String>>(
-        csi: S,
-        raw: S,
+    pub fn new<S1: Into<String>, S2: Into<String>>(
+        csi: S1,
+        raw: S2,
     ) -> Self {
         Self {
             csi: csi.into(),
@@ -119,5 +119,8 @@ impl TString {
             csi: self.csi.clone(),
             raw: self.raw.split_off(at),
         }
+    }
+    pub fn is_blank(&self) -> bool {
+        self.raw.chars().all(char::is_whitespace)
     }
 }
