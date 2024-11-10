@@ -1,3 +1,4 @@
+//! An analyzer for eslint ( https://eslint.org/ )
 use {
     super::*,
     crate::*,
@@ -11,12 +12,7 @@ const CSI_WARNING: &str = "\u{1b}[33m";
 const CSI_SUM: &str = "\u{1b}[31m\u{1b}[1m";
 
 pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
-    if cmd_line.content.is_blank() {
-        LineAnalysis {
-            line_type: LineType::Garbage,
-            key: None,
-        }
-    } else if is_line_col_error_line(&cmd_line.content) {
+    if is_line_col_error_line(&cmd_line.content) {
         LineAnalysis {
             line_type: LineType::Title(Kind::Error),
             key: None,
@@ -44,6 +40,11 @@ pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
     }
 }
 
+/// Build a report from the output of eslint
+///
+/// The main specificity of eslint is that the path of file with error is given
+/// before the errors of the file, each error coming with the line and column
+/// in the file.
 pub fn build_report(
     cmd_lines: &[CommandOutputLine],
     line_analyzer: Analyzer,
@@ -220,7 +221,6 @@ fn is_sum(content: &TLine) -> bool {
     }
     true
 }
-
 fn get_location_path(content: &TLine) -> Option<String> {
     let mut strings = content.strings.iter();
     let first = strings.next()?;
@@ -242,7 +242,7 @@ fn burp_location(
 ) -> TLine {
     let mut line = TLine::default();
     line.strings
-        .push(TString::new("\u{1b}[1m\u{1b}[38;5;12m", "--> "));
+        .push(TString::new("\u{1b}[1m\u{1b}[38;5;12m", "   --> "));
     line.strings
         .push(TString::new("", format!("{}:{}", location_path, line_col)));
     line
@@ -250,12 +250,17 @@ fn burp_location(
 
 fn cleaned_tline(content: &TLine) -> TLine {
     let mut tline = TLine::default();
+    let mut last_is_blank = true;
     for ts in &content.strings {
         if ts.csi == CSI_LINE_COL && regex_is_match!(r"^\d+:\d+$", &ts.raw) {
             continue; // useless line:col at start of title
         }
-        let raw = regex_replace_all!(r"\s+", &ts.raw, " ");
-        tline.strings.push(TString::new(&ts.csi, raw.to_string()));
+        let raw = regex_replace_all!(r"\s+", &ts.raw, " ").to_string();
+        let is_blank = raw.trim().is_empty();
+        if !(is_blank && last_is_blank) {
+            tline.strings.push(TString::new(&ts.csi, raw));
+        }
+        last_is_blank = is_blank;
     }
     tline
 }
