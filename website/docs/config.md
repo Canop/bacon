@@ -71,6 +71,7 @@ field | meaning | default
 :-|:-|:-
 allow_failures | if `true`, the action is considered a success even when there are test failures | `false`
 allow_warnings | if `true`, the action is considered a success even when there are warnings | `false`
+analyzer | command output parser: `"standard"`, `"eslint"`, or `"nextest"` | `"standard"`
 apply_gitignore | if `true` the job isn't triggered when the modified file is excluded by gitignore rules | `true`
 background | compute in background and display only on end | `true`
 command | the tokens making the command to execute (first one is the executable) |
