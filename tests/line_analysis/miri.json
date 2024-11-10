@@ -836,7 +836,9 @@
         "origin": "StdErr"
       },
       "analysis": {
-        "line_type": "Normal"
+        "line_type": {
+          "Title": "Error"
+        }
       }
     },
     {

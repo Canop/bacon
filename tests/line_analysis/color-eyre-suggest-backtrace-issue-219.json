@@ -14,8 +14,9 @@
         "origin": "StdErr"
       },
       "analysis": {
-        "line_type": "Normal",
-        "key": null
+        "line_type": {
+          "Title": "Warning"
+        }
       }
     },
     {

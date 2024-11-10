@@ -21,6 +21,20 @@ pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
         } else if let Some(k) = as_fail_result_title(content) {
             key = Some(k.to_string());
             LineType::Title(Kind::TestFail)
+        } else if cmd_line.origin == CommandStream::StdErr
+            && regex_is_match!("^error: ", content)
+            && !regex_is_match!("^error: aborting due to", content)
+        {
+            // This recognizes the error in case there's no styling (eg miri run, see issue #251).
+            // If there proves to be too many false positives, this might be moved to an "unstyled"
+            // analyzer dedicated to those cases when we can't get any styling information.
+            LineType::Title(Kind::Error)
+        } else if cmd_line.origin == CommandStream::StdErr
+            && regex_is_match!("^warning: ", content)
+            && !regex_is_match!(r"generated \d+ warnings?$", content)
+        {
+            // This recognizes the warning in case there's no styling (eg miri run, see issue #251)
+            LineType::Title(Kind::Warning)
         } else if regex_is_match!("^failures:$", content) {
             // this isn't very discriminant...
             LineType::Title(Kind::Sum)
