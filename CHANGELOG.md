@@ -1,6 +1,7 @@
 ### next
 - bacon can now be launched without Cargo.toml file
 - fix Miri output seen as wrong when there's only warnings
+- more lenient detection of warnings and errors due to 'miri run' not supporting `--color` - Fix #251
 - eslint analyzer (set `analyzer = "eslint"` in your job definition)
 
 <a name="v3.2.0"></a>
