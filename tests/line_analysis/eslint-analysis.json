@@ -10,7 +10,7 @@
         "origin": "StdOut"
       },
       "analysis": {
-        "line_type": "Garbage"
+        "line_type": "Normal"
       }
     },
     {
@@ -159,7 +159,7 @@
         "origin": "StdOut"
       },
       "analysis": {
-        "line_type": "Garbage"
+        "line_type": "Normal"
       }
     },
     {
@@ -197,7 +197,7 @@
         "origin": "StdOut"
       },
       "analysis": {
-        "line_type": "Garbage"
+        "line_type": "Normal"
       }
     }
   ]
