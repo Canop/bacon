@@ -31,9 +31,12 @@ impl CommandResult {
         let mut report = analyzer.build_report(lines, mission)?;
         debug!("report stats: {:?}", &report.stats);
         if let Some(error_code) = error_code {
-            if report.stats.errors + report.stats.test_fails == 0 {
-                // report shows no error while the command exe reported
-                // an error, so the report can't be trusted
+            let stats = &report.stats;
+            if stats.errors + stats.test_fails + stats.warnings == 0 {
+                // Report shows no error while the command exe reported
+                // an error, so the report can't be trusted.
+                // Note that some tools return an error on warnings (eg
+                // miri), some don't.
                 let suggest_backtrace = report.suggest_backtrace;
                 return Ok(Self::Failure(Failure {
                     error_code,

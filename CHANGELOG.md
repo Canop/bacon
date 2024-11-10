@@ -1,5 +1,6 @@
 ### next
 - bacon can now be launched without Cargo.toml file
+- fix Miri output seen as wrong when there's only warnings
 
 <a name="v3.2.0"></a>
 ### v3.2.0 - 2024/11/04
