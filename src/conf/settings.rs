@@ -21,29 +21,30 @@ use {
 /// They're immutable during the execution of the missions.
 #[derive(Debug, Clone)]
 pub struct Settings {
-    pub arg_job: Option<ConcreteJobRef>,
-    pub additional_job_args: Vec<String>,
     pub additional_alias_args: Option<Vec<String>>,
-    pub summary: bool,
-    pub wrap: bool,
-    pub reverse: bool,
-    pub help_line: bool,
-    pub no_default_features: bool,
+    pub additional_job_args: Vec<String>,
     pub all_features: bool,
-    pub features: Option<String>, // comma separated list
-    pub keybindings: KeyBindings,
-    pub jobs: HashMap<String, Job>,
-    pub default_job: ConcreteJobRef,
-    pub exports: ExportsSettings,
-    pub show_changes_count: bool,
-    pub on_change_strategy: Option<OnChangeStrategy>,
-    pub ignored_lines: Option<Vec<LinePattern>>,
-    pub grace_period: Period,
+    pub arg_job: Option<ConcreteJobRef>,
     /// Path of the files which were used to build the settings
     /// (note that not all settings come from files)
     pub config_files: Vec<PathBuf>,
+    pub default_job: ConcreteJobRef,
     pub default_watch: bool,
+    pub exports: ExportsSettings,
+    pub features: Option<String>, // comma separated list
+    pub grace_period: Period,
+    pub help_line: bool,
+    pub ignore: Vec<String>,
+    pub ignored_lines: Option<Vec<LinePattern>>,
+    pub jobs: HashMap<String, Job>,
+    pub keybindings: KeyBindings,
+    pub no_default_features: bool,
+    pub on_change_strategy: Option<OnChangeStrategy>,
+    pub reverse: bool,
+    pub show_changes_count: bool,
+    pub summary: bool,
     pub watch: Vec<String>,
+    pub wrap: bool,
 }
 
 impl Default for Settings {
@@ -65,6 +66,7 @@ impl Default for Settings {
             exports: Default::default(),
             show_changes_count: false,
             on_change_strategy: None,
+            ignore: Default::default(),
             ignored_lines: Default::default(),
             grace_period: Duration::from_millis(5).into(),
             config_files: Default::default(),
@@ -201,6 +203,9 @@ impl Settings {
         }
         if let Some(watch) = config.watch.as_ref() {
             self.watch = watch.clone();
+        }
+        for pattern in &config.ignore {
+            self.ignore.push(pattern.clone());
         }
     }
     pub fn apply_args(

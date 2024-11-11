@@ -21,6 +21,14 @@ pub struct Config {
 
     pub default_job: Option<ConcreteJobRef>,
 
+    /// Whether to apply the default watch list, which is
+    /// `["src", "tests", "benches", "examples", "build.rs"]`
+    ///
+    /// This is true by default. Set it to false if you want
+    /// to watch nothing, or only the directories you set in
+    /// `watch`.
+    pub default_watch: Option<bool>,
+
     /// locations export
     #[deprecated(since = "2.22.0", note = "use exports.locations")]
     pub export: Option<ExportConfig>,
@@ -31,7 +39,20 @@ pub struct Config {
     #[serde(default)]
     pub exports: HashMap<String, ExportConfig>,
 
+    /// The delay between a file event and the real start of the
+    /// task. Other file events occuring during this period will be
+    /// ignored.
+    pub grace_period: Option<Period>,
+
     pub help_line: Option<bool>,
+
+    /// A lit of glob patterns to ignore
+    #[serde(default)]
+    pub ignore: Vec<String>,
+
+    /// Patterns of lines which should be ignored. Patterns of
+    /// the prefs or bacon.toml can be overridden at the job
+    pub ignored_lines: Option<Vec<LinePattern>>,
 
     #[serde(default)]
     pub jobs: HashMap<String, Job>,
@@ -49,31 +70,14 @@ pub struct Config {
     #[deprecated(since = "2.0.0", note = "use keybindings")]
     pub vim_keys: Option<bool>,
 
-    pub wrap: Option<bool>,
-
-    /// Patterns of lines which should be ignored. Patterns of
-    /// the prefs or bacon.toml can be overridden at the job
-    pub ignored_lines: Option<Vec<LinePattern>>,
-
-    /// The delay between a file event and the real start of the
-    /// task. Other file events occuring during this period will be
-    /// ignored.
-    pub grace_period: Option<Period>,
-
-    /// Whether to apply the default watch list, which is
-    /// `["src", "tests", "benches", "examples", "build.rs"]`
-    ///
-    /// This is true by default. Set it to false if you want
-    /// to watch nothing, or only the directories you set in
-    /// `watch`.
-    pub default_watch: Option<bool>,
-
     /// A list of files and directories that will be watched if the job
     /// is run on a package.
     ///
     /// src, examples, tests, benches, and build.rs are implicitly
     /// included unless you `set default_watch` to false.
     pub watch: Option<Vec<String>>,
+
+    pub wrap: Option<bool>,
 }
 
 impl Config {
