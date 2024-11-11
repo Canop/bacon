@@ -1,4 +1,5 @@
 use {
+    crate::*,
     anyhow::{
         Context,
         Result,
@@ -7,19 +8,16 @@ use {
         self as git,
         Repository,
     },
-    std::path::{
-        Path,
-        PathBuf,
-    },
+    std::path::Path,
 };
 
 /// An object able to tell whether a file is excluded
 /// by gitignore rules
-pub struct Ignorer {
+pub struct GitIgnorer {
     repo: Repository,
 }
 
-impl Ignorer {
+impl GitIgnorer {
     /// Create an Ignorer from any directory path: the closest
     /// surrounding git repository will be found (if there's one)
     /// and its gitignore rules used.
@@ -29,15 +27,20 @@ impl Ignorer {
         let repo = git::discover(root_path)?;
         Ok(Self { repo })
     }
+}
 
-    /// Tell whether all given paths are excluded according to
-    /// either the global gitignore rules or the ones of the repository.
-    ///
-    /// Return Ok(false) when at least one file is included (i.e. we should
-    /// execute the job)
-    pub fn excludes_all(
+impl Ignorer for GitIgnorer {
+    fn excludes(
         &mut self,
-        paths: &[PathBuf],
+        paths: &Path,
+    ) -> Result<bool> {
+        self.excludes_all_paths(&[paths])
+    }
+}
+impl GitIgnorer {
+    fn excludes_all_paths(
+        &mut self,
+        paths: &[&Path],
     ) -> Result<bool> {
         let worktree = self.repo.worktree().context("a worktree should exist")?;
 

@@ -91,7 +91,7 @@ fn run_mission(
     let mission_watcher = Watcher::new(&mission.paths_to_watch, ignorer)?;
 
     // create the watcher for config file changes
-    let config_watcher = Watcher::new(&mission.settings.config_files, None)?;
+    let config_watcher = Watcher::new(&mission.settings.config_files, IgnorerSet::default())?;
 
     // create the executor, mission, and state
     let mut executor = MissionExecutor::new(&mission)?;

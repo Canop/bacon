@@ -89,6 +89,10 @@ pub struct Job {
     /// Patterns of lines which should be ignored. Patterns of
     /// the prefs or bacon.toml can be overridden at the job
     pub ignored_lines: Option<Vec<LinePattern>>,
+
+    /// A lit of glob patterns to ignore
+    #[serde(default)]
+    pub ignore: Vec<String>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -131,6 +135,7 @@ impl Job {
             on_change_strategy: None,
             analyzer: Some(Analyzer::Standard),
             ignored_lines: None,
+            ignore: Default::default(),
         }
     }
 }
