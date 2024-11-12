@@ -19,26 +19,32 @@ pub struct Mission<'s> {
 }
 
 impl<'s> Mission<'s> {
-    /// Return an Ignorer if required by the job's settings
-    /// and if the mission takes place in a git repository
-    pub fn ignorer(&self) -> Option<Ignorer> {
-        match self.job.apply_gitignore {
-            Some(false) => {
-                debug!("No gitignorer because of settings");
-                None
-            }
-            _ => {
-                // by default we apply gitignore rules
-                match Ignorer::new(&self.package_directory) {
-                    Ok(ignorer) => Some(ignorer),
-                    Err(e) => {
-                        // might be normal, eg not in a git repo
-                        debug!("Failed to initialise git ignorer: {e}");
-                        None
-                    }
+    /// Return an Ignorer according to the job's settings
+    pub fn ignorer(&self) -> IgnorerSet {
+        let mut set = IgnorerSet::default();
+        if self.job.apply_gitignore != Some(false) {
+            match GitIgnorer::new(&self.package_directory) {
+                Ok(git_ignorer) => {
+                    set.add(Box::new(git_ignorer));
+                }
+                Err(e) => {
+                    // might be normal, eg not in a git repo
+                    debug!("Failed to initialise git ignorer: {e}");
                 }
             }
         }
+        if !self.job.ignore.is_empty() {
+            let mut glob_ignorer = GlobIgnorer::default();
+            info!("CREATE IGNORER");
+            for pattern in &self.job.ignore {
+                info!("ADD PATTERN {pattern}");
+                if let Err(e) = glob_ignorer.add(pattern, &self.package_directory) {
+                    warn!("Failed to add ignore pattern {pattern}: {e}");
+                }
+            }
+            set.add(Box::new(glob_ignorer));
+        }
+        set
     }
 
     /// the action bound to success on this job

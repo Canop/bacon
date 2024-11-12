@@ -18,6 +18,10 @@ pub struct Job {
     #[serde(default)]
     pub allow_warnings: bool,
 
+    /// The analyzer interpreting the output of the command, the
+    /// standard cargo dedicated one if not provided
+    pub analyzer: Option<Analyzer>,
+
     /// Whether gitignore rules must be applied
     pub apply_gitignore: Option<bool>,
 
@@ -36,8 +40,13 @@ pub struct Job {
     /// by the PackageConfig::from_path loader
     pub command: Vec<String>,
 
-    /// A kill command. If not provided, SIGKILL is used.
-    pub kill: Option<Vec<String>>,
+    /// Whether to apply the default watch list, which is
+    /// `["src", "tests", "benches", "examples", "build.rs"]`
+    ///
+    /// This is true by default. Set it to false if you want
+    /// to watch nothing, or only the directories you set in
+    /// `watch`.
+    pub default_watch: Option<bool>,
 
     /// Env vars to set for this job execution
     #[serde(default)]
@@ -47,48 +56,43 @@ pub struct Job {
     #[serde(default = "default_true")]
     pub expand_env_vars: bool,
 
-    /// Whether we need to capture stdout too (stderr is
-    /// always captured)
-    #[serde(default)]
-    pub need_stdout: bool,
-
-    /// The optional action to run when there's no
-    /// error, warning or test failures
-    #[serde(default)]
-    pub on_success: Option<Action>,
-
-    /// Whether to apply the default watch list, which is
-    /// `["src", "tests", "benches", "examples", "build.rs"]`
-    ///
-    /// This is true by default. Set it to false if you want
-    /// to watch nothing, or only the directories you set in
-    /// `watch`.
-    pub default_watch: Option<bool>,
-
-    /// A list of directories that will be watched if the job
-    /// is run on a package.
-    /// src, examples, tests, and benches are implicitly included
-    /// unless you `set default_watch` to false.
-    pub watch: Option<Vec<String>>,
-
     /// Whether to insert extraneous arguments provided by bacon or end users
     ///
     /// Eg: --all-features or anything after -- in bacon incantation
     #[serde(default = "default_true")]
     pub extraneous_args: bool,
 
+    /// A lit of glob patterns to ignore
+    #[serde(default)]
+    pub ignore: Vec<String>,
+
+    /// Patterns of lines which should be ignored. Patterns of
+    /// the prefs or bacon.toml can be overridden at the job
+    pub ignored_lines: Option<Vec<LinePattern>>,
+
+    /// A kill command. If not provided, SIGKILL is used.
+    pub kill: Option<Vec<String>>,
+
+    /// Whether we need to capture stdout too (stderr is
+    /// always captured)
+    #[serde(default)]
+    pub need_stdout: bool,
+
     /// How to handle changes: either immediately kill the current job
     /// then restart it, or wait for the current job to finish before
     /// restarting it.
     pub on_change_strategy: Option<OnChangeStrategy>,
 
-    /// The analyzer interpreting the output of the command, the
-    /// standard cargo dedicated one if not provided
-    pub analyzer: Option<Analyzer>,
+    /// The optional action to run when there's no
+    /// error, warning or test failures
+    #[serde(default)]
+    pub on_success: Option<Action>,
 
-    /// Patterns of lines which should be ignored. Patterns of
-    /// the prefs or bacon.toml can be overridden at the job
-    pub ignored_lines: Option<Vec<LinePattern>>,
+    /// A list of directories that will be watched if the job
+    /// is run on a package.
+    /// src, examples, tests, and benches are implicitly included
+    /// unless you `set default_watch` to false.
+    pub watch: Option<Vec<String>>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -131,6 +135,7 @@ impl Job {
             on_change_strategy: None,
             analyzer: Some(Analyzer::Standard),
             ignored_lines: None,
+            ignore: Default::default(),
         }
     }
 }

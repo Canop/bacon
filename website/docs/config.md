@@ -78,14 +78,15 @@ command | the tokens making the command to execute (first one is the executable)
 default_watch | whether to watch default files (`src`, `tests`, `examples`, `build.rs`, and `benches`). When it's set to `false`, only the files in your `watch` parameter are watched | `true`
 env | a map of environment vars, for example `env.LOG_LEVEL="die"` |
 kill | a command replacing the default job interruption (platform dependant, `SIGKILL` on unix). For example `kill = ["kill", "-s", "INT"]` |
-ignored_lines | regular expressions for lines to ignores |
+ignore | list of glob patterns for files to ignore |
+ignored_lines | regular expressions for lines to ignore |
 extraneous_args | if `false`, the action is run "as is" from `bacon.toml`, eg: no `--all-features` or `--features` inclusion | `true`
 need_stdout |whether we need to capture stdout too (stderr is always captured) | `false`
 on_change_strategy | `wait_then_restart` or `kill_then_restart` |
 on_success | the action to run when there's no error, warning or test failures |
 watch | a list of files and directories that will be watched if the job is run on a package. Usual source directories are implicitly included unless `default_watch` is set to false |
 
-Some of these properties can also be defined before jobs and will apply to all of them unless overriden: `watch`, `default_watch`, `ignored_lines`, and `on_change_strategy`.
+Some of these properties can also be defined before jobs and will apply to all of them unless overriden: `watch`, `default_watch`, `ignore` (additive), `ignored_lines`, and `on_change_strategy`.
 
 Don't forget to include `--color always` in most jobs, because bacon uses style information to parse the output of cargo.
 

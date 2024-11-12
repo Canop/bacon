@@ -20,6 +20,7 @@ cli-log = "2.1"
 crokey = "1.1"
 directories-next = "2.0.0"
 gix = { version = "0.67", default-features = false, features = ["index", "excludes", "parallel"] }
+glob = "0.3"
 lazy-regex = "3.3"
 notify = "7.0"
 rustc-hash = "2"
