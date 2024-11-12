@@ -2,6 +2,7 @@ use {
     super::{
         eslint,
         nextest,
+        python,
         standard,
     },
     crate::*,
@@ -21,6 +22,7 @@ pub enum Analyzer {
     Standard,
     Nextest,
     Eslint,
+    PythonUnittest,
 }
 
 impl Analyzer {
@@ -32,6 +34,7 @@ impl Analyzer {
             Self::Eslint => eslint::analyze_line(line),
             Self::Standard => standard::analyze_line(line),
             Self::Nextest => nextest::analyze_line(line),
+            Self::PythonUnittest => python::unittest::analyze_line(line),
         }
     }
     pub fn build_report(
@@ -41,6 +44,7 @@ impl Analyzer {
     ) -> anyhow::Result<Report> {
         match self {
             Self::Eslint => eslint::build_report(cmd_lines, *self, mission),
+            Self::PythonUnittest => python::unittest::build_report(cmd_lines, *self, mission),
             Self::Standard | Self::Nextest => {
                 // nextest analyzis simply uses the standard report building
                 standard::build_report(cmd_lines, *self, mission)

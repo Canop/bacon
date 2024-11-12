@@ -42,7 +42,7 @@ pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
 
 /// Build a report from the output of eslint
 ///
-/// The main specificity of eslint is that the path of file with error is given
+/// The main specificity of eslint is that the path of a file with error is given
 /// before the errors of the file, each error coming with the line and column
 /// in the file.
 pub fn build_report(
@@ -50,12 +50,7 @@ pub fn build_report(
     line_analyzer: Analyzer,
     mission: &Mission,
 ) -> anyhow::Result<Report> {
-    let ignore_patterns = mission
-        .job
-        .ignored_lines
-        .as_ref()
-        .or(mission.settings.ignored_lines.as_ref())
-        .filter(|p| !p.is_empty());
+    let ignore_patterns = mission.ignored_lines_patterns();
     let mut items = ItemAccumulator::default();
     let mut last_location_path = None;
     for cmd_line in cmd_lines {
@@ -101,7 +96,10 @@ pub fn build_report(
                 warn!("no location given before error");
                 continue;
             };
-            items.push_line(LineType::Location, burp_location(location_path, line_col));
+            items.push_line(
+                LineType::Location,
+                burp::location_line(location_path, line_col),
+            );
         }
     }
     let lines = items.lines();
@@ -115,53 +113,6 @@ pub fn build_report(
         failure_keys: Vec::new(),
     };
     Ok(report)
-}
-
-// this might be made generic when needed in newer analyzers
-#[derive(Default)]
-struct ItemAccumulator {
-    curr_err_kind: Option<Kind>,
-    errors: Vec<Line>,
-    test_fails: Vec<Line>,
-    warnings: Vec<Line>,
-}
-impl ItemAccumulator {
-    fn start_item(
-        &mut self,
-        kind: Kind,
-    ) {
-        self.curr_err_kind = Some(kind);
-    }
-    fn push_line(
-        &mut self,
-        line_type: LineType,
-        content: TLine,
-    ) {
-        let line = Line {
-            item_idx: 0, // will be filled later
-            line_type,
-            content,
-        };
-        match self.curr_err_kind {
-            Some(Kind::Warning) => self.warnings.push(line),
-            Some(Kind::Error) => self.errors.push(line),
-            Some(Kind::TestFail) => self.test_fails.push(line),
-            _ => {} // before warnings and errors, or in a sum
-        }
-    }
-    fn lines(mut self) -> Vec<Line> {
-        let mut lines = self.errors;
-        lines.append(&mut self.test_fails);
-        lines.append(&mut self.warnings);
-        let mut item_idx = 0;
-        for line in &mut lines {
-            if matches!(line.line_type, LineType::Title(_)) {
-                item_idx += 1;
-            }
-            line.item_idx = item_idx;
-        }
-        lines
-    }
 }
 
 /// Return true when the line is like
@@ -233,19 +184,6 @@ fn get_location_path(content: &TLine) -> Option<String> {
         return None;
     }
     Some(first.raw.to_string())
-}
-
-/// Make a BURP compliant location line
-fn burp_location(
-    location_path: &str,
-    line_col: &str,
-) -> TLine {
-    let mut line = TLine::default();
-    line.strings
-        .push(TString::new("\u{1b}[1m\u{1b}[38;5;12m", "   --> "));
-    line.strings
-        .push(TString::new("", format!("{}:{}", location_path, line_col)));
-    line
 }
 
 fn cleaned_tline(content: &TLine) -> TLine {

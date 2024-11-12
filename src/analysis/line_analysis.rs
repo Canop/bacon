@@ -24,6 +24,9 @@ impl LineAnalysis {
     pub fn normal() -> Self {
         Self::of_type(LineType::Normal)
     }
+    pub fn garbage() -> Self {
+        Self::of_type(LineType::Garbage)
+    }
     pub fn title_key(
         kind: Kind,
         key: String,
@@ -31,6 +34,12 @@ impl LineAnalysis {
         Self {
             line_type: LineType::Title(kind),
             key: Some(key),
+        }
+    }
+    pub fn fail<S: Into<String>>(key: S) -> Self {
+        Self {
+            line_type: LineType::Title(Kind::TestFail),
+            key: Some(key.into()),
         }
     }
     pub fn test_result(

@@ -25,12 +25,17 @@ impl Line {
     /// If the line is a title, get its message
     pub fn title_message(&self) -> Option<&str> {
         let title = match self.line_type {
-            LineType::Title(_) => self
-                .content
-                .strings
-                .get(1)
-                .map(|ts| ts.raw.as_str())
-                .map(|s| s.trim_start_matches(|c: char| c.is_whitespace() || c == ':')),
+            LineType::Title(_) => {
+                if let Some(content) = self.content.if_unstyled() {
+                    Some(content)
+                } else {
+                    self.content
+                        .strings
+                        .get(1)
+                        .map(|ts| ts.raw.as_str())
+                        .map(|s| s.trim_start_matches(|c: char| c.is_whitespace() || c == ':'))
+                }
+            }
             _ => None,
         };
         title

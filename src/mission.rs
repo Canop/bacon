@@ -201,6 +201,14 @@ impl<'s> Mission<'s> {
     pub fn analyzer(&self) -> Analyzer {
         self.job.analyzer.unwrap_or_default()
     }
+
+    pub fn ignored_lines_patterns(&self) -> Option<&Vec<LinePattern>> {
+        self.job
+            .ignored_lines
+            .as_ref()
+            .or(self.settings.ignored_lines.as_ref())
+            .filter(|p| !p.is_empty())
+    }
 }
 
 fn merge_features(

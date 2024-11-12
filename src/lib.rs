@@ -1,6 +1,7 @@
 mod analysis;
 mod app;
 mod auto_refresh;
+pub mod burp;
 mod cli;
 mod conf;
 mod context;

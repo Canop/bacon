@@ -21,12 +21,7 @@ pub fn build_report(
     let mut cur_err_kind = None; // the current kind among stderr lines
     let mut is_in_out_fail = false;
     let mut suggest_backtrace = false;
-    let ignore_patterns = mission
-        .job
-        .ignored_lines
-        .as_ref()
-        .or(mission.settings.ignored_lines.as_ref())
-        .filter(|p| !p.is_empty());
+    let ignore_patterns = mission.ignored_lines_patterns();
     for cmd_line in cmd_lines {
         if let Some(patterns) = ignore_patterns {
             let raw_line = cmd_line.content.to_raw();

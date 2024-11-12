@@ -86,8 +86,8 @@ impl Report {
             let Some(location) = line.location() else {
                 continue;
             };
-            let (_, mut path, file_line, file_column) =
-                regex_captures!(r#"^([^:\s]+):(\d+):(\d+)$"#, location)
+            let (_, mut path, file_line, mut file_column) =
+                regex_captures!(r#"^([^:\s]+):(\d+)(?:\:(\d+))?$"#, location)
                     .unwrap_or(("", location, "", ""));
             // we need to make sure the path is absolute
             let path_buf = PathBuf::from(path);
@@ -107,6 +107,9 @@ impl Report {
             } else {
                 ""
             };
+            if file_column.is_empty() {
+                file_column = "1"; // by default, first column in file
+            }
             let exported = regex_replace_all!(r#"\{([^\s}]+)\}"#, line_format, |_, key| {
                 match key {
                     "column" => file_column,
