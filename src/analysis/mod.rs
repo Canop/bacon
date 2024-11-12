@@ -1,10 +1,10 @@
 mod analyzer;
-mod eslint_analyzer;
+mod eslint;
 mod line_analysis;
 mod line_pattern;
 mod line_type;
-mod nextest_analyzer;
-mod standard_analyzer;
+mod nextest;
+mod standard;
 mod stats;
 
 pub use {

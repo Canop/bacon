@@ -31,7 +31,7 @@ pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
         }
     }
     // compilation warnings and errors are still composed with the standard cargo tool
-    standard_analyzer::analyze_line(cmd_line)
+    standard::analyze_line(cmd_line)
 }
 
 /// Return the key when the line is like "--- STD(OUT|ERR): somekey ---"

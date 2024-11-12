@@ -1,8 +1,8 @@
 use {
     super::{
-        eslint_analyzer,
-        nextest_analyzer,
-        standard_analyzer,
+        eslint,
+        nextest,
+        standard,
     },
     crate::*,
     serde::{
@@ -29,9 +29,9 @@ impl Analyzer {
         line: &CommandOutputLine,
     ) -> LineAnalysis {
         match self {
-            Self::Eslint => eslint_analyzer::analyze_line(line),
-            Self::Standard => standard_analyzer::analyze_line(line),
-            Self::Nextest => nextest_analyzer::analyze_line(line),
+            Self::Eslint => eslint::analyze_line(line),
+            Self::Standard => standard::analyze_line(line),
+            Self::Nextest => nextest::analyze_line(line),
         }
     }
     pub fn build_report(
@@ -40,10 +40,10 @@ impl Analyzer {
         mission: &Mission,
     ) -> anyhow::Result<Report> {
         match self {
-            Self::Eslint => eslint_analyzer::build_report(cmd_lines, *self, mission),
+            Self::Eslint => eslint::build_report(cmd_lines, *self, mission),
             Self::Standard | Self::Nextest => {
                 // nextest analyzis simply uses the standard report building
-                standard_analyzer::build_report(cmd_lines, *self, mission)
+                standard::build_report(cmd_lines, *self, mission)
             }
         }
     }
