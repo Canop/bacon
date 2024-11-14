@@ -13,6 +13,8 @@ pub struct Mission<'s> {
     pub concrete_job_ref: ConcreteJobRef,
     pub execution_directory: PathBuf,
     pub package_directory: PathBuf,
+    /// The path to use when making relative paths absolute
+    pub root_directory: PathBuf,
     pub job: Job,
     pub paths_to_watch: Vec<PathBuf>,
     pub settings: &'s Settings,
@@ -57,6 +59,17 @@ impl<'s> Mission<'s> {
         report: &Report,
     ) -> bool {
         report.is_success(self.job.allow_warnings, self.job.allow_failures)
+    }
+
+    pub fn make_absolute(
+        &self,
+        path: PathBuf,
+    ) -> PathBuf {
+        if path.is_absolute() {
+            path
+        } else {
+            self.root_directory.join(path)
+        }
     }
 
     /// build (and doesn't call) the external cargo command

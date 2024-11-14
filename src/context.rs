@@ -213,6 +213,11 @@ impl Context {
             // we only watch the given "intended" path
             paths_to_watch.push(self.intended_dir.clone());
         }
+        let root_directory = self
+            .workspace_root
+            .as_ref()
+            .unwrap_or(&self.package_directory)
+            .clone();
 
         let execution_directory = self.package_directory.clone();
         Ok(Mission {
@@ -220,6 +225,7 @@ impl Context {
             concrete_job_ref,
             execution_directory,
             package_directory: self.package_directory.clone(),
+            root_directory,
             job,
             paths_to_watch,
             settings,

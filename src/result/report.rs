@@ -86,20 +86,13 @@ impl Report {
             let Some(location) = line.location() else {
                 continue;
             };
-            let (_, mut path, file_line, mut file_column) =
+            let (_, path, file_line, mut file_column) =
                 regex_captures!(r#"^([^:\s]+):(\d+)(?:\:(\d+))?$"#, location)
                     .unwrap_or(("", location, "", ""));
             // we need to make sure the path is absolute
             let path_buf = PathBuf::from(path);
-            let path_string;
-            if path_buf.is_relative() {
-                path_string = mission
-                    .package_directory
-                    .join(path)
-                    .to_string_lossy()
-                    .to_string();
-                path = &path_string;
-            }
+            let path_buf = mission.make_absolute(path_buf);
+            let path = path_buf.to_string_lossy().to_string();
             let extracted_context;
             let context = if format_has_context {
                 extracted_context = self.extract_raw_diagnostic_context(line);
@@ -117,7 +110,7 @@ impl Report {
                     "kind" => last_kind,
                     "line" => file_line,
                     "message" => message.unwrap_or(""),
-                    "path" => path,
+                    "path" => &path,
                     _ => {
                         debug!("unknown export key: {key:?}");
                         ""
