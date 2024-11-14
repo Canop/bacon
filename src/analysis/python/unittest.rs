@@ -17,7 +17,7 @@ pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
         "^-{50,}$" => LineAnalysis::garbage(),
         r"^Traceback \(most recent call last\)" => LineAnalysis::garbage(),
     )
-    .unwrap_or_else(|| LineAnalysis::normal())
+    .unwrap_or_else(LineAnalysis::normal)
 }
 
 /// Build a report from the output of eslint
