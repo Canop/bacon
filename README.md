@@ -85,18 +85,16 @@ This file already contains some standard jobs. Add your own, for example
 
 ```toml
 [jobs.check-win]
-command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "always"]
+command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu"]
 ```
 
 or
 
 ```toml
 [jobs.check-examples]
-command = ["cargo", "check", "--examples", "--color", "always"]
+command = ["cargo", "check", "--examples"]
 watch = ["examples"] # src is implicitly included
 ```
-
-*Don't forget the `--color always` part: bacon uses style information to recognize warnings and errors.*
 
 and run
 
