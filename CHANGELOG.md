@@ -4,12 +4,13 @@ I'm following [this roadmap](https://dystroy.org/blog/bacon-everything-roadmap/)
 
 ### Next
 - bacon can now be launched without Cargo.toml file
-- fix Miri output seen as wrong when there's only warnings
-- more lenient detection of warnings and errors due to 'miri run' not supporting `--color` - Fix #251
 - eslint analyzer (set `analyzer = "eslint"` in your job definition)
 - Python Unittest analyzer (set `analyzer = "python_unittest"` in your job definition)
+- fix Miri output seen as wrong when there's only warnings
+- allow defining environment vars for all jobs - Thanks @joshka
+- set `env.CARGO_TERM_COLOR = "always"` in default conf, thus making `"--color", "always"` useless in all cargo based job definition - Thanks @joshka
 - new `ignore` job parameter, accepts a list of glob patterns
-- allow defining environment vars for all jobs - Fix #261 and #124
+- more lenient detection of warnings and errors due to 'miri run' not supporting `--color` - Fix #251
 
 <a name="v3.2.0"></a>
 ### v3.2.0 - 2024/11/04
