@@ -2,6 +2,7 @@ use {
     crate::*,
     lazy_regex::regex_replace_all,
     rustc_hash::FxHashSet,
+    std::collections::HashMap,
     std::path::PathBuf,
 };
 
@@ -114,11 +115,16 @@ impl<'s> Mission<'s> {
             tokens.next().unwrap(), // implies a check in the job
         );
         command.with_stdout(self.need_stdout());
-
+        let envs: HashMap<&String, &String> = self
+            .settings
+            .env
+            .iter()
+            .chain(self.job.env.iter())
+            .collect();
         if !self.job.extraneous_args {
             command.args(tokens);
             command.current_dir(&self.execution_directory);
-            command.envs(&self.job.env);
+            command.envs(envs);
             debug!("command: {:#?}", &command);
             return command;
         }
@@ -197,7 +203,7 @@ impl<'s> Mission<'s> {
             }
         }
         command.current_dir(&self.execution_directory);
-        command.envs(&self.job.env);
+        command.envs(envs);
         debug!("command builder: {:#?}", &command);
         command
     }

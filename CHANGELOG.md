@@ -9,6 +9,7 @@ I'm following [this roadmap](https://dystroy.org/blog/bacon-everything-roadmap/)
 - eslint analyzer (set `analyzer = "eslint"` in your job definition)
 - Python Unittest analyzer (set `analyzer = "python_unittest"` in your job definition)
 - new `ignore` job parameter, accepts a list of glob patterns
+- allow defining environment vars for all jobs - Fix #261 and #124
 
 <a name="v3.2.0"></a>
 ### v3.2.0 - 2024/11/04
