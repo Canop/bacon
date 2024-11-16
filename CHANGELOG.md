@@ -1,8 +1,13 @@
-### next
+### Direction
+
+I'm following [this roadmap](https://dystroy.org/blog/bacon-everything-roadmap/). If you're interested in having bacon usable for other languages than Rust, come have a chat.
+
+### Next
 - bacon can now be launched without Cargo.toml file
 - fix Miri output seen as wrong when there's only warnings
 - more lenient detection of warnings and errors due to 'miri run' not supporting `--color` - Fix #251
 - eslint analyzer (set `analyzer = "eslint"` in your job definition)
+- Python Unittest analyzer (set `analyzer = "python_unittest"` in your job definition)
 - new `ignore` job parameter, accepts a list of glob patterns
 
 <a name="v3.2.0"></a>
