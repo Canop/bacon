@@ -19,7 +19,7 @@ The job:
 
 ```TOML
 [jobs.doc-open]
-command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
+command = ["cargo", "doc", "--no-deps", "--open"]
 need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 ```
@@ -41,7 +41,6 @@ You may for example want to tune the clippy rules:
 [jobs.clippy]
 command = [
 	"cargo", "clippy",
-	"--color", "always",
 	"--",
 	"-A", "clippy::collapsible_else_if",
 	"-A", "clippy::collapsible_if",
@@ -65,7 +64,7 @@ You may define specific jobs for specific targets:
 
 ```toml
 [jobs.check-win]
-command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "always"]
+command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu"]
 ```
 
 An habit I suggest: use <kbd>alt</kbd> keybindings for *alternative* platforms:
@@ -81,7 +80,7 @@ If you configure a `cargo run` job, you'll get the usual warnings and errors unt
 
 ```toml
 [jobs.exs]
-command = ["cargo", "run", "--example", "simple", "--color", "always"]
+command = ["cargo", "run", "--example", "simple"]
 allow_warnings = true
 need_stdout = true
 ```
@@ -96,7 +95,7 @@ Depending on the desired output, you would have to add a setting to the run job,
 ([more on this](https://github.com/Canop/bacon/issues/89#issuecomment-1257752297)):
 
 ```toml
-command = ["cargo", "run", "--color", "always", "--", "--color", "yes"]
+command = ["cargo", "run", "--", "--color", "yes"]
 ```
 
 # Long running programs
@@ -112,7 +111,7 @@ Combining all those changes would give you something like this:
 
 ```toml
 [jobs.webserver]
-command = ["cargo", "run", "--color", "always", "--", "--serve"]
+command = ["cargo", "run", "--", "--serve"]
 need_stdout = true
 background = false
 on_change_strategy = "kill_then_restart"
@@ -145,7 +144,7 @@ Another use case, a job which needs a complementary argument:
 
 ```toml
 [jobs.ex]
-command = ["cargo", "run", "--color", "always", "--example"]
+command = ["cargo", "run", "--example"]
 need_stdout = true
 ```
 

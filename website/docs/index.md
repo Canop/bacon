@@ -83,5 +83,5 @@ This file already contains some standard jobs. Add your own, for example
 
 ```toml
 [jobs.check-win]
-command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu", "--color", "always"]
+command = ["cargo", "check", "--target", "x86_64-pc-windows-gnu"]
 ```

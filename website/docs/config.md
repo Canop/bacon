@@ -7,7 +7,7 @@ All accept the same properties (preferences, keybindings, jobs, etc.).
 
 Bacon loads in order:
 
-* its default internal configuration
+* its default internal configuration (which includes the default bacon.toml)
 * the global `prefs.toml` ([global preferences](#global-preferences))
 * the file whose path is in environment variable `BACON_PREFS`
 * the workspace level `bacon.toml` file ([project settings](#project-settings))
@@ -54,7 +54,6 @@ A job declaration in a TOML file looks like this:
 [jobs.clippy-all]
 command = [
 	"cargo", "clippy",
-	"--color", "always",
 	"--",
 	"-A", "clippy::derive_partial_eq_without_eq",
 	"-A", "clippy::len_without_is_empty",
@@ -88,17 +87,18 @@ watch | a list of files and directories that will be watched if the job is run o
 
 Some of these properties can also be defined before jobs and will apply to all of them unless overriden: `watch`, `default_watch`, `ignore` (additive), `ignored_lines`, and `on_change_strategy`.
 
-Don't forget to include `--color always` in most jobs, because bacon uses style information to parse the output of cargo.
-
 Beware of job references in `on_success`: you must avoid loops with 2 jobs calling themselves mutually, which would make bacon run all the time.
 
 Example:
 
 ```TOML
 [jobs.exs]
-command = ["cargo", "run", "--example", "simple", "--color", "always"]
+command = ["cargo", "run", "--example", "simple"]
 need_stdout = true
 ```
+
+Note: Some tools detect that their output is piped and don't add style information unless you add a parameter which usually looks like `--color always`.
+This isn't normally necessary for cargo because bacon, by default, sets the `CARGO_TERM_COLOR` environnment variable.
 
 ## Default Job
 
