@@ -1,14 +1,7 @@
 use {
     crate::*,
-    anyhow::{
-        Result,
-        bail,
-    },
-    std::{
-        collections::HashMap,
-        path::PathBuf,
-        time::Duration,
-    },
+    anyhow::{bail, Result},
+    std::{collections::HashMap, path::PathBuf, time::Duration},
 };
 
 /// The settings used in the application.
@@ -45,6 +38,7 @@ pub struct Settings {
     pub summary: bool,
     pub watch: Vec<String>,
     pub wrap: bool,
+    pub env: HashMap<String, String>,
 }
 
 impl Default for Settings {
@@ -72,6 +66,7 @@ impl Default for Settings {
             config_files: Default::default(),
             default_watch: true,
             watch: Default::default(),
+            env: Default::default(),
         }
     }
 }
@@ -156,6 +151,7 @@ impl Settings {
         &mut self,
         config: &Config,
     ) {
+        self.env.extend(config.env.clone());
         if let Some(b) = config.summary {
             self.summary = b;
         }

@@ -1,14 +1,12 @@
 # a bacon.toml file dedicated to the bacon tool
 
 default_job = "check-all"
+env.CARGO_TERM_COLOR = "always"
 
 [jobs]
 
 [jobs.check]
-command = [
-	"cargo", "check",
-	"--color", "always",
-]
+command = ["cargo", "check"]
 need_stdout = false
 default_watch = false
 watch = ["src"]
@@ -17,7 +15,6 @@ watch = ["src"]
 command = [
 	"cargo", "check",
 	"--all-targets",
-	"--color", "always",
 ]
 need_stdout = false
 
@@ -27,7 +24,6 @@ command = [
 	"+nightly",
 	"check",
 	"--all-targets",
-	"--color", "always",
 ]
 need_stdout = false
 
@@ -38,26 +34,23 @@ command = [
 ]
 
 [jobs.test]
-command = [
-    "cargo", "test", "--color", "always",
-]
+command = ["cargo", "test"]
 need_stdout = true
 
 [jobs.doc]
-command = ["cargo", "doc", "--color", "always", "--no-deps"]
+command = ["cargo", "doc", "--no-deps"]
 need_stdout = false
 
 # If the doc compiles, then it opens in your browser and bacon switches
 # to the previous job
 [jobs.doc-open]
-command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
+command = ["cargo", "doc", "--no-deps", "--open"]
 need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 
 [jobs.clippy-all]
 command = [
 	"cargo", "clippy",
-	"--color", "always",
 	"--",
 	"-A", "clippy::bool_to_int_with_if",
 	"-A", "clippy::collapsible_else_if",

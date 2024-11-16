@@ -78,6 +78,10 @@ pub struct Config {
     pub watch: Option<Vec<String>>,
 
     pub wrap: Option<bool>,
+
+    /// Env vars to set for all job executions
+    #[serde(default)]
+    pub env: HashMap<String, String>,
 }
 
 impl Config {

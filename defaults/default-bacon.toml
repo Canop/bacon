@@ -6,21 +6,19 @@
 #   https://github.com/Canop/bacon/blob/main/defaults/default-bacon.toml
 
 default_job = "check"
+env.CARGO_TERM_COLOR = "always"
 
 [jobs.check]
-command = ["cargo", "check", "--color", "always"]
+command = ["cargo", "check"]
 need_stdout = false
 
 [jobs.check-all]
-command = ["cargo", "check", "--all-targets", "--color", "always"]
+command = ["cargo", "check", "--all-targets"]
 need_stdout = false
 
 # Run clippy on the default target
 [jobs.clippy]
-command = [
-    "cargo", "clippy",
-    "--color", "always",
-]
+command = ["cargo", "clippy"]
 need_stdout = false
 
 # Run clippy on all targets
@@ -29,7 +27,6 @@ need_stdout = false
 #    command = [
 #        "cargo", "clippy",
 #        "--all-targets",
-#        "--color", "always",
 #    	 "--",
 #    	 "-A", "clippy::bool_to_int_with_if",
 #    	 "-A", "clippy::collapsible_if",
@@ -37,11 +34,7 @@ need_stdout = false
 #    ]
 # need_stdout = false
 [jobs.clippy-all]
-command = [
-    "cargo", "clippy",
-    "--all-targets",
-    "--color", "always",
-]
+command = ["cargo", "clippy", "--all-targets"]
 need_stdout = false
 
 # This job lets you run
@@ -49,29 +42,25 @@ need_stdout = false
 # - a specific test: bacon test -- config::test_default_files
 # - the tests of a package: bacon test -- -- -p config
 [jobs.test]
-command = [
-    "cargo", "test", "--color", "always",
-    "--", "--color", "always", # see https://github.com/Canop/bacon/issues/124
-]
+command = ["cargo", "test"]
 need_stdout = true
 
 [jobs.nextest]
 command = [
     "cargo", "nextest", "run",
-    "--color", "always",
     "--hide-progress-bar", "--failure-output", "final"
 ]
 need_stdout = true
 analyzer = "nextest"
 
 [jobs.doc]
-command = ["cargo", "doc", "--color", "always", "--no-deps"]
+command = ["cargo", "doc", "--no-deps"]
 need_stdout = false
 
 # If the doc compiles, then it opens in your browser and bacon switches
 # to the previous job
 [jobs.doc-open]
-command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
+command = ["cargo", "doc", "--no-deps", "--open"]
 need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 
@@ -82,7 +71,6 @@ on_success = "back" # so that we don't open the browser at each change
 [jobs.run]
 command = [
     "cargo", "run",
-    "--color", "always",
     # put launch parameters for your program behind a `--` separator
 ]
 need_stdout = true
@@ -100,7 +88,6 @@ background = true
 [jobs.run-long]
 command = [
     "cargo", "run",
-    "--color", "always",
     # put launch parameters for your program behind a `--` separator
 ]
 need_stdout = true
@@ -113,7 +100,7 @@ on_change_strategy = "kill_then_restart"
 # Call it as
 #    bacon ex -- my-example
 [jobs.ex]
-command = ["cargo", "run", "--color", "always", "--example"]
+command = ["cargo", "run", "--example"]
 need_stdout = true
 allow_warnings = true
 
