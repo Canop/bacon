@@ -2,7 +2,8 @@
 
 I'm following [this roadmap](https://dystroy.org/blog/bacon-everything-roadmap/). If you're interested in having bacon usable for other languages than Rust, come have a chat.
 
-### Next
+<a name="v3.3.0"></a>
+### v3.3.0 - 2024/11/16
 - bacon can now be launched without Cargo.toml file
 - eslint analyzer (set `analyzer = "eslint"` in your job definition)
 - Python Unittest analyzer (set `analyzer = "python_unittest"` in your job definition)
