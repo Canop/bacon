@@ -170,7 +170,9 @@ fn test_action_string_round_trip() {
             },
         })),
         Action::Internal(Internal::Help),
-        Action::Internal(Internal::Scroll(ScrollCommand::Pages(-2))),
+        Action::Internal(Internal::Scroll(ScrollCommand::MilliPages(1500))),
+        Action::Internal(Internal::Scroll(ScrollCommand::MilliPages(-500))),
+        Action::Internal(Internal::Scroll(ScrollCommand::MilliPages(-2000))),
         Action::Export("my export".to_string()),
     ];
     for action in actions {

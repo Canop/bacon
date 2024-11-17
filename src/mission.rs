@@ -2,8 +2,10 @@ use {
     crate::*,
     lazy_regex::regex_replace_all,
     rustc_hash::FxHashSet,
-    std::collections::HashMap,
-    std::path::PathBuf,
+    std::{
+        collections::HashMap,
+        path::PathBuf,
+    },
 };
 
 /// the description of the mission of bacon
