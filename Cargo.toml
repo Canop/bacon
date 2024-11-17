@@ -26,7 +26,7 @@ notify = "7.0"
 rustc-hash = "2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-termimad = "0.31"
+termimad = "0.31.1"
 toml = "0.8"
 unicode-width = "0.2"
 vte = "0.8"
@@ -39,7 +39,7 @@ codegen-units = 1
 
 [patch.crates-io]
 # clap-help = { path = "../clap-help" }
-# termimad = { path = "../termimad" }
+# termimad = { path = "../termimad" }
 # crokey = { path = "../crokey" }
 # coolor = { path = "../coolor" }
 # lazy-regex = { path = "../lazy-regex" }

@@ -38,9 +38,12 @@ impl Default for KeyBindings {
         bindings.set(key!(End), Internal::Scroll(ScrollCommand::Bottom));
         bindings.set(key!(Up), Internal::Scroll(ScrollCommand::Lines(-1)));
         bindings.set(key!(Down), Internal::Scroll(ScrollCommand::Lines(1)));
-        bindings.set(key!(PageUp), Internal::Scroll(ScrollCommand::Pages(-1)));
-        bindings.set(key!(PageDown), Internal::Scroll(ScrollCommand::Pages(1)));
-        bindings.set(key!(Space), Internal::Scroll(ScrollCommand::Pages(1)));
+        bindings.set(key!(PageUp), Internal::Scroll(ScrollCommand::pages(-1)));
+        bindings.set(key!(PageDown), Internal::Scroll(ScrollCommand::pages(1)));
+        bindings.set(
+            key!(Space),
+            Internal::Scroll(ScrollCommand::MilliPages(800)),
+        );
         bindings.set(key!(f), Internal::ScopeToFailures);
         bindings.set(key!(esc), Internal::Back);
         bindings.set(key!(ctrl - d), JobRef::Default);
@@ -155,7 +158,7 @@ fn test_deserialize_keybindings() {
     }
     let toml = r#"
     [keybindings]
-    Ctrl-U = "internal:scroll-pages(-2)"
+    Ctrl-U = "internal:scroll-pages(-.5)"
     Ctrl-d = "internal:scroll-page(1)"
     alt-q = "internal:quit"
     alt-p = "job:previous"
@@ -163,13 +166,15 @@ fn test_deserialize_keybindings() {
     let conf = toml::from_str::<Config>(toml).unwrap();
     assert_eq!(
         conf.keybindings.get(key!(ctrl - u)),
-        Some(&Action::Internal(Internal::Scroll(ScrollCommand::Pages(
-            -2
-        )))),
+        Some(&Action::Internal(Internal::Scroll(
+            ScrollCommand::MilliPages(-500)
+        ))),
     );
     assert_eq!(
         conf.keybindings.get(key!(ctrl - d)),
-        Some(&Action::Internal(Internal::Scroll(ScrollCommand::Pages(1)))),
+        Some(&Action::Internal(Internal::Scroll(
+            ScrollCommand::MilliPages(1000)
+        ))),
     );
     assert_eq!(conf.keybindings.get(key!(z)), None,);
     assert_eq!(

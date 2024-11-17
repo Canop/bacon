@@ -1,7 +1,14 @@
 use {
     crate::*,
-    anyhow::{bail, Result},
-    std::{collections::HashMap, path::PathBuf, time::Duration},
+    anyhow::{
+        Result,
+        bail,
+    },
+    std::{
+        collections::HashMap,
+        path::PathBuf,
+        time::Duration,
+    },
 };
 
 /// The settings used in the application.

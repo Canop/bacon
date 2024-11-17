@@ -19,10 +19,13 @@ pub enum ScrollCommand {
     Top,
     Bottom,
     Lines(i32),
-    Pages(i32),
+    MilliPages(i32),
 }
 
 impl ScrollCommand {
+    pub fn pages(n: i32) -> Self {
+        Self::MilliPages(n * 1000)
+    }
     fn to_lines(
         self,
         content_height: usize,
@@ -32,7 +35,15 @@ impl ScrollCommand {
             Self::Top => -(content_height as i32),
             Self::Bottom => content_height as i32,
             Self::Lines(n) => n,
-            Self::Pages(n) => n * page_height as i32,
+            Self::MilliPages(n) => {
+                let lines = n as f64 * page_height as f64 / 1000.0;
+                let lines = if lines < 0.0 {
+                    lines.floor()
+                } else {
+                    lines.ceil()
+                };
+                lines as i32
+            }
         }
     }
     /// Return the action description to show in doc/help
@@ -55,11 +66,19 @@ impl ScrollCommand {
                     txt(-lines, "line", "up")
                 }
             }
-            Self::Pages(pages) => {
-                if *pages > 0 {
-                    txt(*pages, "page", "down")
+            Self::MilliPages(n) => {
+                if n % 1000 == 0 {
+                    let pages = n / 1000;
+                    if pages > 0 {
+                        txt(pages, "page", "down")
+                    } else {
+                        txt(-pages, "page", "up")
+                    }
                 } else {
-                    txt(-pages, "page", "up")
+                    let pages: f64 = *n as f64 / 1000.0;
+                    let s = format!("{pages:.3}");
+                    let s = s.trim_matches('0');
+                    format!("scroll {s} pages")
                 }
             }
         }
@@ -90,7 +109,17 @@ impl fmt::Display for ScrollCommand {
             Self::Top => write!(f, "scroll-to-top"),
             Self::Bottom => write!(f, "scroll-to-bottom"),
             Self::Lines(n) => write!(f, "scroll-lines({n})"),
-            Self::Pages(n) => write!(f, "scroll-pages({n})"),
+            Self::MilliPages(n) => {
+                if n % 1000 == 0 {
+                    let n = n / 1000;
+                    write!(f, "scroll-pages({n})")
+                } else {
+                    let n: f64 = *n as f64 / 1000.0;
+                    let s = format!("{n:.3}");
+                    let s = s.trim_matches('0');
+                    write!(f, "scroll-pages({s})")
+                }
+            }
         }
     }
 }
@@ -103,9 +132,14 @@ impl std::str::FromStr for ScrollCommand {
             r#"^scroll[-_]?lines?\((?<n>[+-]?\d{1,4})\)$"#i => Self::Lines(
                 n.parse().unwrap() // can't fail because [+-]?\d{1,4}
             ),
-            r#"^scroll[-_]?pages?\((?<n>[+-]?\d{1,4})\)$"#i => Self::Pages(
-                n.parse().unwrap() // can't fail because [+-]?\d{1,4}
+            r#"^scroll[-_]?pages?\((?<n>[+-]?\d{1,4})\)$"#i => Self::MilliPages(
+                n.parse::<i32>().unwrap() * 1000 // can't fail because [+-]?\d{1,4}
             ),
+            r#"^scroll[-_]?pages?\((?<n>[+-]?\d*\.\d{1,3})\)$"#i => {
+                let n: f64 = n.parse().unwrap(); // can't fail
+                let n: i32 = (n * 1000.0).round() as i32;
+                Self::MilliPages(n)
+            }
         )
         .ok_or("not a valid scroll command")
     }
@@ -159,8 +193,8 @@ fn test_scroll_command_string_round_trip() {
     let commands = [
         ScrollCommand::Lines(3),
         ScrollCommand::Lines(-12),
-        ScrollCommand::Pages(1),
-        ScrollCommand::Pages(-2),
+        ScrollCommand::MilliPages(1000),
+        ScrollCommand::MilliPages(-2000),
         ScrollCommand::Top,
         ScrollCommand::Bottom,
     ];
@@ -173,5 +207,12 @@ fn test_scroll_command_string_alternative_writings() {
     assert_eq!("SCROLL-TO-TOP".parse(), Ok(ScrollCommand::Top));
     assert_eq!("ScrollLines(5)".parse(), Ok(ScrollCommand::Lines(5)));
     assert_eq!("scroll-lines(+12)".parse(), Ok(ScrollCommand::Lines(12)));
-    assert_eq!("scroll_pages(-2)".parse(), Ok(ScrollCommand::Pages(-2)));
+    assert_eq!(
+        "scroll_pages(-2)".parse(),
+        Ok(ScrollCommand::MilliPages(-2000))
+    );
+    assert_eq!(
+        "scroll_pages(-.2)".parse(),
+        Ok(ScrollCommand::MilliPages(-200))
+    );
 }

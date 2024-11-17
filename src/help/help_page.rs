@@ -115,8 +115,8 @@ impl HelpPage {
             ScrollCommand::Lines(lines) => {
                 text_view.try_scroll_lines(lines);
             }
-            ScrollCommand::Pages(pages) => {
-                text_view.try_scroll_pages(pages);
+            ScrollCommand::MilliPages(milli_pages) => {
+                text_view.try_scroll_pages(milli_pages as f64 / 1000f64);
             }
         }
         self.scroll = text_view.scroll;
