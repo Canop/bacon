@@ -8,7 +8,19 @@ const CSI_ERROR_BODY: &str = CSI_BOLD;
 #[cfg(windows)]
 const CSI_ERROR_BODY: &str = CSI_BOLD_WHITE;
 
-pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
+#[derive(Debug, Default)]
+pub struct StandardLineAnalyzer;
+
+impl LineAnalyzer for StandardLineAnalyzer {
+    fn analyze_line(
+        &self,
+        cmd_line: &CommandOutputLine,
+    ) -> LineAnalysis {
+        analyze_line(cmd_line)
+    }
+}
+
+fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
     let content = &cmd_line.content;
     //debug!("content: {:?}", &content);
     let mut key = None;

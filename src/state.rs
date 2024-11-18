@@ -3,6 +3,7 @@ use {
     anyhow::Result,
     std::{
         io::Write,
+        process::ExitStatus,
         time::Instant,
     },
     termimad::{
@@ -30,6 +31,7 @@ use {
 pub struct AppState<'s> {
     /// the mission to run, with settings
     pub mission: Mission<'s>,
+    report_maker: ReportMaker,
     /// the lines of a computation in progress
     output: Option<CommandOutput>,
     /// wrapped output for the width of the console
@@ -76,6 +78,7 @@ pub struct AppState<'s> {
 
 impl<'s> AppState<'s> {
     pub fn new(mission: Mission<'s>) -> Result<Self> {
+        let report_maker = ReportMaker::new(&mission);
         let mut status_skin = MadSkin::default();
         status_skin
             .paragraph
@@ -88,6 +91,7 @@ impl<'s> AppState<'s> {
             .then(|| HelpLine::new(mission.settings));
 
         Ok(Self {
+            report_maker,
             output: None,
             wrapped_output: None,
             cmd_result: CommandResult::None,
@@ -119,7 +123,7 @@ impl<'s> AppState<'s> {
     ) {
         let auto_scroll = self.is_scroll_at_bottom();
         if let Some(output) = self.output.as_mut() {
-            output.push(line);
+            self.report_maker.receive_line(line, output);
             if self.wrap {
                 self.update_wrap(self.width - 1);
             }
@@ -131,7 +135,7 @@ impl<'s> AppState<'s> {
             self.wrapped_output = None;
             self.output = {
                 let mut output = CommandOutput::default();
-                output.push(line);
+                self.report_maker.receive_line(line, &mut output);
                 Some(output)
             };
             self.scroll = 0;
@@ -173,7 +177,16 @@ impl<'s> AppState<'s> {
             self.update_wrap(self.width - 1);
         }
     }
-    pub fn set_result(
+    pub fn finish_task(
+        &mut self,
+        exit_status: Option<ExitStatus>,
+    ) -> Result<()> {
+        let output = self.take_output().unwrap_or_default();
+        let result = self.report_maker.build_result(output, exit_status)?;
+        self.set_result(result);
+        Ok(())
+    }
+    fn set_result(
         &mut self,
         mut cmd_result: CommandResult,
     ) {
@@ -243,6 +256,7 @@ impl<'s> AppState<'s> {
         if !self.mission.job.background {
             self.clear();
         }
+        self.report_maker.start(&self.mission);
         self.computing = true;
         self.changes_since_last_job_start = 0;
     }

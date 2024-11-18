@@ -9,7 +9,7 @@ use {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnalysisExport {
     #[serde(default)]
-    pub analyzer: Analyzer,
+    pub analyzer: AnalyzerRef,
     pub result: CommandResultKind,
     pub lines: Vec<LineAnalysisExport>,
 }
@@ -29,7 +29,7 @@ pub enum CommandResultKind {
 
 impl AnalysisExport {
     pub fn build(
-        analyzer: Analyzer,
+        analyzer: AnalyzerRef,
         cmd_result: &CommandResult,
     ) -> Option<Self> {
         let mut lines = Vec::new();

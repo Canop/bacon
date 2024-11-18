@@ -20,7 +20,7 @@ pub struct Job {
 
     /// The analyzer interpreting the output of the command, the
     /// standard cargo dedicated one if not provided
-    pub analyzer: Option<Analyzer>,
+    pub analyzer: Option<AnalyzerRef>,
 
     /// Whether gitignore rules must be applied
     pub apply_gitignore: Option<bool>,
@@ -133,7 +133,7 @@ impl Job {
             background: true,
             extraneous_args: true,
             on_change_strategy: None,
-            analyzer: Some(Analyzer::Standard),
+            analyzer: Some(AnalyzerRef::Standard),
             ignored_lines: None,
             ignore: Default::default(),
         }

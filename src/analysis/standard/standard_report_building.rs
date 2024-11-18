@@ -3,10 +3,9 @@ use {
     rustc_hash::FxHashMap,
 };
 
-pub fn build_report(
+pub fn build_report<L: LineAnalyzer>(
     cmd_lines: &[CommandOutputLine],
-    line_analyzer: Analyzer,
-    mission: &Mission,
+    line_analyzer: L,
 ) -> anyhow::Result<Report> {
     #[derive(Debug, Default)]
     struct Failure {
@@ -21,15 +20,7 @@ pub fn build_report(
     let mut cur_err_kind = None; // the current kind among stderr lines
     let mut is_in_out_fail = false;
     let mut suggest_backtrace = false;
-    let ignore_patterns = mission.ignored_lines_patterns();
     for cmd_line in cmd_lines {
-        if let Some(patterns) = ignore_patterns {
-            let raw_line = cmd_line.content.to_raw();
-            if patterns.iter().any(|p| p.raw_line_is_match(&raw_line)) {
-                debug!("ignoring line: {}", &raw_line);
-                continue;
-            }
-        }
         let line_analysis = line_analyzer.analyze_line(cmd_line);
         let line_type = line_analysis.line_type;
         let mut line = Line {
