@@ -5,7 +5,7 @@ mod line_analysis;
 mod line_pattern;
 mod line_type;
 mod nextest;
-//mod python;
+mod python;
 mod standard;
 mod stats;
 mod line_analyzer;

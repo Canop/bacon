@@ -1,8 +1,37 @@
 //! An analyzer for Python unittest
 use {
     crate::*,
+    anyhow::Result,
     lazy_regex::*,
 };
+
+
+#[derive(Debug, Default)]
+pub struct PythonUnittestAnalyzer {
+    lines: Vec<CommandOutputLine>,
+}
+
+impl Analyzer for PythonUnittestAnalyzer {
+
+    fn start(&mut self, _mission: &Mission) {
+        self.lines.clear();
+    }
+
+    fn receive_line(
+        &mut self,
+        line: CommandOutputLine,
+        command_output: &mut CommandOutput,
+    ) {
+        self.lines.push(line.clone());
+        command_output.push(line);
+    }
+
+    fn build_report(
+        &mut self,
+    ) -> Result<Report> {
+        build_report(&mut self.lines)
+    }
+}
 
 pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
     // we're not expecting styled output for unittest (it's probable
@@ -20,27 +49,17 @@ pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
     .unwrap_or_else(LineAnalysis::normal)
 }
 
-/// Build a report from the output of eslint
+/// Build a report from the output of Python unittest
 ///
 /// The main special thing here is transforming the location line in
 /// a BURP location line.
 pub fn build_report(
     cmd_lines: &[CommandOutputLine],
-    line_analyzer: Analyzer,
-    mission: &Mission,
 ) -> anyhow::Result<Report> {
-    let ignore_patterns = mission.ignored_lines_patterns();
     let mut items = ItemAccumulator::default();
     let mut item_location_written = false;
     for cmd_line in cmd_lines {
-        if let Some(patterns) = ignore_patterns {
-            let raw_line = cmd_line.content.to_raw();
-            if patterns.iter().any(|p| p.raw_line_is_match(&raw_line)) {
-                debug!("ignoring line: {}", &raw_line);
-                continue;
-            }
-        }
-        let line_analysis = line_analyzer.analyze_line(cmd_line);
+        let line_analysis = analyze_line(cmd_line);
         let line_type = line_analysis.line_type;
         match line_type {
             LineType::Garbage => {

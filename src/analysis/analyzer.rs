@@ -3,7 +3,7 @@ use {
     super::{
         eslint,
         nextest,
-        //python,
+        python,
         standard,
     },
     crate::*,
@@ -35,12 +35,9 @@ impl AnalyzerRef {
             Self::Standard => Box::new(standard::StandardAnalyzer::default()),
             Self::Nextest => Box::new(nextest::NextestAnalyzer::default()),
             Self::Eslint => Box::new(eslint::EslintAnalyzer::default()),
-            _ => {
-                todo!()
-            }
+            Self::PythonUnittest => Box::new(python::unittest::PythonUnittestAnalyzer::default()),
         }
     }
-
 }
 
 pub trait Analyzer {
@@ -60,30 +57,4 @@ pub trait Analyzer {
         &mut self,
     ) -> Result<Report>;
 
-
-    //pub fn analyze_line(
-    //    self,
-    //    line: &CommandOutputLine,
-    //) -> LineAnalysis {
-    //    match self {
-    //        Self::Eslint => eslint::analyze_line(line),
-    //        Self::Standard => standard::analyze_line(line),
-    //        Self::Nextest => nextest::analyze_line(line),
-    //        Self::PythonUnittest => python::unittest::analyze_line(line),
-    //    }
-    //}
-    //pub fn build_report(
-    //    &self,
-    //    cmd_lines: &[CommandOutputLine],
-    //    mission: &Mission,
-    //) -> anyhow::Result<Report> {
-    //    match self {
-    //        Self::Eslint => eslint::build_report(cmd_lines, *self, mission),
-    //        Self::PythonUnittest => python::unittest::build_report(cmd_lines, *self, mission),
-    //        Self::Standard | Self::Nextest => {
-    //            // nextest analyzis simply uses the standard report building
-    //            standard::build_report(cmd_lines, *self, mission)
-    //        }
-    //    }
-    //}
 }
