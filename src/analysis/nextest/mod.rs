@@ -30,6 +30,6 @@ impl Analyzer for NextestAnalyzer {
         &mut self,
     ) -> Result<Report> {
         let line_analyzer = NextestLineAnalyzer::default();
-        crate::analysis::standard::build_report(&mut self.lines, line_analyzer)
+        crate::analysis::standard::build_report(&self.lines, line_analyzer)
     }
 }

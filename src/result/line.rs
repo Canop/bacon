@@ -9,7 +9,7 @@ use {
 };
 
 /// A report line
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Line {
     /// the index among items
     /// (all lines having the same index belong to

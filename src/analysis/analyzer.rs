@@ -24,6 +24,7 @@ pub enum AnalyzerRef {
     Nextest,
     Eslint,
     PythonUnittest,
+    PythonPytest,
 }
 
 impl AnalyzerRef {
@@ -35,7 +36,8 @@ impl AnalyzerRef {
             Self::Standard => Box::new(standard::StandardAnalyzer::default()),
             Self::Nextest => Box::new(nextest::NextestAnalyzer::default()),
             Self::Eslint => Box::new(eslint::EslintAnalyzer::default()),
-            Self::PythonUnittest => Box::new(python::unittest::PythonUnittestAnalyzer::default()),
+            Self::PythonUnittest => Box::new(python::unittest::UnittestAnalyzer::default()),
+            Self::PythonPytest => Box::new(python::pytest::PytestAnalyzer::default()),
         }
     }
 }

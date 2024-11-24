@@ -36,6 +36,6 @@ impl Analyzer for StandardAnalyzer {
         &mut self,
     ) -> Result<Report> {
         let line_analyzer = StandardLineAnalyzer{};
-        build_report(&mut self.lines, line_analyzer)
+        build_report(&self.lines, line_analyzer)
     }
 }

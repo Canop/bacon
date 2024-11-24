@@ -5,15 +5,16 @@ use {
     lazy_regex::*,
 };
 
-
 #[derive(Debug, Default)]
-pub struct PythonUnittestAnalyzer {
+pub struct UnittestAnalyzer {
     lines: Vec<CommandOutputLine>,
 }
 
-impl Analyzer for PythonUnittestAnalyzer {
-
-    fn start(&mut self, _mission: &Mission) {
+impl Analyzer for UnittestAnalyzer {
+    fn start(
+        &mut self,
+        _mission: &Mission,
+    ) {
         self.lines.clear();
     }
 
@@ -26,10 +27,8 @@ impl Analyzer for PythonUnittestAnalyzer {
         command_output.push(line);
     }
 
-    fn build_report(
-        &mut self,
-    ) -> Result<Report> {
-        build_report(&mut self.lines)
+    fn build_report(&mut self) -> Result<Report> {
+        build_report(&self.lines)
     }
 }
 
@@ -53,9 +52,7 @@ pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
 ///
 /// The main special thing here is transforming the location line in
 /// a BURP location line.
-pub fn build_report(
-    cmd_lines: &[CommandOutputLine],
-) -> anyhow::Result<Report> {
+pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
     let mut items = ItemAccumulator::default();
     let mut item_location_written = false;
     for cmd_line in cmd_lines {

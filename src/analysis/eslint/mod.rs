@@ -31,7 +31,7 @@ impl Analyzer for EslintAnalyzer {
     fn build_report(
         &mut self,
     ) -> Result<Report> {
-        build_report(&mut self.lines)
+        build_report(&self.lines)
     }
 }
 
