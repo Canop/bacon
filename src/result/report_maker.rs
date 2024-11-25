@@ -1,11 +1,8 @@
 use {
     crate::*,
     anyhow::*,
-    std::{
-        process::ExitStatus,
-    },
+    std::process::ExitStatus,
 };
-
 
 /// Dedicated to a mission, the report maker receives the command
 /// output lines and builds a report at end, complete with starts.
@@ -15,7 +12,6 @@ pub struct ReportMaker {
 }
 
 impl ReportMaker {
-
     pub fn new(mission: &Mission) -> Self {
         let ignored_lines_patterns = mission.ignored_lines_patterns().cloned();
         let analyzer_ref = mission.analyzer();
@@ -48,9 +44,7 @@ impl ReportMaker {
         self.analyzer.receive_line(cmd_line, command_output);
     }
 
-    pub fn build_report(
-        &mut self,
-    ) -> Result<Report> {
+    pub fn build_report(&mut self) -> Result<Report> {
         self.analyzer.build_report()
     }
 
@@ -63,5 +57,4 @@ impl ReportMaker {
         let result = CommandResult::build(output, exit_status, report)?;
         Ok(result)
     }
-
 }

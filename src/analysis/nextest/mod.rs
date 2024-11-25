@@ -12,8 +12,10 @@ pub struct NextestAnalyzer {
 }
 
 impl Analyzer for NextestAnalyzer {
-
-    fn start(&mut self, _mission: &Mission) {
+    fn start(
+        &mut self,
+        _mission: &Mission,
+    ) {
         self.lines.clear();
     }
 
@@ -26,9 +28,7 @@ impl Analyzer for NextestAnalyzer {
         command_output.push(line);
     }
 
-    fn build_report(
-        &mut self,
-    ) -> Result<Report> {
+    fn build_report(&mut self) -> Result<Report> {
         let line_analyzer = NextestLineAnalyzer::default();
         crate::analysis::standard::build_report(&self.lines, line_analyzer)
     }

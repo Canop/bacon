@@ -5,6 +5,14 @@ env.CARGO_TERM_COLOR = "always"
 
 [jobs]
 
+[jobs.json-check]
+command = [
+	"cargo", "check",
+	"--message-format", "json-diagnostic-rendered-ansi",
+]
+need_stdout = true
+analyzer = "cargo_json"
+
 [jobs.check]
 command = ["cargo", "check"]
 need_stdout = false

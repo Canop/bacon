@@ -16,9 +16,7 @@ pub fn location_line(
 }
 
 /// Make a BURP compliant error line
-pub fn error_line(
-    error: &str,
-) -> TLine {
+pub fn error_line(error: &str) -> TLine {
     let mut line = TLine::default();
     line.strings.push(TString::new(CSI_BOLD_RED, "error"));
     line.strings.push(TString::new("", ": "));
@@ -27,9 +25,7 @@ pub fn error_line(
 }
 /// Make a BURP compliant test failure line
 /// (this one isn't based on cargo)
-pub fn failure_line(
-    error: &str,
-) -> TLine {
+pub fn failure_line(error: &str) -> TLine {
     let mut line = TLine::default();
     line.strings.push(TString::new(CSI_BOLD_YELLOW, "failure"));
     line.strings.push(TString::new("", ": "));

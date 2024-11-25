@@ -11,7 +11,6 @@ const CSI_ERROR: &str = "\u{1b}[31m";
 const CSI_WARNING: &str = "\u{1b}[33m";
 const CSI_SUM: &str = "\u{1b}[31m\u{1b}[1m";
 
-
 #[derive(Debug, Default)]
 pub struct EslintLineAnalyzer;
 
@@ -48,7 +47,6 @@ impl LineAnalyzer for EslintLineAnalyzer {
         }
     }
 }
-
 
 /// Return true when the line is like
 ///    "67:52  error  Unnecessary escape character: \/  no-useless-escape"
@@ -137,4 +135,3 @@ pub fn cleaned_tline(content: &TLine) -> TLine {
     }
     tline
 }
-

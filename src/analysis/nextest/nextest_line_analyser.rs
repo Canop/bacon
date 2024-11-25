@@ -1,7 +1,7 @@
 use {
     crate::{
-        *,
         analysis::standard::StandardLineAnalyzer,
+        *,
     },
     lazy_regex::*,
 };
@@ -9,7 +9,6 @@ use {
 const CSI_TITLE: &str = "\u{1b}[35;1m";
 const CSI_PASS: &str = "\u{1b}[32;1m";
 const CSI_ERROR: &str = "\u{1b}[31;1m";
-
 
 #[derive(Debug, Default)]
 pub struct NextestLineAnalyzer {
@@ -202,4 +201,3 @@ fn test_recognize_test_run_failed() {
     };
     assert!(is_error_test_run_failed(&content));
 }
-

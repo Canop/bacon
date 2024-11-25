@@ -11,15 +11,16 @@ use {
     anyhow::Result,
 };
 
-
 #[derive(Debug, Default)]
 pub struct StandardAnalyzer {
     lines: Vec<CommandOutputLine>,
 }
 
 impl Analyzer for StandardAnalyzer {
-
-    fn start(&mut self, _mission: &Mission) {
+    fn start(
+        &mut self,
+        _mission: &Mission,
+    ) {
         self.lines.clear();
     }
 
@@ -32,10 +33,8 @@ impl Analyzer for StandardAnalyzer {
         command_output.push(line);
     }
 
-    fn build_report(
-        &mut self,
-    ) -> Result<Report> {
-        let line_analyzer = StandardLineAnalyzer{};
+    fn build_report(&mut self) -> Result<Report> {
+        let line_analyzer = StandardLineAnalyzer {};
         build_report(&self.lines, line_analyzer)
     }
 }

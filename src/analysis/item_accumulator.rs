@@ -19,9 +19,7 @@ impl ItemAccumulator {
     ) {
         self.curr_kind = Some(kind);
     }
-    pub fn close_item(
-        &mut self,
-    ) {
+    pub fn close_item(&mut self) {
         self.curr_kind = None;
     }
     pub fn push_line(

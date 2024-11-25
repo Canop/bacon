@@ -13,10 +13,7 @@ pub struct PytestAnalyzer {
 enum PytLineFormat<'l> {
     H1(&'l str), // big title with `=`
     H2(&'l str), // smaller title with `_`
-    Location {
-        path: &'l str,
-        line: &'l str,
-    },
+    Location { path: &'l str, line: &'l str },
     Other,
 }
 enum Section {
@@ -53,9 +50,9 @@ fn recognize_format(content: &str) -> PytLineFormat<'_> {
         r"^(?:_{2,39}) (?<title>.+) (?:_{2,39})$" => PytLineFormat::H2(title),
         r"^file (?<path>\S+\.py), line (?<line>\d{1,8})$" => PytLineFormat::Location { path, line },
         r"^(?<path>\S+\.py):(?<line>\d{1,8})" => PytLineFormat::Location { path, line },
-    ).unwrap_or(PytLineFormat::Other)
+    )
+    .unwrap_or(PytLineFormat::Other)
 }
-
 
 /// Build a report from the output of Python unittest
 ///
@@ -79,19 +76,17 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
                 };
                 items.close_item();
             }
-            PytLineFormat::H2(title) => {
-                match current_section {
-                    Section::Errors => {
-                        items.push_error_title(burp::error_line(title));
-                        last_location_in_item = None;
-                    }
-                    Section::Failures => {
-                        items.push_failure_title(burp::failure_line(title));
-                        last_location_in_item = None;
-                    }
-                    _ => {}
+            PytLineFormat::H2(title) => match current_section {
+                Section::Errors => {
+                    items.push_error_title(burp::error_line(title));
+                    last_location_in_item = None;
                 }
-            }
+                Section::Failures => {
+                    items.push_failure_title(burp::failure_line(title));
+                    last_location_in_item = None;
+                }
+                _ => {}
+            },
             PytLineFormat::Location { path, line } => {
                 if let Some(last_location) = last_location_in_item {
                     if last_location == (path, line) {
@@ -99,10 +94,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
                     }
                 }
                 last_location_in_item = Some((path, line));
-                items.push_line(
-                    LineType::Location,
-                    burp::location_line(path, line),
-                );
+                items.push_line(LineType::Location, burp::location_line(path, line));
             }
             PytLineFormat::Other => {
                 items.push_line(LineType::Normal, cmd_line.content.clone());

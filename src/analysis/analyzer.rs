@@ -1,12 +1,13 @@
 use {
-    anyhow::Result,
     super::{
+        cargo_json,
         eslint,
         nextest,
         python,
         standard,
     },
     crate::*,
+    anyhow::Result,
     serde::{
         Deserialize,
         Serialize,
@@ -21,6 +22,7 @@ use {
 pub enum AnalyzerRef {
     #[default]
     Standard,
+    CargoJson,
     Nextest,
     Eslint,
     PythonUnittest,
@@ -28,22 +30,19 @@ pub enum AnalyzerRef {
 }
 
 impl AnalyzerRef {
-
-    pub fn create_analyzer(
-        self,
-    ) -> Box<dyn Analyzer> {
+    pub fn create_analyzer(self) -> Box<dyn Analyzer> {
         match self {
             Self::Standard => Box::new(standard::StandardAnalyzer::default()),
             Self::Nextest => Box::new(nextest::NextestAnalyzer::default()),
             Self::Eslint => Box::new(eslint::EslintAnalyzer::default()),
             Self::PythonUnittest => Box::new(python::unittest::UnittestAnalyzer::default()),
             Self::PythonPytest => Box::new(python::pytest::PytestAnalyzer::default()),
+            Self::CargoJson => Box::new(cargo_json::CargoJsonAnalyzer::default()),
         }
     }
 }
 
 pub trait Analyzer {
-
     fn start(
         &mut self,
         mission: &Mission,
@@ -53,10 +52,7 @@ pub trait Analyzer {
         &mut self,
         line: CommandOutputLine,
         command_output: &mut CommandOutput,
-    ); // return line type ? analysis ?
+    );
 
-    fn build_report(
-        &mut self,
-    ) -> Result<Report>;
-
+    fn build_report(&mut self) -> Result<Report>;
 }
