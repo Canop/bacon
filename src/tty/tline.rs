@@ -33,11 +33,6 @@ impl TLine {
         builder.read(tty);
         builder.build()
     }
-    //pub fn ends_with_newline(
-    //    &self,
-    //) -> bool {
-    //    self.strings.last().map_or(false, |s| s.raw.ends_with('\n'))
-    //}
     pub fn from_raw(raw: String) -> Self {
         Self {
             strings: vec![TString {

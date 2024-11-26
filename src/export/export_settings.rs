@@ -28,14 +28,6 @@ impl ExportSettings {
         match self.exporter {
             Exporter::Analysis => {
                 error!("Aanlysis export not currently implemented");
-                // let analysis_export =
-                //     AnalysisExport::build(state.mission.analyzer(), &state.cmd_result);
-                // let Some(analysis_export) = analysis_export else {
-                //     info!("No analysis to export");
-                //     return Ok(());
-                // };
-                // let json = serde_json::to_string_pretty(&analysis_export)?;
-                // std::fs::write(&path, json)?;
             }
             Exporter::JsonReport => {
                 let Some(report) = state.cmd_result.report() else {
