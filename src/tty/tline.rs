@@ -115,7 +115,7 @@ impl TLine {
         Ok(cols)
     }
     pub fn is_blank(&self) -> bool {
-        return self.strings.iter().all(|s| s.raw.trim().is_empty());
+        self.strings.iter().all(|s| s.raw.trim().is_empty())
     }
     // if this line has no style, return its content
     pub fn if_unstyled(&self) -> Option<&str> {

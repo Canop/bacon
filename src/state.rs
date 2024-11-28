@@ -273,7 +273,7 @@ impl<'s> AppState<'s> {
     fn scroll_to_bottom(&mut self) {
         let ch = self.content_height();
         let ph = self.page_height();
-        self.scroll = if ch > ph { ch - ph } else { 0 };
+        self.scroll = ch.saturating_sub(ph);
         // we don't set top_item_idx - does it matter?
     }
     fn is_scroll_at_bottom(&self) -> bool {

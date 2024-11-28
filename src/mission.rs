@@ -23,7 +23,7 @@ pub struct Mission<'s> {
     pub settings: &'s Settings,
 }
 
-impl<'s> Mission<'s> {
+impl Mission<'_> {
     /// Return an Ignorer according to the job's settings
     pub fn ignorer(&self) -> IgnorerSet {
         let mut set = IgnorerSet::default();
