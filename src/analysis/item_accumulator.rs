@@ -19,6 +19,9 @@ impl ItemAccumulator {
     ) {
         self.curr_kind = Some(kind);
     }
+    pub fn close_item(&mut self) {
+        self.curr_kind = None;
+    }
     pub fn push_line(
         &mut self,
         line_type: LineType,
@@ -35,6 +38,20 @@ impl ItemAccumulator {
             Some(Kind::TestFail) => self.test_fails.push(line),
             _ => {} // before warnings and errors, or in a sum
         }
+    }
+    pub fn push_error_title(
+        &mut self,
+        content: TLine,
+    ) {
+        self.curr_kind = Some(Kind::Error);
+        self.push_line(LineType::Title(Kind::Error), content);
+    }
+    pub fn push_failure_title(
+        &mut self,
+        content: TLine,
+    ) {
+        self.curr_kind = Some(Kind::TestFail);
+        self.push_line(LineType::Title(Kind::TestFail), content);
     }
     pub fn lines(mut self) -> Vec<Line> {
         let mut lines = self.errors;

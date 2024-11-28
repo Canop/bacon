@@ -181,7 +181,6 @@ impl Context {
         // when bacon is given a path at launch, and when this path isn't a
         // path to a package, the goal is to specify that this path should
         // be watched, wich allows not watching everything in the workspace
-        info!("intended_is_package: {0}", self.intended_is_package);
         if self.intended_is_package {
             // automatically watch all kinds of source files
             add_to_paths_to_watch(&watches, &self.intended_dir, &mut paths_to_watch);

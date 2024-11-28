@@ -219,7 +219,7 @@ impl<'s> Mission<'s> {
         self.job.need_stdout
     }
 
-    pub fn analyzer(&self) -> Analyzer {
+    pub fn analyzer(&self) -> AnalyzerRef {
         self.job.analyzer.unwrap_or_default()
     }
 

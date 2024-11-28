@@ -95,7 +95,6 @@ fn run_mission(
 
     // create the executor, mission, and state
     let mut executor = MissionExecutor::new(&mission)?;
-    let analyzer = mission.analyzer();
     let on_change_strategy = mission
         .job
         .on_change_strategy
@@ -148,11 +147,9 @@ fn run_mission(
                             state.add_line(line);
                         }
                         CommandExecInfo::End { status } => {
-                            info!("execution finished with status: {:?}", status);
                             // computation finished
-                            let output = state.take_output().unwrap_or_default();
-                            let cmd_result = CommandResult::build(output, status, analyzer, &state.mission)?;
-                            state.set_result(cmd_result);
+                            info!("execution finished with status: {:?}", status);
+                            state.finish_task(status)?;
                             action = state.action();
                         }
                         CommandExecInfo::Error(e) => {
