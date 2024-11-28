@@ -1,6 +1,6 @@
 [package]
 name = "bacon"
-version = "3.3.0-anayzer-trait"
+version = "3.3.0-new-analyzer-model"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/bacon"
 description = "background rust compiler"
