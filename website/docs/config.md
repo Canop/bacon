@@ -70,7 +70,7 @@ field | meaning | default
 :-|:-|:-
 allow_failures | if `true`, the action is considered a success even when there are test failures | `false`
 allow_warnings | if `true`, the action is considered a success even when there are warnings | `false`
-analyzer | command output parser: `"standard"`, `"eslint"`, or `"nextest"` | `"standard"`
+analyzer | command output parser, see below | `"standard"`
 apply_gitignore | if `true` the job isn't triggered when the modified file is excluded by gitignore rules | `true`
 background | compute in background and display only on end | `true`
 command | the tokens making the command to execute (first one is the executable) |
@@ -99,6 +99,22 @@ need_stdout = true
 
 Note: Some tools detect that their output is piped and don't add style information unless you add a parameter which usually looks like `--color always`.
 This isn't normally necessary for cargo because bacon, by default, sets the `CARGO_TERM_COLOR` environnment variable.
+
+## Analyzers
+
+The output of the standard cargo tools is understood by bacon's standard analyzer.
+
+For other tools, a specific analyzer may be configured with, eg, `analyzer = "nextest"`.
+
+Available analyzers:
+
+* `standard` (default)
+* `nextest`
+* `eslint` for [ESLint](https://eslint.org/)
+* `python_unittest` for [Unittest](https://docs.python.org/3/library/unittest.html)
+* `python_pytest` for [pytest](https://docs.pytest.org/)
+
+See [Bacon for everything - status](https://dystroy.org/blog/bacon-everything-status/).
 
 ## Default Job
 
@@ -212,21 +228,13 @@ Here's an example configuration:
 auto = true
 path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
-[exports.json-report]
-auto = false
-path = "bacon-report.json"
-[exports.analysis]
-auto = false
-path = "bacon-analysis.json"
 ```
 
-3 exporters are defined today:
+1 exporter is defined today:
 
 * `locations`: list of errors/warnings/failures for IDE plugins such as [nvim-bacon](https://github.com/Canop/nvim-bacon).
-* `json-report`: a quite exhaustive and verbose report at end of job execution
-* `analysis`: all the lines produced by the called tool and how bacon understood them
 
-In the example here, locations are exported on each job execution while other exports aren't executed unless one is bound to an action (the `analysis` export is by default bound to `ctrl-e`).
+In the example here, locations are exported on each job execution.
 
 # Other config properties
 
