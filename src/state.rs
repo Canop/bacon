@@ -116,7 +116,6 @@ impl<'s> AppState<'s> {
             messages: Vec::new(),
         })
     }
-
     pub fn add_line(
         &mut self,
         line: CommandOutputLine,

@@ -114,7 +114,7 @@ Available analyzers:
 * `python_unittest` for [Unittest](https://docs.python.org/3/library/unittest.html)
 * `python_pytest` for [pytest](https://docs.pytest.org/)
 
-See [Bacon for everything - status](https://dystroy.org/blog/bacon-everything-status/).
+[Are they bacon yet?](https://dystroy.org/blog/are-they-bacon-yet/).
 
 ## Default Job
 
