@@ -1,5 +1,6 @@
 mod action;
 mod args;
+mod cargo_wrapped_config;
 mod config;
 mod defaults;
 mod keybindings;
@@ -9,6 +10,7 @@ mod settings;
 pub use {
     action::*,
     args::*,
+    cargo_wrapped_config::*,
     config::*,
     defaults::*,
     keybindings::*,
