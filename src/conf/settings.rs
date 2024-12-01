@@ -13,11 +13,6 @@ use {
 
 /// The settings used in the application.
 ///
-/// They're made from default, overriden (in order)
-/// by the general prefs (global prefs.toml file), by
-/// the package config (bacon.toml file in the project
-/// directory) and by the launch arguments.
-///
 /// They're immutable during the execution of the missions.
 #[derive(Debug, Clone)]
 pub struct Settings {
@@ -83,10 +78,13 @@ impl Settings {
     ///
     ///
     /// Hardcoded defaults are overriden by the following configuration elements, in order:
-    /// * the global `prefs.toml`
+    /// * the default `bacon.toml` file (embedded in the binary)
+    /// * the global `prefs.toml`, from user config directory
     /// * the file whose path is in environment variable `BACON_PREFS`
-    /// * the workspace level `bacon.toml` file
-    /// * the package level `bacon.toml` file
+    /// * the workspace level `bacon.toml` file in workspace-root/bacon.toml
+    /// * the workspace level `bacon.toml` file in workspace-root/.config/.bacon.toml
+    /// * the package level `bacon.toml` file in package-root/.bacon.toml
+    /// * the package level `bacon.toml` file in package-root/.config/.bacon.toml
     /// * the file whose path is in environment variable `BACON_CONFIG`
     /// * args given as arguments, coming from the cli call
     pub fn read(
@@ -101,7 +99,7 @@ impl Settings {
         if let Some(prefs_path) = bacon_prefs_path() {
             if prefs_path.exists() {
                 let prefs = Config::from_path(&prefs_path)?;
-                info!("prefs: {:#?}", &prefs);
+                debug!("prefs: {:#?}", &prefs);
                 settings.register_config_file(prefs_path);
                 settings.apply_config(&prefs);
             }
@@ -109,32 +107,44 @@ impl Settings {
 
         if let Some(config_path) = config_path_from_env("BACON_PREFS") {
             let config = Config::from_path(&config_path)?;
-            info!("config from env: {:#?}", &config);
+            debug!("config from env: {:#?}", &config);
             settings.register_config_file(config_path);
             settings.apply_config(&config);
         }
 
-        let workspace_config_path = context.workspace_config_path();
-        let package_config_path = context.package_config_path();
-
-        if let Some(workspace_config_path) = workspace_config_path {
+        if let Some(workspace_config_path) = context.workspace_config_path() {
             if workspace_config_path.exists() {
-                info!("loading workspace level bacon.toml");
                 let workspace_config = Config::from_path(&workspace_config_path)?;
-                settings.register_config_file(workspace_config_path);
+                settings.register_config_file(workspace_config_path.clone());
                 settings.apply_config(&workspace_config);
             }
         }
 
+        if let Some(workspace_dot_config_path) = context.workspace_dot_config_path() {
+            if workspace_dot_config_path.exists() {
+                let workspace_dot_config = Config::from_path(&workspace_dot_config_path)?;
+                settings.register_config_file(workspace_dot_config_path);
+                settings.apply_config(&workspace_dot_config);
+            }
+        }
+
+        let package_config_path = context.package_config_path();
         if package_config_path.exists() {
             let config = Config::from_path(&package_config_path)?;
-            settings.register_config_file(package_config_path);
+            settings.register_config_file(package_config_path.clone());
+            settings.apply_config(&config);
+        }
+
+        let package_dot_config_path = context.package_dot_config_path();
+        if package_dot_config_path.exists() {
+            let config = Config::from_path(&package_dot_config_path)?;
+            settings.register_config_file(package_dot_config_path);
             settings.apply_config(&config);
         }
 
         if let Some(config_path) = config_path_from_env("BACON_CONFIG") {
             let config = Config::from_path(&config_path)?;
-            info!("config from env: {:#?}", &config);
+            debug!("config from env: {:#?}", &config);
             settings.register_config_file(config_path);
             settings.apply_config(&config);
         }
