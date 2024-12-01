@@ -11,7 +11,9 @@ Bacon loads in order:
 * the global `prefs.toml` ([global preferences](#global-preferences))
 * the file whose path is in environment variable `BACON_PREFS`
 * the workspace level `bacon.toml` file ([project settings](#project-settings))
-* the package level `bacon.toml` file
+* the `bacon.toml` file in `workspace-root/.config/`
+* the `bacon.toml` file in `package-root/`
+* the `bacon.toml` file in `package-root/.config/`
 * the file whose path is in environment variable `BACON_CONFIG`
 
 Each configuration file overrides the properties of previously loaded ones.
