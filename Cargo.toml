@@ -43,3 +43,10 @@ codegen-units = 1
 # crokey = { path = "../crokey" }
 # coolor = { path = "../coolor" }
 # lazy-regex = { path = "../lazy-regex" }
+
+[package.metadata.bacon.jobs.hop]
+command = [
+  "cargo", "check",
+]
+[package.metadata.bacon.keybindings]
+h = "job:hop"

@@ -81,10 +81,12 @@ impl Settings {
     /// * the default `bacon.toml` file (embedded in the binary)
     /// * the global `prefs.toml`, from user config directory
     /// * the file whose path is in environment variable `BACON_PREFS`
+    /// * the workspace.metadata.bacon config in the workspace level `Cargo.toml` file
     /// * the workspace level `bacon.toml` file in workspace-root/bacon.toml
     /// * the workspace level `bacon.toml` file in workspace-root/.config/.bacon.toml
     /// * the package level `bacon.toml` file in package-root/.bacon.toml
     /// * the package level `bacon.toml` file in package-root/.config/.bacon.toml
+    /// * the package.metadata.bacon config in the package level `Cargo.toml` file
     /// * the file whose path is in environment variable `BACON_CONFIG`
     /// * args given as arguments, coming from the cli call
     pub fn read(
@@ -99,7 +101,6 @@ impl Settings {
         if let Some(prefs_path) = bacon_prefs_path() {
             if prefs_path.exists() {
                 let prefs = Config::from_path(&prefs_path)?;
-                debug!("prefs: {:#?}", &prefs);
                 settings.register_config_file(prefs_path);
                 settings.apply_config(&prefs);
             }
@@ -110,6 +111,16 @@ impl Settings {
             debug!("config from env: {:#?}", &config);
             settings.register_config_file(config_path);
             settings.apply_config(&config);
+        }
+
+        if let Some(workspace_cargo_path) = context.workspace_cargo_path() {
+            if workspace_cargo_path.exists() {
+                let config = load_config_from_cargo_toml(&workspace_cargo_path)?;
+                if let Some(config) = config {
+                    // reloading the settings here is kind of problematic today
+                    settings.apply_config(&config);
+                }
+            }
         }
 
         if let Some(workspace_config_path) = context.workspace_config_path() {
@@ -125,6 +136,15 @@ impl Settings {
                 let workspace_dot_config = Config::from_path(&workspace_dot_config_path)?;
                 settings.register_config_file(workspace_dot_config_path);
                 settings.apply_config(&workspace_dot_config);
+            }
+        }
+
+        let package_cargo_path = context.package_cargo_path();
+        if package_cargo_path.exists() {
+            let config = load_config_from_cargo_toml(&package_cargo_path)?;
+            if let Some(config) = config {
+                // reloading the settings here is kind of problematic today
+                settings.apply_config(&config);
             }
         }
 
