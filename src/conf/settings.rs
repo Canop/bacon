@@ -84,9 +84,9 @@ impl Settings {
     /// * the workspace.metadata.bacon config in the workspace level `Cargo.toml` file
     /// * the workspace level `bacon.toml` file in workspace-root/bacon.toml
     /// * the workspace level `bacon.toml` file in workspace-root/.config/.bacon.toml
+    /// * the package.metadata.bacon config in the package level `Cargo.toml` file
     /// * the package level `bacon.toml` file in package-root/.bacon.toml
     /// * the package level `bacon.toml` file in package-root/.config/.bacon.toml
-    /// * the package.metadata.bacon config in the package level `Cargo.toml` file
     /// * the file whose path is in environment variable `BACON_CONFIG`
     /// * args given as arguments, coming from the cli call
     pub fn read(
@@ -98,75 +98,25 @@ impl Settings {
         let default_package_config = Config::default_package_config();
         settings.apply_config(&default_package_config);
 
-        if let Some(prefs_path) = bacon_prefs_path() {
-            if prefs_path.exists() {
-                let prefs = Config::from_path(&prefs_path)?;
-                settings.register_config_file(prefs_path);
-                settings.apply_config(&prefs);
-            }
-        }
-
-        if let Some(config_path) = config_path_from_env("BACON_PREFS") {
-            let config = Config::from_path(&config_path)?;
-            debug!("config from env: {:#?}", &config);
-            settings.register_config_file(config_path);
-            settings.apply_config(&config);
-        }
-
-        if let Some(workspace_cargo_path) = context.workspace_cargo_path() {
-            if workspace_cargo_path.exists() {
-                let config = load_config_from_cargo_toml(&workspace_cargo_path)?;
-                if let Some(config) = config {
-                    // reloading the settings here is kind of problematic today
+        let paths = vec![
+            bacon_prefs_path(),
+            config_path_from_env("BACON_PREFS"),
+            context.workspace_cargo_path(),
+            context.workspace_config_path(),
+            context.workspace_dot_config_path(),
+            Some(context.package_cargo_path()),
+            Some(context.package_config_path()),
+            Some(context.package_dot_config_path()),
+            config_path_from_env("BACON_CONFIG"),
+        ];
+        for path in paths.into_iter().flatten() {
+            if path.exists() {
+                if let Some(config) = Config::from_path_opt(&path)? {
+                    info!("config loaded from {:?}", path);
+                    settings.register_config_file(path);
                     settings.apply_config(&config);
                 }
             }
-        }
-
-        if let Some(workspace_config_path) = context.workspace_config_path() {
-            if workspace_config_path.exists() {
-                let workspace_config = Config::from_path(&workspace_config_path)?;
-                settings.register_config_file(workspace_config_path.clone());
-                settings.apply_config(&workspace_config);
-            }
-        }
-
-        if let Some(workspace_dot_config_path) = context.workspace_dot_config_path() {
-            if workspace_dot_config_path.exists() {
-                let workspace_dot_config = Config::from_path(&workspace_dot_config_path)?;
-                settings.register_config_file(workspace_dot_config_path);
-                settings.apply_config(&workspace_dot_config);
-            }
-        }
-
-        let package_cargo_path = context.package_cargo_path();
-        if package_cargo_path.exists() {
-            let config = load_config_from_cargo_toml(&package_cargo_path)?;
-            if let Some(config) = config {
-                // reloading the settings here is kind of problematic today
-                settings.apply_config(&config);
-            }
-        }
-
-        let package_config_path = context.package_config_path();
-        if package_config_path.exists() {
-            let config = Config::from_path(&package_config_path)?;
-            settings.register_config_file(package_config_path.clone());
-            settings.apply_config(&config);
-        }
-
-        let package_dot_config_path = context.package_dot_config_path();
-        if package_dot_config_path.exists() {
-            let config = Config::from_path(&package_dot_config_path)?;
-            settings.register_config_file(package_dot_config_path);
-            settings.apply_config(&config);
-        }
-
-        if let Some(config_path) = config_path_from_env("BACON_CONFIG") {
-            let config = Config::from_path(&config_path)?;
-            debug!("config from env: {:#?}", &config);
-            settings.register_config_file(config_path);
-            settings.apply_config(&config);
         }
 
         settings.apply_args(args);

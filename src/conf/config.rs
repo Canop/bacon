@@ -85,6 +85,17 @@ pub struct Config {
 }
 
 impl Config {
+    pub fn from_path_opt(path: &Path) -> Result<Option<Self>> {
+        if !path.exists() {
+            return Ok(None);
+        }
+        let file_name = path.file_name().and_then(|f| f.to_str());
+        if file_name == Some("Cargo.toml") {
+            load_config_from_cargo_toml(path)
+        } else {
+            Ok(Some(Self::from_path(path)?))
+        }
+    }
     pub fn from_path(path: &Path) -> Result<Self> {
         let conf = toml::from_str::<Self>(&fs::read_to_string(path)?)
             .with_context(|| format!("Failed to parse configuration file at {:?}", path))?;
