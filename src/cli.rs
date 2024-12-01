@@ -59,7 +59,7 @@ pub fn run() -> anyhow::Result<()> {
     }
 
     let context = Context::new(&args)?;
-    info!("mission context: {:#?}", &context);
+    debug!("mission context: {:#?}", &context);
 
     if args.init {
         let package_config_path = context.package_config_path();
