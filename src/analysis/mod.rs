@@ -10,6 +10,7 @@ mod nextest;
 mod python;
 mod standard;
 mod stats;
+mod biome;
 
 pub use {
     analyzer::*,

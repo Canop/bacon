@@ -17,12 +17,29 @@ impl TLineBuilder {
         }
     }
     pub fn build(mut self) -> TLine {
-        if let Some(cur) = self.cur {
-            self.strings.push(cur);
-        }
+        self.take_tstring();
         TLine {
             strings: self.strings,
         }
+    }
+    fn take_tstring(
+        &mut self,
+    ) {
+        if let Some(cur) = self.cur.take() {
+            self.push_tstring(cur);
+        }
+    }
+    fn push_tstring(
+        &mut self,
+        tstring: TString,
+    ) {
+        if let Some(last) = self.strings.last_mut() {
+            if last.csi == tstring.csi {
+                last.raw.push_str(&tstring.raw);
+                return;
+            }
+        }
+        self.strings.push(tstring);
     }
 }
 impl vte::Perform for TLineBuilder {
@@ -40,9 +57,7 @@ impl vte::Perform for TLineBuilder {
         action: char,
     ) {
         if *params == [0] {
-            if let Some(cur) = self.cur.take() {
-                self.strings.push(cur);
-            }
+            self.take_tstring();
             return;
         }
         if let Some(cur) = self.cur.as_mut() {
@@ -51,9 +66,7 @@ impl vte::Perform for TLineBuilder {
                 return;
             }
         }
-        if let Some(cur) = self.cur.take() {
-            self.strings.push(cur);
-        }
+        self.take_tstring();
         let mut cur = TString::default();
         cur.push_csi(params, action);
         self.cur = Some(cur);
