@@ -73,35 +73,6 @@ fn extract_key_after_crate_name(mut strings: std::slice::Iter<'_, TString>) -> O
     }
     if key.is_empty() { None } else { Some(key) }
 }
-#[test]
-fn test_title_key() {
-    let content = TLine {
-        strings: vec![
-            TString::new("\u{1b}[35;1m", "--- STDOUT:              bacon-test"),
-            TString::new("", " "),
-            TString::new("\u{1b}[36m", "tests::"),
-            TString::new("\u{1b}[34;1m", "failing_test3"),
-            TString::new("\u{1b}[35;1m", " ---"),
-        ],
-    };
-    assert_eq!(
-        title_key(&content),
-        Some("tests::failing_test3".to_string())
-    );
-    let content = TLine {
-        strings: vec![
-            TString::new("\u{1b}[31;1m", "--- STDERR:              bacon"),
-            TString::new("", " "),
-            TString::new("\u{1b}[36m", "analysis::nextest_analyzer::"),
-            TString::new("\u{1b}[34;1m", "test_as_test_result"),
-            TString::new("\u{1b}[31;1m", " ---"),
-        ],
-    };
-    assert_eq!(
-        title_key(&content),
-        Some("analysis::nextest_analyzer::test_as_test_result".to_string())
-    );
-}
 
 fn is_error_test_run_failed(content: &TLine) -> bool {
     let mut strings = content.strings.iter();
@@ -138,6 +109,36 @@ fn as_test_result(content: &TLine) -> Option<(String, bool)> {
     };
     let key = extract_key_after_crate_name(strings)?;
     Some((key, pass))
+}
+
+#[test]
+fn test_title_key() {
+    let content = TLine {
+        strings: vec![
+            TString::new("\u{1b}[35;1m", "--- STDOUT:              bacon-test"),
+            TString::new("", " "),
+            TString::new("\u{1b}[36m", "tests::"),
+            TString::new("\u{1b}[34;1m", "failing_test3"),
+            TString::new("\u{1b}[35;1m", " ---"),
+        ],
+    };
+    assert_eq!(
+        title_key(&content),
+        Some("tests::failing_test3".to_string())
+    );
+    let content = TLine {
+        strings: vec![
+            TString::new("\u{1b}[31;1m", "--- STDERR:              bacon"),
+            TString::new("", " "),
+            TString::new("\u{1b}[36m", "analysis::nextest_analyzer::"),
+            TString::new("\u{1b}[34;1m", "test_as_test_result"),
+            TString::new("\u{1b}[31;1m", " ---"),
+        ],
+    };
+    assert_eq!(
+        title_key(&content),
+        Some("analysis::nextest_analyzer::test_as_test_result".to_string())
+    );
 }
 
 #[test]
