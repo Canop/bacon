@@ -1,4 +1,5 @@
 ### next
+- support for biome with `analyzer = "biome"`
 - read bacon.toml in workspace/.config and package/.config - Fix #268
 - read `workspace.metadata.bacon` and `package.metadata.bacon` config elements in `Cargo.toml` files - Fix #241
 

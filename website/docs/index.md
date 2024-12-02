@@ -3,7 +3,7 @@
 <img class=logo width=640px src="img/logo.svg">
 </p>
 
-**bacon** is a background rust code checker.
+**bacon** is a background code checker.
 
 It's designed for minimal interaction so that you can just let it run, alongside your editor, and be notified of warnings, errors, or test failures in your Rust code.
 

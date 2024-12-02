@@ -16,7 +16,7 @@
 [s4]: https://dystroy.org/dystroy-doc-pink-shield.svg
 [l4]: https://dystroy.org/bacon
 
-**bacon** is a background rust code checker.
+**bacon** is a background code checker.
 
 It's designed for minimal interaction so that you can just let it run, alongside your editor, and be notified of warnings, errors, or test failures in your Rust code.
 
