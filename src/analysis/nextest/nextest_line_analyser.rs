@@ -49,9 +49,7 @@ impl LineAnalyzer for NextestLineAnalyzer {
 /// Return the key when the line is like "--- STD(OUT|ERR): somekey ---"
 fn title_key(content: &TLine) -> Option<String> {
     let mut strings = content.strings.iter();
-    let Some(first) = strings.next() else {
-        return None;
-    };
+    let first = strings.next()?;
     if !regex_is_match!(r"^--- STD(OUT|ERR):\s*", &first.raw) {
         return None;
     }

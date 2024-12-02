@@ -74,7 +74,10 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
                         if let Some((_, path, line)) =
                             regex_captures!(r#"\s+File "(.+)", line (\d+)"#, content,)
                         {
-                            items.push_line(LineType::Location, burp::location_line(path, line));
+                            items.push_line(
+                                LineType::Location,
+                                burp::location_line(format!("{path}:{line}")),
+                            );
                             item_location_written = true;
                         } else {
                             warn!("unconsistent line parsing");
