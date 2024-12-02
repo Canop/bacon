@@ -1,3 +1,6 @@
+### next
+- read bacon.toml in workspace/.config and package/.config - Fix #268
+- read `workspace.metadata.bacon` and `package.metadata.bacon` config elements in `Cargo.toml` files - Fix #241
 
 <a name="v3.4.0"></a>
 ### v3.4.0 - 2024/11/30
