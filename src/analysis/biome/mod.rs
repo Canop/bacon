@@ -86,11 +86,7 @@ fn recognize_location_code(tline: &TLine) -> Option<LocationCode> {
     None
 }
 
-/// Build a report from the output of eslint
-///
-/// The main specificity of eslint is that the path of a file with error is given
-/// before the errors of the file, each error coming with the line and column
-/// in the file.
+/// Build a report from the output of biome
 pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
     let mut items = ItemAccumulator::default();
     let mut last_is_blank = true;
