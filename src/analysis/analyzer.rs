@@ -1,5 +1,6 @@
 use {
     super::{
+        biome,
         cargo_json,
         eslint,
         nextest,
@@ -25,6 +26,7 @@ pub enum AnalyzerRef {
     CargoJson,
     Nextest,
     Eslint,
+    Biome,
     PythonUnittest,
     PythonPytest,
 }
@@ -35,6 +37,7 @@ impl AnalyzerRef {
             Self::Standard => Box::new(standard::StandardAnalyzer::default()),
             Self::Nextest => Box::new(nextest::NextestAnalyzer::default()),
             Self::Eslint => Box::new(eslint::EslintAnalyzer::default()),
+            Self::Biome => Box::new(biome::BiomeAnalyzer::default()),
             Self::PythonUnittest => Box::new(python::unittest::UnittestAnalyzer::default()),
             Self::PythonPytest => Box::new(python::pytest::PytestAnalyzer::default()),
             Self::CargoJson => Box::new(cargo_json::CargoJsonAnalyzer::default()),

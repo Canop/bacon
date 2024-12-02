@@ -1,4 +1,5 @@
 mod analyzer;
+mod biome;
 mod cargo_json;
 mod eslint;
 mod item_accumulator;

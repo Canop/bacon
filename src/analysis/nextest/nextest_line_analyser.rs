@@ -49,21 +49,14 @@ impl LineAnalyzer for NextestLineAnalyzer {
 /// Return the key when the line is like "--- STD(OUT|ERR): somekey ---"
 fn title_key(content: &TLine) -> Option<String> {
     let mut strings = content.strings.iter();
-    let (Some(first), Some(second)) = (strings.next(), strings.next()) else {
-        return None;
-    };
-    //if first.csi != CSI_TITLE || first.raw != "--- " || second.csi != CSI_TITLE {
-    if first.raw != "--- " {
-        return None;
-    }
-    if !regex_is_match!(r"^STD(OUT|ERR):\s*$", &second.raw) {
+    let first = strings.next()?;
+    if !regex_is_match!(r"^--- STD(OUT|ERR):\s*", &first.raw) {
         return None;
     }
     extract_key_after_crate_name(strings)
 }
 
 fn extract_key_after_crate_name(mut strings: std::slice::Iter<'_, TString>) -> Option<String> {
-    let _ = strings.next(); // skip crate name
     let _ = strings.next(); // skip blank
     let mut key = String::new();
     for s in &mut strings {
@@ -122,12 +115,9 @@ fn as_test_result(content: &TLine) -> Option<(String, bool)> {
 fn test_title_key() {
     let content = TLine {
         strings: vec![
-            TString::new("\u{1b}[35;1m", "--- "),
-            TString::new("\u{1b}[35;1m", "STDOUT:              "),
-            TString::new("\u{1b}[35;1m", "bacon-test"),
+            TString::new("\u{1b}[35;1m", "--- STDOUT:              bacon-test"),
             TString::new("", " "),
-            TString::new("\u{1b}[36m", "tests"),
-            TString::new("\u{1b}[36m", "::"),
+            TString::new("\u{1b}[36m", "tests::"),
             TString::new("\u{1b}[34;1m", "failing_test3"),
             TString::new("\u{1b}[35;1m", " ---"),
         ],
@@ -138,12 +128,9 @@ fn test_title_key() {
     );
     let content = TLine {
         strings: vec![
-            TString::new("\u{1b}[31;1m", "--- "),
-            TString::new("\u{1b}[31;1m", "STDERR:              "),
-            TString::new("\u{1b}[35;1m", "bacon"),
+            TString::new("\u{1b}[31;1m", "--- STDERR:              bacon"),
             TString::new("", " "),
-            TString::new("\u{1b}[36m", "analysis::nextest_analyzer"),
-            TString::new("\u{1b}[36m", "::"),
+            TString::new("\u{1b}[36m", "analysis::nextest_analyzer::"),
             TString::new("\u{1b}[34;1m", "test_as_test_result"),
             TString::new("\u{1b}[31;1m", " ---"),
         ],
@@ -177,9 +164,7 @@ fn test_as_test_result() {
             TString::new("", " [   0.003s] "),
             TString::new("\u{1b}[35;1m", "bacon"),
             TString::new("", " "),
-            TString::new("\u{1b}[36m", "analysis::nextest_analyzer"),
-            TString::new("\u{1b}[36m", "::"),
-            TString::new("\u{1b}[34;1m", "test_canceling"),
+            TString::new("\u{1b}[36m", "analysis::nextest_analyzer::test_canceling"),
         ],
     };
     assert_eq!(

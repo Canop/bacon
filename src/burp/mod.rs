@@ -3,19 +3,15 @@
 use crate::*;
 
 /// Make a BURP compliant location line
-pub fn location_line(
-    location_path: &str,
-    line_col: &str,
-) -> TLine {
+pub fn location_line<S: Into<String>>(location: S) -> TLine {
     let mut line = TLine::default();
     line.strings
         .push(TString::new("\u{1b}[1m\u{1b}[38;5;12m", "   --> "));
-    line.strings
-        .push(TString::new("", format!("{}:{}", location_path, line_col)));
+    line.strings.push(TString::new("", location));
     line
 }
 
-/// Make a BURP compliant error line
+/// Make a BURP compliant error line (title)
 pub fn error_line(error: &str) -> TLine {
     let mut line = TLine::default();
     line.strings.push(TString::new(CSI_BOLD_RED, "error"));
@@ -23,7 +19,7 @@ pub fn error_line(error: &str) -> TLine {
     line.strings.push(TString::new("", error.to_string()));
     line
 }
-/// Make a BURP compliant test failure line
+/// Make a BURP compliant test failure line (title)
 /// (this one isn't based on cargo)
 pub fn failure_line(error: &str) -> TLine {
     let mut line = TLine::default();

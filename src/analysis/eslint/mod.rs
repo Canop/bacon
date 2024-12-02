@@ -71,7 +71,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             // We just added the title, we must now add the location
             // As it's something which isn't present in eslint output, we're free
             // to choose the format we want so we're choosing the BURP one
-            let line_col = cmd_line.content.strings.get(1).map(|s| s.raw.as_ref());
+            let line_col: Option<&str> = cmd_line.content.strings.get(1).map(|s| s.raw.as_ref());
             let Some(line_col) = line_col else {
                 warn!("unconsistent line parsing");
                 continue;
@@ -82,7 +82,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             };
             items.push_line(
                 LineType::Location,
-                burp::location_line(location_path, line_col),
+                burp::location_line(format!("{location_path}:{line_col}")),
             );
         }
     }

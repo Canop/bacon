@@ -94,7 +94,10 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
                     }
                 }
                 last_location_in_item = Some((path, line));
-                items.push_line(LineType::Location, burp::location_line(path, line));
+                items.push_line(
+                    LineType::Location,
+                    burp::location_line(format!("{path}:{line}")),
+                );
             }
             PytLineFormat::Other => {
                 items.push_line(LineType::Normal, cmd_line.content.clone());
