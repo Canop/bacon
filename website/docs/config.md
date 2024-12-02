@@ -111,10 +111,11 @@ Available analyzers:
 * `standard` (default)
 * `nextest`
 * `eslint` for [ESLint](https://eslint.org/)
+* `biome` for [Biome](https://biomejs.dev/)
 * `python_unittest` for [Unittest](https://docs.python.org/3/library/unittest.html)
 * `python_pytest` for [pytest](https://docs.pytest.org/)
 
-[Are they bacon yet?](https://dystroy.org/blog/are-they-bacon-yet/).
+For more information on the support and configuration of bacon for non-cargo tools, refer to [Are they bacon yet?](https://dystroy.org/blog/are-they-bacon-yet/).
 
 ## Default Job
 
