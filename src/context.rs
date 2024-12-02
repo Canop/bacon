@@ -230,13 +230,27 @@ impl Context {
             settings,
         })
     }
+    pub fn workspace_cargo_path(&self) -> Option<PathBuf> {
+        self.workspace_root.as_ref().map(|p| p.join("Cargo.toml"))
+    }
+    /// return the location of the workspace level bacon.toml file
+    /// (if it's different from the package level bacon.toml file)
+    pub fn workspace_config_path(&self) -> Option<PathBuf> {
+        self.workspace_root.as_ref().map(|p| p.join("bacon.toml"))
+    }
+    pub fn workspace_dot_config_path(&self) -> Option<PathBuf> {
+        self.workspace_root
+            .as_ref()
+            .map(|p| p.join(".config/bacon.toml"))
+    }
+    pub fn package_cargo_path(&self) -> PathBuf {
+        self.package_directory.join("Cargo.toml")
+    }
     pub fn package_config_path(&self) -> PathBuf {
         self.package_directory.join("bacon.toml")
     }
-    /// return the location of the workspace level bacon.toml file
-    /// (it may be the same path than the package config)
-    pub fn workspace_config_path(&self) -> Option<PathBuf> {
-        self.workspace_root.as_ref().map(|p| p.join("bacon.toml"))
+    pub fn package_dot_config_path(&self) -> PathBuf {
+        self.package_directory.join(".config/bacon.toml")
     }
 }
 

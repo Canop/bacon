@@ -10,11 +10,18 @@ Bacon loads in order:
 * its default internal configuration (which includes the default bacon.toml)
 * the global `prefs.toml` ([global preferences](#global-preferences))
 * the file whose path is in environment variable `BACON_PREFS`
+* the `workspace.metadata.bacon` entry in the workspace's `Cargo.toml`
 * the workspace level `bacon.toml` file ([project settings](#project-settings))
-* the package level `bacon.toml` file
+* the `bacon.toml` file in `workspace-root/.config/`
+* the `package.metadata.bacon` entry in the package's `Cargo.toml`
+* the `bacon.toml` file in `package-root/`
+* the `bacon.toml` file in `package-root/.config/`
 * the file whose path is in environment variable `BACON_CONFIG`
 
 Each configuration file overrides the properties of previously loaded ones.
+
+But you don't *need* so many files.
+It's usually enough to have a global `prefs.toml` file and a project specific `bacon.toml`.
 
 When you modified those files and bacon evolved since, you may want to have a look at the current default ones:
 
