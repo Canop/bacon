@@ -85,17 +85,23 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_path_opt(path: &Path) -> Result<Option<Self>> {
+    /// Load from zero to two configuration items from the provided path which
+    /// must be in TOML format but may not exist.
+    ///
+    /// Expected structures are either bacon config or a cargo.toml file (which
+    /// may contain a workspace.metadata.bacon key and a package.metadata.bacon key).
+    pub fn from_path_detect(path: &Path) -> Result<Vec<Self>> {
         if !path.exists() {
-            return Ok(None);
+            return Ok(Vec::default());
         }
         let file_name = path.file_name().and_then(|f| f.to_str());
         if file_name == Some("Cargo.toml") {
             load_config_from_cargo_toml(path)
         } else {
-            Ok(Some(Self::from_path(path)?))
+            Ok(vec![Self::from_path(path)?])
         }
     }
+    /// Load a configuration item filling the provided path in TOML
     pub fn from_path(path: &Path) -> Result<Self> {
         let conf = toml::from_str::<Self>(&fs::read_to_string(path)?)
             .with_context(|| format!("Failed to parse configuration file at {:?}", path))?;

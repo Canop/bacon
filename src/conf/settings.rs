@@ -111,10 +111,13 @@ impl Settings {
         ];
         for path in paths.into_iter().flatten() {
             if path.exists() {
-                if let Some(config) = Config::from_path_opt(&path)? {
+                let configs = Config::from_path_detect(&path)?;
+                if !configs.is_empty() {
                     info!("config loaded from {:?}", path);
-                    settings.register_config_file(path);
-                    settings.apply_config(&config);
+                    settings.register_config_file(path.clone());
+                    for config in configs {
+                        settings.apply_config(&config);
+                    }
                 }
             }
         }
