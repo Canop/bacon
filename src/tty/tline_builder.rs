@@ -22,9 +22,7 @@ impl TLineBuilder {
             strings: self.strings,
         }
     }
-    fn take_tstring(
-        &mut self,
-    ) {
+    fn take_tstring(&mut self) {
         if let Some(cur) = self.cur.take() {
             self.push_tstring(cur);
         }

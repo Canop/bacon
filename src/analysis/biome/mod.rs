@@ -45,7 +45,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
     for cmd_line in cmd_lines {
         if i < 4 {
             info!("line {}: {:#?}", i, cmd_line);
-            i+=1;
+            i += 1;
         }
     }
     let lines = items.lines();
@@ -60,4 +60,3 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
     };
     Ok(report)
 }
-

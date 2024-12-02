@@ -1,4 +1,5 @@
 mod analyzer;
+mod biome;
 mod cargo_json;
 mod eslint;
 mod item_accumulator;
@@ -10,7 +11,6 @@ mod nextest;
 mod python;
 mod standard;
 mod stats;
-mod biome;
 
 pub use {
     analyzer::*,
