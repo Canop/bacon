@@ -16,8 +16,7 @@ pub struct Mission<'s> {
     pub concrete_job_ref: ConcreteJobRef,
     pub execution_directory: PathBuf,
     pub package_directory: PathBuf,
-    /// The path to use when making relative paths absolute
-    pub root_directory: PathBuf,
+    pub workspace_directory: Option<PathBuf>,
     pub job: Job,
     pub paths_to_watch: Vec<PathBuf>,
     pub settings: &'s Settings,
@@ -67,10 +66,18 @@ impl Mission<'_> {
         path: PathBuf,
     ) -> PathBuf {
         if path.is_absolute() {
-            path
-        } else {
-            self.root_directory.join(path)
+            return path;
         }
+        // There's a small mess here. Cargo tends to make paths relative
+        // not to the package or work directory but to the workspace, contrary
+        // to any sane tool. We have to guess.
+        if let Some(workspace) = &self.workspace_directory {
+            let workspace_joined = workspace.join(&path);
+            if workspace_joined.exists() {
+                return workspace_joined;
+            }
+        }
+        self.package_directory.join(&path)
     }
 
     /// build (and doesn't call) the external cargo command
