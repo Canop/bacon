@@ -40,9 +40,7 @@ impl Mission<'_> {
         }
         if !self.job.ignore.is_empty() {
             let mut glob_ignorer = GlobIgnorer::default();
-            info!("CREATE IGNORER");
             for pattern in &self.job.ignore {
-                info!("ADD PATTERN {pattern}");
                 if let Err(e) = glob_ignorer.add(pattern, &self.package_directory) {
                     warn!("Failed to add ignore pattern {pattern}: {e}");
                 }
