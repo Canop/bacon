@@ -19,6 +19,14 @@ pub fn error_line(error: &str) -> TLine {
     line.strings.push(TString::new("", error.to_string()));
     line
 }
+/// Make a BURP compliant error line (title) from a [tstring]
+pub fn error_line_ts(error: &[TString]) -> TLine {
+    let mut line = TLine::default();
+    line.strings.push(TString::new(CSI_BOLD_RED, "error"));
+    line.strings.push(TString::new("", ": "));
+    line.strings.extend(error.iter().cloned());
+    line
+}
 /// Make a BURP compliant test failure line (title)
 /// (this one isn't based on cargo)
 pub fn failure_line(error: &str) -> TLine {

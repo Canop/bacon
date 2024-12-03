@@ -123,6 +123,9 @@ impl TString {
     pub fn is_blank(&self) -> bool {
         self.raw.chars().all(char::is_whitespace)
     }
+    pub fn is_styled(&self) -> bool {
+        !self.csi.is_empty()
+    }
     pub fn is_unstyled(&self) -> bool {
         self.csi.is_empty()
     }
