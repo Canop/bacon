@@ -31,6 +31,7 @@ pub enum AnalyzerRef {
     PythonUnittest,
     PythonPytest,
     Cpp,
+    CppDoctest,
 }
 
 impl AnalyzerRef {
@@ -44,6 +45,7 @@ impl AnalyzerRef {
             Self::PythonPytest => Box::new(python::pytest::PytestAnalyzer::default()),
             Self::CargoJson => Box::new(cargo_json::CargoJsonAnalyzer::default()),
             Self::Cpp => Box::new(cpp::CppAnalyzer::default()),
+            Self::CppDoctest => Box::new(cpp::CppDoctestAnalyzer::default()),
         }
     }
 }

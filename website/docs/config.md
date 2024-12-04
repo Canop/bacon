@@ -121,6 +121,8 @@ Available analyzers:
 * `biome` for [Biome](https://biomejs.dev/)
 * `python_unittest` for [Unittest](https://docs.python.org/3/library/unittest.html)
 * `python_pytest` for [pytest](https://docs.pytest.org/)
+* `cpp` for Clang and GCC
+* `cpp_doctest` for [doctest](https://github.com/doctest/doctest). Note that colored output is required for the parser.
 
 For more information on the support and configuration of bacon for non-cargo tools, refer to [Are they bacon yet?](https://dystroy.org/blog/are-they-bacon-yet/).
 

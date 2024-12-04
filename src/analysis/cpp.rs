@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::Result,
-    std::borrow::Cow,
+    std::{
+        borrow::Cow,
+        iter::once,
+    },
 };
 
 #[derive(Debug, Default)]
@@ -121,7 +124,7 @@ fn recognize_diagnostic(line: &TLine) -> Option<Diagnostic> {
             raw: String::from(level_section.raw[kind_end..].trim_start_matches(' ')),
         };
         let rest = line.strings.get(pos + 1..).unwrap_or_default();
-        let sections = std::iter::once(first).chain(rest.iter().cloned());
+        let sections = once(first).chain(rest.iter().cloned());
         Cow::Owned(sections.collect())
     };
 
@@ -132,4 +135,127 @@ fn recognize_diagnostic(line: &TLine) -> Option<Diagnostic> {
         column: loc_col,
         message,
     })
+}
+
+#[derive(Debug, Default)]
+pub struct CppDoctestAnalyzer {
+    lines: Vec<CommandOutputLine>,
+}
+
+impl Analyzer for CppDoctestAnalyzer {
+    fn start(
+        &mut self,
+        _mission: &Mission,
+    ) {
+        self.lines.clear()
+    }
+
+    fn receive_line(
+        &mut self,
+        line: CommandOutputLine,
+        command_output: &mut CommandOutput,
+    ) {
+        self.lines.push(line.clone());
+        command_output.push(line);
+    }
+
+    fn build_report(&mut self) -> Result<Report> {
+        build_doctest_report(&self.lines)
+    }
+}
+
+fn build_doctest_report(lines: &[CommandOutputLine]) -> Result<Report> {
+    let mut items = ItemAccumulator::default();
+    let mut current_test_case = String::from("(unknown test)");
+    let mut empty_count = 0;
+
+    for line in lines {
+        match recognize_doctest_line(&current_test_case, &line.content) {
+            Some(DoctestDiagnostic::StartTestCase(tc)) => current_test_case = tc.into(),
+            Some(DoctestDiagnostic::Failure {
+                level,
+                location,
+                first_line,
+            }) => {
+                let content = match level {
+                    Kind::Error => burp::error_line_ts(&first_line),
+                    Kind::Warning => burp::warning_line_ts(&first_line),
+                    _ => unreachable!(),
+                };
+
+                items.push_failure_title(content);
+                items.push_line(LineType::Location, burp::location_line(location));
+                empty_count = 0;
+            }
+            Some(DoctestDiagnostic::StartOrEnd) => current_test_case = "(unknown test)".into(),
+            None => {
+                if empty_count < 1 {
+                    items.push_line(LineType::Normal, line.content.clone());
+                }
+                if line.content.strings.iter().all(|l| l.raw.is_empty()) {
+                    empty_count += 1;
+                }
+            }
+        }
+    }
+
+    let lines = items.lines();
+    let stats = Stats::from(&lines);
+    info!("stats: {:#?}", &stats);
+    Ok(Report {
+        lines,
+        stats,
+        suggest_backtrace: false,
+        output: Default::default(),
+        failure_keys: Vec::new(),
+    })
+}
+
+enum DoctestDiagnostic<'a> {
+    StartTestCase(&'a str),
+    Failure {
+        location: &'a str,
+        level: Kind,
+        first_line: Vec<TString>,
+    },
+    StartOrEnd,
+}
+
+fn recognize_doctest_line<'l>(
+    current_test_case: &str,
+    line: &'l TLine,
+) -> Option<DoctestDiagnostic<'l>> {
+    let get = |idx: usize| line.strings.get(idx).map(|l| l.raw.as_str());
+
+    if let Some("===============================================================================") =
+        get(0)
+    {
+        return Some(DoctestDiagnostic::StartOrEnd);
+    }
+
+    if let Some("TEST CASE:  ") = get(0) {
+        return Some(DoctestDiagnostic::StartTestCase(
+            line.strings.get(1).map_or("", |l| &l.raw),
+        ));
+    }
+
+    if let Some(s @ ("WARNING: " | "ERROR: " | "FATAL ERROR: ")) = get(1) {
+        let level = match s {
+            "WARNING: " => Kind::Warning,
+            "ERROR: " | "FATAL ERROR: " => Kind::Error,
+            _ => unreachable!(),
+        };
+
+        let rest_of_line = once(TString::new("", current_test_case))
+            .chain(once(TString::new("", " ")))
+            .chain(line.strings.get(2..).unwrap_or_default().iter().cloned())
+            .collect();
+        return Some(DoctestDiagnostic::Failure {
+            level,
+            location: line.strings.first().unwrap().raw.as_str().trim(),
+            first_line: rest_of_line,
+        });
+    }
+
+    None
 }
