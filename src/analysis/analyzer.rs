@@ -2,6 +2,7 @@ use {
     super::{
         biome,
         cargo_json,
+        cpp,
         eslint,
         nextest,
         python,
@@ -29,6 +30,7 @@ pub enum AnalyzerRef {
     Biome,
     PythonUnittest,
     PythonPytest,
+    Cpp,
 }
 
 impl AnalyzerRef {
@@ -41,6 +43,7 @@ impl AnalyzerRef {
             Self::PythonUnittest => Box::new(python::unittest::UnittestAnalyzer::default()),
             Self::PythonPytest => Box::new(python::pytest::PytestAnalyzer::default()),
             Self::CargoJson => Box::new(cargo_json::CargoJsonAnalyzer::default()),
+            Self::Cpp => Box::new(cpp::CppAnalyzer::default()),
         }
     }
 }
