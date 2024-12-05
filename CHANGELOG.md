@@ -1,4 +1,5 @@
-### next
+<a name="v3.5.0"></a>
+### v3.5.0 - 2024/12/05
 - support for biome with `analyzer = "biome"`
 - support for ruff with `analyzer = "python_ruff"`
 - read bacon.toml in workspace/.config and package/.config - Fix #268
