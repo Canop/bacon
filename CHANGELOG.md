@@ -1,5 +1,6 @@
 ### next
 - support for biome with `analyzer = "biome"`
+- support for ruff with `analyzer = "python_ruff"`
 - read bacon.toml in workspace/.config and package/.config - Fix #268
 - read `workspace.metadata.bacon` and `package.metadata.bacon` config elements in `Cargo.toml` files - Fix #241
 - fix locations export when launching bacon inside a rust workspace but with a non cargo tool
