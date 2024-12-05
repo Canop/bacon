@@ -27,8 +27,9 @@ pub enum AnalyzerRef {
     Nextest,
     Eslint,
     Biome,
-    PythonUnittest,
     PythonPytest,
+    PythonRuff,
+    PythonUnittest,
 }
 
 impl AnalyzerRef {
@@ -40,6 +41,7 @@ impl AnalyzerRef {
             Self::Biome => Box::new(biome::BiomeAnalyzer::default()),
             Self::PythonUnittest => Box::new(python::unittest::UnittestAnalyzer::default()),
             Self::PythonPytest => Box::new(python::pytest::PytestAnalyzer::default()),
+            Self::PythonRuff => Box::new(python::ruff::RuffAnalyzer::default()),
             Self::CargoJson => Box::new(cargo_json::CargoJsonAnalyzer::default()),
         }
     }
