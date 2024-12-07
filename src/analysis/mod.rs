@@ -1,6 +1,7 @@
 mod analyzer;
 mod biome;
 mod cargo_json;
+mod cpp;
 mod eslint;
 mod item_accumulator;
 mod line_analysis;

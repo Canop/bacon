@@ -242,10 +242,18 @@ impl Context {
         self.package_directory.join("Cargo.toml")
     }
     pub fn package_config_path(&self) -> PathBuf {
-        self.package_directory.join("bacon.toml")
+        if !self.intended_is_package {
+            self.intended_dir.join("bacon.toml")
+        } else {
+            self.package_directory.join("bacon.toml")
+        }
     }
     pub fn package_dot_config_path(&self) -> PathBuf {
-        self.package_directory.join(".config/bacon.toml")
+        if !self.intended_is_package {
+            self.intended_dir.join("bacon.toml")
+        } else {
+            self.package_directory.join(".config/bacon.toml")
+        }
     }
 }
 
