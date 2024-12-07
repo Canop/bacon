@@ -1,3 +1,6 @@
+### next
+- support for cpp (gcc & clang) with `analyzer = "cpp"` - Thanks @bryceberger
+
 <a name="v3.5.0"></a>
 ### v3.5.0 - 2024/12/05
 - support for biome with `analyzer = "biome"`
