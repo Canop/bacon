@@ -64,7 +64,7 @@ impl Default for Settings {
             on_change_strategy: None,
             ignore: Default::default(),
             ignored_lines: Default::default(),
-            grace_period: Duration::from_millis(100).into(),
+            grace_period: Duration::from_millis(5).into(),
             config_files: Default::default(),
             default_watch: true,
             watch: Default::default(),
