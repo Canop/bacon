@@ -104,15 +104,5 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             }
         }
     }
-    let lines = items.lines();
-    let stats = Stats::from(&lines);
-    debug!("stats: {:#?}", &stats);
-    let report = Report {
-        lines,
-        stats,
-        suggest_backtrace: false,
-        output: Default::default(),
-        failure_keys: Vec::new(),
-    };
-    Ok(report)
+    Ok(items.report())
 }

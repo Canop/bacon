@@ -66,4 +66,16 @@ impl ItemAccumulator {
         }
         lines
     }
+    pub fn report(self) -> Report {
+        let lines = self.lines();
+        let stats = Stats::from(&lines);
+        info!("stats: {:#?}", &stats);
+        Report {
+            lines,
+            stats,
+            suggest_backtrace: false,
+            output: Default::default(),
+            failure_keys: Vec::new(),
+        }
+    }
 }

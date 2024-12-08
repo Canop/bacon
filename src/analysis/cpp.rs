@@ -71,17 +71,7 @@ fn build_report(lines: &[CommandOutputLine]) -> Result<Report> {
             items.push_line(LineType::Normal, line.content.clone())
         }
     }
-
-    let lines = items.lines();
-    let stats = Stats::from(&lines);
-    info!("stats: {:#?}", &stats);
-    Ok(Report {
-        lines,
-        stats,
-        suggest_backtrace: false,
-        output: Default::default(),
-        failure_keys: Vec::new(),
-    })
+    Ok(items.report())
 }
 
 /// Expect that diagnostics look like the following:
@@ -198,17 +188,7 @@ fn build_doctest_report(lines: &[CommandOutputLine]) -> Result<Report> {
             }
         }
     }
-
-    let lines = items.lines();
-    let stats = Stats::from(&lines);
-    info!("stats: {:#?}", &stats);
-    Ok(Report {
-        lines,
-        stats,
-        suggest_backtrace: false,
-        output: Default::default(),
-        failure_keys: Vec::new(),
-    })
+    Ok(items.report())
 }
 
 enum DoctestDiagnostic<'a> {
