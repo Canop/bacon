@@ -31,7 +31,7 @@ impl ExportsSettings {
         for (name, export) in &self.exports {
             if export.auto {
                 info!("doing auto export {:?}", name);
-                if let Err(e) = export.do_export(state) {
+                if let Err(e) = export.do_export(name, state) {
                     error!("error while exporting {:?}: {:?}", name, e);
                 }
             }
@@ -44,7 +44,7 @@ impl ExportsSettings {
         state: &AppState<'_>,
     ) {
         if let Some(export) = self.exports.get(requested_name) {
-            if let Err(e) = export.do_export(state) {
+            if let Err(e) = export.do_export(requested_name, state) {
                 error!("error while exporting {:?}: {:?}", requested_name, e);
             }
         } else {
@@ -99,6 +99,7 @@ impl ExportsSettings {
             };
             let auto = ec.auto.unwrap_or(true);
             let path = ec.path.clone().unwrap_or_else(|| match exporter {
+                Exporter::Analyser => default_analyser_path(),
                 Exporter::Analysis => default_analysis_path(),
                 Exporter::Locations => default_locations_path(),
                 Exporter::JsonReport => default_json_report_path(),
@@ -201,6 +202,9 @@ pub fn default_locations_line_format() -> &'static str {
     "{kind} {path}:{line}:{column} {message}"
 }
 
+pub fn default_analyser_path() -> PathBuf {
+    PathBuf::from("bacon-analyser.json")
+}
 pub fn default_analysis_path() -> PathBuf {
     PathBuf::from("bacon-analysis.json")
 }

@@ -7,6 +7,7 @@ use {
         Serialize,
     },
     std::{
+        collections::HashMap,
         io,
         path::PathBuf,
     },
@@ -21,6 +22,8 @@ pub struct Report {
     pub suggest_backtrace: bool,
     pub output: CommandOutput,
     pub failure_keys: Vec<String>,
+    /// the exports that the analyzers have done, by name
+    pub analyzer_exports: HashMap<String, String>,
 }
 
 impl Report {

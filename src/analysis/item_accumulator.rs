@@ -76,6 +76,7 @@ impl ItemAccumulator {
             suggest_backtrace: false,
             output: Default::default(),
             failure_keys: Vec::new(),
+            analyzer_exports: Default::default(),
         }
     }
 }

@@ -91,6 +91,9 @@ fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
                 ("", title_raw, CSI_BOLD_BLUE, "--> ") if is_spaces(title_raw) => {
                     LineType::Location
                 }
+                ("", title_raw, CSI_BOLD_BLUE, "::: ") if is_spaces(title_raw) => {
+                    LineType::Location
+                }
                 ("", k, CSI_BOLD_RED | CSI_RED, "FAILED") if content.strings.len() == 2 => {
                     if let Some(k) = as_test_name(k) {
                         key = Some(k.to_string());
