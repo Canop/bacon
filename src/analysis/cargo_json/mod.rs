@@ -1,3 +1,5 @@
+mod cargo_json_export;
+
 use {
     super::*,
     crate::{
@@ -5,6 +7,7 @@ use {
         *,
     },
     anyhow::Result,
+    cargo_json_export::*,
     cargo_metadata::{
         Message,
         diagnostic::Diagnostic,
@@ -21,17 +24,25 @@ use {
 ///
 /// There are so many problems with this approach, though, that I'm
 /// not sure this is worth it.
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct CargoJsonAnalyzer {
     lines: Vec<CommandOutputLine>,
+    exports: Vec<CargoJsonExport>,
 }
 
 impl Analyzer for CargoJsonAnalyzer {
     fn start(
         &mut self,
-        _mission: &Mission,
+        mission: &Mission,
     ) {
         self.lines.clear();
+        self.exports.clear();
+        for (name, export_settings) in &mission.settings.exports.exports {
+            if export_settings.exporter == Exporter::Analyser {
+                let export = CargoJsonExport::new(name.clone(), export_settings);
+                self.exports.push(export);
+            }
+        }
     }
 
     fn receive_line(
@@ -59,7 +70,11 @@ impl Analyzer for CargoJsonAnalyzer {
 
     fn build_report(&mut self) -> Result<Report> {
         let line_analyzer = standard::StandardLineAnalyzer {};
-        standard::build_report(&self.lines, line_analyzer)
+        let mut report = standard::build_report(&self.lines, line_analyzer)?;
+        for export in self.exports.drain(..) {
+            report.analyzer_exports.insert(export.name, export.export);
+        }
+        Ok(report)
     }
 }
 
@@ -89,6 +104,9 @@ impl CargoJsonAnalyzer {
         origin: CommandStream,
         command_output: &mut CommandOutput,
     ) {
+        for export in &mut self.exports {
+            export.receive_diagnostic(&diagnostic);
+        }
         let Diagnostic {
             //message,
             //code,

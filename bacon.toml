@@ -76,3 +76,11 @@ need_stdout = false
 
 [keybindings]
 c = "job:clippy-all"
+
+# an example of export based on the JSON export, active when
+# the analyzer is "cargo_json"
+[exports.cargo-json-spans]
+auto = false
+exporter = "analyzer"
+path = "bacon-analyser-export.json"
+line_format = "{span.file_name} {span.line_start}-{span.line_end} | {diagnostic.message} [{diagnostic.code}] level={diagnostic.level}"

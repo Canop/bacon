@@ -136,6 +136,7 @@ dependencies = [
  "directories-next",
  "gix",
  "glob",
+ "iq",
  "lazy-regex",
  "notify",
  "rustc-hash",
@@ -1207,6 +1208,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0242819d153cba4b4b05a5a8f2a7e9bbf97b6055b2a002b395c96b5ff3c0222"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "iq"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef6f26340d47024663bf0180a65c9ca5e25776f606913695442d5219730f9da1"
+dependencies = [
+ "lazy-regex",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

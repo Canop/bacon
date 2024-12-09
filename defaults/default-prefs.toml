@@ -1,20 +1,24 @@
 # This is a preferences file for the bacon tool
 # More info at https://github.com/Canop/bacon
 
+
 # Uncomment and change the value (true/false) to
 # specify whether bacon should start in summary mode
 #
 # summary = true
+
 
 # Uncomment and change the value (true/false) to
 # specify whether bacon should start with lines wrapped
 #
 # wrap = false
 
+
 # In "reverse" mode, the focus is at the bottom, item
 # order is reversed, and the status bar is on top
 #
 # reverse = true
+
 
 # The grace period is a delay after a file event before the real
 # task is launched and during which other events will be ignored.
@@ -24,15 +28,18 @@
 #
 # grace_period = "5ms"
 
+
 # Uncomment and change the value (true/false) to
 # specify whether bacon should show a help line.
 #
 # help_line = false
 
+
 # Uncomment and change the value (true/false) to
 # set whether to display the count of changes since last job start
 #
 # show_changes_count = false
+
 
 # Uncomment one of those lines if you don't want the default
 # behavior triggered by a file change. This property can also
@@ -41,13 +48,7 @@
 # on_change_strategy = "kill_then_restart"
 # on_change_strategy = "wait_then_restart"
 
-# Exports can be executed either
-# - on each job completion (if auto is true)
-# - or called on a key (eg `ctrl-e = "export:analysis"`)
-#
-# They can be used for communication with external tools
-# or for inquiries.
-#
+
 # Exporting "locations" (by setting its 'auto' to true) lets you use
 # them in an external tool, for example as a list of jump locations
 # in an IDE or in a language server.
@@ -62,14 +63,10 @@
 #  - context: unstyled lines of output, separated with escaped newlines (`\\n`)
 [exports.locations]
 auto = false
+exporter = "locations"
 path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
-[exports.json-report]
-auto = false
-path = "bacon-report.json"
-[exports.analysis]
-auto = false
-path = "bacon-analysis.json"
+
 
 # Uncomment and change the key-bindings you want to define
 # (some of those ones are the defaults and are just here for illustration)
