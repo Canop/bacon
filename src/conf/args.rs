@@ -113,9 +113,14 @@ pub struct Args {
     #[clap(short = 'E', long)]
     pub no_export_locations: bool,
 
-    /// Path to watch (must be a rust directory or inside)
-    #[clap(short = 'p', long, value_name = "path")]
-    pub path: Option<String>,
+    /// Path to watch (overriding what's normally computed from the project's
+    /// type, bacon.toml file, etc.)
+    #[clap(long, value_name = "watch")]
+    pub watch: Option<String>,
+
+    /// Projet to run jobs on, and use as working directory
+    #[clap(long, value_name = "project")]
+    pub project: Option<String>,
 
     #[clap()]
     /// What to do: either a job, or a path, or both
@@ -137,16 +142,16 @@ impl Args {
             args.next(),
             args.next(),
             self.job.is_none(),
-            self.path.is_none(),
+            self.project.is_none(),
         ) {
             (Some(a), b, true, true) => {
                 if a.contains('.') || a.contains('/') {
                     // a is a path, it can't be job
-                    self.path = Some(a);
+                    self.project = Some(a);
                     self.job = b.map(|b| b.as_str().into());
                 } else {
                     self.job = Some(a.as_str().into());
-                    self.path = b;
+                    self.project = b;
                 }
             }
             (Some(_), Some(_), _, _) => {
@@ -156,7 +161,7 @@ impl Args {
                 self.job = Some(a.as_str().into());
             }
             (Some(a), None, false, true) => {
-                self.path = Some(a);
+                self.project = Some(a);
             }
             (Some(a), None, false, false) => {
                 bail!("Unexpected argument {:?}", a);
