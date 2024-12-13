@@ -232,7 +232,13 @@ job reference | meaning
 
 If necessary, exports can be defined to write files either on end of task or on key presses.
 
-Here's an example configuration:
+Following are 3 typical configurations.
+
+## Locations export
+
+This is the best way to ensure you can list warnings/errors/failures and navigate between them in your IDE, for example with a plugin such as [nvim-bacon](https://github.com/Canop/nvim-bacon).
+
+With the following configuration, locations are exported on each job execution.
 
 ```TOML
 [exports.locations]
@@ -241,11 +247,38 @@ path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
 ```
 
-1 exporter is defined today:
+This export works for any tool and any job.
 
-* `locations`: list of errors/warnings/failures for IDE plugins such as [nvim-bacon](https://github.com/Canop/nvim-bacon).
+## Cargo Spans export
 
-In the example here, locations are exported on each job execution.
+When using the `cargo_json` analyzer, more detailed informations are available than what's printed on screen and this analyzer can provide those data with a configuration such as this one:
+
+```TOML
+[jobs.bacon-ls]
+command = [ "cargo", "clippy", "--message-format", "json-diagnostic-rendered-ansi" ]
+analyzer = "cargo_json"
+need_stdout = true
+
+[exports.cargo-json-spans]
+auto = true
+exporter = "analyzer"
+line_format = "{diagnostic.level}:{span.file_name}:{span.line_start}:{span.line_end}:{span.col_start}:{span.col_end}:{diagnostic.message}"
+```
+
+The exported data come from the [Diagnostic](https://docs.rs/cargo_metadata/0.19.1/cargo_metadata/diagnostic/struct.Diagnostic.html) and [DiagnosticSpan](https://docs.rs/cargo_metadata/0.19.1/cargo_metadata/diagnostic/struct.DiagnosticSpan.html) structures.
+
+## Report export
+
+This is an example of exporting a report on a key press, when required:
+
+
+```TOML
+[exports.json-report]
+auto = false
+
+[keybindings]
+ctrl-e = "export:json-report"
+```
 
 # Other config properties
 

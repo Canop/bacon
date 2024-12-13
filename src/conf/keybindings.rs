@@ -56,7 +56,6 @@ impl Default for KeyBindings {
         bindings.set(key!(t), JobRef::from_job_name("test"));
         bindings.set(key!(n), JobRef::from_job_name("nextest"));
         bindings.set(key!(r), JobRef::from_job_name("run"));
-        bindings.set(key!(ctrl - e), Action::Export("analysis".to_string()));
         bindings
     }
 }

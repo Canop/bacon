@@ -1,5 +1,7 @@
 ### next
 - support for cpp (gcc & clang) with `analyzer = "cpp"` - Thanks @bryceberger
+- removal of the `--path` argument, replaced with `--project` and `--watch` (overrides the list of watched files). The path to the project can also be given as trailing argument as today. - Fix #274
+- the `cargo_json` analyzer can now be leveraged to export data from the cargo metadata `Diagnostic` and `DiagnosticSpan` structs - Fix #249
 
 <a name="v3.5.0"></a>
 ### v3.5.0 - 2024/12/05
