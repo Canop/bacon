@@ -262,7 +262,7 @@ need_stdout = true
 [exports.cargo-json-spans]
 auto = true
 exporter = "analyzer"
-line_format = "{diagnostic.level}:{span.file_name}:{span.line_start}:{span.line_end}:{span.col_start}:{span.col_end}:{diagnostic.message}"
+line_format = "{diagnostic.level}:{span.file_name}:{span.line_start}:{span.line_end}:{diagnostic.message}"
 ```
 
 The exported data come from the [Diagnostic](https://docs.rs/cargo_metadata/0.19.1/cargo_metadata/diagnostic/struct.Diagnostic.html) and [DiagnosticSpan](https://docs.rs/cargo_metadata/0.19.1/cargo_metadata/diagnostic/struct.DiagnosticSpan.html) structures.
