@@ -5,6 +5,7 @@ pub mod burp;
 mod cli;
 mod conf;
 mod context;
+mod context_nature;
 mod drawing;
 mod exec;
 mod export;
@@ -27,6 +28,7 @@ pub use {
     cli::*,
     conf::*,
     context::*,
+    context_nature::*,
     drawing::*,
     exec::*,
     export::*,
