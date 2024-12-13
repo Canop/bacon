@@ -148,6 +148,7 @@ pub fn build_report<L: LineAnalyzer>(
         suggest_backtrace,
         output: Default::default(),
         failure_keys,
+        analyzer_exports: Default::default(),
     };
     Ok(report)
 }
