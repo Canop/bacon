@@ -113,19 +113,7 @@ The output of the standard cargo tools is understood by bacon's standard analyze
 
 For other tools, a specific analyzer may be configured with, eg, `analyzer = "nextest"`.
 
-Available analyzers:
-
-* `standard` (default, for most cargo tools and compatible outputs)
-* `nextest` for [cargo-nextest](https://nexte.st/)
-* `eslint` for [ESLint](https://eslint.org/)
-* `biome` for [Biome](https://biomejs.dev/)
-* `python_unittest` for [Unittest](https://docs.python.org/3/library/unittest.html)
-* `python_pytest` for [pytest](https://docs.pytest.org/)
-* `python_ruff` for [ruff](https://docs.astral.sh/ruff/)
-* `cpp` for Clang and GCC
-* `cpp_doctest` for [doctest](https://github.com/doctest/doctest).
-
-For information on the support and configuration of bacon for non-cargo tools, refer to **[Are they bacon yet?](https://dystroy.org/blog/are-they-bacon-yet/)**.
+For the list of analyzers and configuration examples, see [Analyzers](../analyzers).
 
 ## Default Job
 
