@@ -149,6 +149,7 @@ pre {
 	color: var(--code-fg);
 	background: var(--code-bg);
 	border: solid 1px var(--code-bg);
+	font-weight: normal;
 	padding: 6px 0 4px 6px;
 }
 
@@ -203,7 +204,7 @@ kbd.b {
 }
 .col-md-9 img {
 	max-width: 100%;
-	display: inline-block;
+	display: block;
 	padding: 0;
 	line-height: 1.428571429;
 	background-color: #fff;
