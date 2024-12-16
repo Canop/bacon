@@ -10,6 +10,10 @@ pub trait WrappableLine {
     fn content(&self) -> &TLine;
     fn prefix_cols(&self) -> usize;
 }
+pub trait HasWrappableLines {
+    type WL;
+    fn wrappable_lines(&self) -> &[Self::WL];
+}
 
 #[derive(Debug, Default)]
 pub struct SubString {
@@ -51,11 +55,16 @@ impl SubLine {
             sub_string.string_idx != 0 || sub_string.byte_start != 0
         })
     }
-    pub fn src_line<'r>(
+    pub fn src_line<'r, L, H>(
         &self,
-        report: &'r Report,
-    ) -> &'r Line {
-        &report.lines[self.line_idx]
+        report: &'r H,
+    ) -> &'r L
+    where
+        L: WrappableLine,
+        H: HasWrappableLines<WL = L>,
+    {
+        let lines = report.wrappable_lines();
+        &lines[self.line_idx]
     }
     pub fn src_line_type(
         &self,

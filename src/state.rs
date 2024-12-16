@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::Result,
+    crokey::KeyCombination,
     std::{
         io::Write,
         process::ExitStatus,
@@ -9,6 +10,7 @@ use {
     termimad::{
         Area,
         CompoundStyle,
+        InputField,
         MadSkin,
         crossterm::{
             cursor,
@@ -74,6 +76,8 @@ pub struct AppState<'s> {
     pub show_changes_count: bool,
     /// messages to display to the user for a short duration
     pub messages: Vec<Message>,
+    /// the search input field
+    search_input: InputField,
 }
 
 impl<'s> AppState<'s> {
@@ -89,7 +93,8 @@ impl<'s> AppState<'s> {
             .settings
             .help_line
             .then(|| HelpLine::new(mission.settings));
-
+        let mut search_input = InputField::default();
+        search_input.set_focus(false);
         Ok(Self {
             report_maker,
             output: None,
@@ -114,7 +119,46 @@ impl<'s> AppState<'s> {
             auto_refresh: AutoRefresh::Enabled,
             changes_since_last_job_start: 0,
             messages: Vec::new(),
+            search_input,
         })
+    }
+    pub fn focus_search(&mut self) {
+        self.search_input.set_focus(true);
+    }
+    // Handle the "back" operation, return true if it did (thus consuming the action)
+    pub fn back(&mut self) -> bool {
+        if self.search_input.focused() {
+            self.search_input.clear();
+            self.search_input.set_focus(false);
+            true
+        } else if self.help_page.is_some() {
+            self.help_page = None;
+            true
+        } else {
+            false
+        }
+    }
+    // Handle the "validate" operation, return true if it did (thus consuming the action)
+    pub fn validate(&mut self) -> bool {
+        if self.search_input.focused() {
+            self.search_input.set_focus(false);
+            true
+        } else {
+            false
+        }
+    }
+    /// handle a raw, uninterpreted key combination (in an input if there's one
+    /// focused), return true if the key was consumed (if not, keybindings will
+    /// be computed)
+    pub fn apply_key_combination(
+        &mut self,
+        key: KeyCombination,
+    ) -> bool {
+        if self.search_input.focused() {
+            self.search_input.apply_key_combination(key)
+        } else {
+            false
+        }
     }
     pub fn add_line(
         &mut self,
@@ -427,22 +471,37 @@ impl<'s> AppState<'s> {
         }
     }
     /// draw the grey line containing the keybindings indications
-    fn draw_help_line(
-        &self,
+    fn draw_status_line(
+        &mut self,
         w: &mut W,
         y: u16,
     ) -> Result<()> {
+        let mut help_start = 0;
+        // Search input
+        let must_draw_search = self.search_input.focused() || !self.search_input.is_empty();
+        if must_draw_search {
+            goto_line(w, y)?;
+            write!(w, "/")?;
+            let search_width = (self.width / 3).clamp(8, 30);
+            self.search_input.change_area(1, y, search_width);
+            self.search_input.display_on(w)?;
+            help_start += search_width + 1;
+        }
+        goto(w, help_start, y)?;
+        // Help line
         if let Some(help_line) = &self.help_line {
             let markdown = help_line.markdown(self);
             if self.height > 1 {
-                goto(w, y)?;
+                let help_width = self.width - help_start;
                 self.status_skin.write_composite_fill(
                     w,
                     Composite::from_inline(&markdown),
-                    self.width.into(),
+                    help_width.into(),
                     Alignment::Left,
                 )?;
             }
+        } else {
+            clear_line(w)?;
         }
         Ok(())
     }
@@ -452,7 +511,7 @@ impl<'s> AppState<'s> {
         w: &mut W,
         y: u16,
     ) -> Result<usize> {
-        goto(w, y)?;
+        goto_line(w, y)?;
         let mut t_line = TLine::default();
         // white over grey
         let project_name = &self.mission.location_name;
@@ -499,7 +558,7 @@ impl<'s> AppState<'s> {
         w: &mut W,
         y: u16,
     ) -> Result<()> {
-        goto(w, y)?;
+        goto_line(w, y)?;
         let width = self.width as usize;
         if self.computing {
             write!(
@@ -530,7 +589,7 @@ impl<'s> AppState<'s> {
         } else {
             message.display_start = Some(Instant::now());
         }
-        goto(w, y)?;
+        goto_line(w, y)?;
         let markdown = format!(" {}", message.markdown);
         self.status_skin.write_composite_fill(
             w,
@@ -604,10 +663,12 @@ impl<'s> AppState<'s> {
         };
         let top = area.top + top as u16;
         for y in area.top..top {
-            goto(w, y)?;
+            goto_line(w, y)?;
             clear_line(w)?;
         }
         let width = self.width as usize;
+        let pattern = self.search_input.get_content();
+        let pattern = Some(pattern.as_str()).filter(|s| !s.is_empty());
         if let Some(report) = self.report_to_draw() {
             match (self.wrap, self.wrapped_report.as_ref()) {
                 (true, Some(wrapped_report)) => {
@@ -615,13 +676,11 @@ impl<'s> AppState<'s> {
                     let mut sub_lines = wrapped_report
                         .sub_lines
                         .iter()
-                        .filter(|sub_line| {
-                            !(self.summary && sub_line.src_line_type(report) == LineType::Normal)
-                        })
+                        .filter(|sub_line| sub_line.src_line(report).matches(self.summary, pattern))
                         .skip(self.scroll);
                     for row_idx in 0..area.height {
                         let y = row_idx + top;
-                        goto(w, y)?;
+                        goto_line(w, y)?;
                         if let Some(sub_line) = sub_lines.next() {
                             top_item_idx.get_or_insert_with(|| sub_line.src_line(report).item_idx);
                             sub_line.draw_line_type(w, report)?;
@@ -639,11 +698,11 @@ impl<'s> AppState<'s> {
                     let mut lines = report
                         .lines
                         .iter()
-                        .filter(|line| !(self.summary && line.line_type == LineType::Normal))
+                        .filter(|line| line.matches(self.summary, pattern))
                         .skip(self.scroll);
                     for row_idx in 0..area.height {
                         let y = row_idx + top;
-                        goto(w, y)?;
+                        goto_line(w, y)?;
                         if let Some(Line {
                             item_idx,
                             line_type,
@@ -668,10 +727,14 @@ impl<'s> AppState<'s> {
         } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
             match (self.wrap, self.wrapped_output.as_ref()) {
                 (true, Some(wrapped_output)) => {
-                    let mut sub_lines = wrapped_output.sub_lines.iter().skip(self.scroll);
+                    let mut sub_lines = wrapped_output
+                        .sub_lines
+                        .iter()
+                        .filter(|sub_line| sub_line.src_line(output).matches(pattern))
+                        .skip(self.scroll);
                     for row_idx in 0..area.height {
                         let y = row_idx + top;
-                        goto(w, y)?;
+                        goto_line(w, y)?;
                         if let Some(sub_line) = sub_lines.next() {
                             sub_line.draw(w, &output.lines)?;
                         }
@@ -685,7 +748,7 @@ impl<'s> AppState<'s> {
                     let lines = &output.lines;
                     for row_idx in 0..area.height {
                         let y = row_idx + top;
-                        goto(w, y)?;
+                        goto_line(w, y)?;
                         if let Some(line) = lines.get(row_idx as usize + self.scroll) {
                             line.content.draw_in(w, width)?;
                         }
@@ -705,7 +768,7 @@ impl<'s> AppState<'s> {
         w: &mut W,
     ) -> Result<()> {
         if self.reverse {
-            self.draw_help_line(w, 0)?;
+            self.draw_status_line(w, 0)?;
             if let Some(help_page) = self.help_page.as_mut() {
                 help_page.draw(w, Area::new(0, 1, self.width, self.height - 1))?;
             } else {
@@ -723,7 +786,7 @@ impl<'s> AppState<'s> {
                 self.draw_message(w, 1)?; // drawn over the "computing..." line
                 self.draw_content(w, 2)?;
             }
-            self.draw_help_line(w, self.height - 1)?;
+            self.draw_status_line(w, self.height - 1)?;
         }
         w.flush()?;
         Ok(())

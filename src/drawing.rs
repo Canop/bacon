@@ -8,8 +8,18 @@ use {
     },
 };
 
-/// Move the curstor to the start of the provided line
+/// Move the curstor to the x, y position
 pub fn goto(
+    w: &mut W,
+    x: u16,
+    y: u16,
+) -> Result<()> {
+    execute!(w, cursor::MoveTo(x, y))?;
+    Ok(())
+}
+
+/// Move the curstor to the start of the provided line
+pub fn goto_line(
     w: &mut W,
     y: u16,
 ) -> Result<()> {
