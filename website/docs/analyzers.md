@@ -2,7 +2,7 @@ While Bacon was initially developped for the Rust language, it covers more and m
 
 For most of them, a dedicated `analyzer` must be specified in the [job settings](../config#jobs).
 
-This page is na overview of the supported tools and how bacon can be configured for them.
+This page is an overview of the supported tools and how bacon can be configured for them.
 
 # Summary
 
