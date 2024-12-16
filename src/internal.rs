@@ -17,7 +17,8 @@ use {
 /// to a key or ran after a successful job
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Internal {
-    Back,
+    Back, // leave help, clear search, go to previous job, leave, etc.
+    FocusSearch,
     Help,
     Pause,
     Quit,
@@ -32,6 +33,7 @@ pub enum Internal {
     ToggleSummary,
     ToggleWrap,
     Unpause,
+    Validate, // validate search entry
 }
 
 impl Internal {
@@ -53,6 +55,8 @@ impl Internal {
             Self::ToggleSummary => "toggle summary".to_string(),
             Self::ToggleWrap => "toggle wrap".to_string(),
             Self::Unpause => "unpause".to_string(),
+            Self::FocusSearch => "focus search".to_string(),
+            Self::Validate => "validate".to_string(),
         }
     }
 }
@@ -78,6 +82,8 @@ impl fmt::Display for Internal {
             Self::ToggleSummary => write!(f, "toggle-summary"),
             Self::ToggleWrap => write!(f, "toggle-wrap"),
             Self::Unpause => write!(f, "unpause"),
+            Self::FocusSearch => write!(f, "focus-search"),
+            Self::Validate => write!(f, "validate"),
         }
     }
 }
@@ -105,6 +111,8 @@ impl std::str::FromStr for Internal {
             "pause" => Ok(Self::Pause),
             "unpause" => Ok(Self::Unpause),
             "toggle-pause" => Ok(Self::TogglePause),
+            "focus-search" => Ok(Self::FocusSearch),
+            "validate" => Ok(Self::Validate),
             _ => Err("invalid internal"),
         }
     }
@@ -134,6 +142,7 @@ impl<'de> Deserialize<'de> for Internal {
 fn test_internal_string_round_trip() {
     let internals = [
         Internal::Back,
+        Internal::FocusSearch,
         Internal::Help,
         Internal::Pause,
         Internal::Quit,
@@ -150,6 +159,7 @@ fn test_internal_string_round_trip() {
         Internal::ToggleSummary,
         Internal::ToggleWrap,
         Internal::Unpause,
+        Internal::Validate,
     ];
     for internal in internals {
         assert_eq!(internal.to_string().parse(), Ok(internal));

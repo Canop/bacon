@@ -41,6 +41,22 @@ impl Line {
         title
     }
 
+    pub fn matches(
+        &self,
+        summary: bool,
+        pattern: Option<&str>,
+    ) -> bool {
+        if summary && self.line_type == LineType::Normal {
+            return false;
+        }
+        if let Some(pattern) = pattern {
+            if !self.content.has(pattern) {
+                return false;
+            }
+        }
+        true
+    }
+
     /// Return the location as given by cargo
     /// It's usually relative and may contain the line and column
     pub fn location(&self) -> Option<&str> {

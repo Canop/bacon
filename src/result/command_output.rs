@@ -26,6 +26,13 @@ pub struct CommandOutput {
     pub lines: Vec<CommandOutputLine>,
 }
 
+impl HasWrappableLines for CommandOutput {
+    type WL = CommandOutputLine;
+    fn wrappable_lines(&self) -> &[Self::WL] {
+        &self.lines
+    }
+}
+
 /// a piece of information about the execution of a command
 #[derive(Debug)]
 pub enum CommandExecInfo {
@@ -63,5 +70,19 @@ impl CommandOutput {
     }
     pub fn len(&self) -> usize {
         self.lines.len()
+    }
+}
+
+impl CommandOutputLine {
+    pub fn matches(
+        &self,
+        pattern: Option<&str>,
+    ) -> bool {
+        if let Some(pattern) = pattern {
+            if !self.content.has(pattern) {
+                return false;
+            }
+        }
+        true
     }
 }
