@@ -78,6 +78,11 @@ pub struct AppState<'s> {
     pub messages: Vec<Message>,
     /// the search input field
     search_input: InputField,
+    search_up_to_date: bool,
+    /// Locations matching the search_input content
+    founds: Vec<Found>,
+    /// The selection to show
+    selected_found: usize,
 }
 
 impl<'s> AppState<'s> {
@@ -93,8 +98,11 @@ impl<'s> AppState<'s> {
             .settings
             .help_line
             .then(|| HelpLine::new(mission.settings));
+
         let mut search_input = InputField::default();
         search_input.set_focus(false);
+        let founds = Default::default();
+
         Ok(Self {
             report_maker,
             output: None,
@@ -119,25 +127,50 @@ impl<'s> AppState<'s> {
             auto_refresh: AutoRefresh::Enabled,
             changes_since_last_job_start: 0,
             messages: Vec::new(),
+
             search_input,
+            search_up_to_date: true,
+            founds,
+            selected_found: 0,
         })
     }
     pub fn focus_search(&mut self) {
         self.search_input.set_focus(true);
+        self.show_selected_found();
     }
     // Handle the "back" operation, return true if it did (thus consuming the action)
     pub fn back(&mut self) -> bool {
         if self.search_input.focused() {
             self.search_input.clear();
             self.search_input.set_focus(false);
+            self.search_up_to_date = false;
             true
         } else if self.help_page.is_some() {
             self.help_page = None;
+            true
+        } else if !self.search_input.is_empty() {
+            self.search_input.clear();
+            self.search_up_to_date = false;
             true
         } else {
             false
         }
     }
+    pub fn next_match(&mut self) {
+        if self.founds.is_empty() {
+            return;
+        }
+        self.selected_found = (self.selected_found + 1) % self.founds.len();
+        self.show_selected_found();
+    }
+    pub fn previous_match(&mut self) {
+        if self.founds.is_empty() {
+            return;
+        }
+        self.selected_found = (self.selected_found + self.founds.len() - 1) % self.founds.len();
+        self.show_selected_found();
+    }
+
     // Handle the "validate" operation, return true if it did (thus consuming the action)
     pub fn validate(&mut self) -> bool {
         if self.search_input.focused() {
@@ -155,10 +188,40 @@ impl<'s> AppState<'s> {
         key: KeyCombination,
     ) -> bool {
         if self.search_input.focused() {
-            self.search_input.apply_key_combination(key)
-        } else {
-            false
+            if self.search_input.apply_key_combination(key) {
+                self.search_up_to_date = false;
+                self.update_search();
+                self.show_selected_found();
+                return true;
+            }
         }
+        false
+    }
+    /// if there are search results, return the line index of the currently selected one
+    fn selected_found_line(&self) -> Option<usize> {
+        self.founds
+            .get(self.selected_found)
+            .map(|found| found.line_idx)
+    }
+    pub fn update_search(&mut self) {
+        if self.search_up_to_date {
+            return;
+        }
+        self.founds.clear();
+        if self.search_input.is_empty() {
+            return;
+        }
+        let old_selected_line = self.selected_found_line();
+        let pattern = Pattern {
+            pattern: self.search_input.get_content(),
+        };
+        let lines = self.lines_to_draw();
+        self.founds = pattern.search_lines(lines);
+        let new_selected_line = self.selected_found_line();
+        if old_selected_line != new_selected_line {
+            self.selected_found = 0;
+        }
+        self.search_up_to_date = true;
     }
     pub fn add_line(
         &mut self,
@@ -184,6 +247,7 @@ impl<'s> AppState<'s> {
             self.scroll = 0;
             self.fix_scroll();
         }
+        self.search_up_to_date = false; // FIXME do just a partial update, don't recompute everything
     }
     pub fn new_task(&self) -> Task {
         Task {
@@ -192,6 +256,7 @@ impl<'s> AppState<'s> {
         }
     }
     pub fn take_output(&mut self) -> Option<CommandOutput> {
+        self.search_up_to_date = false;
         self.wrapped_output = None;
         self.output.take()
     }
@@ -219,6 +284,7 @@ impl<'s> AppState<'s> {
         if self.wrap {
             self.update_wrap(self.width - 1);
         }
+        self.search_up_to_date = false;
     }
     pub fn finish_task(
         &mut self,
@@ -233,6 +299,7 @@ impl<'s> AppState<'s> {
         &mut self,
         mut cmd_result: CommandResult,
     ) {
+        self.search_up_to_date = false;
         if self.reverse {
             cmd_result.reverse();
         }
@@ -284,6 +351,7 @@ impl<'s> AppState<'s> {
         debug!("state.clear");
         self.take_output();
         self.cmd_result = CommandResult::None;
+        self.search_up_to_date = false;
     }
     /// Start a new task on the current mission
     pub fn start_computation(
@@ -302,6 +370,7 @@ impl<'s> AppState<'s> {
         self.report_maker.start(&self.mission);
         self.computing = true;
         self.changes_since_last_job_start = 0;
+        self.search_up_to_date = false;
     }
     pub fn computation_stops(&mut self) {
         self.computing = false;
@@ -334,31 +403,10 @@ impl<'s> AppState<'s> {
     }
     /// get the scroll value needed to go to the last item (if any)
     fn get_last_item_scroll(&self) -> usize {
-        if let CommandResult::Report(ref report) = self.cmd_result {
-            if let Some(wrapped_report) = self.wrapped_report.as_ref().filter(|_| self.wrap) {
-                let sub_lines = wrapped_report
-                    .sub_lines
-                    .iter()
-                    .filter(|line| {
-                        !(self.summary && line.src_line_type(report) == LineType::Normal)
-                    })
-                    .enumerate();
-                for (row_idx, sub_line) in sub_lines {
-                    if sub_line.src_line(report).item_idx == self.top_item_idx {
-                        return row_idx;
-                    }
-                }
-            } else {
-                let lines = report
-                    .lines
-                    .iter()
-                    .filter(|line| !(self.summary && line.line_type == LineType::Normal))
-                    .enumerate();
-                for (row_idx, line) in lines {
-                    if line.item_idx == self.top_item_idx {
-                        return row_idx;
-                    }
-                }
+        let lines = self.lines_to_draw();
+        for (row_idx, line) in lines.iter().enumerate() {
+            if line.item_idx == self.top_item_idx {
+                return row_idx;
             }
         }
         0
@@ -369,6 +417,21 @@ impl<'s> AppState<'s> {
     fn try_scroll_to_last_top_item(&mut self) {
         self.scroll = self.get_last_item_scroll();
         self.fix_scroll();
+    }
+    fn show_line(
+        &mut self,
+        line_idx: usize,
+    ) {
+        let page_height = self.page_height();
+        if line_idx < self.scroll || line_idx >= self.scroll + page_height {
+            self.scroll = (line_idx - (page_height / 2).min(line_idx))
+                .min(self.content_height().max(page_height) - page_height);
+        }
+    }
+    fn show_selected_found(&mut self) {
+        if let Some(selected_line) = self.selected_found_line() {
+            self.show_line(selected_line);
+        }
     }
     /// close the help and return true if it was open,
     /// return false otherwise
@@ -414,30 +477,11 @@ impl<'s> AppState<'s> {
         if self.wrapped_report.is_some() {
             self.try_scroll_to_last_top_item();
         }
+        self.search_up_to_date = false;
     }
     fn content_height(&self) -> usize {
-        if let CommandResult::Report(report) = &self.cmd_result {
-            if self.mission.is_success(report) || self.raw_output {
-                if let Some(wrapped_output) = self.wrapped_output.as_ref() {
-                    wrapped_output.sub_lines.len()
-                } else {
-                    report.output.len()
-                }
-            } else {
-                if let Some(wrapped_report) = self.wrapped_report.as_ref() {
-                    wrapped_report.content_height(self.summary)
-                } else {
-                    report.stats.lines(self.summary)
-                }
-            }
-        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
-            match (self.wrap, self.wrapped_output.as_ref()) {
-                (true, Some(wrapped_output)) => wrapped_output.sub_lines.len(),
-                _ => output.len(),
-            }
-        } else {
-            0
-        }
+        let lines = self.lines_to_draw();
+        lines.len()
     }
     fn page_height(&self) -> usize {
         self.height.max(3) as usize - 3
@@ -457,6 +501,7 @@ impl<'s> AppState<'s> {
             self.update_wrap(self.width - 1);
         }
         self.try_scroll_to_last_top_item();
+        self.search_up_to_date = false;
     }
     pub fn apply_scroll_command(
         &mut self,
@@ -482,7 +527,7 @@ impl<'s> AppState<'s> {
         if must_draw_search {
             goto_line(w, y)?;
             write!(w, "/")?;
-            let search_width = (self.width / 3).clamp(8, 30);
+            let search_width = (self.width / 4).clamp(8, 26);
             self.search_input.change_area(1, y, search_width);
             self.search_input.display_on(w)?;
             help_start += search_width + 1;
@@ -615,6 +660,36 @@ impl<'s> AppState<'s> {
             None
         }
     }
+    /// Return the (unfiltered) set of lines to draw, depending on whether we wrap or not
+    /// and whether we have a report or not
+    fn lines_to_draw(&self) -> &[Line] {
+        if let Some(report) = self.report_to_draw() {
+            match (self.wrap, self.wrapped_report.as_ref()) {
+                (true, Some(wrapped_report)) => {
+                    // wrapped report
+                    &wrapped_report.sub_lines
+                }
+                _ => {
+                    // unwrapped report
+                    &report.lines
+                }
+            }
+        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
+            match (self.wrap, self.wrapped_output.as_ref()) {
+                (true, Some(wrapped_output)) => {
+                    // wrapped raw command output
+                    &wrapped_output.sub_lines
+                }
+                _ => {
+                    // unwrapped raw command output
+                    &output.lines
+                }
+            }
+        } else {
+            // nothing yet
+            &[]
+        }
+    }
     fn report_to_draw(&self) -> Option<&Report> {
         self.cmd_result
             .report()
@@ -652,6 +727,7 @@ impl<'s> AppState<'s> {
         if self.height < 4 {
             return Ok(());
         }
+        self.update_search();
         let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
         let content_height = self.content_height();
         let scrollbar = area.scrollbar(self.scroll, content_height);
@@ -667,97 +743,61 @@ impl<'s> AppState<'s> {
             clear_line(w)?;
         }
         let width = self.width as usize;
-        let pattern = self.search_input.get_content();
-        let pattern = Some(pattern.as_str()).filter(|s| !s.is_empty());
-        if let Some(report) = self.report_to_draw() {
-            match (self.wrap, self.wrapped_report.as_ref()) {
-                (true, Some(wrapped_report)) => {
-                    // wrapped report
-                    let mut sub_lines = wrapped_report
-                        .sub_lines
-                        .iter()
-                        .filter(|sub_line| sub_line.src_line(report).matches(self.summary, pattern))
-                        .skip(self.scroll);
-                    for row_idx in 0..area.height {
-                        let y = row_idx + top;
-                        goto_line(w, y)?;
-                        if let Some(sub_line) = sub_lines.next() {
-                            top_item_idx.get_or_insert_with(|| sub_line.src_line(report).item_idx);
-                            sub_line.draw_line_type(w, report)?;
-                            write!(w, " ")?;
-                            sub_line.draw(w, &report.lines)?;
+        let lines = self.lines_to_draw();
+        let mut lines = lines
+            .iter()
+            .enumerate()
+            .filter(|(_, line)| line.matches(self.summary))
+            .skip(self.scroll);
+        let mut found_idx = 0;
+        for row_idx in 0..area.height {
+            let y = row_idx + top;
+            goto_line(w, y)?;
+            if let Some((line_idx, line)) = lines.next() {
+                top_item_idx.get_or_insert(line.item_idx);
+                line.line_type.draw(w, line.item_idx)?;
+                write!(w, " ")?;
+                if width > line.line_type.cols() + 1 {
+                    let mut tline = &line.content;
+
+                    // search for the optional founds related to that line
+                    let mut line_founds = Vec::new();
+                    let found_idx_before_line = found_idx;
+                    while found_idx < self.founds.len() {
+                        let found = &self.founds[found_idx];
+                        if found.line_idx > line_idx {
+                            break;
                         }
-                        clear_line(w)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                        if found.line_idx == line_idx {
+                            line_founds.push(found);
                         }
+                        found_idx += 1;
                     }
-                }
-                _ => {
-                    // unwrapped report
-                    let mut lines = report
-                        .lines
-                        .iter()
-                        .filter(|line| line.matches(self.summary, pattern))
-                        .skip(self.scroll);
-                    for row_idx in 0..area.height {
-                        let y = row_idx + top;
-                        goto_line(w, y)?;
-                        if let Some(Line {
-                            item_idx,
-                            line_type,
-                            content,
-                        }) = lines.next()
-                        {
-                            top_item_idx.get_or_insert(*item_idx);
-                            line_type.draw(w, *item_idx)?;
-                            write!(w, " ")?;
-                            if width > line_type.cols() + 1 {
-                                content.draw_in(w, width - 1 - line_type.cols())?;
-                            }
+
+                    // apply the modification on the tline
+                    let mut modified;
+                    if !line_founds.is_empty() {
+                        modified = tline.clone();
+                        // We iterate on founds in reverse, so that we change the tline from
+                        // the end, so that the tstring index in the founds stay valid when
+                        // tstrings are added by the change_range_style method.
+                        for (in_line_idx, found) in line_founds.iter().enumerate().rev() {
+                            let cur_idx = found_idx_before_line + in_line_idx;
+                            let style = if self.selected_found == cur_idx {
+                                CSI_FOUND_SELECTED
+                            } else {
+                                CSI_FOUND
+                            };
+                            modified.change_range_style(found.trange, style.to_string());
                         }
-                        clear_line(w)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
-                        }
+                        tline = &modified;
                     }
+                    tline.draw_in(w, width - 1 - line.line_type.cols())?;
                 }
             }
-            self.top_item_idx = top_item_idx.unwrap_or(0);
-        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
-            match (self.wrap, self.wrapped_output.as_ref()) {
-                (true, Some(wrapped_output)) => {
-                    let mut sub_lines = wrapped_output
-                        .sub_lines
-                        .iter()
-                        .filter(|sub_line| sub_line.src_line(output).matches(pattern))
-                        .skip(self.scroll);
-                    for row_idx in 0..area.height {
-                        let y = row_idx + top;
-                        goto_line(w, y)?;
-                        if let Some(sub_line) = sub_lines.next() {
-                            sub_line.draw(w, &output.lines)?;
-                        }
-                        clear_line(w)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
-                        }
-                    }
-                }
-                _ => {
-                    let lines = &output.lines;
-                    for row_idx in 0..area.height {
-                        let y = row_idx + top;
-                        goto_line(w, y)?;
-                        if let Some(line) = lines.get(row_idx as usize + self.scroll) {
-                            line.content.draw_in(w, width)?;
-                        }
-                        clear_line(w)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
-                        }
-                    }
-                }
+            clear_line(w)?;
+            if is_thumb(y.into(), scrollbar) {
+                execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
             }
         }
         Ok(())

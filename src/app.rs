@@ -209,6 +209,12 @@ fn run_mission(
                             break;
                         }
                     }
+                    Internal::NextMatch => {
+                        state.next_match();
+                    }
+                    Internal::PreviousMatch => {
+                        state.previous_match();
+                    }
                     Internal::FocusSearch => {
                         state.focus_search();
                     }

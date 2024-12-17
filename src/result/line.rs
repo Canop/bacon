@@ -12,8 +12,8 @@ use {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Line {
     /// the index among items
-    /// (all lines having the same index belong to
-    /// the same error, warning, or test item)
+    /// (all lines having the same index belong to the same error, warning, or test item,
+    /// or just the same unclassified soup)
     pub item_idx: usize,
 
     pub line_type: LineType,
@@ -44,17 +44,8 @@ impl Line {
     pub fn matches(
         &self,
         summary: bool,
-        pattern: Option<&str>,
     ) -> bool {
-        if summary && self.line_type == LineType::Normal {
-            return false;
-        }
-        if let Some(pattern) = pattern {
-            if !self.content.has(pattern) {
-                return false;
-            }
-        }
-        true
+        !summary || self.line_type.is_summary()
     }
 
     /// Return the location as given by cargo
@@ -87,11 +78,12 @@ impl Line {
     }
 }
 
-impl WrappableLine for Line {
-    fn content(&self) -> &TLine {
-        &self.content
-    }
-    fn prefix_cols(&self) -> usize {
-        self.line_type.cols()
+impl From<CommandOutputLine> for Line {
+    fn from(col: CommandOutputLine) -> Self {
+        Line {
+            item_idx: 0,
+            content: col.content,
+            line_type: LineType::Raw(col.origin),
+        }
     }
 }

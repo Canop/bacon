@@ -17,6 +17,7 @@ mod messages;
 mod mission;
 mod result;
 mod scroll;
+mod search;
 mod state;
 mod tty;
 mod watcher;
@@ -40,6 +41,7 @@ pub use {
     mission::*,
     result::*,
     scroll::*,
+    search::*,
     state::*,
     tty::*,
     watcher::*,

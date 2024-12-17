@@ -34,6 +34,8 @@ pub enum Internal {
     ToggleWrap,
     Unpause,
     Validate, // validate search entry
+    NextMatch,
+    PreviousMatch,
 }
 
 impl Internal {
@@ -57,6 +59,8 @@ impl Internal {
             Self::Unpause => "unpause".to_string(),
             Self::FocusSearch => "focus search".to_string(),
             Self::Validate => "validate".to_string(),
+            Self::NextMatch => "next match".to_string(),
+            Self::PreviousMatch => "previous match".to_string(),
         }
     }
 }
@@ -84,6 +88,8 @@ impl fmt::Display for Internal {
             Self::Unpause => write!(f, "unpause"),
             Self::FocusSearch => write!(f, "focus-search"),
             Self::Validate => write!(f, "validate"),
+            Self::NextMatch => write!(f, "next-match"),
+            Self::PreviousMatch => write!(f, "previous-match"),
         }
     }
 }
@@ -113,6 +119,8 @@ impl std::str::FromStr for Internal {
             "toggle-pause" => Ok(Self::TogglePause),
             "focus-search" => Ok(Self::FocusSearch),
             "validate" => Ok(Self::Validate),
+            "next-match" => Ok(Self::NextMatch),
+            "previous-match" => Ok(Self::PreviousMatch),
             _ => Err("invalid internal"),
         }
     }
@@ -160,6 +168,8 @@ fn test_internal_string_round_trip() {
         Internal::ToggleWrap,
         Internal::Unpause,
         Internal::Validate,
+        Internal::NextMatch,
+        Internal::PreviousMatch,
     ];
     for internal in internals {
         assert_eq!(internal.to_string().parse(), Ok(internal));

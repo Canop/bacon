@@ -26,13 +26,6 @@ pub struct Report {
     pub analyzer_exports: HashMap<String, String>,
 }
 
-impl HasWrappableLines for Report {
-    type WL = Line;
-    fn wrappable_lines(&self) -> &[Self::WL] {
-        &self.lines
-    }
-}
-
 impl Report {
     /// change the order of the lines so that items are in reverse order
     /// (but keep the order of lines of a given item)
