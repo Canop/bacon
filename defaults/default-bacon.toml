@@ -48,6 +48,7 @@ need_stdout = true
 [jobs.nextest]
 command = [
     "cargo", "nextest", "run",
+    "--message-format", "libtest-json",
     "--hide-progress-bar", "--failure-output", "final"
 ]
 need_stdout = true
