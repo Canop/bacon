@@ -1,10 +1,8 @@
 use crate::*;
 
-/// A wrapped report, only valid for the report it was computed for,
-/// contains references to the start and end of lines wrapped for a
-/// given width
 pub struct WrappedReport {
-    pub sub_lines: Vec<SubLine>,
+    pub sub_lines: Vec<Line>,
+    /// number of summary lines after wrapping
     pub summary_height: usize,
 }
 
@@ -20,26 +18,11 @@ impl WrappedReport {
         let sub_lines = wrap(&report.lines, width);
         let summary_height = sub_lines
             .iter()
-            .filter(|sl| {
-                report
-                    .lines
-                    .get(sl.line_idx)
-                    .map_or(true, |l| l.line_type != LineType::Normal)
-            })
+            .filter(|sl| sl.line_type.is_summary())
             .count();
         Self {
             sub_lines,
             summary_height,
-        }
-    }
-    pub fn content_height(
-        &self,
-        summary: bool,
-    ) -> usize {
-        if summary {
-            self.summary_height
-        } else {
-            self.sub_lines.len()
         }
     }
 }

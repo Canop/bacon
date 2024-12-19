@@ -85,7 +85,7 @@ fn is_error_test_run_failed(content: &TLine) -> bool {
 }
 
 fn is_canceling(content: &TLine) -> bool {
-    let Some(first) = content.strings.get(0) else {
+    let Some(first) = content.strings.first() else {
         return false;
     };
     first.csi == CSI_ERROR && first.raw.trim() == "Canceling"

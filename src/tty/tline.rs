@@ -21,6 +21,43 @@ pub struct TLine {
 }
 
 impl TLine {
+    pub fn change_range_style(
+        &mut self,
+        trange: TRange,
+        new_csi: String,
+    ) {
+        let TRange {
+            string_idx,
+            start_byte_in_string,
+            end_byte_in_string,
+        } = trange;
+        if string_idx >= self.strings.len() {
+            return;
+        }
+        let csi = &self.strings[string_idx].csi.clone();
+        let raw = &mut self.strings[string_idx].raw;
+        if start_byte_in_string >= raw.len() {
+            return;
+        }
+        if end_byte_in_string < raw.len() {
+            let after = raw[end_byte_in_string..].to_string();
+            raw.truncate(end_byte_in_string);
+            self.strings.insert(string_idx + 1, TString {
+                csi: csi.clone(),
+                raw: after,
+            });
+        }
+        let raw = &mut self.strings[string_idx].raw;
+        if start_byte_in_string > 0 {
+            let after = raw[start_byte_in_string..].to_string();
+            raw.truncate(start_byte_in_string);
+            self.strings[string_idx].csi = csi.clone();
+            self.strings.insert(string_idx + 1, TString {
+                csi: new_csi.to_string(),
+                raw: after,
+            });
+        }
+    }
     pub fn from_tty(tty: &str) -> Self {
         let tty_str: String;
         let tty = if tty.contains('\t') {
