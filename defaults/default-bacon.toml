@@ -46,6 +46,7 @@ command = ["cargo", "test"]
 need_stdout = true
 
 [jobs.nextest]
+env.NEXTEST_EXPERIMENTAL_LIBTEST_JSON="1"
 command = [
     "cargo", "nextest", "run",
     "--message-format", "libtest-json",

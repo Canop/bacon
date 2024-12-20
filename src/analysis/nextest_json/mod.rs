@@ -1,6 +1,16 @@
-use crate::{CommandOutput, CommandOutputLine, CommandStream, Report, TLine};
+use crate::{
+    CommandOutput,
+    CommandOutputLine,
+    CommandStream,
+    Report,
+    TLine,
+};
 
-use super::{Analyzer, LineType, Stats};
+use super::{
+    Analyzer,
+    LineType,
+    Stats,
+};
 
 #[derive(Debug, Default)]
 pub struct NextestJSONAnalyzer {
@@ -40,7 +50,7 @@ impl Analyzer for NextestJSONAnalyzer {
             match line {
                 OutputLine::Suite { event } => match event {
                     SuiteEvent::Started { test_count: _ } => (),
-                    SuiteEvent::Ok {..} => (),
+                    SuiteEvent::Ok { .. } => (),
                     SuiteEvent::Failed {
                         passed,
                         failed,
