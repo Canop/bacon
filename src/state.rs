@@ -180,6 +180,9 @@ impl<'s> AppState<'s> {
             false
         }
     }
+    pub fn has_search(&self) -> bool {
+        self.search_input.focused() || !self.search_input.is_empty()
+    }
     /// handle a raw, uninterpreted key combination (in an input if there's one
     /// focused), return true if the key was consumed (if not, keybindings will
     /// be computed)
@@ -207,11 +210,11 @@ impl<'s> AppState<'s> {
         if self.search_up_to_date {
             return;
         }
+        let old_selected_line = self.selected_found_line();
         self.founds.clear();
         if self.search_input.is_empty() {
             return;
         }
-        let old_selected_line = self.selected_found_line();
         let pattern = Pattern {
             pattern: self.search_input.get_content(),
         };
@@ -766,6 +769,12 @@ impl<'s> AppState<'s> {
             .filter(|(_, line)| line.matches(self.summary))
             .skip(self.scroll);
         let mut found_idx = 0;
+        #[derive(Debug)]
+        struct PendingContinuation {
+            trange: TRange,
+            style: &'static str,
+        }
+        let mut pending_continuation = None;
         for row_idx in 0..area.height {
             let y = row_idx + top;
             goto_line(w, y)?;
@@ -792,7 +801,9 @@ impl<'s> AppState<'s> {
 
                     // apply the modification on the tline
                     let mut modified;
-                    if !line_founds.is_empty() {
+                    let previous_continuation = pending_continuation.take();
+                    if previous_continuation.is_some() || !line_founds.is_empty() {
+                        info!("modify");
                         modified = tline.clone();
                         // We iterate on founds in reverse, so that we change the tline from
                         // the end, so that the tstring index in the founds stay valid when
@@ -805,6 +816,21 @@ impl<'s> AppState<'s> {
                                 CSI_FOUND
                             };
                             modified.change_range_style(found.trange, style.to_string());
+                            if let Some(continued) = &found.continued {
+                                pending_continuation = Some(PendingContinuation {
+                                    trange: *continued,
+                                    style,
+                                });
+                                info!("pending_continuation: {:?}", &pending_continuation);
+                            }
+                        }
+                        if let Some(continuation) = previous_continuation {
+                            info!("APPLY continuation {:#?}", &continuation);
+                            modified.change_range_style(
+                                continuation.trange,
+                                continuation.style.to_string(),
+                            );
+                            info!(" -> modified: {:#?}", &modified);
                         }
                         tline = &modified;
                     }

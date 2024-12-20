@@ -11,6 +11,7 @@ pub struct HelpLine {
     pause: Option<String>,
     unpause: Option<String>,
     scope: Option<String>,
+    search: Option<String>,
 }
 
 impl HelpLine {
@@ -18,7 +19,7 @@ impl HelpLine {
         let kb = &settings.keybindings;
         let quit = kb
             .shortest_internal_key(Internal::Quit)
-            .map(|k| format!("Hit *{k}* to quit"))
+            .map(|k| format!("*{k}* to quit"))
             .expect("the app to be quittable");
         let toggle_summary = kb
             .shortest_internal_key(Internal::ToggleSummary)
@@ -52,6 +53,9 @@ impl HelpLine {
         let scope = kb
             .shortest_internal_key(Internal::ScopeToFailures)
             .map(|k| format!("*{k}* to scope to failures"));
+        let search = kb
+            .shortest_internal_key(Internal::FocusSearch)
+            .map(|k| format!("*{k}* to search"));
         Self {
             quit,
             toggle_summary,
@@ -63,14 +67,16 @@ impl HelpLine {
             pause,
             unpause,
             scope,
+            search,
         }
     }
     pub fn markdown(
         &self,
         state: &AppState,
     ) -> String {
-        let mut parts: Vec<&str> = vec![&self.quit];
+        let mut parts: Vec<&str> = Vec::new();
         if state.is_help() {
+            parts.push(&self.quit);
             if let Some(s) = &self.close_help {
                 parts.push(s);
             }
@@ -96,6 +102,14 @@ impl HelpLine {
                     }
                 }
             }
+            if !state.has_search() {
+                if let Some(s) = &self.search {
+                    parts.push(s);
+                }
+            }
+            if let Some(s) = &self.help {
+                parts.push(s);
+            }
             if state.wrap {
                 if let Some(s) = &self.not_wrap {
                     parts.push(s);
@@ -110,10 +124,8 @@ impl HelpLine {
                     parts.push(s);
                 }
             }
-            if let Some(s) = &self.help {
-                parts.push(s);
-            }
+            parts.push(&self.quit);
         }
-        parts.join(", ")
+        format!("Hit {}", parts.join(", "))
     }
 }

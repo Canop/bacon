@@ -76,6 +76,9 @@ impl Line {
         }
         Some(location_path)
     }
+    pub fn is_continuation(&self) -> bool {
+        matches!(self.line_type, LineType::Continuation { .. })
+    }
 }
 
 impl From<CommandOutputLine> for Line {
