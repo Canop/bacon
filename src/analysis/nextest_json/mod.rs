@@ -10,11 +10,13 @@ use super::{
     Analyzer,
     LineType,
     Stats,
+    standard::StandardAnalyzer,
 };
 
 #[derive(Debug, Default)]
 pub struct NextestJSONAnalyzer {
     lines: Vec<CommandOutputLine>,
+    standard_analyzer: StandardAnalyzer,
 }
 
 impl Analyzer for NextestJSONAnalyzer {
@@ -31,7 +33,10 @@ impl Analyzer for NextestJSONAnalyzer {
         command_output: &mut crate::CommandOutput,
     ) {
         match line.origin {
-            CommandStream::StdErr => command_output.push(line),
+            // In JSON mode, stderr output is human readable
+            CommandStream::StdErr => self.standard_analyzer.receive_line(line, command_output),
+
+            // The JSON payloads come on stdout
             CommandStream::StdOut => self.lines.push(line),
         }
     }
@@ -44,7 +49,8 @@ impl Analyzer for NextestJSONAnalyzer {
             output: CommandOutput::default(),
             failure_keys: Vec::default(),
         };
-        let mut fail_idx = 0;
+
+        let mut item_idx = 0;
         for line in &self.lines {
             let line: OutputLine = serde_json::from_str(&line.content.to_raw())?;
             match line {
@@ -67,28 +73,34 @@ impl Analyzer for NextestJSONAnalyzer {
                     TestEvent::Started => (),
                     TestEvent::Ok { name: _ } => (),
                     TestEvent::Failed { name, stdout } => {
+                        let name = cleanup_name(&name);
                         report.lines.push(crate::Line {
-                            item_idx: fail_idx,
-                            line_type: LineType::TestResult(false),
+                            item_idx,
+                            line_type: LineType::Title(super::Kind::Error),
                             content: TLine::failed(&name),
                         });
-                        report.lines.push(crate::Line {
-                            item_idx: fail_idx,
-                            line_type: LineType::Normal,
-                            content: TLine::from_raw(stdout),
-                        });
+                        for outline in stdout.lines() {
+                            report.lines.push(crate::Line {
+                                item_idx,
+                                line_type: LineType::Normal,
+                                content: TLine::from_raw(outline.to_owned()),
+                            });
+                        }
                         report.failure_keys.push(name);
-                        fail_idx += 1;
+                        item_idx += 1;
                     }
                 },
             }
         }
-        report.lines.push(crate::Line {
-            item_idx: fail_idx,
-            line_type: LineType::Normal,
-            content: TLine::default(),
-        });
         Ok(report)
+    }
+}
+
+fn cleanup_name(name: &str) -> String {
+    if let Some(idx) = name.chars().position(|ch| ch == '$') {
+        name.chars().skip(idx + 1).collect()
+    } else {
+        name.to_owned()
     }
 }
 
@@ -140,84 +152,93 @@ enum OutputLine {
     },
 }
 
-#[test]
-fn test_parse() {
-    let suite_started = r#"{"type":"suite","event":"started","test_count":7}"#;
-    assert_eq!(
-        serde_json::from_str::<OutputLine>(suite_started).unwrap(),
-        OutputLine::Suite {
-            event: SuiteEvent::Started { test_count: 7 }
-        }
-    );
+#[cfg(test)]
+mod test {
+    use super::{
+        OutputLine,
+        SuiteEvent,
+        TestEvent,
+    };
 
-    let suite_failed = r#"{"type":"suite","event":"failed","passed":6,"failed":1,"ignored":0,"measured":0,"filtered_out":0,"exec_time":0.015213355}"#;
-    assert_eq!(
-        serde_json::from_str::<OutputLine>(suite_failed).unwrap(),
-        OutputLine::Suite {
-            event: SuiteEvent::Failed {
-                passed: 6,
-                failed: 1,
-                ignored: 0,
-                measured: 0,
-                filtered_out: 0,
-                exec_time: 0.015213355
+    #[test]
+    fn parse() {
+        let suite_started = r#"{"type":"suite","event":"started","test_count":7}"#;
+        assert_eq!(
+            serde_json::from_str::<OutputLine>(suite_started).unwrap(),
+            OutputLine::Suite {
+                event: SuiteEvent::Started { test_count: 7 }
             }
-        }
-    );
+        );
 
-    let suite_ok = r#"{"type":"suite","event":"ok","passed":13,"failed":0,"ignored":0,"measured":0,"filtered_out":0,"exec_time":0.140588}"#;
-
-    assert_eq!(
-        serde_json::from_str::<OutputLine>(suite_ok).unwrap(),
-        OutputLine::Suite {
-            event: SuiteEvent::Ok {
-                passed: 13,
-                failed: 0,
-                ignored: 0,
-                measured: 0,
-                filtered_out: 0,
-                exec_time: 0.140588
+        let suite_failed = r#"{"type":"suite","event":"failed","passed":6,"failed":1,"ignored":0,"measured":0,"filtered_out":0,"exec_time":0.015213355}"#;
+        assert_eq!(
+            serde_json::from_str::<OutputLine>(suite_failed).unwrap(),
+            OutputLine::Suite {
+                event: SuiteEvent::Failed {
+                    passed: 6,
+                    failed: 1,
+                    ignored: 0,
+                    measured: 0,
+                    filtered_out: 0,
+                    exec_time: 0.015213355
+                }
             }
-        }
-    );
+        );
 
-    let test_started =
-        r#"{"type":"test","event":"started","name":"llm::llm$parser::test::number"}"#;
-    assert_eq!(
-        serde_json::from_str::<OutputLine>(test_started).unwrap(),
-        OutputLine::Test {
-            event: TestEvent::Started {}
-        }
-    );
+        let suite_ok = r#"{"type":"suite","event":"ok","passed":13,"failed":0,"ignored":0,"measured":0,"filtered_out":0,"exec_time":0.140588}"#;
 
-    let test_ok = r#"{"type":"test","event":"ok","name":"llm::llm$parser::test::identifier","exec_time":0.002138244}"#;
-
-    assert_eq!(
-        serde_json::from_str::<OutputLine>(test_ok).unwrap(),
-        OutputLine::Test {
-            event: TestEvent::Ok {
-                name: "llm::llm$parser::test::identifier".to_owned(),
+        assert_eq!(
+            serde_json::from_str::<OutputLine>(suite_ok).unwrap(),
+            OutputLine::Suite {
+                event: SuiteEvent::Ok {
+                    passed: 13,
+                    failed: 0,
+                    ignored: 0,
+                    measured: 0,
+                    filtered_out: 0,
+                    exec_time: 0.140588
+                }
             }
-        }
-    );
+        );
 
-    let test_fail = r#" {"type":"test","event":"failed","name":"llm::llm$parser::test::var","exec_time":0.002140747,"stdout":"thread 'parser::test::var' panicked at src"}"#;
-    assert_eq!(
-        serde_json::from_str::<OutputLine>(test_fail).unwrap(),
-        OutputLine::Test {
-            event: TestEvent::Failed {
-                name: "llm::llm$parser::test::var".to_owned(),
-                stdout: "thread 'parser::test::var' panicked at src".to_string(),
+        let test_started =
+            r#"{"type":"test","event":"started","name":"llm::llm$parser::test::number"}"#;
+        assert_eq!(
+            serde_json::from_str::<OutputLine>(test_started).unwrap(),
+            OutputLine::Test {
+                event: TestEvent::Started {}
             }
-        }
-    );
+        );
+
+        let test_ok = r#"{"type":"test","event":"ok","name":"llm::llm$parser::test::identifier","exec_time":0.002138244}"#;
+
+        assert_eq!(
+            serde_json::from_str::<OutputLine>(test_ok).unwrap(),
+            OutputLine::Test {
+                event: TestEvent::Ok {
+                    name: "llm::llm$parser::test::identifier".to_owned(),
+                }
+            }
+        );
+
+        let test_fail = r#" {"type":"test","event":"failed","name":"llm::llm$parser::test::var","exec_time":0.002140747,"stdout":"thread 'parser::test::var' panicked at src"}"#;
+        assert_eq!(
+            serde_json::from_str::<OutputLine>(test_fail).unwrap(),
+            OutputLine::Test {
+                event: TestEvent::Failed {
+                    name: "llm::llm$parser::test::var".to_owned(),
+                    stdout: "thread 'parser::test::var' panicked at src".to_string(),
+                }
+            }
+        );
+    }
+
+    #[test]
+    fn cleanup_name() {
+        let name = "bacon::bacon$analysis::nextest_json::test_fail";
+        assert_eq!(
+            super::cleanup_name(name),
+            "analysis::nextest_json::test_fail".to_owned()
+        );
+    }
 }
-
-#[test]
-fn test_fail() {
-    assert!(false);
-}
-
-/*
- * NEXTEST_EXPERIMENTAL_LIBTEST_JSON=1 cargo nextest run --message-format libtest-json --failure-output final --hide-progress-bar 2>/dev/null
-*/
