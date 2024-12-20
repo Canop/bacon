@@ -1,17 +1,6 @@
-use crate::{
-    CommandOutput,
-    CommandOutputLine,
-    CommandStream,
-    Report,
-    TLine,
-};
+use crate::{CommandOutput, CommandOutputLine, CommandStream, Report, TLine};
 
-use super::{
-    Analyzer,
-    LineType,
-    Stats,
-    standard::StandardAnalyzer,
-};
+use super::{Analyzer, LineType, Stats, standard::StandardAnalyzer};
 
 #[derive(Debug, Default)]
 pub struct NextestJSONAnalyzer {
@@ -72,6 +61,7 @@ impl Analyzer for NextestJSONAnalyzer {
                 OutputLine::Test { event } => match event {
                     TestEvent::Started => (),
                     TestEvent::Ok { name: _ } => (),
+                    TestEvent::Ignored { name: _ } => (),
                     TestEvent::Failed { name, stdout } => {
                         let name = cleanup_name(&name);
                         report.lines.push(crate::Line {
@@ -111,6 +101,7 @@ enum TestEvent {
     Started,
     Ok { name: String },
     Failed { name: String, stdout: String },
+    Ignored { name: String },
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize, PartialEq)]
@@ -154,11 +145,7 @@ enum OutputLine {
 
 #[cfg(test)]
 mod test {
-    use super::{
-        OutputLine,
-        SuiteEvent,
-        TestEvent,
-    };
+    use super::{OutputLine, SuiteEvent, TestEvent};
 
     #[test]
     fn parse() {
@@ -228,6 +215,17 @@ mod test {
                 event: TestEvent::Failed {
                     name: "llm::llm$parser::test::var".to_owned(),
                     stdout: "thread 'parser::test::var' panicked at src".to_string(),
+                }
+            }
+        );
+
+        let test_ignored =
+            r#"{"type":"test","event":"ignored","name":"llvm::llvm$parser::test::var"}"#;
+        assert_eq!(
+            serde_json::from_str::<OutputLine>(test_ignored).unwrap(),
+            OutputLine::Test {
+                event: TestEvent::Ignored {
+                    name: "llm::llm$parser::test::var".to_owned(),
                 }
             }
         );
