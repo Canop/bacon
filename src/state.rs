@@ -223,11 +223,27 @@ impl<'s> AppState<'s> {
         }
         self.search_up_to_date = true;
     }
+    /// Do a partial update for some potential added lines
+    pub fn update_search_from_line(
+        &mut self,
+        line_count_before: usize,
+    ) {
+        if self.search_input.is_empty() {
+            return;
+        }
+        let lines = self.lines_to_draw();
+        let pattern = Pattern {
+            pattern: self.search_input.get_content(),
+        };
+        let new_founds = pattern.search_lines(&lines[line_count_before..]);
+        self.founds.extend(new_founds);
+    }
     pub fn add_line(
         &mut self,
         line: CommandOutputLine,
     ) {
         let auto_scroll = self.is_scroll_at_bottom();
+        let line_count_before = self.lines_to_draw().len();
         if let Some(output) = self.output.as_mut() {
             self.report_maker.receive_line(line, output);
             if self.wrap {
@@ -247,7 +263,7 @@ impl<'s> AppState<'s> {
             self.scroll = 0;
             self.fix_scroll();
         }
-        self.search_up_to_date = false; // FIXME do just a partial update, don't recompute everything
+        self.update_search_from_line(line_count_before);
     }
     pub fn new_task(&self) -> Task {
         Task {
