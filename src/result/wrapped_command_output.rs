@@ -4,7 +4,7 @@ use crate::*;
 /// contains references to the start and end of lines wrapped for a
 /// given width
 pub struct WrappedCommandOutput {
-    pub sub_lines: Vec<SubLine>,
+    pub sub_lines: Vec<Line>,
 
     /// in order to allow partial wrapping, and assuming the wrapped part
     /// didn't change, we store the count of lines which were wrapped so
@@ -34,11 +34,8 @@ impl WrappedCommandOutput {
         cmd_output: &CommandOutput,
         width: u16,
     ) {
-        let mut new_lines = wrap(&cmd_output.lines[self.wrapped_lines_count..], width);
-        for mut line in new_lines.drain(..) {
-            line.line_idx += self.wrapped_lines_count;
-            self.sub_lines.push(line);
-        }
+        self.sub_lines
+            .extend(wrap(&cmd_output.lines[self.wrapped_lines_count..], width));
         self.wrapped_lines_count = cmd_output.lines.len();
     }
 }

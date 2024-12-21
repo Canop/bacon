@@ -28,7 +28,7 @@ static TEMPLATE: &str = r#"
 See *https://dystroy.org/bacon* for a complete guide.
 
 |:-:|:-:
-|**action**|**shortcuts**
+|**action**|**shortcut**
 |:-|:-:
 ${keybindings
 |${action}|${keys}

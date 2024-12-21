@@ -1,5 +1,6 @@
 mod tline;
 mod tline_builder;
+mod trange;
 mod tstring;
 
 pub const CSI_RESET: &str = "\u{1b}[0m\u{1b}[0m";
@@ -36,5 +37,6 @@ static TAB_REPLACEMENT: &str = "    ";
 pub use {
     tline::*,
     tline_builder::*,
+    trange::*,
     tstring::*,
 };
