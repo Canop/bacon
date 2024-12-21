@@ -21,41 +21,51 @@ pub const CSI_FOUND_SELECTED: &str = "\u{1b}[1m\u{1b}[30m\u{1b}[48;5;208m"; // b
 impl Pattern {
     // Current limitations:
     // - a match can't span over more than 2 lines. This is probably fine.
-    pub fn search_lines(
+    pub fn search_lines<'i, I>(
         &self,
-        lines: &[Line],
-    ) -> Vec<Found> {
+        lines: I,
+    ) -> Vec<Found>
+    where
+        I: IntoIterator<Item = &'i Line>,
+    {
+        let lines = lines.into_iter();
         let pattern = &self.pattern;
         let len = pattern.len();
         let mut founds = Vec::new();
-        for (line_idx, line) in lines.iter().enumerate() {
-            if line.is_continuation() && line_idx > 0 {
-                // we check for a match broken by wrapping
-                let previous_line = &lines[line_idx - 1];
-                if !previous_line.content.strings.is_empty() && !line.content.strings.is_empty() {
-                    let previous_line_string_idx = previous_line.content.strings.len() - 1;
-                    let previous_last_raw =
-                        &previous_line.content.strings[previous_line_string_idx].raw;
-                    if let Some(cut) =
-                        find_cut_pattern(pattern, previous_last_raw, &line.content.strings[0].raw)
+        let mut previous_line: Option<&Line> = None;
+        for (line_idx, line) in lines.enumerate() {
+            if line.is_continuation() {
+                if let Some(previous_line) = previous_line {
+                    // we check for a match broken by wrapping
+                    if !previous_line.content.strings.is_empty() && !line.content.strings.is_empty()
                     {
-                        let found = Found {
-                            line_idx: line_idx - 1,
-                            trange: TRange {
-                                string_idx: previous_line_string_idx,
-                                start_byte_in_string: previous_last_raw.len() - cut,
-                                end_byte_in_string: previous_last_raw.len(),
-                            },
-                            continued: Some(TRange {
-                                string_idx: 0,
-                                start_byte_in_string: 0,
-                                end_byte_in_string: len - cut,
-                            }),
-                        };
-                        founds.push(found);
+                        let previous_line_string_idx = previous_line.content.strings.len() - 1;
+                        let previous_last_raw =
+                            &previous_line.content.strings[previous_line_string_idx].raw;
+                        if let Some(cut) = find_cut_pattern(
+                            pattern,
+                            previous_last_raw,
+                            &line.content.strings[0].raw,
+                        ) {
+                            let found = Found {
+                                line_idx: line_idx - 1,
+                                trange: TRange {
+                                    string_idx: previous_line_string_idx,
+                                    start_byte_in_string: previous_last_raw.len() - cut,
+                                    end_byte_in_string: previous_last_raw.len(),
+                                },
+                                continued: Some(TRange {
+                                    string_idx: 0,
+                                    start_byte_in_string: 0,
+                                    end_byte_in_string: len - cut,
+                                }),
+                            };
+                            founds.push(found);
+                        }
                     }
                 }
             }
+            previous_line = Some(line);
             for (string_idx, tstring) in line.content.strings.iter().enumerate() {
                 let mut offset = 0;
                 while offset + len < tstring.raw.len() {

@@ -237,7 +237,10 @@ impl<'s> AppState<'s> {
         if self.search_input.is_empty() {
             return;
         }
-        let lines = self.lines_to_draw();
+        // it's probably fine now to search without taking filtering into
+        // account as we're only adding lines in the raw output where there's
+        // no filtering
+        let lines = self.lines_to_draw_unfiltered();
         let pattern = Pattern {
             pattern: self.search_input.get_content(),
         };
@@ -249,7 +252,7 @@ impl<'s> AppState<'s> {
         line: CommandOutputLine,
     ) {
         let auto_scroll = self.is_scroll_at_bottom();
-        let line_count_before = self.lines_to_draw().len();
+        let line_count_before = self.lines_to_draw_unfiltered().len();
         if let Some(output) = self.output.as_mut() {
             self.report_maker.receive_line(line, output);
             if self.wrap {
@@ -426,7 +429,7 @@ impl<'s> AppState<'s> {
     /// get the scroll value needed to go to the last item (if any)
     fn get_last_item_scroll(&self) -> usize {
         let lines = self.lines_to_draw();
-        for (row_idx, line) in lines.iter().enumerate() {
+        for (row_idx, line) in lines.enumerate() {
             if line.item_idx == self.top_item_idx {
                 return row_idx;
             }
@@ -477,6 +480,7 @@ impl<'s> AppState<'s> {
     pub fn toggle_summary_mode(&mut self) {
         self.summary ^= true;
         self.try_scroll_to_last_top_item();
+        self.search_up_to_date = false;
     }
     pub fn toggle_backtrace(
         &mut self,
@@ -503,7 +507,7 @@ impl<'s> AppState<'s> {
     }
     fn content_height(&self) -> usize {
         let lines = self.lines_to_draw();
-        lines.len()
+        lines.count()
     }
     fn page_height(&self) -> usize {
         self.height.max(3) as usize - 3
@@ -683,8 +687,8 @@ impl<'s> AppState<'s> {
         }
     }
     /// Return the (unfiltered) set of lines to draw, depending on whether we wrap or not
-    /// and whether we have a report or not
-    fn lines_to_draw(&self) -> &[Line] {
+    /// and whether we have a report or not.
+    fn lines_to_draw_unfiltered(&self) -> &[Line] {
         if let Some(report) = self.report_to_draw() {
             match (self.wrap, self.wrapped_report.as_ref()) {
                 (true, Some(wrapped_report)) => {
@@ -711,6 +715,11 @@ impl<'s> AppState<'s> {
             // nothing yet
             &[]
         }
+    }
+    fn lines_to_draw(&self) -> impl Iterator<Item = &Line> {
+        self.lines_to_draw_unfiltered()
+            .iter()
+            .filter(|line| line.matches(self.summary))
     }
     fn report_to_draw(&self) -> Option<&Report> {
         self.cmd_result
@@ -766,11 +775,7 @@ impl<'s> AppState<'s> {
         }
         let width = self.width as usize;
         let lines = self.lines_to_draw();
-        let mut lines = lines
-            .iter()
-            .enumerate()
-            .filter(|(_, line)| line.matches(self.summary))
-            .skip(self.scroll);
+        let mut lines = lines.enumerate().skip(self.scroll);
         let mut found_idx = 0;
         #[derive(Debug)]
         struct PendingContinuation {
