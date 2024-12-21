@@ -52,6 +52,7 @@ impl Default for KeyBindings {
         bindings.set(key!('/'), Internal::FocusSearch);
         bindings.set(key!(enter), Internal::Validate);
         bindings.set(key!(tab), Internal::NextMatch);
+        bindings.set(key!(backtab), Internal::PreviousMatch);
         bindings.set(key!(shift - backtab), Internal::PreviousMatch);
 
         // keybindings for some common jobs

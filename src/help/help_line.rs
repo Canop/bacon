@@ -12,6 +12,8 @@ pub struct HelpLine {
     unpause: Option<String>,
     scope: Option<String>,
     search: Option<String>,
+    next_match: Option<String>,
+    previous_match: Option<String>,
 }
 
 impl HelpLine {
@@ -56,6 +58,12 @@ impl HelpLine {
         let search = kb
             .shortest_internal_key(Internal::FocusSearch)
             .map(|k| format!("*{k}* to search"));
+        let next_match = kb
+            .shortest_internal_key(Internal::NextMatch)
+            .map(|k| format!("*{k}* for next match"));
+        let previous_match = kb
+            .shortest_internal_key(Internal::PreviousMatch)
+            .map(|k| format!("*{k}* for previous match"));
         Self {
             quit,
             toggle_summary,
@@ -68,6 +76,8 @@ impl HelpLine {
             unpause,
             scope,
             search,
+            next_match,
+            previous_match,
         }
     }
     pub fn markdown(
@@ -95,16 +105,24 @@ impl HelpLine {
                 if let Some(s) = &self.toggle_backtrace {
                     parts.push(s);
                 }
-            } else if let CommandResult::Report(report) = &state.cmd_result {
-                if !state.mission.is_success(report) {
-                    if let Some(s) = &self.toggle_summary {
-                        parts.push(s);
-                    }
-                }
             }
-            if !state.has_search() {
+            if state.has_search() {
+                if let Some(s) = &self.next_match {
+                    parts.push(s);
+                }
+                if let Some(s) = &self.previous_match {
+                    parts.push(s);
+                }
+            } else {
                 if let Some(s) = &self.search {
                     parts.push(s);
+                }
+                if let CommandResult::Report(report) = &state.cmd_result {
+                    if !state.mission.is_success(report) {
+                        if let Some(s) = &self.toggle_summary {
+                            parts.push(s);
+                        }
+                    }
                 }
             }
             if let Some(s) = &self.help {

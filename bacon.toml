@@ -76,5 +76,5 @@ need_stdout = false
 
 [keybindings]
 c = "job:clippy-all"
-n = "next-match"
-shift-n = "previous-match"
+#n = "next-match"
+#shift-n = "previous-match"
