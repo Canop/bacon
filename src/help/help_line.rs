@@ -14,6 +14,8 @@ pub struct HelpLine {
     search: Option<String>,
     next_match: Option<String>,
     previous_match: Option<String>,
+    clear_search: Option<String>,
+    validate_search: Option<String>,
 }
 
 impl HelpLine {
@@ -64,6 +66,12 @@ impl HelpLine {
         let previous_match = kb
             .shortest_internal_key(Internal::PreviousMatch)
             .map(|k| format!("*{k}* for previous match"));
+        let clear_search = kb
+            .shortest_internal_key(Internal::Back)
+            .map(|k| format!("*{k}* to clear"));
+        let validate_search = kb
+            .shortest_internal_key(Internal::Validate)
+            .map(|k| format!("*{k}* to validate"));
         Self {
             quit,
             toggle_summary,
@@ -78,72 +86,89 @@ impl HelpLine {
             search,
             next_match,
             previous_match,
+            clear_search,
+            validate_search,
         }
     }
-    pub fn markdown(
+    fn applicable_parts(
         &self,
         state: &AppState,
-    ) -> String {
+    ) -> Vec<&str> {
         let mut parts: Vec<&str> = Vec::new();
         if state.is_help() {
             parts.push(&self.quit);
             if let Some(s) = &self.close_help {
                 parts.push(s);
             }
-        } else {
-            if state.can_be_scoped() {
-                if let Some(s) = &self.scope {
-                    parts.push(s);
-                }
-            }
-            if state.auto_refresh.is_paused() {
-                if let Some(s) = &self.unpause {
-                    parts.push(s);
-                }
-            }
-            if state.cmd_result.suggest_backtrace() {
-                if let Some(s) = &self.toggle_backtrace {
-                    parts.push(s);
-                }
-            }
-            if state.has_search() {
-                if let Some(s) = &self.next_match {
-                    parts.push(s);
-                }
-                if let Some(s) = &self.previous_match {
-                    parts.push(s);
-                }
-            } else {
-                if let Some(s) = &self.search {
-                    parts.push(s);
-                }
-                if let CommandResult::Report(report) = &state.cmd_result {
-                    if !state.mission.is_success(report) {
-                        if let Some(s) = &self.toggle_summary {
-                            parts.push(s);
-                        }
-                    }
-                }
-            }
-            if let Some(s) = &self.help {
+            return parts;
+        }
+        if state.has_search() {
+            if let Some(s) = &self.next_match {
                 parts.push(s);
             }
-            if state.wrap {
-                if let Some(s) = &self.not_wrap {
-                    parts.push(s);
-                }
-            } else {
-                if let Some(s) = &self.wrap {
+            if let Some(s) = &self.previous_match {
+                parts.push(s);
+            }
+            if let Some(s) = &self.clear_search {
+                parts.push(s);
+            }
+            if state.is_search_input_focused() {
+                if let Some(s) = &self.validate_search {
                     parts.push(s);
                 }
             }
-            if state.auto_refresh.is_enabled() {
-                if let Some(s) = &self.pause {
-                    parts.push(s);
-                }
-            }
-            parts.push(&self.quit);
+            return parts;
         }
+        if state.can_be_scoped() {
+            if let Some(s) = &self.scope {
+                parts.push(s);
+            }
+        }
+        if state.auto_refresh.is_paused() {
+            if let Some(s) = &self.unpause {
+                parts.push(s);
+            }
+        }
+        if state.cmd_result.suggest_backtrace() {
+            if let Some(s) = &self.toggle_backtrace {
+                parts.push(s);
+            }
+        }
+        if let Some(s) = &self.search {
+            parts.push(s);
+        }
+        if let CommandResult::Report(report) = &state.cmd_result {
+            if !state.mission.is_success(report) {
+                if let Some(s) = &self.toggle_summary {
+                    parts.push(s);
+                }
+            }
+        }
+        if let Some(s) = &self.help {
+            parts.push(s);
+        }
+        if state.wrap {
+            if let Some(s) = &self.not_wrap {
+                parts.push(s);
+            }
+        } else {
+            if let Some(s) = &self.wrap {
+                parts.push(s);
+            }
+        }
+        if state.auto_refresh.is_enabled() {
+            if let Some(s) = &self.pause {
+                parts.push(s);
+            }
+        }
+        parts.push(&self.quit);
+        parts
+    }
+    pub fn markdown(
+        &self,
+        state: &AppState,
+    ) -> String {
+        let parts = self.applicable_parts(state);
         format!("Hit {}", parts.join(", "))
     }
 }

@@ -183,6 +183,9 @@ impl<'s> AppState<'s> {
     pub fn has_search(&self) -> bool {
         self.search_input.focused() || !self.search_input.is_empty()
     }
+    pub fn is_search_input_focused(&self) -> bool {
+        self.search_input.focused()
+    }
     /// handle a raw, uninterpreted key combination (in an input if there's one
     /// focused), return true if the key was consumed (if not, keybindings will
     /// be computed)
@@ -803,7 +806,6 @@ impl<'s> AppState<'s> {
                     let mut modified;
                     let previous_continuation = pending_continuation.take();
                     if previous_continuation.is_some() || !line_founds.is_empty() {
-                        info!("modify");
                         modified = tline.clone();
                         // We iterate on founds in reverse, so that we change the tline from
                         // the end, so that the tstring index in the founds stay valid when
