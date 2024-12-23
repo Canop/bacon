@@ -128,6 +128,16 @@ impl TLine {
             raw: " ".to_string(),
         });
     }
+    pub fn add_tstring<C: Into<String>, R: Into<String>>(
+        &mut self,
+        csi: C,
+        raw: R,
+    ) {
+        self.strings.push(TString {
+            csi: csi.into(),
+            raw: raw.into(),
+        });
+    }
     pub fn draw(
         &self,
         w: &mut W,

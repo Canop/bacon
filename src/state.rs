@@ -552,7 +552,7 @@ impl<'s> AppState<'s> {
         let must_draw_search = self.search_input.focused() || !self.search_input.is_empty();
         if must_draw_search {
             goto_line(w, y)?;
-            write!(w, "/")?;
+            draw(w, CSI_FOUND, "/")?;
             let search_width = (self.width / 4).clamp(8, 26);
             self.search_input.change_area(1, y, search_width);
             self.search_input.display_on(w)?;
@@ -617,6 +617,12 @@ impl<'s> AppState<'s> {
                 235,
                 6,
             ));
+        }
+        if !self.founds.is_empty() {
+            t_line.add_tstring(
+                CSI_FOUND,
+                format!("{}/{}", self.selected_found + 1, self.founds.len(),),
+            );
         }
         let width = self.width as usize;
         let cols = t_line.draw_in(w, width)?;

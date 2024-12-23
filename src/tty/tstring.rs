@@ -82,12 +82,7 @@ impl TString {
         &self,
         w: &mut W,
     ) -> Result<()> {
-        if self.csi.is_empty() {
-            write!(w, "{}", &self.raw)?;
-        } else {
-            write!(w, "{}{}{}", &self.csi, &self.raw, CSI_RESET,)?;
-        }
-        Ok(())
+        draw(w, &self.csi, &self.raw)
     }
     /// draw the string but without taking more than cols_max cols.
     /// Return the number of cols written
