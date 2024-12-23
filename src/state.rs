@@ -764,7 +764,6 @@ impl<'s> AppState<'s> {
         if self.height < 4 {
             return Ok(());
         }
-        self.update_search();
         let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
         let content_height = self.content_height();
         let scrollbar = area.scrollbar(self.scroll, content_height);
@@ -862,6 +861,7 @@ impl<'s> AppState<'s> {
         &mut self,
         w: &mut W,
     ) -> Result<()> {
+        self.update_search();
         if self.reverse {
             self.draw_status_line(w, 0)?;
             if let Some(help_page) = self.help_page.as_mut() {
