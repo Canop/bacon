@@ -618,11 +618,15 @@ impl<'s> AppState<'s> {
                 6,
             ));
         }
-        if !self.founds.is_empty() {
-            t_line.add_tstring(
-                CSI_FOUND,
-                format!("{}/{}", self.selected_found + 1, self.founds.len(),),
-            );
+        if !self.search_input.is_empty() {
+            if self.founds.is_empty() {
+                t_line.add_tstring(CSI_FOUND, "no match");
+            } else {
+                t_line.add_tstring(
+                    CSI_FOUND,
+                    format!("{}/{}", self.selected_found + 1, self.founds.len(),),
+                );
+            }
         }
         let width = self.width as usize;
         let cols = t_line.draw_in(w, width)?;
