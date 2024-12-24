@@ -170,7 +170,7 @@ An export action is defined as `export:` followed by the export name.
 
 internal | default binding | meaning
 :-|:-|:-
-back | <kbd>Esc</kbd> | get back to the previous page or job
+back | <kbd>Esc</kbd> | get back to the previous page or job, or cancel search
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
 refresh | <kbd>F5</kbd> | clear output then run current job again
@@ -190,6 +190,10 @@ scroll-pages(1) | <kbd>PageDown</kbd> | move one page down
 pause |  | disable automatic job execution on change
 unpause |  | enable automatic job execution on change
 toggle pause | <kbd>p</kbd> | toggle pause
+focus_search | <kbd>/</kbd> | focus the search input
+validate | <kbd>enter</kbd> | unfocus the input, keeping the search
+next_match | <kbd>tab</kbd> | go to next search match
+previous_match | <kbd>backtab</kbd> | go to previous search match
 
 The `scroll-lines` and `scroll-pages` internals are parameterized.
 You can for example define a shortcut to move down 5 lines:
