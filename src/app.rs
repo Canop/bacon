@@ -171,7 +171,9 @@ fn run_mission(
                     Event::Key(key_event) => {
                         let key_combination = KeyCombination::from(key_event);
                         debug!("key combination pressed: {}", key_combination);
-                        action = keybindings.get(key_combination);
+                        if !state.apply_key_combination(key_combination) {
+                            action = keybindings.get(key_combination);
+                        }
                     }
                     #[cfg(windows)]
                     Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollDown, .. }) => {
@@ -202,16 +204,32 @@ fn run_mission(
                 }
                 Action::Internal(internal) => match internal {
                     Internal::Back => {
-                        if !state.close_help() {
+                        if !state.back() {
                             do_after_mission = DoAfterMission::NextJob(JobRef::Previous);
                             break;
                         }
                     }
+                    Internal::NextMatch => {
+                        state.next_match();
+                    }
+                    Internal::PreviousMatch => {
+                        state.previous_match();
+                    }
+                    Internal::FocusSearch => {
+                        state.focus_search();
+                    }
                     Internal::Help => {
                         state.toggle_help();
                     }
+                    Internal::Pause => {
+                        state.auto_refresh = AutoRefresh::Paused;
+                    }
                     Internal::Quit => {
                         break;
+                    }
+                    Internal::ReRun => {
+                        task_executor.die();
+                        task_executor = state.start_computation(&mut executor)?;
                     }
                     Internal::Refresh => {
                         state.clear();
@@ -222,10 +240,6 @@ fn run_mission(
                         do_after_mission = DoAfterMission::ReloadConfig;
                         break;
                     }
-                    Internal::ReRun => {
-                        task_executor.die();
-                        task_executor = state.start_computation(&mut executor)?;
-                    }
                     Internal::ScopeToFailures => {
                         if let Some(scope) = state.failures_scope() {
                             info!("scoping to failures: {scope:#?}");
@@ -235,34 +249,14 @@ fn run_mission(
                             warn!("no available failures scope");
                         }
                     }
-                    Internal::ToggleRawOutput => {
-                        state.toggle_raw_output();
-                    }
-                    Internal::ToggleSummary => {
-                        state.toggle_summary_mode();
-                    }
-                    Internal::ToggleWrap => {
-                        state.toggle_wrap_mode();
+                    Internal::Scroll(scroll_command) => {
+                        let scroll_command = *scroll_command;
+                        state.apply_scroll_command(scroll_command);
                     }
                     Internal::ToggleBacktrace(level) => {
                         state.toggle_backtrace(level);
                         task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
-                    }
-                    Internal::Scroll(scroll_command) => {
-                        let scroll_command = *scroll_command;
-                        state.apply_scroll_command(scroll_command);
-                    }
-                    Internal::Pause => {
-                        state.auto_refresh = AutoRefresh::Paused;
-                    }
-                    Internal::Unpause => {
-                        if state.changes_since_last_job_start > 0 {
-                            state.clear();
-                            task_executor.die();
-                            task_executor = state.start_computation(&mut executor)?;
-                        }
-                        state.auto_refresh = AutoRefresh::Enabled;
                     }
                     Internal::TogglePause => match state.auto_refresh {
                         AutoRefresh::Enabled => {
@@ -277,6 +271,26 @@ fn run_mission(
                             state.auto_refresh = AutoRefresh::Enabled;
                         }
                     },
+                    Internal::ToggleRawOutput => {
+                        state.toggle_raw_output();
+                    }
+                    Internal::ToggleSummary => {
+                        state.toggle_summary_mode();
+                    }
+                    Internal::ToggleWrap => {
+                        state.toggle_wrap_mode();
+                    }
+                    Internal::Unpause => {
+                        if state.changes_since_last_job_start > 0 {
+                            state.clear();
+                            task_executor.die();
+                            task_executor = state.start_computation(&mut executor)?;
+                        }
+                        state.auto_refresh = AutoRefresh::Enabled;
+                    }
+                    Internal::Validate => {
+                        state.validate();
+                    }
                 },
                 Action::Job(job_ref) => {
                     do_after_mission = job_ref.clone().into();

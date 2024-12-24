@@ -21,6 +21,45 @@ pub struct TLine {
 }
 
 impl TLine {
+    pub fn change_range_style(
+        &mut self,
+        trange: TRange,
+        new_csi: String,
+    ) {
+        let TRange {
+            mut string_idx,
+            start_byte_in_string,
+            end_byte_in_string,
+        } = trange;
+        if string_idx >= self.strings.len() {
+            return;
+        }
+
+        let has_before = start_byte_in_string > 0;
+        let has_after = end_byte_in_string < self.strings[string_idx].raw.len();
+
+        if has_after {
+            self.strings.insert(string_idx + 1, TString {
+                csi: self.strings[string_idx].csi.clone(),
+                raw: self.strings[string_idx].raw[end_byte_in_string..].to_string(),
+            });
+        }
+        if has_before {
+            self.strings.insert(string_idx, TString {
+                csi: self.strings[string_idx].csi.clone(),
+                raw: self.strings[string_idx].raw[..start_byte_in_string].to_string(),
+            });
+            string_idx += 1;
+        }
+        self.strings[string_idx].csi = new_csi;
+        if has_before {
+            self.strings[string_idx].raw =
+                self.strings[string_idx].raw[start_byte_in_string..end_byte_in_string].to_string();
+        } else {
+            // we can just truncate the string
+            self.strings[string_idx].raw.truncate(end_byte_in_string);
+        }
+    }
     pub fn from_tty(tty: &str) -> Self {
         let tty_str: String;
         let tty = if tty.contains('\t') {
@@ -87,6 +126,16 @@ impl TLine {
         self.strings.push(TString {
             csi: "".to_string(),
             raw: " ".to_string(),
+        });
+    }
+    pub fn add_tstring<C: Into<String>, R: Into<String>>(
+        &mut self,
+        csi: C,
+        raw: R,
+    ) {
+        self.strings.push(TString {
+            csi: csi.into(),
+            raw: raw.into(),
         });
     }
     pub fn draw(

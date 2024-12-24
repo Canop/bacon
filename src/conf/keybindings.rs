@@ -49,6 +49,12 @@ impl Default for KeyBindings {
         bindings.set(key!(ctrl - d), JobRef::Default);
         bindings.set(key!(i), JobRef::Initial);
         bindings.set(key!(p), Internal::TogglePause);
+        bindings.set(key!('/'), Internal::FocusSearch);
+        bindings.set(key!(enter), Internal::Validate);
+        bindings.set(key!(tab), Internal::NextMatch);
+        bindings.set(key!(backtab), Internal::PreviousMatch);
+        bindings.set(key!(shift - backtab), Internal::PreviousMatch);
+
         // keybindings for some common jobs
         bindings.set(key!(a), JobRef::from_job_name("check-all"));
         bindings.set(key!(c), JobRef::from_job_name("clippy"));

@@ -12,8 +12,8 @@ use {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Line {
     /// the index among items
-    /// (all lines having the same index belong to
-    /// the same error, warning, or test item)
+    /// (all lines having the same index belong to the same error, warning, or test item,
+    /// or just the same unclassified soup)
     pub item_idx: usize,
 
     pub line_type: LineType,
@@ -39,6 +39,13 @@ impl Line {
             _ => None,
         };
         title
+    }
+
+    pub fn matches(
+        &self,
+        summary: bool,
+    ) -> bool {
+        !summary || self.line_type.is_summary()
     }
 
     /// Return the location as given by cargo
@@ -69,13 +76,17 @@ impl Line {
         }
         Some(location_path)
     }
+    pub fn is_continuation(&self) -> bool {
+        matches!(self.line_type, LineType::Continuation { .. })
+    }
 }
 
-impl WrappableLine for Line {
-    fn content(&self) -> &TLine {
-        &self.content
-    }
-    fn prefix_cols(&self) -> usize {
-        self.line_type.cols()
+impl From<CommandOutputLine> for Line {
+    fn from(col: CommandOutputLine) -> Self {
+        Line {
+            item_idx: 0,
+            content: col.content,
+            line_type: LineType::Raw(col.origin),
+        }
     }
 }

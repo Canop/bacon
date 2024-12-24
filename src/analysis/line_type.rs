@@ -43,16 +43,59 @@ pub enum LineType {
     /// a line we know is useless noise
     Garbage,
 
+    /// Raw line, unclassified
+    Raw(CommandStream),
+
+    /// Continuation of a previous line
+    Continuation {
+        /// offset to count back to get to first (starting at 1)
+        offset: usize,
+        /// whether the line is a summary
+        summary: bool,
+    },
+
     /// any other line
     Normal,
 }
 
 impl LineType {
+    /// Width on screen for the specific prefix of line of this type
     pub fn cols(self) -> usize {
         match self {
             Self::Title(_) => 3,
             _ => 0,
         }
+    }
+    pub fn at_index_in(
+        idx: usize,
+        lines: &[Line],
+    ) -> Option<Self> {
+        let line = lines.get(idx)?;
+        match line.line_type {
+            Self::Continuation { offset, .. } => {
+                if offset > idx {
+                    error!("unconsistent offset in continuation line");
+                    return None;
+                }
+                let idx = idx - offset;
+                let line = lines.get(idx)?;
+                Some(line.line_type)
+            }
+            line_type => Some(line_type),
+        }
+    }
+    pub fn is_summary(self) -> bool {
+        match self {
+            Self::Normal | Self::Raw(_) => false,
+            Self::Continuation { summary, .. } => summary,
+            _ => true,
+        }
+    }
+    pub fn matches(
+        self,
+        summary: bool,
+    ) -> bool {
+        !summary || self.is_summary()
     }
     pub fn draw(
         self,

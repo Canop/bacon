@@ -23,7 +23,7 @@ pub struct CommandOutputLine {
 /// some output lines
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct CommandOutput {
-    pub lines: Vec<CommandOutputLine>,
+    pub lines: Vec<Line>,
 }
 
 /// a piece of information about the execution of a command
@@ -42,24 +42,15 @@ pub enum CommandExecInfo {
     Line(CommandOutputLine),
 }
 
-impl WrappableLine for CommandOutputLine {
-    fn content(&self) -> &TLine {
-        &self.content
-    }
-    fn prefix_cols(&self) -> usize {
-        0
-    }
-}
-
 impl CommandOutput {
     pub fn reverse(&mut self) {
         self.lines.reverse()
     }
-    pub fn push(
+    pub fn push<L: Into<Line>>(
         &mut self,
-        line: CommandOutputLine,
+        line: L,
     ) {
-        self.lines.push(line);
+        self.lines.push(line.into());
     }
     pub fn len(&self) -> usize {
         self.lines.len()

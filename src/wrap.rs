@@ -1,138 +1,59 @@
 use {
     crate::*,
-    anyhow::*,
-    std::io::Write,
     unicode_width::UnicodeWidthChar,
 };
 
-/// a line which can be wrapped
-pub trait WrappableLine {
-    fn content(&self) -> &TLine;
-    fn prefix_cols(&self) -> usize;
-}
-
-#[derive(Debug, Default)]
-pub struct SubString {
-    pub string_idx: usize,
-    pub byte_start: usize,
-    pub byte_end: usize, // not included
-}
-impl SubString {
-    pub fn draw(
-        &self,
-        w: &mut W,
-        content: &TLine,
-    ) -> Result<()> {
-        let string = &content.strings[self.string_idx];
-        if string.csi.is_empty() {
-            write!(w, "{}", &string.raw[self.byte_start..self.byte_end])?;
-        } else {
-            write!(
-                w,
-                "{}{}{}",
-                &string.csi,
-                &string.raw[self.byte_start..self.byte_end],
-                CSI_RESET,
-            )?;
-        }
-        Ok(())
-    }
-}
-
-#[derive(Debug, Default)]
-pub struct SubLine {
-    pub line_idx: usize,
-    pub sub_strings: Vec<SubString>,
-}
-
-impl SubLine {
-    pub fn is_continuation(&self) -> bool {
-        self.sub_strings.get(0).map_or(false, |sub_string| {
-            sub_string.string_idx != 0 || sub_string.byte_start != 0
-        })
-    }
-    pub fn src_line<'r>(
-        &self,
-        report: &'r Report,
-    ) -> &'r Line {
-        &report.lines[self.line_idx]
-    }
-    pub fn src_line_type(
-        &self,
-        report: &Report,
-    ) -> LineType {
-        report.lines[self.line_idx].line_type
-    }
-    pub fn line_type(
-        &self,
-        report: &Report,
-    ) -> LineType {
-        if self.is_continuation() {
-            LineType::Normal
-        } else {
-            report.lines[self.line_idx].line_type
-        }
-    }
-    pub fn draw_line_type(
-        &self,
-        w: &mut W,
-        report: &Report,
-    ) -> Result<()> {
-        self.line_type(report)
-            .draw(w, report.lines[self.line_idx].item_idx)?;
-        Ok(())
-    }
-    pub fn draw<WL: WrappableLine>(
-        &self,
-        w: &mut W,
-        source_lines: &[WL],
-    ) -> Result<()> {
-        for ts in &self.sub_strings {
-            let content = &source_lines[self.line_idx].content();
-            ts.draw(w, content)?;
-        }
-        Ok(())
-    }
-}
-
 /// Wrap lines into sublines containing positions in the original lines
-pub fn wrap<WL: WrappableLine>(
-    lines: &[WL],
+pub fn wrap(
+    lines: &[Line],
     width: u16,
-) -> Vec<SubLine> {
+) -> Vec<Line> {
     let cols = width as usize - 1; // -1 for the probable scrollbar
     let mut sub_lines = Vec::new();
-    for (line_idx, line) in lines.iter().enumerate() {
-        sub_lines.push(SubLine {
-            line_idx,
-            sub_strings: Vec::new(),
+    for line in lines.iter() {
+        let summary = line.line_type.is_summary();
+        sub_lines.push(Line {
+            item_idx: line.item_idx,
+            content: TLine::default(),
+            line_type: line.line_type,
         });
-        let mut sub_cols = line.prefix_cols();
-        let strings = &line.content().strings;
-        for (string_idx, string) in strings.iter().enumerate() {
-            sub_lines.last_mut().unwrap().sub_strings.push(SubString {
-                string_idx,
-                byte_start: 0,
-                byte_end: string.raw.len(), // may be changed later on cut
-            });
+        let mut sub_cols = line.line_type.cols();
+        let mut wrap_idx = 0; // 1 for first continuation, etc.
+        for string in &line.content.strings {
+            sub_lines
+                .last_mut()
+                .unwrap()
+                .content
+                .strings
+                .push(string.clone()); // might be truncated later
+            let mut byte_offset = 0;
             for (byte_idx, c) in string.raw.char_indices() {
                 let char_cols = c.width().unwrap_or(0);
                 if sub_cols + char_cols > cols && sub_cols > 0 {
-                    sub_lines
+                    let last_string = sub_lines
                         .last_mut()
                         .unwrap()
-                        .sub_strings
+                        .content
+                        .strings
                         .last_mut()
-                        .unwrap()
-                        .byte_end = byte_idx;
-                    sub_lines.push(SubLine {
-                        line_idx,
-                        sub_strings: vec![SubString {
-                            string_idx,
-                            byte_start: byte_idx,
-                            byte_end: string.raw.len(), // may be changed later on cut
-                        }],
+                        .unwrap();
+                    let after_cut = TString::new(
+                        last_string.csi.clone(),
+                        last_string.raw[byte_idx - byte_offset..].to_string(),
+                    );
+                    last_string.raw.truncate(byte_idx - byte_offset);
+                    byte_offset = byte_idx;
+                    sub_lines.push(Line {
+                        item_idx: line.item_idx,
+                        content: TLine {
+                            strings: vec![after_cut],
+                        },
+                        line_type: LineType::Continuation {
+                            offset: wrap_idx,
+                            summary,
+                        },
                     });
+                    wrap_idx += 1;
                     sub_cols = char_cols;
                 } else {
                     sub_cols += char_cols;

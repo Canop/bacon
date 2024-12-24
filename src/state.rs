@@ -1,6 +1,7 @@
 use {
     crate::*,
     anyhow::Result,
+    crokey::KeyCombination,
     std::{
         io::Write,
         process::ExitStatus,
@@ -9,6 +10,7 @@ use {
     termimad::{
         Area,
         CompoundStyle,
+        InputField,
         MadSkin,
         crossterm::{
             cursor,
@@ -74,6 +76,13 @@ pub struct AppState<'s> {
     pub show_changes_count: bool,
     /// messages to display to the user for a short duration
     pub messages: Vec<Message>,
+    /// the search input field
+    search_input: InputField,
+    search_up_to_date: bool,
+    /// Locations matching the search_input content
+    founds: Vec<Found>,
+    /// The selection to show
+    selected_found: usize,
 }
 
 impl<'s> AppState<'s> {
@@ -89,6 +98,10 @@ impl<'s> AppState<'s> {
             .settings
             .help_line
             .then(|| HelpLine::new(mission.settings));
+
+        let mut search_input = InputField::default();
+        search_input.set_focus(false);
+        let founds = Default::default();
 
         Ok(Self {
             report_maker,
@@ -114,13 +127,132 @@ impl<'s> AppState<'s> {
             auto_refresh: AutoRefresh::Enabled,
             changes_since_last_job_start: 0,
             messages: Vec::new(),
+
+            search_input,
+            search_up_to_date: true,
+            founds,
+            selected_found: 0,
         })
+    }
+    pub fn focus_search(&mut self) {
+        self.search_input.set_focus(true);
+        self.show_selected_found();
+    }
+    // Handle the "back" operation, return true if it did (thus consuming the action)
+    pub fn back(&mut self) -> bool {
+        if self.search_input.focused() {
+            self.search_input.clear();
+            self.search_input.set_focus(false);
+            self.search_up_to_date = false;
+            true
+        } else if self.help_page.is_some() {
+            self.help_page = None;
+            true
+        } else if !self.search_input.is_empty() {
+            self.search_input.clear();
+            self.search_up_to_date = false;
+            true
+        } else {
+            false
+        }
+    }
+    pub fn next_match(&mut self) {
+        if self.founds.is_empty() {
+            return;
+        }
+        self.selected_found = (self.selected_found + 1) % self.founds.len();
+        self.show_selected_found();
+    }
+    pub fn previous_match(&mut self) {
+        if self.founds.is_empty() {
+            return;
+        }
+        self.selected_found = (self.selected_found + self.founds.len() - 1) % self.founds.len();
+        self.show_selected_found();
+    }
+
+    // Handle the "validate" operation, return true if it did (thus consuming the action)
+    pub fn validate(&mut self) -> bool {
+        if self.search_input.focused() {
+            self.search_input.set_focus(false);
+            true
+        } else {
+            false
+        }
+    }
+    pub fn has_search(&self) -> bool {
+        self.search_input.focused() || !self.search_input.is_empty()
+    }
+    pub fn is_search_input_focused(&self) -> bool {
+        self.search_input.focused()
+    }
+    /// handle a raw, uninterpreted key combination (in an input if there's one
+    /// focused), return true if the key was consumed (if not, keybindings will
+    /// be computed)
+    pub fn apply_key_combination(
+        &mut self,
+        key: KeyCombination,
+    ) -> bool {
+        if self.search_input.focused() {
+            if self.search_input.apply_key_combination(key) {
+                self.search_up_to_date = false;
+                self.update_search();
+                self.show_selected_found();
+                return true;
+            }
+        }
+        false
+    }
+    /// if there are search results, return the line index of the currently selected one
+    fn selected_found_line(&self) -> Option<usize> {
+        self.founds
+            .get(self.selected_found)
+            .map(|found| found.line_idx)
+    }
+    pub fn update_search(&mut self) {
+        if self.search_up_to_date {
+            return;
+        }
+        let old_selected_line = self.selected_found_line();
+        self.founds.clear();
+        if self.search_input.is_empty() {
+            return;
+        }
+        let pattern = Pattern {
+            pattern: self.search_input.get_content(),
+        };
+        let lines = self.lines_to_draw();
+        self.founds = pattern.search_lines(lines);
+        let new_selected_line = self.selected_found_line();
+        if old_selected_line != new_selected_line {
+            self.selected_found = 0;
+        }
+        self.search_up_to_date = true;
+    }
+    /// Do a partial update for some potential added lines
+    pub fn update_search_from_line(
+        &mut self,
+        line_count_before: usize,
+    ) {
+        if self.search_input.is_empty() {
+            return;
+        }
+        // it's probably fine now to search without taking filtering into
+        // account as we're only adding lines in the raw output where there's
+        // no filtering
+        let lines = self.lines_to_draw_unfiltered();
+        let pattern = Pattern {
+            pattern: self.search_input.get_content(),
+        };
+        let new_founds = pattern.search_lines(&lines[line_count_before..]);
+        self.founds.extend(new_founds);
     }
     pub fn add_line(
         &mut self,
         line: CommandOutputLine,
     ) {
         let auto_scroll = self.is_scroll_at_bottom();
+        let line_count_before = self.lines_to_draw_unfiltered().len();
         if let Some(output) = self.output.as_mut() {
             self.report_maker.receive_line(line, output);
             if self.wrap {
@@ -140,6 +272,7 @@ impl<'s> AppState<'s> {
             self.scroll = 0;
             self.fix_scroll();
         }
+        self.update_search_from_line(line_count_before);
     }
     pub fn new_task(&self) -> Task {
         Task {
@@ -148,6 +281,7 @@ impl<'s> AppState<'s> {
         }
     }
     pub fn take_output(&mut self) -> Option<CommandOutput> {
+        self.search_up_to_date = false;
         self.wrapped_output = None;
         self.output.take()
     }
@@ -175,6 +309,7 @@ impl<'s> AppState<'s> {
         if self.wrap {
             self.update_wrap(self.width - 1);
         }
+        self.search_up_to_date = false;
     }
     pub fn finish_task(
         &mut self,
@@ -189,6 +324,7 @@ impl<'s> AppState<'s> {
         &mut self,
         mut cmd_result: CommandResult,
     ) {
+        self.search_up_to_date = false;
         if self.reverse {
             cmd_result.reverse();
         }
@@ -240,6 +376,7 @@ impl<'s> AppState<'s> {
         debug!("state.clear");
         self.take_output();
         self.cmd_result = CommandResult::None;
+        self.search_up_to_date = false;
     }
     /// Start a new task on the current mission
     pub fn start_computation(
@@ -258,6 +395,7 @@ impl<'s> AppState<'s> {
         self.report_maker.start(&self.mission);
         self.computing = true;
         self.changes_since_last_job_start = 0;
+        self.search_up_to_date = false;
     }
     pub fn computation_stops(&mut self) {
         self.computing = false;
@@ -290,31 +428,10 @@ impl<'s> AppState<'s> {
     }
     /// get the scroll value needed to go to the last item (if any)
     fn get_last_item_scroll(&self) -> usize {
-        if let CommandResult::Report(ref report) = self.cmd_result {
-            if let Some(wrapped_report) = self.wrapped_report.as_ref().filter(|_| self.wrap) {
-                let sub_lines = wrapped_report
-                    .sub_lines
-                    .iter()
-                    .filter(|line| {
-                        !(self.summary && line.src_line_type(report) == LineType::Normal)
-                    })
-                    .enumerate();
-                for (row_idx, sub_line) in sub_lines {
-                    if sub_line.src_line(report).item_idx == self.top_item_idx {
-                        return row_idx;
-                    }
-                }
-            } else {
-                let lines = report
-                    .lines
-                    .iter()
-                    .filter(|line| !(self.summary && line.line_type == LineType::Normal))
-                    .enumerate();
-                for (row_idx, line) in lines {
-                    if line.item_idx == self.top_item_idx {
-                        return row_idx;
-                    }
-                }
+        let lines = self.lines_to_draw();
+        for (row_idx, line) in lines.enumerate() {
+            if line.item_idx == self.top_item_idx {
+                return row_idx;
             }
         }
         0
@@ -325,6 +442,21 @@ impl<'s> AppState<'s> {
     fn try_scroll_to_last_top_item(&mut self) {
         self.scroll = self.get_last_item_scroll();
         self.fix_scroll();
+    }
+    fn show_line(
+        &mut self,
+        line_idx: usize,
+    ) {
+        let page_height = self.page_height();
+        if line_idx < self.scroll || line_idx >= self.scroll + page_height {
+            self.scroll = (line_idx - (page_height / 2).min(line_idx))
+                .min(self.content_height().max(page_height) - page_height);
+        }
+    }
+    fn show_selected_found(&mut self) {
+        if let Some(selected_line) = self.selected_found_line() {
+            self.show_line(selected_line);
+        }
     }
     /// close the help and return true if it was open,
     /// return false otherwise
@@ -348,6 +480,7 @@ impl<'s> AppState<'s> {
     pub fn toggle_summary_mode(&mut self) {
         self.summary ^= true;
         self.try_scroll_to_last_top_item();
+        self.search_up_to_date = false;
     }
     pub fn toggle_backtrace(
         &mut self,
@@ -370,30 +503,11 @@ impl<'s> AppState<'s> {
         if self.wrapped_report.is_some() {
             self.try_scroll_to_last_top_item();
         }
+        self.search_up_to_date = false;
     }
     fn content_height(&self) -> usize {
-        if let CommandResult::Report(report) = &self.cmd_result {
-            if self.mission.is_success(report) || self.raw_output {
-                if let Some(wrapped_output) = self.wrapped_output.as_ref() {
-                    wrapped_output.sub_lines.len()
-                } else {
-                    report.output.len()
-                }
-            } else {
-                if let Some(wrapped_report) = self.wrapped_report.as_ref() {
-                    wrapped_report.content_height(self.summary)
-                } else {
-                    report.stats.lines(self.summary)
-                }
-            }
-        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
-            match (self.wrap, self.wrapped_output.as_ref()) {
-                (true, Some(wrapped_output)) => wrapped_output.sub_lines.len(),
-                _ => output.len(),
-            }
-        } else {
-            0
-        }
+        let lines = self.lines_to_draw();
+        lines.count()
     }
     fn page_height(&self) -> usize {
         self.height.max(3) as usize - 3
@@ -413,6 +527,7 @@ impl<'s> AppState<'s> {
             self.update_wrap(self.width - 1);
         }
         self.try_scroll_to_last_top_item();
+        self.search_up_to_date = false;
     }
     pub fn apply_scroll_command(
         &mut self,
@@ -427,22 +542,37 @@ impl<'s> AppState<'s> {
         }
     }
     /// draw the grey line containing the keybindings indications
-    fn draw_help_line(
-        &self,
+    fn draw_status_line(
+        &mut self,
         w: &mut W,
         y: u16,
     ) -> Result<()> {
+        let mut help_start = 0;
+        // Search input
+        let must_draw_search = self.search_input.focused() || !self.search_input.is_empty();
+        if must_draw_search {
+            goto_line(w, y)?;
+            draw(w, CSI_FOUND, "/")?;
+            let search_width = (self.width / 4).clamp(8, 26);
+            self.search_input.change_area(1, y, search_width);
+            self.search_input.display_on(w)?;
+            help_start += search_width + 1;
+        }
+        goto(w, help_start, y)?;
+        // Help line
         if let Some(help_line) = &self.help_line {
             let markdown = help_line.markdown(self);
             if self.height > 1 {
-                goto(w, y)?;
+                let help_width = self.width - help_start;
                 self.status_skin.write_composite_fill(
                     w,
                     Composite::from_inline(&markdown),
-                    self.width.into(),
+                    help_width.into(),
                     Alignment::Left,
                 )?;
             }
+        } else {
+            clear_line(w)?;
         }
         Ok(())
     }
@@ -452,7 +582,7 @@ impl<'s> AppState<'s> {
         w: &mut W,
         y: u16,
     ) -> Result<usize> {
-        goto(w, y)?;
+        goto_line(w, y)?;
         let mut t_line = TLine::default();
         // white over grey
         let project_name = &self.mission.location_name;
@@ -488,6 +618,16 @@ impl<'s> AppState<'s> {
                 6,
             ));
         }
+        if !self.search_input.is_empty() {
+            if self.founds.is_empty() {
+                t_line.add_tstring(CSI_FOUND, "no match");
+            } else {
+                t_line.add_tstring(
+                    CSI_FOUND,
+                    format!("{}/{}", self.selected_found + 1, self.founds.len(),),
+                );
+            }
+        }
         let width = self.width as usize;
         let cols = t_line.draw_in(w, width)?;
         clear_line(w)?;
@@ -499,7 +639,7 @@ impl<'s> AppState<'s> {
         w: &mut W,
         y: u16,
     ) -> Result<()> {
-        goto(w, y)?;
+        goto_line(w, y)?;
         let width = self.width as usize;
         if self.computing {
             write!(
@@ -530,7 +670,7 @@ impl<'s> AppState<'s> {
         } else {
             message.display_start = Some(Instant::now());
         }
-        goto(w, y)?;
+        goto_line(w, y)?;
         let markdown = format!(" {}", message.markdown);
         self.status_skin.write_composite_fill(
             w,
@@ -555,6 +695,41 @@ impl<'s> AppState<'s> {
         } else {
             None
         }
+    }
+    /// Return the (unfiltered) set of lines to draw, depending on whether we wrap or not
+    /// and whether we have a report or not.
+    fn lines_to_draw_unfiltered(&self) -> &[Line] {
+        if let Some(report) = self.report_to_draw() {
+            match (self.wrap, self.wrapped_report.as_ref()) {
+                (true, Some(wrapped_report)) => {
+                    // wrapped report
+                    &wrapped_report.sub_lines
+                }
+                _ => {
+                    // unwrapped report
+                    &report.lines
+                }
+            }
+        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
+            match (self.wrap, self.wrapped_output.as_ref()) {
+                (true, Some(wrapped_output)) => {
+                    // wrapped raw command output
+                    &wrapped_output.sub_lines
+                }
+                _ => {
+                    // unwrapped raw command output
+                    &output.lines
+                }
+            }
+        } else {
+            // nothing yet
+            &[]
+        }
+    }
+    fn lines_to_draw(&self) -> impl Iterator<Item = &Line> {
+        self.lines_to_draw_unfiltered()
+            .iter()
+            .filter(|line| line.matches(self.summary))
     }
     fn report_to_draw(&self) -> Option<&Report> {
         self.cmd_result
@@ -604,97 +779,83 @@ impl<'s> AppState<'s> {
         };
         let top = area.top + top as u16;
         for y in area.top..top {
-            goto(w, y)?;
+            goto_line(w, y)?;
             clear_line(w)?;
         }
         let width = self.width as usize;
-        if let Some(report) = self.report_to_draw() {
-            match (self.wrap, self.wrapped_report.as_ref()) {
-                (true, Some(wrapped_report)) => {
-                    // wrapped report
-                    let mut sub_lines = wrapped_report
-                        .sub_lines
-                        .iter()
-                        .filter(|sub_line| {
-                            !(self.summary && sub_line.src_line_type(report) == LineType::Normal)
-                        })
-                        .skip(self.scroll);
-                    for row_idx in 0..area.height {
-                        let y = row_idx + top;
-                        goto(w, y)?;
-                        if let Some(sub_line) = sub_lines.next() {
-                            top_item_idx.get_or_insert_with(|| sub_line.src_line(report).item_idx);
-                            sub_line.draw_line_type(w, report)?;
-                            write!(w, " ")?;
-                            sub_line.draw(w, &report.lines)?;
+        let lines = self.lines_to_draw();
+        let mut lines = lines.enumerate().skip(self.scroll);
+        let mut found_idx = 0;
+        #[derive(Debug)]
+        struct PendingContinuation {
+            trange: TRange,
+            style: &'static str,
+        }
+        let mut pending_continuation = None;
+        for row_idx in 0..area.height {
+            let y = row_idx + top;
+            goto_line(w, y)?;
+            if let Some((line_idx, line)) = lines.next() {
+                top_item_idx.get_or_insert(line.item_idx);
+                line.line_type.draw(w, line.item_idx)?;
+                write!(w, " ")?;
+                if width > line.line_type.cols() + 1 {
+                    let mut tline = &line.content;
+
+                    // search for the optional founds related to that line
+                    let mut line_founds = Vec::new();
+                    let found_idx_before_line = found_idx;
+                    while found_idx < self.founds.len() {
+                        let found = &self.founds[found_idx];
+                        if found.line_idx > line_idx {
+                            break;
                         }
-                        clear_line(w)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                        if found.line_idx == line_idx {
+                            line_founds.push(found);
                         }
+                        found_idx += 1;
                     }
-                }
-                _ => {
-                    // unwrapped report
-                    let mut lines = report
-                        .lines
-                        .iter()
-                        .filter(|line| !(self.summary && line.line_type == LineType::Normal))
-                        .skip(self.scroll);
-                    for row_idx in 0..area.height {
-                        let y = row_idx + top;
-                        goto(w, y)?;
-                        if let Some(Line {
-                            item_idx,
-                            line_type,
-                            content,
-                        }) = lines.next()
-                        {
-                            top_item_idx.get_or_insert(*item_idx);
-                            line_type.draw(w, *item_idx)?;
-                            write!(w, " ")?;
-                            if width > line_type.cols() + 1 {
-                                content.draw_in(w, width - 1 - line_type.cols())?;
+
+                    // apply the modification on the tline
+                    let mut modified;
+                    let previous_continuation = pending_continuation.take();
+                    if previous_continuation.is_some() || !line_founds.is_empty() {
+                        modified = tline.clone();
+                        // We iterate on founds in reverse, so that we change the tline from
+                        // the end, so that the tstring index in the founds stay valid when
+                        // tstrings are added by the change_range_style method.
+                        for (in_line_idx, found) in line_founds.iter().enumerate().rev() {
+                            let cur_idx = found_idx_before_line + in_line_idx;
+                            let style = if self.selected_found == cur_idx {
+                                CSI_FOUND_SELECTED
+                            } else {
+                                CSI_FOUND
+                            };
+                            modified.change_range_style(found.trange, style.to_string());
+                            if let Some(continued) = &found.continued {
+                                pending_continuation = Some(PendingContinuation {
+                                    trange: *continued,
+                                    style,
+                                });
+                                info!("pending_continuation: {:?}", &pending_continuation);
                             }
                         }
-                        clear_line(w)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                        if let Some(continuation) = previous_continuation {
+                            info!("APPLY continuation {:#?}", &continuation);
+                            modified.change_range_style(
+                                continuation.trange,
+                                continuation.style.to_string(),
+                            );
+                            info!(" -> modified: {:#?}", &modified);
                         }
+                        tline = &modified;
                     }
+                    tline.draw_in(w, width - 1 - line.line_type.cols())?;
                 }
             }
-            self.top_item_idx = top_item_idx.unwrap_or(0);
-        } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
-            match (self.wrap, self.wrapped_output.as_ref()) {
-                (true, Some(wrapped_output)) => {
-                    let mut sub_lines = wrapped_output.sub_lines.iter().skip(self.scroll);
-                    for row_idx in 0..area.height {
-                        let y = row_idx + top;
-                        goto(w, y)?;
-                        if let Some(sub_line) = sub_lines.next() {
-                            sub_line.draw(w, &output.lines)?;
-                        }
-                        clear_line(w)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
-                        }
-                    }
-                }
-                _ => {
-                    let lines = &output.lines;
-                    for row_idx in 0..area.height {
-                        let y = row_idx + top;
-                        goto(w, y)?;
-                        if let Some(line) = lines.get(row_idx as usize + self.scroll) {
-                            line.content.draw_in(w, width)?;
-                        }
-                        clear_line(w)?;
-                        if is_thumb(y.into(), scrollbar) {
-                            execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
-                        }
-                    }
-                }
+            clear_line(w)?;
+            if is_thumb(y.into(), scrollbar) {
+                execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
             }
         }
         Ok(())
@@ -704,8 +865,9 @@ impl<'s> AppState<'s> {
         &mut self,
         w: &mut W,
     ) -> Result<()> {
+        self.update_search();
         if self.reverse {
-            self.draw_help_line(w, 0)?;
+            self.draw_status_line(w, 0)?;
             if let Some(help_page) = self.help_page.as_mut() {
                 help_page.draw(w, Area::new(0, 1, self.width, self.height - 1))?;
             } else {
@@ -723,7 +885,7 @@ impl<'s> AppState<'s> {
                 self.draw_message(w, 1)?; // drawn over the "computing..." line
                 self.draw_content(w, 2)?;
             }
-            self.draw_help_line(w, self.height - 1)?;
+            self.draw_status_line(w, self.height - 1)?;
         }
         w.flush()?;
         Ok(())

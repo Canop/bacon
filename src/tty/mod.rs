@@ -1,5 +1,6 @@
 mod tline;
 mod tline_builder;
+mod trange;
 mod tstring;
 
 pub const CSI_RESET: &str = "\u{1b}[0m\u{1b}[0m";
@@ -33,8 +34,28 @@ pub const CSI_BOLD_WHITE: &str = "\u{1b}[1m\u{1b}[38;5;15m";
 
 static TAB_REPLACEMENT: &str = "    ";
 
+use {
+    crate::W,
+    anyhow::Result,
+    std::io::Write,
+};
+
 pub use {
     tline::*,
     tline_builder::*,
+    trange::*,
     tstring::*,
 };
+
+pub fn draw(
+    w: &mut W,
+    csi: &str,
+    raw: &str,
+) -> Result<()> {
+    if csi.is_empty() {
+        write!(w, "{}", raw)?;
+    } else {
+        write!(w, "{}{}{}", csi, raw, CSI_RESET,)?;
+    }
+    Ok(())
+}
