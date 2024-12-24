@@ -21,7 +21,7 @@ impl LineAnalyzer for NextestLineAnalyzer {
         cmd_line: &CommandOutputLine,
     ) -> LineAnalysis {
         let content = &cmd_line.content;
-        if let Some(key) = title_key(content) {
+        if let Some(key) = title_key(content).or_else(|| title_key_v2(content)) {
             return LineAnalysis::title_key(Kind::TestFail, key);
         }
         if let Some((key, pass)) = as_test_result(content) {
@@ -40,23 +40,42 @@ impl LineAnalyzer for NextestLineAnalyzer {
             if content == "------------" {
                 return LineAnalysis::of_type(LineType::SectionEnd);
             }
+            if content == "────────────" {
+                return LineAnalysis::of_type(LineType::SectionEnd);
+            }
         }
         // compilation warnings and errors are still composed with the standard cargo tool
         self.default_analyzer.analyze_line(cmd_line)
     }
 }
 
-/// Return the key when the line is like "--- STD(OUT|ERR): somekey ---"
 fn title_key(content: &TLine) -> Option<String> {
+    title_key_v1(content).or_else(|| title_key_v2(content))
+}
+/// Return the key when the line is like "--- STD(OUT|ERR): somekey ---"
+fn title_key_v1(content: &TLine) -> Option<String> {
     let mut strings = content.strings.iter();
     let first = strings.next()?;
     if !regex_is_match!(r"^--- STD(OUT|ERR):\s*", &first.raw) {
         return None;
     }
-    extract_key_after_crate_name(strings)
+    extract_key_after_crate_name_v1(strings)
+}
+/// Return the key when the line is like "──── STD(OUT|ERR): cratename some::key"
+fn title_key_v2(content: &TLine) -> Option<String> {
+    let mut strings = content.strings.iter();
+    let ts = strings.next()?;
+    if ts.csi != CSI_ERROR || ts.raw != "────" {
+        return None;
+    }
+    let ts = strings.find(|ts| ts.raw != " ")?;
+    if !regex_is_match!(r"^STD(OUT|ERR):\s*", &ts.raw) {
+        return None;
+    }
+    extract_key_after_crate_name_v2(strings)
 }
 
-fn extract_key_after_crate_name(mut strings: std::slice::Iter<'_, TString>) -> Option<String> {
+fn extract_key_after_crate_name_v1(mut strings: std::slice::Iter<'_, TString>) -> Option<String> {
     let _ = strings.next(); // skip blank
     let mut key = String::new();
     for s in &mut strings {
@@ -70,6 +89,19 @@ fn extract_key_after_crate_name(mut strings: std::slice::Iter<'_, TString>) -> O
     }
     if strings.next().is_some() {
         return None;
+    }
+    if key.is_empty() { None } else { Some(key) }
+}
+fn extract_key_after_crate_name_v2(mut strings: std::slice::Iter<'_, TString>) -> Option<String> {
+    // skip blank and crate name
+    let ts = strings.find(|ts| ts.csi != CSI_TITLE && ts.raw != " ")?;
+    let mut key = String::new();
+    key.push_str(&ts.raw);
+    for s in &mut strings {
+        if s.csi.is_empty() || s.csi == CSI_TITLE {
+            break;
+        }
+        key.push_str(&s.raw);
     }
     if key.is_empty() { None } else { Some(key) }
 }
@@ -96,6 +128,9 @@ fn is_canceling(content: &TLine) -> bool {
 ///
 /// In the future, we might want to return the duration too.
 fn as_test_result(content: &TLine) -> Option<(String, bool)> {
+    as_test_result_v1(content).or_else(|| as_test_result_v2(content))
+}
+fn as_test_result_v1(content: &TLine) -> Option<(String, bool)> {
     let mut strings = content.strings.iter();
     let first = strings.next()?;
     let pass = match (first.csi.as_str(), first.raw.trim()) {
@@ -107,12 +142,31 @@ fn as_test_result(content: &TLine) -> Option<(String, bool)> {
         Some(s) if s.csi.is_empty() => s.raw.trim(),
         _ => return None,
     };
-    let key = extract_key_after_crate_name(strings)?;
+    let key = extract_key_after_crate_name_v1(strings)?;
+    Some((key, pass))
+}
+/// return the key and whether the tests passes, when the line is a test
+/// result (like "    PASS [   0.003s] bacon tests::failing_test3")
+///
+/// In the future, we might want to return the duration too.
+fn as_test_result_v2(content: &TLine) -> Option<(String, bool)> {
+    let mut strings = content.strings.iter();
+    let first = strings.next()?;
+    let pass = match (first.csi.as_str(), first.raw.trim()) {
+        (CSI_PASS, "PASS") => true,
+        (CSI_ERROR, "FAIL") => false,
+        _ => return None,
+    };
+    let _duration = match strings.next() {
+        Some(s) if s.csi.is_empty() => s.raw.trim(),
+        _ => return None,
+    };
+    let key = extract_key_after_crate_name_v1(strings)?;
     Some((key, pass))
 }
 
 #[test]
-fn test_title_key() {
+fn test_title_key_v1() {
     let content = TLine {
         strings: vec![
             TString::new("\u{1b}[35;1m", "--- STDOUT:              bacon-test"),
@@ -123,7 +177,7 @@ fn test_title_key() {
         ],
     };
     assert_eq!(
-        title_key(&content),
+        title_key_v1(&content),
         Some("tests::failing_test3".to_string())
     );
     let content = TLine {
@@ -136,7 +190,7 @@ fn test_title_key() {
         ],
     };
     assert_eq!(
-        title_key(&content),
+        title_key_v1(&content),
         Some("analysis::nextest_analyzer::test_as_test_result".to_string())
     );
 }
