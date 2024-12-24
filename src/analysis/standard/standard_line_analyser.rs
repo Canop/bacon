@@ -65,55 +65,71 @@ fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
             LineType::Normal
         }
     } else {
-        if let (Some(title), Some(body)) = (content.strings.get(0), content.strings.get(1)) {
-            match (
-                title.csi.as_ref(),
-                title.raw.as_ref(),
-                body.csi.as_ref(),
-                body.raw.as_ref(),
-            ) {
-                (CSI_BOLD_RED, "error", CSI_ERROR_BODY, body_raw)
-                    if body_raw.starts_with(": aborting due to") =>
-                {
-                    LineType::Title(Kind::Sum)
-                }
-                (CSI_BOLD_RED, title_raw, CSI_ERROR_BODY, _) if title_raw.starts_with("error") => {
-                    LineType::Title(Kind::Error)
-                }
-                #[cfg(not(windows))]
-                (CSI_BOLD_YELLOW, "warning", _, body_raw) => {
-                    determine_warning_type(body_raw, content)
-                }
-                #[cfg(windows)]
-                (CSI_BOLD_YELLOW | CSI_BOLD_4BIT_YELLOW, "warning", _, body_raw) => {
-                    determine_warning_type(body_raw, content)
-                }
-                ("", title_raw, CSI_BOLD_BLUE, "--> ") if is_spaces(title_raw) => {
-                    LineType::Location
-                }
-                ("", title_raw, CSI_BOLD_BLUE, "::: ") if is_spaces(title_raw) => {
-                    LineType::Location
-                }
-                ("", k, CSI_BOLD_RED | CSI_RED, "FAILED") if content.strings.len() == 2 => {
-                    if let Some(k) = as_test_name(k) {
-                        key = Some(k.to_string());
-                        LineType::TestResult(false)
-                    } else {
-                        LineType::Normal
+        let ts0 = content.strings.get(0);
+        let ts1 = content.strings.get(1);
+        match (ts0, ts1) {
+            (Some(title), Some(body)) => {
+                match (
+                    title.csi.as_ref(),
+                    title.raw.as_ref(),
+                    body.csi.as_ref(),
+                    body.raw.as_ref(),
+                ) {
+                    (CSI_BOLD_RED, "error", CSI_ERROR_BODY, body_raw)
+                        if body_raw.starts_with(": aborting due to") =>
+                    {
+                        LineType::Title(Kind::Sum)
                     }
-                }
-                ("", k, CSI_GREEN, "ok") => {
-                    if let Some(k) = as_test_name(k) {
-                        key = Some(k.to_string());
-                        LineType::TestResult(true)
-                    } else {
-                        LineType::Normal
+                    (CSI_BOLD_RED, title_raw, CSI_ERROR_BODY, _)
+                        if title_raw.starts_with("error") =>
+                    {
+                        LineType::Title(Kind::Error)
                     }
+                    #[cfg(not(windows))]
+                    (CSI_BOLD_YELLOW, "warning", _, body_raw) => {
+                        determine_warning_type(body_raw, content)
+                    }
+                    #[cfg(windows)]
+                    (CSI_BOLD_YELLOW | CSI_BOLD_4BIT_YELLOW, "warning", _, body_raw) => {
+                        determine_warning_type(body_raw, content)
+                    }
+                    ("", title_raw, CSI_BOLD_BLUE, "--> ") if is_spaces(title_raw) => {
+                        LineType::Location
+                    }
+                    ("", title_raw, CSI_BOLD_BLUE, "::: ") if is_spaces(title_raw) => {
+                        LineType::Location
+                    }
+                    ("", k, CSI_BOLD_RED | CSI_RED, "FAILED") if content.strings.len() == 2 => {
+                        if let Some(k) = as_test_name(k) {
+                            key = Some(k.to_string());
+                            LineType::TestResult(false)
+                        } else {
+                            LineType::Normal
+                        }
+                    }
+                    ("", k, CSI_GREEN, "ok") => {
+                        if let Some(k) = as_test_name(k) {
+                            key = Some(k.to_string());
+                            LineType::TestResult(true)
+                        } else {
+                            LineType::Normal
+                        }
+                    }
+                    _ => LineType::Normal,
                 }
-                _ => LineType::Normal,
             }
-        } else {
-            LineType::Normal // empty line
+            (Some(content), None) => {
+                if regex_is_match!(
+                    r#"^thread '.+' panicked at [^:\s'"]+:\d+:\d+:$"#,
+                    &content.raw
+                ) {
+                    // this comes up in nextest failures
+                    LineType::Location
+                } else {
+                    LineType::Normal
+                }
+            }
+            _ => LineType::Normal, // empty line
         }
     };
     LineAnalysis { line_type, key }
