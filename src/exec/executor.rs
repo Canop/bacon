@@ -116,11 +116,13 @@ impl MissionExecutor {
                 thread::sleep(grace_period.duration);
             }
 
-            let child = command_builder.build().spawn();
-            let mut child = match child {
+            let mut cmd = command_builder.build();
+            let mut child = match cmd.spawn() {
                 Ok(child) => child,
                 Err(e) => {
-                    let _ = line_sender.send(CommandExecInfo::Error(e.to_string()));
+                    let _ = line_sender.send(CommandExecInfo::Error(
+                        anyhow::anyhow!(e).context(format!("failed to spawn {cmd:?}")),
+                    ));
                     return;
                 }
             };

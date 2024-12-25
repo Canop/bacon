@@ -727,9 +727,10 @@ impl<'s> AppState<'s> {
         }
     }
     fn lines_to_draw(&self) -> impl Iterator<Item = &Line> {
-        self.lines_to_draw_unfiltered()
-            .iter()
-            .filter(|line| line.matches(self.summary))
+        self.lines_to_draw_unfiltered().iter().filter(|line| {
+            // if this command failed, always show the output
+            matches!(self.cmd_result, CommandResult::Failure(..)) || line.matches(self.summary)
+        })
     }
     fn report_to_draw(&self) -> Option<&Report> {
         self.cmd_result
