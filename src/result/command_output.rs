@@ -36,7 +36,7 @@ pub enum CommandExecInfo {
     Interruption,
 
     /// Execution failed
-    Error(String),
+    Error(anyhow::Error),
 
     /// Here's a line of output (coming from stderr or stdout)
     Line(CommandOutputLine),
