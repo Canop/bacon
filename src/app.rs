@@ -153,9 +153,8 @@ fn run_mission(
                             action = state.action();
                         }
                         CommandExecInfo::Error(e) => {
-                            warn!("error in computation: {}", e);
                             state.computation_stops();
-                            break;
+                            return Err(e.context(format!("error in computation for job '{}'", state.mission.concrete_job_ref.badge_label())));
                         }
                         CommandExecInfo::Interruption => {
                             debug!("command was interrupted (by us)");
