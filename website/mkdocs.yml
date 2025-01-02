@@ -10,6 +10,7 @@ nav:
         - Analyzers: analyzers.md
         - Cookbook: cookbook.md
         - Community: community.md
+        - Bacon-ls: bacon-ls.md
 
 extra_css:
         - css/extra.css
