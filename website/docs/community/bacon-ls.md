@@ -1,23 +1,32 @@
 [Bacon-ls](https://github.com/crisidev/bacon-ls) is a [language server](https://en.wikipedia.org/wiki/Language_Server_Protocol) implementation specifically designed to work with Bacon projects,
  exposing [textDocument/diagnostic](https://microsoft.github.io/language-server-protocol/specification#textDocument_diagnostic) and [workspace/diagnostic](https://microsoft.github.io/language-server-protocol/specification#workspace_diagnostic) capabilities to editors.
 
-![bacon-ls](img/bacon-ls.png)
+![bacon-ls](../img/bacon-ls.png)
 
 **NOTE: Bacon-ls requires Bacon 3.7+ to work properly.**
 
 # Installation
 
+## VSCode
+
+First, install [Bacon](../../#installation).
+
+The VSCode extension is available on both VSCE and OVSX:
+
+* `VSCE` [https://marketplace.visualstudio.com/items?itemName=MatteoBigoi.bacon-ls-vscode](https://marketplace.visualstudio.com/items?itemName=MatteoBigoi.bacon-ls-vscode)
+* `OVSX` [https://open-vsx.org/extension/MatteoBigoi/bacon-ls-vscode](https://open-vsx.org/extension/MatteoBigoi/bacon-ls-vscode)
+
 ## Mason.nvim
 
 Both Bacon and Bacon-ls are installable via [mason.nvim](https://github.com/williamboman/mason.nvim):
 
-```bash
+```vim
 :MasonInstall bacon bacon-ls
 ```
 
 ## Manual
 
-First, install [Bacon](../#installation) and Bacon-ls
+First, install [Bacon](../../#installation) and Bacon-ls
 
 ```bash
 ❯❯❯ cargo install --locked bacon bacon-ls
@@ -79,7 +88,7 @@ require("lspconfig").bacon_ls.setup({
     init_options = {
         updateOnSave = true
         updateOnSaveWaitMillis = 1000
-        updateOnChange = true
+        updateOnChange = false
     }
 })
 ```
@@ -91,26 +100,54 @@ rust-analyzer.checkOnSave.enable = false
 rust-analyzer.diagnostics.enable = false
 ```
 
-## Vscode
+## VSCode
 
-The Vscode extension is not ready yet but should be part of Bacon-ls 0.6.0.
+The extension can be configured using the VSCode settings interface.
+
+## Coc.nvim
+
+```vim
+call coc#config('languageserver', {
+      \ 'bacon-ls': {
+      \   'command': '~/.cargo/bin/bacon-ls',
+      \   'filetypes': ['rust'],
+      \   'rootPatterns': ['.git/', 'Cargo.lock', 'Cargo.toml'],
+      \   'initializationOptions': {
+      \     'updateOnSave': v:true, 
+      \     'updateOnSaveWaitMillis': 1000,
+      \     'updateOnChange': v:false
+      \   },
+      \   'settings': {}
+      \ }
+\ })
+```
 
 # Troubleshooting
 
 Bacon-ls can produce a log file in the folder where its running by exporting the `RUST_LOG` variable in the shell:
 
+## Vim / Neovim
+
 ```bash
 ❯❯❯ export RUST_LOG=debug
-❯❯❯ nvim src/some-file.rs
-# or
-❯❯❯ RUST_LOG=debug nvim src/some-file.rs
+❯❯❯ nvim src/some-file.rs                 # or vim src/some-file.rs
+# the variable can also be exported for the current command and not for the whole shell
+❯❯❯ RUST_LOG=debug nvim src/some-file.rs  # or RUST_LOG=debug vim src/some-file.rs
+❯❯❯ tail -F ./bacon-ls.log
+```
+
+## VSCode
+
+Enable debug logging in the extension options.
+
+```bash
 ❯❯❯ tail -F ./bacon-ls.log
 ```
 
 # How does it work?
 
 Bacon-ls reads the diagnostics location list generated
-by [Bacon's export-locations](../config/#exports)
+by [Bacon's export-locations](../../config/#exports)
 and exposes them on STDIO over the LSP protocol to be consumed
 by the client diagnostics.
 
