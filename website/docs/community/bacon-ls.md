@@ -51,7 +51,7 @@ need_stdout = true
 [exports.cargo-json-spans]
 auto = true
 exporter = "analyzer"
-line_format = "{diagnostic.level}:{span.file_name}:{span.line_start}:{span.line_end}:{span.column_start}:{span.column_end}:{diagnostic.message} {span.suggested_replacement}"
+line_format = "{diagnostic.level}:{span.file_name}:{span.line_start}:{span.line_end}:{span.column_start}:{span.column_end}:{diagnostic.message}:{span.suggested_replacement}"
 path = ".bacon-locations"
 ```
 
