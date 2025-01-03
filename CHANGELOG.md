@@ -2,7 +2,7 @@
 ### v3.7.0 - 2024/12/27
 - search with the <kbd>/</kbd> key - Fix #224
 - fix nextest analyzer not capturing test output with nextest 0.9.86+ - Fix #280
-- Show an error if the command fails to spawn - Thanks @jyn514
+- show an error if the command fails to spawn - Thanks @jyn514
 
 <a name="v3.6.0"></a>
 ### v3.6.0 - 2024/12/15
