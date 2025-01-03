@@ -106,6 +106,11 @@ rust-analyzer.diagnostics.enable = false
 
 The extension can be configured using the VSCode settings interface.
 
+**It is very important that rust-analyzer `Check On Save` and `Diagnostics` are disabled for `bacon-ls` to work properly:**
+
+* Untick `Rust-analyzer -> general -> Check On Save`
+* Untick `Rust-analyzer -> diagnostics -> Enable`
+
 ## Coc.nvim
 
 ```vim
