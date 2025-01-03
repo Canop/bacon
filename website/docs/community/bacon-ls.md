@@ -5,6 +5,8 @@
 
 **NOTE: Bacon-ls requires Bacon 3.7+ to work properly.**
 
+**NOTE: Bacon-ls is not part of Bacon, it's a third-party tool developed to work WITH Bacon.**
+
 # Installation
 
 ## VSCode
@@ -158,4 +160,4 @@ The LSP client reads them as response to `textDocument/diagnostic` and `workspac
 
 # More info
 
-Please visit https://github.com/crisidev/bacon-ls for more information.
+Please visit [https://github.com/crisidev/bacon-ls](https://github.com/crisidev/bacon-ls) for more information.
