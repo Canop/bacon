@@ -7,6 +7,14 @@
 
 **NOTE: Bacon-ls is not part of Bacon, it's a third-party tool developed to work WITH Bacon.**
 
+# Features
+
+* Read diagnostics from produced by Bacon.
+* Push diagnostics to the LSP client on certain events like saving or files changes.
+* Precise diagnostics positions.
+* Ability to react to changes over document saves and changes that can be configured.
+* Replacement code actions as suggested by `clippy`.
+
 # Installation
 
 ## VSCode
