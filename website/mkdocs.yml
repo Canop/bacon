@@ -9,7 +9,11 @@ nav:
         - Config: config.md
         - Analyzers: analyzers.md
         - Cookbook: cookbook.md
-        - Community: community.md
+        - Community: 
+          - community/FAQ.md
+          - community/bacon-dev.md
+          - community/nvim-bacon.md
+          - community/bacon-ls.md
 
 extra_css:
         - css/extra.css
