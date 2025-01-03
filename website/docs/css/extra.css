@@ -151,6 +151,7 @@ pre {
 	border: solid 1px var(--code-bg);
 	font-weight: normal;
 	padding: 6px 0 4px 6px;
+	max-width: 800px;
 }
 
 code {
@@ -277,28 +278,30 @@ table td a {
 }
 
 body .dropdown-menu {
-	background: #222;
+	top: calc(100% - 1px);
+	background: #333;
+	border-radius: 0 0 4px 4px;
 }
 body .dropdown-menu li a {
 	color: #ddd;
+	background: #333;
 }
 
 body .dropdown-menu > .active > a,
 body .dropdown-menu > .active > a:focus {
-	color: #111;
-	background: #fc0;
+	background: #222;
+	color: var(--accent);
 }
 body ul.dropdown-menu li.active a:hover {
-	color: #111;
-	background: #fc0;
-	/**color: #ff5f87;
-	background: #fc0;**/
+	background: #222;
+	color: var(--accent);
 }
 body ul.dropdown-menu li a:hover {
-	color: #111;
-	background: #fc0;
-	/**background: #111;
-	color: #ff5f87;**/
+	background: #222;
+	color: var(--accent);
+}
+body ul.dropdown-menu li a.dropdown-item.active {
+	background: #222;
 }
 body .nav>li>a:hover, body .nav>li>a:focus {
 	background: #222;

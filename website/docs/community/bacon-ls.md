@@ -128,7 +128,7 @@ call coc#config('languageserver', {
       \   'filetypes': ['rust'],
       \   'rootPatterns': ['.git/', 'Cargo.lock', 'Cargo.toml'],
       \   'initializationOptions': {
-      \     'updateOnSave': v:true, 
+      \     'updateOnSave': v:true,
       \     'updateOnSaveWaitMillis': 1000,
       \     'updateOnChange': v:false
       \   },

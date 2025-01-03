@@ -1,49 +1,5 @@
 
-**Bacon** is developed by **Denys Séguret**, also known as [Canop](https://github.com/Canop) or [dystroy](https://dystroy.org).
-
-Major updates are announced on my Mastodon account: [@dystroy@mastodon.dystroy.org](https://mastodon.dystroy.org/@dystroy).
-
-The logo has been designed by [Peter Varo](https://petervaro.com).
-
-# Sponsorship
-
-**Bacon** is free for all uses.
-
-If it helps your company make money, consider helping me find time to add features and to develop new free open-source software.
-
-<div class=sponsorship>
-<!-- I don't think anybody even thought about using this
-<script src="https://liberapay.com/dystroy/widgets/button.js"></script>
-<noscript><a href="https://liberapay.com/dystroy/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
--->
-<iframe src="https://github.com/sponsors/Canop/button" title="Sponsor Canop" height="35" width="114" style="border: 0; border-radius: 6px;margin-bottom: 20px;"></iframe>
-</div>
-
-I'm also available for consulting or custom development. Head to [https://dystroy.org](https://dystroy.org) for references.
-
-# Chat
-
-The best place to chat about bacon, to talk about features or bugs, is the Miaou chat.
-
-[Bacon room on Miaou](https://miaou.dystroy.org/4683?bacon)
-
-# Issues
-
-We use [GitHub's issue manager](https://github.com/Canop/bacon/issues).
-
-Before posting a new issue, check your problem hasn't already been raised and in case of doubt **please come first discuss it on the chat**.
-
-Looking into an issue may require bacon to be launched with log enabled (eg `BACON_LOG=DEBUG bacon`) which produces a `bacon.log` file.
-
-If bacon didn't understand correctly the output of a cargo tool, it may also be useful to have a look at the analysis export, which you normally find in a `bacon-analysis.json` file on hitting `ctrl-e`.
-
-# Contribute
-
-If you think you might help, as a tester or coder, you're welcome, but please read [Contributing to my FOSS projects](https://dystroy.org/blog/contributing/) before starting a PR.
-
-# FAQ
-
-## What does it exactly do ?
+# What does it exactly do ?
 
 Bacon watches the content of your source directories and launches `cargo check` or other commands on changes.
 
@@ -55,7 +11,7 @@ Errors and test failures are displayed before warnings because you usually want 
 
 Rendering is adapted to the dimensions of the terminal to ensure you get a proper usable report. And bacon manages rewrapping on resize.
 
-## Parallel bacon ?
+# Parallel bacon ?
 
 It's perfectly OK to have several bacon running in paralle, and can be useful to check several compilation targets.
 
@@ -63,11 +19,11 @@ Similarly you don't have to stop bacon when you want to use cargo to build the a
 
 Bacon is efficient and doesn't work when there's no notification.
 
-## Supported platforms
+# Supported platforms
 
 It works on all decent terminals on Linux, Max OSX and Windows.
 
-## Vim & Neovim support
+# Vim & Neovim support
 
 (Neo)Vim is perfectly supported but you may have had a problem, depending on your installation, with bacon sometimes not recomputing on file changes.
 
@@ -79,14 +35,14 @@ A solution is to add this to your init.vim file:
 
 This doesn't prevent vim from keeping copies during editions, it just changes the behavior of the write operation and has no practical downside.
 
-## Licences
+# Licences
 
 Bacon is licenced under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.en.html).
 You're free to use it to compile the Rust projects of your choice, even commercial.
 
 The logo is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0).
 
-## Why "bacon" ?
+# Why "bacon" ?
 
 * It's a **bac**kground **con**piler.
 * It comes from France and, as you know, France is bacon.

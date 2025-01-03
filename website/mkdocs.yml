@@ -10,10 +10,10 @@ nav:
         - Analyzers: analyzers.md
         - Cookbook: cookbook.md
         - Community: 
-          - community/FAQ.md
-          - community/bacon-dev.md
-          - community/nvim-bacon.md
-          - community/bacon-ls.md
+          - Bacon Dev: community/bacon-dev.md
+          - FAQ: community/FAQ.md
+          - bacon-ls: community/bacon-ls.md
+          - nvim-bacon: community/nvim-bacon.md
 
 extra_css:
         - css/extra.css
