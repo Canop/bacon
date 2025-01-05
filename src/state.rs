@@ -1,30 +1,16 @@
 use {
     crate::*,
     anyhow::Result,
+    copypasta::{ClipboardContext, ClipboardProvider},
     crokey::KeyCombination,
-    std::{
-        io::Write,
-        process::ExitStatus,
-        time::Instant,
-    },
+    std::{io::Write, process::ExitStatus, time::Instant},
     termimad::{
-        Area,
-        CompoundStyle,
-        InputField,
-        MadSkin,
         crossterm::{
-            cursor,
-            execute,
-            style::{
-                Attribute,
-                Color::*,
-                Print,
-            },
+            cursor, execute,
+            style::{Attribute, Color::*, Print},
         },
-        minimad::{
-            Alignment,
-            Composite,
-        },
+        minimad::{Alignment, Composite},
+        Area, CompoundStyle, InputField, MadSkin,
     },
 };
 
@@ -161,6 +147,19 @@ impl<'s> AppState<'s> {
             true
         } else {
             false
+        }
+    }
+    pub fn copy_output(&self) {
+        let lines = self.lines_to_draw();
+        let mut content = String::new();
+
+        for line in lines {
+            content.push_str(&line.content.to_raw());
+            content.push('\n');
+        }
+
+        if let Ok(mut ctx) = ClipboardContext::new() {
+            let _ = ctx.set_contents(content);
         }
     }
     pub fn next_match(&mut self) {

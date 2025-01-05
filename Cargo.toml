@@ -32,6 +32,7 @@ termimad = "0.31.1"
 toml = "0.8"
 unicode-width = "0.2"
 vte = "0.8"
+copypasta = "0.10"
 
 [profile.release]
 debug = false
