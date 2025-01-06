@@ -124,7 +124,7 @@ impl Serialize for Action {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&self.to_string())
+        serializer.collect_str(self)
     }
 }
 impl<'de> Deserialize<'de> for Action {
