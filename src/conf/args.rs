@@ -118,7 +118,7 @@ pub struct Args {
     #[clap(long, value_name = "watch")]
     pub watch: Option<String>,
 
-    /// Projet to run jobs on, and use as working directory
+    /// Project to run jobs on, and use as working directory
     #[clap(long, value_name = "project")]
     pub project: Option<String>,
 
