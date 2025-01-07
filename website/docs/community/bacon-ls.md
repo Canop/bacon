@@ -14,6 +14,7 @@
 * Precise diagnostics positions.
 * Ability to react to changes over document saves and changes that can be configured.
 * Replacement code actions as suggested by `clippy`.
+* Automatic validation of `bacon` preferences to ensure `bacon-ls` can work with them.
 
 # Installation
 
@@ -43,12 +44,13 @@ First, install [Bacon](../../#installation) and Bacon-ls
 ❯❯❯ bacon --version
 bacon 3.7.0  # make sure you have at least 3.7.0
 ❯❯❯ bacon-ls --version
-0.5.0        # make sure you have at least 0.5.0
+0.9.0        # make sure you have at least 0.9.0
 ```
 
 # Configuration
 
-Configure Bacon export settings with Bacon-ls export format and proper span support in `~/.config/bacon/prefs.toml`:
+Configure Bacon export settings with `bacon-ls` 🐽 export format and proper span support in the `bacon` preference file.
+To find where the file should be saved, you can use the command `bacon --prefs`:
 
 ```toml
 [jobs.bacon-ls]
@@ -59,7 +61,7 @@ need_stdout = true
 [exports.cargo-json-spans]
 auto = true
 exporter = "analyzer"
-line_format = "{diagnostic.level}:{span.file_name}:{span.line_start}:{span.line_end}:{span.column_start}:{span.column_end}:{diagnostic.message}:{span.suggested_replacement}"
+line_format = "{diagnostic.level}|:|{span.file_name}|:|{span.line_start}|:|{span.line_end}|:|{span.column_start}|:|{span.column_end}|:|{diagnostic.message}|:|{span.suggested_replacement}"
 path = ".bacon-locations"
 ```
 
