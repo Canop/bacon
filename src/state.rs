@@ -86,14 +86,21 @@ pub struct AppState<'s> {
 }
 
 impl<'s> AppState<'s> {
-    pub fn new(mission: Mission<'s>) -> Result<Self> {
+    pub fn new(
+        mission: Mission<'s>,
+        headless: bool,
+    ) -> Result<Self> {
         let report_maker = ReportMaker::new(&mission);
         let mut status_skin = MadSkin::default();
         status_skin
             .paragraph
             .set_fgbg(AnsiValue(252), AnsiValue(239));
         status_skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
-        let (width, height) = termimad::terminal_size();
+        let (width, height) = if headless {
+            (50, 50)
+        } else {
+            termimad::terminal_size()
+        };
         let help_line = mission
             .settings
             .help_line
@@ -576,6 +583,36 @@ impl<'s> AppState<'s> {
         }
         Ok(())
     }
+
+    pub fn job_badges(&self) -> Vec<TString> {
+        let mut badges = Vec::new();
+        let project_name = &self.mission.location_name;
+        badges.push(TString::badge(project_name, 255, 240));
+        let job_label = self.mission.concrete_job_ref.badge_label();
+        badges.push(TString::badge(&job_label, 235, 204));
+        if let CommandResult::Report(report) = &self.cmd_result {
+            let stats = &report.stats;
+            if stats.errors > 0 {
+                badges.push(TString::num_badge(stats.errors, "error", 235, 9));
+            }
+            if stats.test_fails > 0 {
+                badges.push(TString::num_badge(stats.test_fails, "fail", 235, 208));
+            } else if stats.passed_tests > 0 {
+                badges.push(TString::badge("pass!", 254, 2));
+            }
+            if stats.warnings > 0 {
+                badges.push(TString::num_badge(stats.warnings, "warning", 235, 11));
+            }
+        } else if let CommandResult::Failure(failure) = &self.cmd_result {
+            badges.push(TString::badge(
+                &format!("Command error code: {}", failure.error_code),
+                235,
+                9,
+            ));
+        }
+        badges
+    }
+
     /// draw the line of colored badges, usually on top
     pub fn draw_badges(
         &mut self,
@@ -584,31 +621,8 @@ impl<'s> AppState<'s> {
     ) -> Result<usize> {
         goto_line(w, y)?;
         let mut t_line = TLine::default();
-        // white over grey
-        let project_name = &self.mission.location_name;
-        t_line.add_badge(TString::badge(project_name, 255, 240));
-        // black over pink
-        let job_label = self.mission.concrete_job_ref.badge_label();
-        t_line.add_badge(TString::badge(&job_label, 235, 204));
-        if let CommandResult::Report(report) = &self.cmd_result {
-            let stats = &report.stats;
-            if stats.errors > 0 {
-                t_line.add_badge(TString::num_badge(stats.errors, "error", 235, 9));
-            }
-            if stats.test_fails > 0 {
-                t_line.add_badge(TString::num_badge(stats.test_fails, "fail", 235, 208));
-            } else if stats.passed_tests > 0 {
-                t_line.add_badge(TString::badge("pass!", 254, 2));
-            }
-            if stats.warnings > 0 {
-                t_line.add_badge(TString::num_badge(stats.warnings, "warning", 235, 11));
-            }
-        } else if let CommandResult::Failure(failure) = &self.cmd_result {
-            t_line.add_badge(TString::badge(
-                &format!("Command error code: {}", failure.error_code),
-                235,
-                9,
-            ));
+        for badge in self.job_badges() {
+            t_line.add_badge(badge);
         }
         if self.show_changes_count {
             t_line.add_badge(TString::num_badge(

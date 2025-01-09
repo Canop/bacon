@@ -147,8 +147,8 @@ impl MissionExecutor {
                                 break;
                             }
                             Ok(_) => {
-                                let response = CommandExecInfo::Line(CommandOutputLine {
-                                    content: TLine::from_tty(&line),
+                                let response = CommandExecInfo::Line(RawCommandOutputLine {
+                                    content: line.clone(),
                                     origin: CommandStream::StdOut,
                                 });
                                 if sender.send(response).is_err() {
@@ -180,8 +180,8 @@ impl MissionExecutor {
                             break;
                         }
                         Ok(_) => {
-                            let response = CommandExecInfo::Line(CommandOutputLine {
-                                content: TLine::from_tty(&line),
+                            let response = CommandExecInfo::Line(RawCommandOutputLine {
+                                content: line.clone(),
                                 origin: CommandStream::StdErr,
                             });
                             if err_line_sender.send(response).is_err() {

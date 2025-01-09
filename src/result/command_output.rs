@@ -13,6 +13,13 @@ pub enum CommandStream {
     StdErr,
 }
 
+/// a line coming either from stdout or from stderr, before TTY parsing
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct RawCommandOutputLine {
+    pub content: String,
+    pub origin: CommandStream,
+}
+
 /// a line coming either from stdout or from stderr
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CommandOutputLine {
@@ -39,7 +46,7 @@ pub enum CommandExecInfo {
     Error(anyhow::Error),
 
     /// Here's a line of output (coming from stderr or stdout)
-    Line(CommandOutputLine),
+    Line(RawCommandOutputLine),
 }
 
 impl CommandOutput {
@@ -54,5 +61,14 @@ impl CommandOutput {
     }
     pub fn len(&self) -> usize {
         self.lines.len()
+    }
+}
+
+impl From<RawCommandOutputLine> for CommandOutputLine {
+    fn from(raw: RawCommandOutputLine) -> Self {
+        CommandOutputLine {
+            content: TLine::from_tty(&raw.content),
+            origin: raw.origin,
+        }
     }
 }

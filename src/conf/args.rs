@@ -44,6 +44,10 @@ pub struct Args {
     #[clap(long)]
     pub prefs: bool,
 
+    /// Run without user interface: just run the default job on change
+    #[clap(long)]
+    pub headless: bool,
+
     /// Start in summary mode
     #[clap(short = 's', long)]
     pub summary: bool,
