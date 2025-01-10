@@ -45,6 +45,13 @@ pub fn run(
     headless: bool,
 ) -> Result<()> {
     let event_source = if headless {
+        // in headless mode, in some contexts, ctrl-c might not be enough to kill
+        // bacon so we add this handler
+        ctrlc::set_handler(move || {
+            eprintln!("bye");
+            std::process::exit(0);
+        })
+        .expect("Error setting Ctrl-C handler");
         None
     } else {
         Some(EventSource::with_options(EventSourceOptions {

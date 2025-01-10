@@ -13,6 +13,7 @@ rust-version = "1.76"
         
 [dependencies]
 anyhow = "1.0"
+ctrlc = "3.4"
 cargo_metadata = "0.19"
 clap = { version = "4.5", features = ["derive", "cargo"] }
 clap-help = "1.3"
@@ -40,7 +41,7 @@ codegen-units = 1
 
 [patch.crates-io]
 # clap-help = { path = "../clap-help" }
-# termimad = { path = "../termimad" }
+# termimad = { path = "../termimad" }
 # crokey = { path = "../crokey" }
 # coolor = { path = "../coolor" }
 # iq = { path = "../iq" }
