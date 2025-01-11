@@ -33,6 +33,7 @@ pub fn run() -> anyhow::Result<()> {
     let mut args: Args = Args::parse();
     args.fix()?;
     info!("args: {:#?}", &args);
+    let headless = args.headless;
 
     if args.help {
         args.print_help();
@@ -81,16 +82,20 @@ pub fn run() -> anyhow::Result<()> {
     }
 
     let mut w = writer();
-    w.queue(EnterAlternateScreen)?;
-    w.queue(cursor::Hide)?;
-    #[cfg(windows)]
-    w.queue(EnableMouseCapture)?;
-    w.flush()?;
-    let result = app::run(&mut w, settings, &args, context);
-    #[cfg(windows)]
-    w.queue(DisableMouseCapture)?;
-    w.queue(cursor::Show)?;
-    w.queue(LeaveAlternateScreen)?;
+    if !headless {
+        w.queue(EnterAlternateScreen)?;
+        w.queue(cursor::Hide)?;
+        #[cfg(windows)]
+        w.queue(EnableMouseCapture)?;
+        w.flush()?;
+    }
+    let result = app::run(&mut w, settings, &args, context, headless);
+    if !headless {
+        #[cfg(windows)]
+        w.queue(DisableMouseCapture)?;
+        w.queue(cursor::Show)?;
+        w.queue(LeaveAlternateScreen)?;
+    }
     w.flush()?;
     result
 }

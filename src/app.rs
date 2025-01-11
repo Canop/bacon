@@ -2,7 +2,10 @@ use {
     crate::*,
     anyhow::Result,
     crokey::*,
-    std::time::Duration,
+    std::{
+        io::Write,
+        time::Duration,
+    },
     termimad::{
         EventSource,
         EventSourceOptions,
@@ -39,11 +42,23 @@ pub fn run(
     mut settings: Settings,
     args: &Args,
     location: Context,
+    headless: bool,
 ) -> Result<()> {
-    let event_source = EventSource::with_options(EventSourceOptions {
-        combine_keys: false,
-        ..Default::default()
-    })?;
+    let event_source = if headless {
+        // in headless mode, in some contexts, ctrl-c might not be enough to kill
+        // bacon so we add this handler
+        ctrlc::set_handler(move || {
+            eprintln!("bye");
+            std::process::exit(0);
+        })
+        .expect("Error setting Ctrl-C handler");
+        None
+    } else {
+        Some(EventSource::with_options(EventSourceOptions {
+            combine_keys: false,
+            ..Default::default()
+        })?)
+    };
     let mut job_stack = JobStack::default();
     let mut next_job = JobRef::Initial;
     let mut message = None;
@@ -55,7 +70,8 @@ pub fn run(
             }
         };
         let mission = location.mission(concrete_job_ref, job, &settings)?;
-        let do_after = app::run_mission(w, mission, &event_source, message.take())?;
+        let do_after =
+            app::run_mission(w, mission, event_source.as_ref(), message.take(), headless)?;
         match do_after {
             DoAfterMission::NextJob(job_ref) => {
                 next_job = job_ref;
@@ -81,8 +97,9 @@ pub fn run(
 fn run_mission(
     w: &mut W,
     mission: Mission,
-    event_source: &EventSource,
+    event_source: Option<&EventSource>,
     message: Option<Message>,
+    headless: bool,
 ) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
 
@@ -100,12 +117,14 @@ fn run_mission(
         .on_change_strategy
         .or(mission.settings.on_change_strategy)
         .unwrap_or(OnChangeStrategy::WaitThenRestart);
-    let mut state = AppState::new(mission)?;
+    let mut state = AppState::new(mission, headless)?;
     if let Some(message) = message {
         state.messages.push(message);
     }
     state.computation_starts();
-    state.draw(w)?;
+    if !headless {
+        state.draw(w)?;
+    }
     let mut task_executor = executor.start(state.new_task())?; // first computation
 
     // A very low frequency tick generator, to ensure "config loaded" message doesn't stick
@@ -113,9 +132,17 @@ fn run_mission(
     let mut ticker = Ticker::new();
     ticker.tick_infinitely((), Duration::from_secs(5));
 
-    // loop on events
-    let user_events = event_source.receiver();
+    let _dummy_sender;
+    let user_events = if let Some(event_source) = event_source {
+        event_source.receiver()
+    } else {
+        let (sender, receiver) = termimad::crossbeam::channel::unbounded();
+        _dummy_sender = sender;
+        receiver
+    };
     let mut do_after_mission = DoAfterMission::Quit;
+
+    // loop on events
     #[allow(unused_mut)]
     loop {
         let mut action: Option<&Action> = None;
@@ -144,12 +171,26 @@ fn run_mission(
                 if let Ok(info) = info {
                     match info {
                         CommandExecInfo::Line(line) => {
+                            if headless {
+                                match line.origin {
+                                    CommandStream::StdOut => print!("{}", line.content),
+                                    CommandStream::StdErr => eprint!("{}", line.content),
+                                }
+                            }
+                            let line = line.into();
                             state.add_line(line);
                         }
                         CommandExecInfo::End { status } => {
                             // computation finished
                             info!("execution finished with status: {:?}", status);
                             state.finish_task(status)?;
+                            if headless {
+                                for badge in state.job_badges() {
+                                    badge.draw(w)?;
+                                }
+                                write!(w, "\n")?;
+                                w.flush()?;
+                            }
                             action = state.action();
                         }
                         CommandExecInfo::Error(e) => {
@@ -184,7 +225,9 @@ fn run_mission(
                     }
                     _ => {}
                 }
-                event_source.unblock(false);
+                if let Some(event_source) = event_source {
+                    event_source.unblock(false);
+                }
             }
         }
         if let Some(action) = action.take() {
@@ -297,7 +340,9 @@ fn run_mission(
                 }
             }
         }
-        state.draw(w)?;
+        if !headless {
+            state.draw(w)?;
+        }
     }
     task_executor.die();
     Ok(do_after_mission)
