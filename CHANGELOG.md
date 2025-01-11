@@ -1,3 +1,6 @@
+### next
+- with `--headless`, bacon runs without TUI - Fix #293
+
 <a name="v3.7.0"></a>
 ### v3.7.0 - 2024/12/27
 - search with the <kbd>/</kbd> key - Fix #224
