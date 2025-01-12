@@ -41,3 +41,5 @@ If bacon didn't understand correctly the output of a cargo tool, it may also be 
 
 If you think you might help, as a tester or coder, you're welcome, but please read [Contributing to my FOSS projects](https://dystroy.org/blog/contributing/) before starting a PR.
 
+
+**Don't open a PR without discussing the design before**, either in the chat or in an issue, unless you're just fixing a typo. Coding is the easy part. Determining the exact requirement and how we want it to be done is the hard part. This is especially important if you plan to add a dependency or to change the visible parts, eg the launch arguments.
