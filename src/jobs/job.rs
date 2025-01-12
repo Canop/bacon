@@ -7,6 +7,9 @@ use {
 /// One of the possible job that bacon can run
 #[derive(Debug, Clone, Deserialize)]
 pub struct Job {
+    /// List of alternative names to run this job.
+    pub alias: Option<Vec<String>>,
+
     /// Whether to consider that we can have a success
     /// when we have test failures
     #[serde(default)]
@@ -120,6 +123,7 @@ impl Job {
         }
         Self {
             command,
+            alias: None,
             kill: None,
             default_watch: None,
             expand_env_vars: true,

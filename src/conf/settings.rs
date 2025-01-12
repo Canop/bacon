@@ -249,10 +249,29 @@ impl Settings {
             bail!("Invalid configuration : no job found");
         }
         if let NameOrAlias::Name(name) = &self.default_job.name_or_alias {
-            if !self.jobs.contains_key(name) {
+            if self.job(name).is_none() {
                 bail!("Invalid configuration : default job ({name:?}) not found in jobs");
             }
         }
         Ok(())
+    }
+
+    /// Get a job by its name or alias.
+    pub fn job(
+        &self,
+        name: &str,
+    ) -> Option<&Job> {
+        self.jobs.iter().find_map(|(key, job)| {
+            if name == key
+                || job
+                    .alias
+                    .as_ref()
+                    .is_some_and(|alias| alias.iter().any(|alias| alias == name))
+            {
+                Some(job)
+            } else {
+                None
+            }
+        })
     }
 }

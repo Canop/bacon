@@ -75,6 +75,7 @@ The job is defined by the following fields:
 
 field | meaning | default
 :-|:-|:-
+alias | list of alternatives job names |
 allow_failures | if `true`, the action is considered a success even when there are test failures | `false`
 allow_warnings | if `true`, the action is considered a success even when there are warnings | `false`
 analyzer | command output parser, see below | `"standard"`

@@ -38,6 +38,7 @@ command = [
 need_stdout = false
 
 [jobs.win]
+alias = ["windows"]
 command = [
 	"cross", "build",
 	"--target", "x86_64-pc-windows-gnu",

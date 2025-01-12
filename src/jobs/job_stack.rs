@@ -63,8 +63,7 @@ impl JobStack {
         let job = match &concrete.name_or_alias {
             NameOrAlias::Alias(alias) => Job::from_alias(alias, settings),
             NameOrAlias::Name(name) => settings
-                .jobs
-                .get(name)
+                .job(name)
                 .ok_or_else(|| anyhow!("job not found: {:?}", name))?
                 .clone(),
         };
