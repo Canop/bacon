@@ -1,7 +1,6 @@
 use {
     crate::*,
     anyhow::Result,
-    copypasta::{ClipboardContext, ClipboardProvider},
     crokey::KeyCombination,
     std::{io::Write, process::ExitStatus, time::Instant},
     termimad::{
@@ -158,8 +157,8 @@ impl<'s> AppState<'s> {
             content.push('\n');
         }
 
-        if let Ok(mut ctx) = ClipboardContext::new() {
-            let _ = ctx.set_contents(content);
+        if let Ok(mut clipboard) = arboard::Clipboard::new() {
+            let _ = clipboard.set_text(content);
         }
     }
     pub fn next_match(&mut self) {
