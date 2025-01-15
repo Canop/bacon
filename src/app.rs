@@ -11,16 +11,11 @@ use {
         EventSourceOptions,
         Ticker,
         crossbeam::channel::select,
-        crossterm::event::Event,
-    },
-};
-
-#[cfg(windows)]
-use {
-    crokey::key,
-    termimad::crossterm::event::{
-        MouseEvent,
-        MouseEventKind,
+        crossterm::event::{
+            Event,
+            MouseEvent,
+            MouseEventKind,
+        },
     },
 };
 
@@ -102,6 +97,9 @@ fn run_mission(
     headless: bool,
 ) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
+    let scroll_multiplier = 3; // TODO can we read the OS setting?
+    let wheel_down = Internal::Scroll(ScrollCommand::Lines(scroll_multiplier)).into();
+    let wheel_up = Internal::Scroll(ScrollCommand::Lines(-scroll_multiplier)).into();
 
     // build the watcher detecting and transmitting mission file changes
     let ignorer = time!(Info, mission.ignorer());
@@ -204,6 +202,7 @@ fn run_mission(
                 }
             }
             recv(user_events) -> user_event => {
+                info!("user event received: {:#?}", user_event);
                 match user_event?.event {
                     Event::Resize(mut width, mut height) => {
                         state.resize(width, height);
@@ -215,13 +214,11 @@ fn run_mission(
                             action = keybindings.get(key_combination);
                         }
                     }
-                    #[cfg(windows)]
                     Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollDown, .. }) => {
-                        action = keybindings.get(key!(down));
+                        action = Some(&wheel_down);
                     }
-                    #[cfg(windows)]
                     Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollUp, .. }) => {
-                        action = keybindings.get(key!(up));
+                        action = Some(&wheel_up);
                     }
                     _ => {}
                 }
