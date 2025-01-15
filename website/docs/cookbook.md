@@ -150,5 +150,28 @@ You would call it with
 bacon ex -- example4578
 ```
 
+# Bacon CLI snippets
 
+You may share a command-line snippet without requiring a bacon.toml file, using the `--config-toml` argument:
+
+```bash
+bacon -j cli-test --config-toml '
+[jobs.cli-test]
+command = [
+  "sh",
+  "-c",
+  "echo \"hello $(date +%H-%M-%S)\"; cargo run",
+]
+need_stdout = true
+allow_warnings = true
+background = false
+on_change_strategy = "kill_then_restart"
+kill = ["pkill", "-TERM", "-P"]'
+```
+
+Notes:
+
+* wrap the inline configuration item in single quotes so that you may use double-quotes inside
+* this configuration is simply added to the other ones and it may refer to them
+* if you add a job this way and want it executed, either define it as `default_job` in the same inline TOML or use the `--job`/`-j` argument as in the example above
 

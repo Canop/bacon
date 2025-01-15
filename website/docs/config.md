@@ -17,6 +17,7 @@ Bacon loads in order:
 * the `bacon.toml` file in `package-root/`
 * the `bacon.toml` file in `package-root/.config/`
 * the file whose path is in environment variable `BACON_CONFIG`
+* the content of the `--config-toml` argument
 
 Each configuration file overrides the properties of previously loaded ones.
 
