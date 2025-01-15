@@ -88,6 +88,7 @@ impl Settings {
     /// * the package level `bacon.toml` file in package-root/.bacon.toml
     /// * the package level `bacon.toml` file in package-root/.config/.bacon.toml
     /// * the file whose path is in environment variable `BACON_CONFIG`
+    /// * the content of the `--config-toml` argument
     /// * args given as arguments, coming from the cli call
     pub fn read(
         args: &Args,
@@ -120,6 +121,12 @@ impl Settings {
                     }
                 }
             }
+        }
+
+        if let Some(toml) = &args.config_toml {
+            let config = toml::from_str(toml)?;
+            info!("config loaded from --config-toml: {:#?}", &config);
+            settings.apply_config(&config);
         }
 
         settings.apply_args(args);

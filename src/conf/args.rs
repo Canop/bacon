@@ -126,6 +126,10 @@ pub struct Args {
     #[clap(long, value_name = "project")]
     pub project: Option<String>,
 
+    /// Configuration passed as a TOML string
+    #[clap(long)]
+    pub config_toml: Option<String>,
+
     #[clap()]
     /// What to do: either a job, or a path, or both
     pub args: Vec<String>,
