@@ -31,6 +31,7 @@ impl Watcher {
         paths_to_watch: &[PathBuf],
         mut ignorer: IgnorerSet,
     ) -> Result<Self> {
+        info!("watcher on {:#?}", paths_to_watch);
         let (sender, receiver) = bounded(0);
         let mut notify_watcher =
             notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
@@ -45,14 +46,14 @@ impl Watcher {
                             return; // probably useless event with no real change
                         }
                         EventKind::Access(AccessKind::Close(AccessMode::Write)) => {
-                            debug!("close write event: {we:?}");
+                            info!("close write event: {we:?}");
                         }
                         EventKind::Access(_) => {
                             debug!("ignoring access event: {we:?}");
                             return; // probably useless event
                         }
                         _ => {
-                            debug!("notify event: {we:?}");
+                            info!("notify event: {we:?}");
                         }
                     }
                     match time!(Info, ignorer.excludes_all_pathbufs(&we.paths)) {
