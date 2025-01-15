@@ -9,17 +9,15 @@ use {
     termimad::crossterm::{
         QueueableCommand,
         cursor,
+        event::{
+            DisableMouseCapture,
+            EnableMouseCapture,
+        },
         terminal::{
             EnterAlternateScreen,
             LeaveAlternateScreen,
         },
     },
-};
-
-#[cfg(windows)]
-use termimad::crossterm::event::{
-    DisableMouseCapture,
-    EnableMouseCapture,
 };
 /// The Write type used by all GUI writing functions
 pub type W = std::io::BufWriter<std::io::Stdout>;
@@ -85,13 +83,11 @@ pub fn run() -> anyhow::Result<()> {
     if !headless {
         w.queue(EnterAlternateScreen)?;
         w.queue(cursor::Hide)?;
-        #[cfg(windows)]
         w.queue(EnableMouseCapture)?;
         w.flush()?;
     }
     let result = app::run(&mut w, settings, &args, context, headless);
     if !headless {
-        #[cfg(windows)]
         w.queue(DisableMouseCapture)?;
         w.queue(cursor::Show)?;
         w.queue(LeaveAlternateScreen)?;
