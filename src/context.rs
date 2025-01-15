@@ -15,7 +15,14 @@ use {
     },
 };
 
-static DEFAULT_WATCHES: &[&str] = &["src", "tests", "benches", "examples", "build.rs"];
+static DEFAULT_WATCHES: &[&str] = &[
+    "Cargo.toml",
+    "src",
+    "tests",
+    "benches",
+    "examples",
+    "build.rs",
+];
 
 /// information on the paths which are relevant for a mission
 #[derive(Debug)]
@@ -155,12 +162,14 @@ impl Context {
             debug!("watches: {watches:?}");
             add_to_paths_to_watch(&watches, &self.package_directory, &mut paths_to_watch);
             if let Some(workspace_root) = &self.workspace_root {
+                // there's usually not much src at the workspace level but we must
+                // at least watch the Cargo.toml file
                 add_to_paths_to_watch(&watches, workspace_root, &mut paths_to_watch);
             }
             if let Some(location) = &self.cargo_mission_location {
                 for item in &location.packages {
+                    // if it's a local package
                     if item.source.is_none() {
-                        // FIXME why this check
                         let item_path = item
                             .manifest_path
                             .parent()
