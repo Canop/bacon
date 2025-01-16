@@ -1,7 +1,16 @@
 use {
     crate::ScrollCommand,
-    serde::{de, Deserialize, Deserializer, Serialize, Serializer},
-    std::{fmt, str::FromStr},
+    serde::{
+        Deserialize,
+        Deserializer,
+        Serialize,
+        Serializer,
+        de,
+    },
+    std::{
+        fmt,
+        str::FromStr,
+    },
 };
 
 /// one of the hardcoded actions that can be mapped

@@ -2,14 +2,29 @@ use {
     crate::*,
     anyhow::Result,
     crokey::KeyCombination,
-    std::{io::Write, process::ExitStatus, time::Instant},
+    std::{
+        io::Write,
+        process::ExitStatus,
+        time::Instant,
+    },
     termimad::{
+        Area,
+        CompoundStyle,
+        InputField,
+        MadSkin,
         crossterm::{
-            cursor, execute,
-            style::{Attribute, Color::*, Print},
+            cursor,
+            execute,
+            style::{
+                Attribute,
+                Color::*,
+                Print,
+            },
         },
-        minimad::{Alignment, Composite},
-        Area, CompoundStyle, InputField, MadSkin,
+        minimad::{
+            Alignment,
+            Composite,
+        },
     },
 };
 
@@ -149,20 +164,27 @@ impl<'s> AppState<'s> {
         }
     }
     pub fn copy_unstyled_output(&mut self) {
-        let lines = self.lines_to_draw();
-        let mut content = String::new();
-
-        for line in lines {
-            content.push_str(&line.content.to_raw());
-            content.push('\n');
-        }
-
-        #[cfg(feature = "clipboard")]
-        if let Ok(mut clipboard) = arboard::Clipboard::new() {
-            let _ = clipboard.set_text(content);
-        }
-        #[cfg(not(feature = "clipboard"))]
-        self.messages.push(Message::short("clipboard feature not enabled : nothing copied"));
+        let message = {
+            #[cfg(feature = "clipboard")]
+            match arboard::Clipboard::new() {
+                Ok(mut clipboard) => {
+                    let mut content = String::new();
+                    for line in self.lines_to_draw() {
+                        content.push_str(&line.content.to_raw());
+                        content.push('\n');
+                    }
+                    let _ = clipboard.set_text(content);
+                    "Output copied to clipboard"
+                }
+                Err(e) => {
+                    error!("Failed to copy output to clipboard: {}", e);
+                    "Clipboard error - nothing copied"
+                }
+            }
+            #[cfg(not(feature = "clipboard"))]
+            "clipboard feature not enabled : nothing copied"
+        };
+        self.messages.push(Message::short(message));
     }
     pub fn next_match(&mut self) {
         if self.founds.is_empty() {

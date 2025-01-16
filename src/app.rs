@@ -7,15 +7,21 @@ use {
         time::Duration,
     },
     termimad::{
-        crossbeam::channel::select, crossterm::event::Event, EventSource, EventSourceOptions,
+        EventSource,
+        EventSourceOptions,
         Ticker,
+        crossbeam::channel::select,
+        crossterm::event::Event,
     },
 };
 
 #[cfg(windows)]
 use {
     crokey::key,
-    termimad::crossterm::event::{MouseEvent, MouseEventKind},
+    termimad::crossterm::event::{
+        MouseEvent,
+        MouseEventKind,
+    },
 };
 
 enum DoAfterMission {

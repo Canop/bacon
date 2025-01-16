@@ -3,7 +3,10 @@ use {
     crokey::*,
     serde::Deserialize,
     std::{
-        collections::{hash_map, HashMap},
+        collections::{
+            HashMap,
+            hash_map,
+        },
         fmt,
     },
 };
