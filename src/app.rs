@@ -7,21 +7,15 @@ use {
         time::Duration,
     },
     termimad::{
-        EventSource,
-        EventSourceOptions,
+        crossbeam::channel::select, crossterm::event::Event, EventSource, EventSourceOptions,
         Ticker,
-        crossbeam::channel::select,
-        crossterm::event::Event,
     },
 };
 
 #[cfg(windows)]
 use {
     crokey::key,
-    termimad::crossterm::event::{
-        MouseEvent,
-        MouseEventKind,
-    },
+    termimad::crossterm::event::{MouseEvent, MouseEventKind},
 };
 
 enum DoAfterMission {
@@ -250,6 +244,9 @@ fn run_mission(
                             do_after_mission = DoAfterMission::NextJob(JobRef::Previous);
                             break;
                         }
+                    }
+                    Internal::CopyOutput => {
+                        state.copy_output();
                     }
                     Internal::NextMatch => {
                         state.next_match();

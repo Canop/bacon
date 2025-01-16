@@ -1,16 +1,7 @@
 use {
     crate::ScrollCommand,
-    serde::{
-        Deserialize,
-        Deserializer,
-        Serialize,
-        Serializer,
-        de,
-    },
-    std::{
-        fmt,
-        str::FromStr,
-    },
+    serde::{de, Deserialize, Deserializer, Serialize, Serializer},
+    std::{fmt, str::FromStr},
 };
 
 /// one of the hardcoded actions that can be mapped
@@ -18,6 +9,7 @@ use {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Internal {
     Back, // leave help, clear search, go to previous job, leave, etc.
+    CopyOutput,
     FocusSearch,
     Help,
     Pause,
@@ -43,6 +35,7 @@ impl Internal {
     pub fn doc(&self) -> String {
         match self {
             Self::Back => "back to previous page or job".to_string(),
+            Self::CopyOutput => "copy the output of the current job".to_string(),
             Self::Help => "help".to_string(),
             Self::Pause => "pause".to_string(),
             Self::Quit => "quit".to_string(),
@@ -72,6 +65,7 @@ impl fmt::Display for Internal {
     ) -> fmt::Result {
         match self {
             Self::Back => write!(f, "back"),
+            Self::CopyOutput => write!(f, "copy-output"),
             Self::Help => write!(f, "help"),
             Self::Pause => write!(f, "pause"),
             Self::Quit => write!(f, "quit"),
