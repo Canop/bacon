@@ -182,7 +182,7 @@ fn run_mission(
                                 for badge in state.job_badges() {
                                     badge.draw(w)?;
                                 }
-                                write!(w, "\n")?;
+                                writeln!(w)?;
                                 w.flush()?;
                             }
                             action = state.action();
@@ -245,8 +245,8 @@ fn run_mission(
                             break;
                         }
                     }
-                    Internal::CopyOutput => {
-                        state.copy_output();
+                    Internal::CopyUnstyledOutput => {
+                        state.copy_unstyled_output();
                     }
                     Internal::NextMatch => {
                         state.next_match();

@@ -148,7 +148,7 @@ impl<'s> AppState<'s> {
             false
         }
     }
-    pub fn copy_output(&self) {
+    pub fn copy_unstyled_output(&mut self) {
         let lines = self.lines_to_draw();
         let mut content = String::new();
 
@@ -157,9 +157,12 @@ impl<'s> AppState<'s> {
             content.push('\n');
         }
 
+        #[cfg(feature = "clipboard")]
         if let Ok(mut clipboard) = arboard::Clipboard::new() {
             let _ = clipboard.set_text(content);
         }
+        #[cfg(not(feature = "clipboard"))]
+        self.messages.push(Message::short("clipboard feature not enabled : nothing copied"));
     }
     pub fn next_match(&mut self) {
         if self.founds.is_empty() {
@@ -296,7 +299,7 @@ impl<'s> AppState<'s> {
     pub fn can_be_scoped(&self) -> bool {
         self.cmd_result
             .report()
-            .map_or(false, |report| report.stats.can_scope_tests())
+            .is_some_and(|report| report.stats.can_scope_tests())
     }
     pub fn failures_scope(&self) -> Option<Scope> {
         if !self.can_be_scoped() {
@@ -351,7 +354,7 @@ impl<'s> AppState<'s> {
             if report
                 .lines
                 .last()
-                .map_or(false, |line| line.content.is_blank())
+                .is_some_and(|line| line.content.is_blank())
             {
                 report.lines.pop();
             }

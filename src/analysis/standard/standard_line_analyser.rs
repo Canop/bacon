@@ -162,7 +162,7 @@ fn is_generated_n_warnings(ts: &[TString]) -> bool {
         .any(|ts| regex_is_match!(r#"generated \d+ warnings?"#, &ts.raw))
 }
 fn is_build_failed(ts: Option<&TString>) -> bool {
-    ts.map_or(false, |ts| regex_is_match!(r#"^\s*build failed"#, &ts.raw))
+    ts.is_some_and(|ts| regex_is_match!(r#"^\s*build failed"#, &ts.raw))
 }
 
 /// similar to as_test_result but without the FAILED|ok part

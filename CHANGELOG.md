@@ -2,6 +2,7 @@
 - with `--headless`, bacon runs without TUI - Fix #293
 - `--config-toml` argument - Fix #284
 - fix workspace level Cargo.toml file not watched
+- `copy-unstyled-output` internal that you can bind with eg `ctrl-c = "copy-unstyled-output"`. It's currently gated by the `"clipboard"` feature, please give feedback regarding compilation and usage - Fix #282 - Thanks @letsgetrusty
 
 <a name="v3.7.0"></a>
 ### v3.7.0 - 2024/12/27

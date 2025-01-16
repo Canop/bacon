@@ -43,7 +43,6 @@ impl Default for KeyBindings {
         );
         bindings.set(key!(f), Internal::ScopeToFailures);
         bindings.set(key!(esc), Internal::Back);
-        bindings.set(key!(ctrl - o), Internal::CopyOutput);
         bindings.set(key!(ctrl - d), JobRef::Default);
         bindings.set(key!(i), JobRef::Initial);
         bindings.set(key!(p), Internal::TogglePause);

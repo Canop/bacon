@@ -11,14 +11,19 @@ categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
 rust-version = "1.76"
         
+[features]
+default = []
+clipboard = ["arboard"]
+
 [dependencies]
 anyhow = "1.0"
-ctrlc = "3.4"
+arboard = { version = "3.4", default-features = false, optional = true }
 cargo_metadata = "0.19"
 clap = { version = "4.5", features = ["derive", "cargo"] }
 clap-help = "1.3"
 cli-log = "2.1"
 crokey = "1.1"
+ctrlc = "3.4"
 directories-next = "2.0.0"
 gix = { version = "0.67", default-features = false, features = ["index", "excludes", "parallel"] }
 glob = "0.3"
@@ -32,7 +37,6 @@ termimad = "0.31.1"
 toml = "0.8"
 unicode-width = "0.2"
 vte = "0.8"
-arboard = { version = "3.4", default-features = false }
 
 [profile.release]
 debug = false

@@ -98,3 +98,5 @@ line_format = "{kind} {path}:{line}:{column} {message}"
 # t = "job:test"
 # r = "job:run"
 # ctrl-e = "export:analysis"
+# ctrl-c = "copy-unstyled-output"
+

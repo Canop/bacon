@@ -9,7 +9,7 @@ use {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Internal {
     Back, // leave help, clear search, go to previous job, leave, etc.
-    CopyOutput,
+    CopyUnstyledOutput,
     FocusSearch,
     Help,
     Pause,
@@ -35,7 +35,7 @@ impl Internal {
     pub fn doc(&self) -> String {
         match self {
             Self::Back => "back to previous page or job".to_string(),
-            Self::CopyOutput => "copy the output of the current job".to_string(),
+            Self::CopyUnstyledOutput => "copy current job's output".to_string(),
             Self::Help => "help".to_string(),
             Self::Pause => "pause".to_string(),
             Self::Quit => "quit".to_string(),
@@ -65,7 +65,7 @@ impl fmt::Display for Internal {
     ) -> fmt::Result {
         match self {
             Self::Back => write!(f, "back"),
-            Self::CopyOutput => write!(f, "copy-output"),
+            Self::CopyUnstyledOutput => write!(f, "copy-unstyled-output"),
             Self::Help => write!(f, "help"),
             Self::Pause => write!(f, "pause"),
             Self::Quit => write!(f, "quit"),
@@ -115,6 +115,7 @@ impl std::str::FromStr for Internal {
             "validate" => Ok(Self::Validate),
             "next-match" => Ok(Self::NextMatch),
             "previous-match" => Ok(Self::PreviousMatch),
+            "copy-unstyled-output" => Ok(Self::CopyUnstyledOutput),
             _ => Err("invalid internal"),
         }
     }

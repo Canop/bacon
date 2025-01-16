@@ -76,5 +76,6 @@ need_stdout = false
 
 [keybindings]
 c = "job:clippy-all"
+ctrl-c = "copy-unstyled-output"
 #n = "next-match"
 #shift-n = "previous-match"

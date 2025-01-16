@@ -36,7 +36,7 @@ impl JobStack {
                     Some(concrete) => concrete,
                     None if current
                         .as_ref()
-                        .map_or(false, |current| current.scope.has_tests()) =>
+                        .is_some_and(|current| current.scope.has_tests()) =>
                     {
                         // rather than quitting, we assume the user wants to "unscope"
                         ConcreteJobRef {
