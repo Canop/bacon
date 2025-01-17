@@ -27,15 +27,37 @@ Rust specific support of bacon includes reading Cargo.toml files to identify all
 
 **Status: <span style="background-color:green;color:white;padding:3px">mature</span>**
 
-These tools are quite different but produce warnings, errors, test failures, with the same representation.
+These tools produce warnings, errors, test failures, with the same representation.
 
-Bacon comes preconfigured for those tools.
+Bacon comes with preconfigured modifiable jobs for them, and you can add some with no explicit analyzer according to your specific needs, for example
+
+```TOML
+[jobs.nightly-clippy]
+command = [
+	"cargo",
+	"+nightly",
+	"clippy",
+	"--all-targets",
+	"--",
+	"-A", "clippy::bool_to_int_with_if",
+]
+```
 
 ## Cargo/JSON
 
-**Status: <span style="background-color:orange;color:white;padding:3px">young</span>**
+**Status: <span style="background-color:green;color:white;padding:3px">mature</span>**
 
 Cargo can be configured to output JSON.
+
+```TOML
+[jobs.json-check]
+command = [
+	"cargo", "check",
+	"--message-format", "json-diagnostic-rendered-ansi",
+]
+need_stdout = true
+analyzer = "cargo_json"
+```
 
 With the `cargo_json` analyzer, the visible result in bacon is the same, but using this analyzer makes it possible to export from bacon more detailed data to use in other tools, eg [bacon-ls](https://github.com/crisidev/bacon-ls).
 

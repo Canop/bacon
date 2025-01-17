@@ -13,11 +13,12 @@ use {
 
 static INTRO: &str = "
 
-**bacon** watches your rust project and runs jobs in background.
+**bacon** watches your project and runs jobs in background.
 
 Use shortcuts to:
 * switch job: *t* for `test`, *c* for `clippy`, *d* to open rust doc, etc.
 * toggle display: *s* for summary, *w* for wrapped lines, etc.
+* search: */*
 * see all shortcuts: *?*
 Complete documentation at https://dystroy.org/bacon
 ";

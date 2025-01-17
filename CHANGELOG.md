@@ -1,4 +1,5 @@
-### next
+<a name="v3.8.0"></a>
+### v3.8.0 - 2025/01/17
 - with `--headless`, bacon runs without TUI - Fix #293
 - `--config-toml` argument - Fix #284
 - fix workspace level Cargo.toml file not watched
