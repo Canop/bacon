@@ -22,8 +22,8 @@ use {
 
 /// A file watcher, providing a channel to receive notifications
 pub struct Watcher {
-    _notify_watcher: RecommendedWatcher,
     pub receiver: Receiver<()>,
+    _notify_watcher: RecommendedWatcher,
 }
 
 impl Watcher {
@@ -88,8 +88,8 @@ impl Watcher {
             }
         }
         Ok(Self {
-            _notify_watcher: notify_watcher,
             receiver,
+            _notify_watcher: notify_watcher,
         })
     }
 }
