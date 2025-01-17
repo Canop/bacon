@@ -1,3 +1,6 @@
+### next
+- fix freeze on mac on config change - Fix #306 - Thanks @irh
+
 <a name="v3.8.0"></a>
 ### v3.8.0 - 2025/01/17
 - with `--headless`, bacon runs without TUI - Fix #293
