@@ -35,7 +35,11 @@ ${keybindings
 }
 |-:
 
-Those bindings can be configured in your global `prefs.toml` file or in the project's `bacon.toml` file.
+Key bindings, jobs, and other preferences were loaded from those files:
+* internal default configuration files
+${config_files
+* ${config_file_path}
+}
 
 
 "#;
@@ -54,6 +58,7 @@ impl HelpPage {
         skin.paragraph.align = Alignment::Center;
         skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
         skin.table.align = Alignment::Center;
+        skin.bullet.set_fg(AnsiValue(204));
         let mut expander = OwningTemplateExpander::new();
         expander.set("version", env!("CARGO_PKG_VERSION"));
         let mut bindings: Vec<(String, String)> = settings
@@ -72,6 +77,11 @@ impl HelpPage {
                 .sub("keybindings")
                 .set_md("keys", key)
                 .set_md("action", action);
+        }
+        for config_file in &settings.config_files {
+            expander
+                .sub("config_files")
+                .set_md("config_file_path", config_file.to_string_lossy());
         }
         let template = TextTemplate::from(TEMPLATE);
         Self {
