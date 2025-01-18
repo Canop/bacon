@@ -41,6 +41,7 @@ pub struct Settings {
     pub watch: Vec<String>,
     pub wrap: bool,
     pub env: HashMap<String, String>,
+    pub beep_on_end: bool,
 }
 
 impl Default for Settings {
@@ -69,6 +70,7 @@ impl Default for Settings {
             default_watch: true,
             watch: Default::default(),
             env: Default::default(),
+            beep_on_end: false,
         }
     }
 }
@@ -199,6 +201,9 @@ impl Settings {
         }
         for pattern in &config.ignore {
             self.ignore.push(pattern.clone());
+        }
+        if let Some(b) = config.beep_on_end {
+            self.beep_on_end = b;
         }
     }
     pub fn apply_args(

@@ -237,7 +237,7 @@ impl Mission<'_> {
     }
 
     pub fn beep_on_end(&self) -> bool {
-        self.job.beep_on_end.unwrap_or(false)
+        self.job.beep_on_end.unwrap_or(self.settings.beep_on_end)
     }
 
     pub fn beeper_if_needed(&self) -> Option<Beeper> {

@@ -82,6 +82,9 @@ pub struct Config {
     /// Env vars to set for all job executions
     #[serde(default)]
     pub env: HashMap<String, String>,
+
+    /// Whether to beep when the job ends
+    pub beep_on_end: Option<bool>,
 }
 
 impl Config {
