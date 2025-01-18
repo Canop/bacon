@@ -27,6 +27,7 @@ command = [
 	"--all-targets",
 ]
 need_stdout = false
+beep_on_end = true
 
 [jobs.nightly]
 command = [

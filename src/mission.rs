@@ -235,6 +235,24 @@ impl Mission<'_> {
             .or(self.settings.ignored_lines.as_ref())
             .filter(|p| !p.is_empty())
     }
+
+    pub fn beep_on_end(&self) -> bool {
+        self.job.beep_on_end.unwrap_or(false)
+    }
+
+    pub fn beeper_if_needed(&self) -> Option<Beeper> {
+        if self.beep_on_end() {
+            match Beeper::new() {
+                Ok(beeper) => Some(beeper),
+                Err(e) => {
+                    warn!("Failed to initialise beeper: {e}");
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    }
 }
 
 fn merge_features(

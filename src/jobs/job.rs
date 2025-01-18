@@ -93,6 +93,9 @@ pub struct Job {
     /// src, examples, tests, and benches are implicitly included
     /// unless you `set default_watch` to false.
     pub watch: Option<Vec<String>>,
+
+    /// Whether to beep when the job ends
+    pub beep_on_end: Option<bool>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -136,6 +139,7 @@ impl Job {
             analyzer: Some(AnalyzerRef::Standard),
             ignored_lines: None,
             ignore: Default::default(),
+            beep_on_end: None,
         }
     }
 }

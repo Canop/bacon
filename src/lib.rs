@@ -1,6 +1,7 @@
 mod analysis;
 mod app;
 mod auto_refresh;
+mod beep;
 pub mod burp;
 mod cli;
 mod conf;
@@ -26,6 +27,7 @@ mod wrap;
 pub use {
     analysis::*,
     auto_refresh::*,
+    beep::*,
     cli::*,
     conf::*,
     context::*,

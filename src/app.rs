@@ -103,6 +103,8 @@ fn run_mission(
 ) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
 
+    let beeper = mission.beeper_if_needed();
+
     // build the watcher detecting and transmitting mission file changes
     let ignorer = time!(Info, mission.ignorer());
     let mission_watcher = Watcher::new(&mission.paths_to_watch, ignorer)?;
@@ -184,6 +186,9 @@ fn run_mission(
                             // computation finished
                             info!("execution finished with status: {:?}", status);
                             state.finish_task(status)?;
+                            if let Some(beeper) = &beeper {
+                                beeper.beep();
+                            }
                             if headless {
                                 for badge in state.job_badges() {
                                     badge.draw(w)?;
