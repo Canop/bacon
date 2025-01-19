@@ -27,7 +27,7 @@
 # moves the file to a backup name before recreating the right one)
 # You can set it to "none" if it's useless for you.
 #
-grace_period = "2ms"
+# grace_period = "5ms"
 
 
 # Uncomment and change the value (true/false) to
