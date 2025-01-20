@@ -1,4 +1,4 @@
-//! An analyzer for ruff ( https://docs.astral.sh/ruff/ )
+//! An analyzer for ruff ( <https://docs.astral.sh/ruff/> )
 
 use {
     crate::*,

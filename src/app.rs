@@ -103,7 +103,7 @@ fn run_mission(
 ) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
 
-    let beeper = mission.beeper_if_needed();
+    let sound_player = mission.sound_player_if_needed();
 
     // build the watcher detecting and transmitting mission file changes
     let ignorer = time!(Info, mission.ignorer());
@@ -142,12 +142,14 @@ fn run_mission(
         _dummy_sender = sender;
         receiver
     };
-    let mut do_after_mission = DoAfterMission::Quit;
-
+    let mut mission_end = None;
     // loop on events
     #[allow(unused_mut)]
     loop {
-        let mut action: Option<&Action> = None;
+        // The actions to execute in response to the event.
+        // While it's a vec, action execution will stop at the first one quitting the
+        // mission or requesting a task execution, and the rest of the vec will be dropped.
+        let mut actions: Vec<Action> = Vec::new();
         select! {
             recv(ticker.tick_receiver) -> _ => {
                 // just redraw
@@ -161,13 +163,13 @@ fn run_mission(
                 state.receive_watch_event();
                 if state.auto_refresh.is_enabled() {
                     if !state.is_computing() || on_change_strategy == OnChangeStrategy::KillThenRestart {
-                        action = Some(&Action::Internal(Internal::ReRun));
+                        actions.push(Action::Internal(Internal::ReRun));
                     }
                 }
             }
             recv(config_watcher.receiver) -> _ => {
                 info!("config watch event received");
-                action = Some(&Action::Internal(Internal::ReloadConfig));
+                actions.push(Action::Internal(Internal::ReloadConfig));
             }
             recv(executor.line_receiver) -> info => {
                 if let Ok(info) = info {
@@ -186,9 +188,6 @@ fn run_mission(
                             // computation finished
                             info!("execution finished with status: {:?}", status);
                             state.finish_task(status)?;
-                            if let Some(beeper) = &beeper {
-                                beeper.beep();
-                            }
                             if headless {
                                 for badge in state.job_badges() {
                                     badge.draw(w)?;
@@ -196,7 +195,21 @@ fn run_mission(
                                 writeln!(w)?;
                                 w.flush()?;
                             }
-                            action = state.action();
+                            if state.is_success() {
+                                if let Some(action) = &state.mission.job.on_success {
+                                    actions.push(action.clone());
+                                }
+                            }
+                            if state.is_failure() {
+                                if let Some(action) = &state.mission.job.on_failure {
+                                    actions.push(action.clone());
+                                }
+                            }
+                            if state.changes_since_last_job_start > 0 && state.auto_refresh.is_enabled() {
+                                // will be ignored if a on_success or on_failures ends the mission
+                                // or does a rerun already
+                                actions.push(Action::Internal(Internal::ReRun))
+                            }
                         }
                         CommandExecInfo::Error(e) => {
                             state.computation_stops();
@@ -217,16 +230,25 @@ fn run_mission(
                         let key_combination = KeyCombination::from(key_event);
                         debug!("key combination pressed: {}", key_combination);
                         if !state.apply_key_combination(key_combination) {
-                            action = keybindings.get(key_combination);
+                            let action = keybindings.get(key_combination);
+                            if let Some(action) = action {
+                                actions.push(action.clone());
+                            }
                         }
                     }
                     #[cfg(windows)]
                     Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollDown, .. }) => {
-                        action = keybindings.get(key!(down));
+                        let action = keybindings.get(key!(down));
+                        if let Some(action) = action {
+                            actions.push(action.clone());
+                        }
                     }
                     #[cfg(windows)]
                     Event::Mouse(MouseEvent { kind: MouseEventKind::ScrollUp, .. }) => {
-                        action = keybindings.get(key!(up));
+                        let action = keybindings.get(key!(up));
+                        if let Some(action) = action {
+                            actions.push(action.clone());
+                        }
                     }
                     _ => {}
                 }
@@ -235,8 +257,8 @@ fn run_mission(
                 }
             }
         }
-        if let Some(action) = action.take() {
-            debug!("requested action: {action:?}");
+        for action in actions.drain(..) {
+            info!("requested action: {action:?}");
             match action {
                 Action::Export(export_name) => {
                     let export_name = export_name.to_string();
@@ -252,8 +274,7 @@ fn run_mission(
                 Action::Internal(internal) => match internal {
                     Internal::Back => {
                         if !state.back() {
-                            do_after_mission = DoAfterMission::NextJob(JobRef::Previous);
-                            break;
+                            mission_end = Some(DoAfterMission::NextJob(JobRef::Previous));
                         }
                     }
                     Internal::CopyUnstyledOutput => {
@@ -274,39 +295,49 @@ fn run_mission(
                     Internal::Pause => {
                         state.auto_refresh = AutoRefresh::Paused;
                     }
+                    Internal::PlaySound(play_sound_command) => {
+                        if let Some(sound_player) = &sound_player {
+                            sound_player.play(play_sound_command.clone());
+                        } else {
+                            warn!("sound not enabled");
+                        }
+                    }
                     Internal::Quit => {
+                        mission_end = Some(DoAfterMission::Quit);
                         break;
                     }
                     Internal::ReRun => {
                         task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
+                        break; // drop following actions
                     }
                     Internal::Refresh => {
                         state.clear();
                         task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
+                        break; // drop following actions
                     }
                     Internal::ReloadConfig => {
-                        do_after_mission = DoAfterMission::ReloadConfig;
+                        mission_end = Some(DoAfterMission::ReloadConfig);
                         break;
                     }
                     Internal::ScopeToFailures => {
                         if let Some(scope) = state.failures_scope() {
                             info!("scoping to failures: {scope:#?}");
-                            do_after_mission = JobRef::from(scope).into();
+                            mission_end = Some(JobRef::from(scope).into());
                             break;
                         } else {
                             warn!("no available failures scope");
                         }
                     }
                     Internal::Scroll(scroll_command) => {
-                        let scroll_command = *scroll_command;
                         state.apply_scroll_command(scroll_command);
                     }
                     Internal::ToggleBacktrace(level) => {
                         state.toggle_backtrace(level);
                         task_executor.die();
                         task_executor = state.start_computation(&mut executor)?;
+                        break; // drop following actions
                     }
                     Internal::TogglePause => match state.auto_refresh {
                         AutoRefresh::Enabled => {
@@ -317,6 +348,7 @@ fn run_mission(
                                 state.clear();
                                 task_executor.die();
                                 task_executor = state.start_computation(&mut executor)?;
+                                break; // drop following actions
                             }
                             state.auto_refresh = AutoRefresh::Enabled;
                         }
@@ -335,6 +367,7 @@ fn run_mission(
                             state.clear();
                             task_executor.die();
                             task_executor = state.start_computation(&mut executor)?;
+                            break; // drop following actions
                         }
                         state.auto_refresh = AutoRefresh::Enabled;
                     }
@@ -343,7 +376,7 @@ fn run_mission(
                     }
                 },
                 Action::Job(job_ref) => {
-                    do_after_mission = job_ref.clone().into();
+                    mission_end = Some(job_ref.clone().into());
                     break;
                 }
             }
@@ -351,7 +384,9 @@ fn run_mission(
         if !headless {
             state.draw(w)?;
         }
+        if let Some(mission_end) = mission_end {
+            task_executor.die();
+            return Ok(mission_end);
+        }
     }
-    task_executor.die();
-    Ok(do_after_mission)
 }

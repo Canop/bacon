@@ -68,6 +68,16 @@ path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
 
 
+# If you want some job to emit a bip on success or on failure,
+# you need to globally enable sound, and you may set up the max volume here
+# 
+# With sound enabled, you may set up sound on a job with eg
+#    on_failure="play-sound(volume=80%)"
+[sound]
+enabled = false # set true to allow sound
+volume = "100%" # global volume multiplier
+
+
 # Uncomment and change the key-bindings you want to define
 # (some of those ones are the defaults and are just here for illustration)
 [keybindings]

@@ -49,11 +49,6 @@ impl Mission<'_> {
         set
     }
 
-    /// the action bound to success on this job
-    pub fn on_success(&self) -> &Option<Action> {
-        &self.job.on_success
-    }
-
     pub fn is_success(
         &self,
         report: &Report,
@@ -236,16 +231,12 @@ impl Mission<'_> {
             .filter(|p| !p.is_empty())
     }
 
-    pub fn beep_on_end(&self) -> bool {
-        self.job.beep_on_end.unwrap_or(self.settings.beep_on_end)
-    }
-
-    pub fn beeper_if_needed(&self) -> Option<Beeper> {
-        if self.beep_on_end() {
-            match Beeper::new() {
-                Ok(beeper) => Some(beeper),
+    pub fn sound_player_if_needed(&self) -> Option<SoundPlayer> {
+        if self.settings.sound.is_enabled() {
+            match SoundPlayer::new(self.settings.sound.get_base_volume()) {
+                Ok(sound_player) => Some(sound_player),
                 Err(e) => {
-                    warn!("Failed to initialise beeper: {e}");
+                    warn!("Failed to initialise sound player: {e}");
                     None
                 }
             }

@@ -1,7 +1,6 @@
 mod analysis;
 mod app;
 mod auto_refresh;
-mod beep;
 pub mod burp;
 mod cli;
 mod conf;
@@ -19,6 +18,7 @@ mod mission;
 mod result;
 mod scroll;
 mod search;
+mod sound;
 mod state;
 mod tty;
 mod watcher;
@@ -27,7 +27,6 @@ mod wrap;
 pub use {
     analysis::*,
     auto_refresh::*,
-    beep::*,
     cli::*,
     conf::*,
     context::*,
@@ -44,6 +43,7 @@ pub use {
     result::*,
     scroll::*,
     search::*,
+    sound::*,
     state::*,
     tty::*,
     watcher::*,

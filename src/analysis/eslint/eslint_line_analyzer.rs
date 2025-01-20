@@ -1,4 +1,4 @@
-//! An analyzer for eslint ( https://eslint.org/ )
+//! An analyzer for eslint ( <https://eslint.org/> )
 use {
     super::*,
     crate::*,

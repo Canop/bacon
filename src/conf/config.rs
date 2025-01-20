@@ -85,6 +85,9 @@ pub struct Config {
 
     /// Whether to beep when the job ends
     pub beep_on_end: Option<bool>,
+
+    #[serde(default)]
+    pub sound: SoundConfig,
 }
 
 impl Config {

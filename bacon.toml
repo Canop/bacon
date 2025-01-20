@@ -27,6 +27,7 @@ command = [
 	"--all-targets",
 ]
 need_stdout = false
+allow_warnings = true
 
 [jobs.nightly]
 command = [
@@ -79,3 +80,4 @@ c = "job:clippy-all"
 ctrl-c = "copy-unstyled-output"
 #n = "next-match"
 #shift-n = "previous-match"
+b = "play-sound(volume=100%)"

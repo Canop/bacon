@@ -1,5 +1,9 @@
 use {
-    crate::ScrollCommand,
+    crate::{
+        PlaySoundCommand,
+        ScrollCommand,
+    },
+    lazy_regex::regex_captures,
     serde::{
         Deserialize,
         Deserializer,
@@ -37,6 +41,7 @@ pub enum Internal {
     Validate, // validate search entry
     NextMatch,
     PreviousMatch,
+    PlaySound(PlaySoundCommand),
 }
 
 impl Internal {
@@ -63,6 +68,7 @@ impl Internal {
             Self::Validate => "validate".to_string(),
             Self::NextMatch => "next match".to_string(),
             Self::PreviousMatch => "previous match".to_string(),
+            Self::PlaySound(_) => "play sound".to_string(),
         }
     }
 }
@@ -93,6 +99,9 @@ impl fmt::Display for Internal {
             Self::Validate => write!(f, "validate"),
             Self::NextMatch => write!(f, "next-match"),
             Self::PreviousMatch => write!(f, "previous-match"),
+            Self::PlaySound(PlaySoundCommand { volume }) => {
+                write!(f, "play-sound({})", volume)
+            }
         }
     }
 }
@@ -125,7 +134,16 @@ impl std::str::FromStr for Internal {
             "next-match" => Ok(Self::NextMatch),
             "previous-match" => Ok(Self::PreviousMatch),
             "copy-unstyled-output" => Ok(Self::CopyUnstyledOutput),
-            _ => Err("invalid internal"),
+            "play-sound" => Ok(Self::PlaySound(PlaySoundCommand::default())),
+            _ => {
+                if let Some((_, v)) =
+                    regex_captures!(r"^play[_-]sound\((?:volume[=:])?(\d{1,3}%?)\)$", s,)
+                {
+                    let volume = v.parse()?;
+                    return Ok(Self::PlaySound(PlaySoundCommand { volume }));
+                }
+                Err("invalid internal")
+            }
         }
     }
 }
@@ -152,6 +170,7 @@ impl<'de> Deserialize<'de> for Internal {
 
 #[test]
 fn test_internal_string_round_trip() {
+    use crate::Volume;
     let internals = [
         Internal::Back,
         Internal::FocusSearch,
@@ -174,8 +193,19 @@ fn test_internal_string_round_trip() {
         Internal::Validate,
         Internal::NextMatch,
         Internal::PreviousMatch,
+        Internal::PlaySound(PlaySoundCommand::default()),
+        Internal::PlaySound(PlaySoundCommand {
+            volume: Volume::new(50),
+        }),
+        Internal::PlaySound(PlaySoundCommand {
+            volume: Volume::new(100),
+        }),
+        Internal::PlaySound(PlaySoundCommand {
+            volume: Volume::new(0),
+        }),
     ];
     for internal in internals {
+        println!("testing {:?}", internal.to_string());
         assert_eq!(internal.to_string().parse(), Ok(internal));
     }
 }
