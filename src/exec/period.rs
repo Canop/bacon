@@ -24,6 +24,9 @@ impl Period {
     pub const fn is_zero(&self) -> bool {
         self.duration.is_zero()
     }
+    pub fn sleep(&self) {
+        std::thread::sleep(self.duration);
+    }
 }
 
 impl From<Duration> for Period {

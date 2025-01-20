@@ -102,6 +102,7 @@ fn run_mission(
     headless: bool,
 ) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
+    let grace_period = mission.settings.grace_period;
 
     let sound_player = mission.sound_player_if_needed();
 
@@ -169,6 +170,7 @@ fn run_mission(
             }
             recv(config_watcher.receiver) -> _ => {
                 info!("config watch event received");
+                grace_period.sleep(); // Fix #310
                 actions.push(Action::Internal(Internal::ReloadConfig));
             }
             recv(executor.line_receiver) -> info => {
