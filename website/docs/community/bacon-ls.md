@@ -3,7 +3,7 @@
 
 ![bacon-ls](../img/bacon-ls.png)
 
-**NOTE: Bacon-ls requires Bacon 3.7+ to work properly.**
+**NOTE: Bacon-ls requires Bacon 3.8+ to work properly.**
 
 **NOTE: Bacon-ls is not part of Bacon, it's a third-party tool developed to work WITH Bacon.**
 
@@ -15,6 +15,8 @@
 * Ability to react to changes over document saves and changes that can be configured.
 * Replacement code actions as suggested by `clippy`.
 * Automatic validation of `bacon` preferences to ensure `bacon-ls` can work with them.
+* Start `bacon` in background based on user preferences (requires `bacon` 3.8.0).
+* Synchronize diagnostics for all open files. 
 
 # Installation
 
@@ -42,9 +44,9 @@ First, install [Bacon](../../#installation) and Bacon-ls
 ```bash
 ❯❯❯ cargo install --locked bacon bacon-ls
 ❯❯❯ bacon --version
-bacon 3.7.0  # make sure you have at least 3.7.0
+bacon 3.8.0  # make sure you have at least 3.8.0
 ❯❯❯ bacon-ls --version
-0.9.0        # make sure you have at least 0.9.0
+0.10.0        # make sure you have at least 0.10.0
 ```
 
 # Configuration
@@ -65,7 +67,8 @@ line_format = "{diagnostic.level}|:|{span.file_name}|:|{span.line_start}|:|{span
 path = ".bacon-locations"
 ```
 
-**NOTE: Bacon MUST be running to generate the export locations with the Bacon-ls job: `bacon -j bacon-ls`.**
+**NOTE: Bacon MUST be running to generate the export locations with the Bacon-ls job: `bacon -j bacon-ls`.
+From `bacon-ls` 0.10.0, this is done automatically if the option `runBaconInBackground` is set to true.**
 
 The language server can be configured using the appropriate LSP protocol and
 supports the following values:
@@ -74,6 +77,12 @@ supports the following values:
 - `updateOnSave` Try to update diagnostics every time the file is saved (default: true).
 - `updateOnSaveWaitMillis` How many milliseconds to wait before updating diagnostics after a save (default: 1000).
 - `updateOnChange` Try to update diagnostics every time the file changes (default: true).
+- `validateBaconPreferences`: Try to validate that `bacon` preferences are setup correctly to work with `bacon-ls` (default: true).
+- `createBaconPreferencesFile`: If no `bacon` preferences file is found, create a new preferences file with the `bacon-ls` job definition (default: true).
+- `runBaconInBackground`: Run `bacon` in background for the `bacon-ls` job (default: true)
+- `runBaconInBackgroundCommandArguments`: Command line arguments to pass to `bacon` running in background (default "--headless -j bacon-ls")
+- `synchronizeAllOpenFilesWaitMillis`: How many milliseconds to wait between background diagnostics check to synchronize all open files (default: 2000).
+
 
 ## Neovim - LazyVim
 
@@ -98,9 +107,9 @@ is set to `true`.
 ```lua
 require("lspconfig").bacon_ls.setup({
     init_options = {
-        updateOnSave = true
-        updateOnSaveWaitMillis = 1000
-        updateOnChange = false
+        updateOnSave = true,
+        updateOnSaveWaitMillis = 1000,
+        updateOnChange = false,
     }
 })
 ```
