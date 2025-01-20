@@ -301,7 +301,7 @@ fn run_mission(
                         if let Some(sound_player) = &sound_player {
                             sound_player.play(play_sound_command.clone());
                         } else {
-                            warn!("sound not enabled");
+                            debug!("sound not enabled");
                         }
                     }
                     Internal::Quit => {

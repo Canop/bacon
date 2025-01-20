@@ -2,8 +2,9 @@ use {
     crate::{
         PlaySoundCommand,
         ScrollCommand,
+        Volume,
     },
-    lazy_regex::regex_captures,
+    lazy_regex::*,
     serde::{
         Deserialize,
         Deserializer,
@@ -99,8 +100,12 @@ impl fmt::Display for Internal {
             Self::Validate => write!(f, "validate"),
             Self::NextMatch => write!(f, "next-match"),
             Self::PreviousMatch => write!(f, "previous-match"),
-            Self::PlaySound(PlaySoundCommand { volume }) => {
-                write!(f, "play-sound({})", volume)
+            Self::PlaySound(PlaySoundCommand { name, volume }) => {
+                write!(f, "play-sound(")?;
+                if let Some(name) = name {
+                    write!(f, "name={},", name)?;
+                }
+                write!(f, "volume={})", volume)
             }
         }
     }
@@ -136,11 +141,22 @@ impl std::str::FromStr for Internal {
             "copy-unstyled-output" => Ok(Self::CopyUnstyledOutput),
             "play-sound" => Ok(Self::PlaySound(PlaySoundCommand::default())),
             _ => {
-                if let Some((_, v)) =
-                    regex_captures!(r"^play[_-]sound\((?:volume[=:])?(\d{1,3}%?)\)$", s,)
-                {
-                    let volume = v.parse()?;
-                    return Ok(Self::PlaySound(PlaySoundCommand { volume }));
+                if let Some((_, props)) = regex_captures!(r"^play[_-]sound\((.*)\)$", s) {
+                    let iter = regex_captures_iter!(r"([^=,]+)=([^=,]+)", props);
+                    let mut volume = Volume::default();
+                    let mut name = None;
+                    for (_, [prop_name, prop_value]) in iter.map(|c| c.extract()) {
+                        match prop_name {
+                            "name" => {
+                                name = Some(prop_value.to_string());
+                            }
+                            "volume" => {
+                                volume = prop_value.parse()?;
+                            }
+                            _ => return Err("invalid internal"),
+                        }
+                    }
+                    return Ok(Self::PlaySound(PlaySoundCommand { name, volume }));
                 }
                 Err("invalid internal")
             }
@@ -195,12 +211,15 @@ fn test_internal_string_round_trip() {
         Internal::PreviousMatch,
         Internal::PlaySound(PlaySoundCommand::default()),
         Internal::PlaySound(PlaySoundCommand {
+            name: None,
             volume: Volume::new(50),
         }),
         Internal::PlaySound(PlaySoundCommand {
+            name: Some("beep-beep".to_string()),
             volume: Volume::new(100),
         }),
         Internal::PlaySound(PlaySoundCommand {
+            name: None,
             volume: Volume::new(0),
         }),
     ];

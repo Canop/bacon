@@ -3,6 +3,10 @@
 default_job = "check-all"
 env.CARGO_TERM_COLOR = "always"
 
+[sound]
+enabled = true
+volume = "100%" # global volume multiplier
+
 [jobs]
 
 # This alternative to 'check' demontrates the use of the JSON output
@@ -28,6 +32,8 @@ command = [
 ]
 need_stdout = false
 allow_warnings = true
+on_success = "play-sound(name=90s-game-ui-6,volume=50)"
+on_failure = "play-sound(name=beep-warning,volume=100)"
 
 [jobs.nightly]
 command = [
@@ -80,3 +86,4 @@ c = "job:clippy-all"
 ctrl-c = "copy-unstyled-output"
 #n = "next-match"
 #shift-n = "previous-match"
+b = "play-sound(name=car-horn)"

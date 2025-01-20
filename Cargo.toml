@@ -12,8 +12,9 @@ readme = "README.md"
 rust-version = "1.76"
         
 [features]
-default = []
+default = ["sound"]
 clipboard = ["arboard"]
+sound = ["rodio"]
 
 [dependencies]
 anyhow = "1.0"
@@ -30,7 +31,7 @@ glob = "0.3"
 iq = { version = "0.2", features = ["template"] }
 lazy-regex = "3.4.1"
 notify = "7.0"
-rodio = { version = "0.20", default-features = false, features = ["flac", "vorbis", "wav"] }
+rodio = { version = "0.20", optional = true, default-features = false, features = ["mp3"] }
 rustc-hash = "2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

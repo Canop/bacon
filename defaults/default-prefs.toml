@@ -73,7 +73,8 @@ line_format = "{kind} {path}:{line}:{column} {message}"
 # you need to globally enable sound, and you may set up the max volume here
 # 
 # With sound enabled, you may set up sound on a job with eg
-#    on_failure="play-sound(volume=80%)"
+#    on_success = "play-sound(name=90s-game-ui-6,volume=50)"
+#    on_failure = "play-sound(name=beep-warning,volume=100)"
 [sound]
 enabled = false # set true to allow sound
 volume = "100%" # global volume multiplier

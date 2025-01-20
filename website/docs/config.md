@@ -301,3 +301,23 @@ You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bac
 # reverse = true
 ```
 
+## Sound
+
+You may have audio notifications on job success or failures.
+
+This requires sound to be enabled:
+
+```TOML
+[sound]
+enabled = true
+volume = "100%" # global volume multiplier
+```
+
+Sound being enabled, you can add `play-sound` callbacks to jobs, eg
+
+```TOML
+on_success = "play-sound(name=90s-game-ui-6,volume=50)"
+on_failure = "play-sound(name=beep-warning,volume=100)"
+```
+
+Sound name can be ommited. Possible values are "2", "90s-game-ui-6", "beep-6", "beep-beep", "beep-warning", "bell-chord", "car-horn", "convenience-store-ring", "cow-bells", "pickup", "positive-beeps", "short-beep-tone", "slash", "store-scanner", "success".
