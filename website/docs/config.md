@@ -172,7 +172,7 @@ An export action is defined as `export:` followed by the export name.
 internal | default binding | meaning
 :-|:-|:-
 back | <kbd>Esc</kbd> | get back to the previous page or job, or cancel search
-copy_unstyled_output | | write the currently displayed job output to the clipboard
+copy-unstyled-output | | write the currently displayed job output to the clipboard
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
 refresh | <kbd>F5</kbd> | clear output then run current job again
@@ -192,10 +192,11 @@ scroll-pages(1) | <kbd>PageDown</kbd> | move one page down
 pause |  | disable automatic job execution on change
 unpause |  | enable automatic job execution on change
 toggle pause | <kbd>p</kbd> | toggle pause
-focus_search | <kbd>/</kbd> | focus the search input
+focus-search | <kbd>/</kbd> | focus the search input
 validate | <kbd>enter</kbd> | unfocus the input, keeping the search
-next_match | <kbd>tab</kbd> | go to next search match
-previous_match | <kbd>backtab</kbd> | go to previous search match
+next-match | <kbd>tab</kbd> | go to next search match
+previous-match | <kbd>backtab</kbd> | go to previous search match
+play-sound |  | play a sound, eg `play-sound(volume=100%)`
 
 The `scroll-lines` and `scroll-pages` internals are parameterized.
 You can for example define a shortcut to move down half a page:
@@ -300,3 +301,23 @@ You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bac
 # reverse = true
 ```
 
+## Sound
+
+You may have audio notifications on job success or failures.
+
+This requires sound to be enabled:
+
+```TOML
+[sound]
+enabled = true
+base_volume = "100%" # global volume multiplier
+```
+
+Sound being enabled, you can add `play-sound` callbacks to jobs, eg
+
+```TOML
+on_success = "play-sound(name=90s-game-ui-6,volume=50)"
+on_failure = "play-sound(name=beep-warning,volume=100)"
+```
+
+Sound name can be ommited. Possible values are "2", "90s-game-ui-6", "beep-6", "beep-beep", "beep-warning", "bell-chord", "car-horn", "convenience-store-ring", "cow-bells", "pickup", "positive-beeps", "short-beep-tone", "slash", "store-scanner", "success".

@@ -72,6 +72,9 @@ impl CommandResult {
 
     /// return true when the report has been computed and there's been no
     /// error, warning, or test failures
+    ///
+    /// This is different from the is_success that a mission can compute
+    /// from a report using its own settings (eg allow_warnings)
     pub fn is_success(&self) -> bool {
         match self {
             Self::Report(report) => {

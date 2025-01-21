@@ -41,6 +41,7 @@ pub struct Settings {
     pub watch: Vec<String>,
     pub wrap: bool,
     pub env: HashMap<String, String>,
+    pub sound: SoundConfig,
 }
 
 impl Default for Settings {
@@ -69,6 +70,7 @@ impl Default for Settings {
             default_watch: true,
             watch: Default::default(),
             env: Default::default(),
+            sound: Default::default(),
         }
     }
 }
@@ -200,6 +202,7 @@ impl Settings {
         for pattern in &config.ignore {
             self.ignore.push(pattern.clone());
         }
+        self.sound.apply(&config.sound);
     }
     pub fn apply_args(
         &mut self,

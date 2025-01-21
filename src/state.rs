@@ -717,20 +717,17 @@ impl<'s> AppState<'s> {
         )?;
         Ok(())
     }
-    /// the action to execute now
-    pub fn action(&self) -> Option<&Action> {
-        if let CommandResult::Report(report) = &self.cmd_result {
-            if self.mission.is_success(report) {
-                let on_success = self.mission.on_success().as_ref();
-                if on_success.is_some() {
-                    return on_success;
-                }
-            }
+    pub fn is_success(&self) -> bool {
+        match &self.cmd_result {
+            CommandResult::Report(report) => self.mission.is_success(report),
+            _ => false,
         }
-        if self.changes_since_last_job_start > 0 && self.auto_refresh.is_enabled() {
-            Some(&Action::Internal(Internal::ReRun))
-        } else {
-            None
+    }
+    pub fn is_failure(&self) -> bool {
+        match &self.cmd_result {
+            CommandResult::Report(report) => !self.mission.is_success(report),
+            CommandResult::Failure(_) => true,
+            CommandResult::None => false,
         }
     }
     /// Return the (unfiltered) set of lines to draw, depending on whether we wrap or not

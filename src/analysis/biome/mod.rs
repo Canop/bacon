@@ -1,4 +1,4 @@
-//! An analyzer for biome ( https://biomejs.dev/ )
+//! An analyzer for biome ( <https://biomejs.dev>/ )
 
 use {
     super::*,

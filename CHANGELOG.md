@@ -1,5 +1,7 @@
 ### next
 - fix freeze on mac on config change - Fix #306 - Thanks @irh
+- fix race condition on config reload when saved by helix - Fix #310
+- sound can be enabled with sound.enabled = true, which allows to add job parameters such as `on_failure = "play-sound(volume=80%)"` - Fix #303
 
 <a name="v3.8.0"></a>
 ### v3.8.0 - 2025/01/17

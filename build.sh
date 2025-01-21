@@ -7,5 +7,5 @@
 #
 # bacon can also be installed system-wide with
 #  cargo install --locked .
-cargo build --release --features "clipboard"
+cargo build --release --features "clipboard sound"
 

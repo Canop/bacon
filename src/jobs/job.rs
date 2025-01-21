@@ -85,8 +85,17 @@ pub struct Job {
 
     /// The optional action to run when there's no
     /// error, warning or test failures
+    /// (depending on whether allow_warnings is true or false)
+    ///
+    /// Could be made a vec in the future but that would involve
+    /// explaining subtleties like the fact that those actions stop
+    /// after the first one ending the mission or doing a refresh
     #[serde(default)]
     pub on_success: Option<Action>,
+
+    /// The optional action to run when it's not a success
+    #[serde(default)]
+    pub on_failure: Option<Action>,
 
     /// A list of directories that will be watched if the job
     /// is run on a package.
@@ -126,6 +135,7 @@ impl Job {
             watch: None,
             need_stdout: false,
             on_success: None,
+            on_failure: None,
             allow_warnings: false,
             allow_failures: false,
             apply_gitignore: None,
