@@ -320,4 +320,4 @@ on_success = "play-sound(name=90s-game-ui-6,volume=50)"
 on_failure = "play-sound(name=beep-warning,volume=100)"
 ```
 
-Sound name can be ommited. Possible values are "2", "90s-game-ui-6", "beep-6", "beep-beep", "beep-warning", "bell-chord", "car-horn", "convenience-store-ring", "cow-bells", "pickup", "positive-beeps", "short-beep-tone", "slash", "store-scanner", "success".
+Sound name can be ommited. Possible values are `2`, `90s-game-ui-6`, `beep-6`, `beep-beep`, `beep-warning`, `bell-chord`, `car-horn`, `convenience-store-ring`, `cow-bells`, `pickup`, `positive-beeps`, `short-beep-tone`, `slash`, `store-scanner`, `success`.
