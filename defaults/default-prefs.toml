@@ -77,8 +77,7 @@ line_format = "{kind} {path}:{line}:{column} {message}"
 #    on_failure = "play-sound(name=beep-warning,volume=100)"
 [sound]
 enabled = false # set true to allow sound
-volume = "100%" # global volume multiplier
-
+base_volume = "100%" # global volume multiplier
 
 # Uncomment and change the key-bindings you want to define
 # (some of those ones are the defaults and are just here for illustration)

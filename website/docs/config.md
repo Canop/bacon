@@ -310,7 +310,7 @@ This requires sound to be enabled:
 ```TOML
 [sound]
 enabled = true
-volume = "100%" # global volume multiplier
+base_volume = "100%" # global volume multiplier
 ```
 
 Sound being enabled, you can add `play-sound` callbacks to jobs, eg
