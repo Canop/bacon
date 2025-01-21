@@ -69,7 +69,7 @@ path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
 
 
-# If you want some job to emit a bip on success or on failure,
+# If you want some job to emit a beep on success or on failure,
 # you need to globally enable sound, and you may set up the max volume here
 # 
 # With sound enabled, you may set up sound on a job with eg
