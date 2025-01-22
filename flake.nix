@@ -21,6 +21,7 @@
 
         naersk' = pkgs.callPackage naersk { };
         bacon = naersk'.buildPackage {
+          buildInputs = [ pkgs.alsa-lib pkgs.pkg-config ];
           src = ./.;
         };
       in
