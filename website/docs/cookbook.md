@@ -150,6 +150,20 @@ You would call it with
 bacon ex -- example4578
 ```
 
+# Specific Rust toolchain
+
+Bacon calls `cargo` under the hood to analyze the workspace, before even trying to run a job.
+
+So bacon itself must sometimes be called with the toolchain already set in order to correctly understand the `Cargo.toml` files.
+
+A simple solution is to set it up with the `RUSTUP_TOOLCHAIN` env var.
+
+For example:
+
+```bash
+RUSTUP_TOOLCHAIN=beta bacon test
+```
+
 # Bacon CLI snippets
 
 You may share a command-line snippet without requiring a bacon.toml file, using the `--config-toml` argument:
