@@ -21,7 +21,7 @@
 
         naersk' = pkgs.callPackage naersk { };
         bacon = naersk'.buildPackage {
-          buildInputs = [ pkgs.alsa-lib pkgs.pkg-config ];
+          buildInputs = if pkgs.stdenv.isLinux then [ pkgs.alsa-lib pkgs.pkg-config ] else [];
           src = ./.;
         };
       in
