@@ -111,7 +111,7 @@ impl fmt::Display for Internal {
     }
 }
 impl std::str::FromStr for Internal {
-    type Err = &'static str;
+    type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Ok(scroll_command) = ScrollCommand::from_str(s) {
             return Ok(Self::Scroll(scroll_command));
@@ -153,12 +153,14 @@ impl std::str::FromStr for Internal {
                             "volume" => {
                                 volume = prop_value.parse()?;
                             }
-                            _ => return Err("invalid internal"),
+                            _ => {
+                                return Err("invalid play-sound parameter: {prop_name}".to_string());
+                            }
                         }
                     }
                     return Ok(Self::PlaySound(PlaySoundCommand { name, volume }));
                 }
-                Err("invalid internal")
+                Err("invalid internal".to_string())
             }
         }
     }

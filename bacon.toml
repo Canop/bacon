@@ -3,6 +3,10 @@
 default_job = "check-all"
 env.CARGO_TERM_COLOR = "always"
 
+# uncomment for sound
+#sound.enabled = true
+#sound.base_volume = "20%"
+
 [jobs]
 
 # This alternative to 'check' demontrates the use of the JSON output
@@ -47,6 +51,8 @@ command = [
 [jobs.test]
 command = ["cargo", "test"]
 need_stdout = true
+on_success = "play-sound(name=90s-game-ui-6,volume=50)"
+on_failure = "play-sound(name=beep-warning,volume=100)"
 
 [jobs.doc]
 command = ["cargo", "doc", "--no-deps"]
@@ -80,3 +86,5 @@ c = "job:clippy-all"
 ctrl-c = "copy-unstyled-output"
 #n = "next-match"
 #shift-n = "previous-match"
+#h = "play-sound(name=car-horn)"
+#b = "play-sound(name=beep-6)"

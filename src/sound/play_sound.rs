@@ -2,10 +2,11 @@ use {
     super::*,
     rodio::OutputStream,
     std::{
+        fmt,
         io::Cursor,
-        thread,
         time::Duration,
     },
+    termimad::crossbeam::channel::Receiver,
 };
 
 struct Sound {
@@ -19,7 +20,7 @@ struct Sound {
 /// reources directory but without the number, syntax unconsistency and
 /// redundancy. Resource file names are kept identical to their original
 /// names to ease retrival for attribution).
-fn get_sound(name: Option<&str>) -> anyhow::Result<Sound> {
+fn get_sound(name: Option<&str>) -> Result<Sound, SoundError> {
     let name = name.unwrap_or("store-scanner");
     let sound = match name {
         "2" => Sound {
@@ -83,27 +84,60 @@ fn get_sound(name: Option<&str>) -> anyhow::Result<Sound> {
             duration: Duration::from_millis(2000),
         },
         _ => {
-            anyhow::bail!("unknow sound name: {}", name)
+            return Err(SoundError::UnknownSoundName(name.to_string()));
         }
     };
     Ok(sound)
 }
 
-/// Play the requested sound, sleeps for its duration
-///
-/// Apparently, rodio stream things
-/// - kill the sound as soon as they're dropped
-/// - can't be reused
-///
-/// So it's preferable not to call this directly from a working or
-/// UI thread but to use the SoundPlayer struct which manages a thread.
-pub fn play_sound(psc: &PlaySoundCommand) -> anyhow::Result<()> {
+#[derive(Debug)]
+pub enum SoundError {
+    Interrupted,
+    UnknownSoundName(String),
+    RodioStream(rodio::StreamError),
+    RodioPlay(rodio::PlayError),
+}
+impl From<rodio::StreamError> for SoundError {
+    fn from(e: rodio::StreamError) -> Self {
+        SoundError::RodioStream(e)
+    }
+}
+impl From<rodio::PlayError> for SoundError {
+    fn from(e: rodio::PlayError) -> Self {
+        SoundError::RodioPlay(e)
+    }
+}
+impl fmt::Display for SoundError {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter,
+    ) -> fmt::Result {
+        match self {
+            SoundError::Interrupted => write!(f, "sound interrupted"),
+            SoundError::UnknownSoundName(name) => write!(f, "unknown sound name: {}", name),
+            SoundError::RodioStream(e) => write!(f, "rodio stream error: {}", e),
+            SoundError::RodioPlay(e) => write!(f, "rodio play error: {}", e),
+        }
+    }
+}
+
+impl std::error::Error for SoundError {}
+
+/// Play the requested sound, sleeps for its duration (until interrupted)
+pub fn play_sound(
+    psc: &PlaySoundCommand,
+    interrupt: Receiver<()>,
+) -> Result<(), SoundError> {
     debug!("play sound: {:#?}", psc);
     let Sound { bytes, duration } = get_sound(psc.name.as_deref())?;
     let (_stream, stream_handle) = OutputStream::try_default()?;
     let sound = Cursor::new(bytes);
     let sink = stream_handle.play_once(sound)?;
     sink.set_volume(psc.volume.as_part());
-    thread::sleep(duration);
-    Ok(())
+    if interrupt.recv_timeout(duration).is_ok() {
+        info!("sound interrupted");
+        Err(SoundError::Interrupted)
+    } else {
+        Ok(())
+    }
 }
