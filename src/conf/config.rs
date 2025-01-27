@@ -46,7 +46,7 @@ pub struct Config {
 
     pub help_line: Option<bool>,
 
-    /// A lit of glob patterns to ignore
+    /// A list of glob patterns to ignore
     #[serde(default)]
     pub ignore: Vec<String>,
 
