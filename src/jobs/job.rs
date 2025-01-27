@@ -62,7 +62,7 @@ pub struct Job {
     #[serde(default = "default_true")]
     pub extraneous_args: bool,
 
-    /// A lit of glob patterns to ignore
+    /// A list of glob patterns to ignore
     #[serde(default)]
     pub ignore: Vec<String>,
 
