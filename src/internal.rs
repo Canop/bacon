@@ -43,6 +43,7 @@ pub enum Internal {
     NextMatch,
     PreviousMatch,
     PlaySound(PlaySoundCommand),
+    NoOp, // no operation, can be used to clear a binding
 }
 
 impl Internal {

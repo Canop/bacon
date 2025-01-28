@@ -244,6 +244,17 @@ impl Mission<'_> {
             None
         }
     }
+
+    pub fn grace_period(&self) -> Period {
+        self.job.grace_period
+            .or(self.settings.all_jobs.grace_period)
+            .unwrap_or_else(|| std::time::Duration::from_millis(15).into())
+    }
+    pub fn on_change_strategy(&self) -> OnChangeStrategy {
+        self.job.on_change_strategy
+            .or(self.settings.all_jobs.on_change_strategy)
+            .unwrap_or(OnChangeStrategy::WaitThenRestart)
+    }
 }
 
 fn merge_features(

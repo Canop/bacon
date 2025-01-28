@@ -144,14 +144,17 @@ impl Context {
             // Automatically watch all kinds of source files.
             // "watches", at this point, aren't full path, they still must be joined
             // with the right path which may depend on the
-            let mut watches: Vec<&str> = job
-                .watch
-                .as_ref()
-                .unwrap_or(&settings.watch)
-                .iter()
-                .map(|s| s.as_str())
-                .collect();
-            let add_default = job.default_watch.unwrap_or(settings.default_watch);
+
+            let mut watches = Vec::new();
+            for watch in settings.watch.iter() {
+                watches.push(watch.as_str());
+            }
+            for watch in job.watch.iter() {
+                watches.push(watch.as_str());
+            }
+            let add_default = job.default_watch
+                .or(settings.all_jobs.default_watch)
+                .unwrap_or(true);
             if add_default {
                 for watch in DEFAULT_WATCHES {
                     if !watches.contains(watch) {

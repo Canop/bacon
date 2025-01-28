@@ -102,7 +102,7 @@ fn run_mission(
     headless: bool,
 ) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
-    let grace_period = mission.settings.grace_period;
+    let grace_period = mission.grace_period();
 
     let sound_player = mission.sound_player_if_needed();
 
@@ -115,11 +115,7 @@ fn run_mission(
 
     // create the executor, mission, and state
     let mut executor = MissionExecutor::new(&mission)?;
-    let on_change_strategy = mission
-        .job
-        .on_change_strategy
-        .or(mission.settings.on_change_strategy)
-        .unwrap_or(OnChangeStrategy::WaitThenRestart);
+    let on_change_strategy = mission.on_change_strategy();
     let mut state = AppState::new(mission, headless)?;
     if let Some(message) = message {
         state.messages.push(message);
