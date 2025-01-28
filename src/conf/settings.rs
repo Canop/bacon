@@ -7,7 +7,6 @@ use {
     std::{
         collections::HashMap,
         path::PathBuf,
-        time::Duration,
     },
 };
 
@@ -54,6 +53,7 @@ impl Default for Settings {
             default_job: Default::default(),
             exports: Default::default(),
             config_files: Default::default(),
+            all_jobs: Default::default(),
         }
     }
 }

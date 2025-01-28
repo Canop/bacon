@@ -53,7 +53,7 @@ impl Mission<'_> {
         &self,
         report: &Report,
     ) -> bool {
-        report.is_success(self.job.allow_warnings, self.job.allow_failures)
+        report.is_success(self.job.allow_warnings(), self.job.allow_failures())
     }
 
     pub fn make_absolute(
@@ -76,8 +76,8 @@ impl Mission<'_> {
     }
 
     /// build (and doesn't call) the external cargo command
-    pub fn get_command(&self) -> CommandBuilder {
-        let mut command = if self.job.expand_env_vars {
+    pub fn get_command(&self) -> anyhow::Result<CommandBuilder> {
+        let mut command = if self.job.expand_env_vars() {
             self.job
                 .command
                 .iter()
@@ -98,6 +98,13 @@ impl Mission<'_> {
             self.job.command.clone()
         };
 
+        if command.is_empty() {
+            anyhow::bail!(
+                "Empty command in job {}",
+                self.concrete_job_ref.badge_label()
+            );
+        }
+
         let scope = &self.concrete_job_ref.scope;
         if scope.has_tests() && command.len() > 2 {
             let tests = if command[0] == "cargo" && command[1] == "test" {
@@ -116,19 +123,20 @@ impl Mission<'_> {
         let mut command = CommandBuilder::new(
             tokens.next().unwrap(), // implies a check in the job
         );
-        command.with_stdout(self.need_stdout());
+        command.with_stdout(self.job.need_stdout());
         let envs: HashMap<&String, &String> = self
             .settings
+            .all_jobs
             .env
             .iter()
             .chain(self.job.env.iter())
             .collect();
-        if !self.job.extraneous_args {
+        if !self.job.extraneous_args() {
             command.args(tokens);
             command.current_dir(&self.execution_directory);
             command.envs(envs);
             debug!("command: {:#?}", &command);
-            return command;
+            return Ok(command);
         }
 
         let mut no_default_features_done = false;
@@ -207,7 +215,7 @@ impl Mission<'_> {
         command.current_dir(&self.execution_directory);
         command.envs(envs);
         debug!("command builder: {:#?}", &command);
-        command
+        Ok(command)
     }
 
     pub fn kill_command(&self) -> Option<Vec<String>> {
@@ -216,7 +224,10 @@ impl Mission<'_> {
 
     /// whether we need stdout and not just stderr
     pub fn need_stdout(&self) -> bool {
-        self.job.need_stdout
+        self.job
+            .need_stdout
+            .or(self.settings.all_jobs.need_stdout)
+            .unwrap_or(false)
     }
 
     pub fn analyzer(&self) -> AnalyzerRef {
@@ -227,13 +238,13 @@ impl Mission<'_> {
         self.job
             .ignored_lines
             .as_ref()
-            .or(self.settings.ignored_lines.as_ref())
+            .or(self.settings.all_jobs.ignored_lines.as_ref())
             .filter(|p| !p.is_empty())
     }
 
     pub fn sound_player_if_needed(&self) -> Option<SoundPlayer> {
-        if self.settings.sound.is_enabled() {
-            match SoundPlayer::new(self.settings.sound.get_base_volume()) {
+        if self.job.sound.is_enabled() {
+            match SoundPlayer::new(self.job.sound.get_base_volume()) {
                 Ok(sound_player) => Some(sound_player),
                 Err(e) => {
                     warn!("Failed to initialise sound player: {e}");
@@ -243,17 +254,6 @@ impl Mission<'_> {
         } else {
             None
         }
-    }
-
-    pub fn grace_period(&self) -> Period {
-        self.job.grace_period
-            .or(self.settings.all_jobs.grace_period)
-            .unwrap_or_else(|| std::time::Duration::from_millis(15).into())
-    }
-    pub fn on_change_strategy(&self) -> OnChangeStrategy {
-        self.job.on_change_strategy
-            .or(self.settings.all_jobs.on_change_strategy)
-            .unwrap_or(OnChangeStrategy::WaitThenRestart)
     }
 }
 

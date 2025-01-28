@@ -33,8 +33,7 @@ pub struct Job {
 
     /// The tokens making the command to execute (first one
     /// is the executable).
-    /// This vector is guaranteed not empty
-    /// by the PackageConfig::from_path loader
+    #[serde(default)]
     pub command: Vec<String>,
 
     /// Whether to apply the default watch list, which is
@@ -46,6 +45,7 @@ pub struct Job {
     pub default_watch: Option<bool>,
 
     /// Env vars to set for this job execution
+    #[serde(default)]
     pub env: HashMap<String, String>,
 
     /// Whether to expand environment variables in the command
@@ -127,27 +127,38 @@ impl Job {
             ..Default::default()
         }
     }
-    //pub fn allow_failures(&self) -> bool {
-    //    self.allow_failures.unwrap_or(false)
-    //}
-    //pub fn allow_warnings(&self) -> bool {
-    //    self.allow_warnings.unwrap_or(false)
-    //}
-    //pub fn background(&self) -> bool {
-    //    self.background.unwrap_or(true)
-    //}
-    //pub fn default_watch(&self) -> bool {
-    //    self.default_watch.unwrap_or(true)
-    //}
-    //pub fn need_stdout(&self) -> bool {
-    //    self.need_stdout.unwrap_or(false)
-    //}
-    //pub fn extraneous_args(&self) -> bool {
-    //    self.extraneous_args.unwrap_or(true)
-    //}
-    //pub fn show_changes_count(&self) -> bool {
-    //    self.show_changes_count.unwrap_or(false)
-    //}
+    pub fn allow_failures(&self) -> bool {
+        self.allow_failures.unwrap_or(false)
+    }
+    pub fn allow_warnings(&self) -> bool {
+        self.allow_warnings.unwrap_or(false)
+    }
+    pub fn background(&self) -> bool {
+        self.background.unwrap_or(true)
+    }
+    pub fn default_watch(&self) -> bool {
+        self.default_watch.unwrap_or(true)
+    }
+    pub fn expand_env_vars(&self) -> bool {
+        self.expand_env_vars.unwrap_or(true)
+    }
+    pub fn need_stdout(&self) -> bool {
+        self.need_stdout.unwrap_or(false)
+    }
+    pub fn extraneous_args(&self) -> bool {
+        self.extraneous_args.unwrap_or(true)
+    }
+    pub fn show_changes_count(&self) -> bool {
+        self.show_changes_count.unwrap_or(false)
+    }
+    pub fn grace_period(&self) -> Period {
+        self.grace_period
+            .unwrap_or(std::time::Duration::from_millis(15).into())
+    }
+    pub fn on_change_strategy(&self) -> OnChangeStrategy {
+        self.on_change_strategy
+            .unwrap_or(OnChangeStrategy::WaitThenRestart)
+    }
     pub fn apply(
         &mut self,
         job: &Job,
@@ -158,8 +169,8 @@ impl Job {
         if let Some(b) = job.allow_warnings {
             self.allow_warnings = Some(b);
         }
-        if let Some(v) = job.analyzer.as_ref() {
-            self.analyzer = Some(v.clone());
+        if let Some(v) = job.analyzer {
+            self.analyzer = Some(v);
         }
         if let Some(b) = job.apply_gitignore {
             self.apply_gitignore = Some(b);
@@ -187,10 +198,8 @@ impl Job {
                 self.ignore.push(v.clone());
             }
         }
-        for v in &job.ignored_lines {
-            if let Some(v) = v.as_ref() {
-                self.ignored_lines = Some(v.clone());
-            }
+        if let Some(v) = job.ignored_lines.as_ref() {
+            self.ignored_lines = Some(v.clone());
         }
         if let Some(v) = job.kill.as_ref() {
             self.kill = Some(v.clone());
@@ -198,8 +207,8 @@ impl Job {
         if let Some(b) = job.need_stdout {
             self.need_stdout = Some(b);
         }
-        if let Some(v) = job.on_change_strategy.as_ref() {
-            self.on_change_strategy = Some(v.clone());
+        if let Some(v) = job.on_change_strategy {
+            self.on_change_strategy = Some(v);
         }
         if let Some(v) = job.on_success.as_ref() {
             self.on_success = Some(v.clone());
@@ -214,6 +223,5 @@ impl Job {
             self.show_changes_count = Some(b);
         }
         self.sound.apply(&job.sound);
-
     }
 }

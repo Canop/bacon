@@ -35,11 +35,6 @@ pub struct Config {
     #[serde(default)]
     pub exports: HashMap<String, ExportConfig>,
 
-    /// The delay between a file event and the real start of the
-    /// task. Other file events occuring during this period will be
-    /// ignored.
-    pub grace_period: Option<Period>,
-
     pub help_line: Option<bool>,
 
     #[serde(default)]
@@ -48,7 +43,6 @@ pub struct Config {
     pub keybindings: Option<KeyBindings>,
 
     pub reverse: Option<bool>,
-
 
     pub summary: Option<bool>,
 

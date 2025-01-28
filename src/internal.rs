@@ -26,7 +26,11 @@ pub enum Internal {
     CopyUnstyledOutput,
     FocusSearch,
     Help,
+    NextMatch,
+    NoOp, // no operation, can be used to clear a binding
     Pause,
+    PlaySound(PlaySoundCommand),
+    PreviousMatch,
     Quit,
     ReRun,
     Refresh, // clear and rerun
@@ -40,10 +44,6 @@ pub enum Internal {
     ToggleWrap,
     Unpause,
     Validate, // validate search entry
-    NextMatch,
-    PreviousMatch,
-    PlaySound(PlaySoundCommand),
-    NoOp, // no operation, can be used to clear a binding
 }
 
 impl Internal {
@@ -52,8 +52,13 @@ impl Internal {
         match self {
             Self::Back => "back to previous page or job".to_string(),
             Self::CopyUnstyledOutput => "copy current job's output".to_string(),
+            Self::FocusSearch => "focus search".to_string(),
             Self::Help => "help".to_string(),
+            Self::NextMatch => "next match".to_string(),
+            Self::NoOp => "no operation".to_string(),
             Self::Pause => "pause".to_string(),
+            Self::PlaySound(_) => "play sound".to_string(),
+            Self::PreviousMatch => "previous match".to_string(),
             Self::Quit => "quit".to_string(),
             Self::ReRun => "run current job again".to_string(),
             Self::Refresh => "clear then run current job again".to_string(),
@@ -66,11 +71,7 @@ impl Internal {
             Self::ToggleSummary => "toggle summary".to_string(),
             Self::ToggleWrap => "toggle wrap".to_string(),
             Self::Unpause => "unpause".to_string(),
-            Self::FocusSearch => "focus search".to_string(),
             Self::Validate => "validate".to_string(),
-            Self::NextMatch => "next match".to_string(),
-            Self::PreviousMatch => "previous match".to_string(),
-            Self::PlaySound(_) => "play sound".to_string(),
         }
     }
 }
@@ -84,6 +85,7 @@ impl fmt::Display for Internal {
             Self::Back => write!(f, "back"),
             Self::CopyUnstyledOutput => write!(f, "copy-unstyled-output"),
             Self::Help => write!(f, "help"),
+            Self::NoOp => write!(f, "no-op"),
             Self::Pause => write!(f, "pause"),
             Self::Quit => write!(f, "quit"),
             Self::ReRun => write!(f, "rerun"),
@@ -132,6 +134,7 @@ impl std::str::FromStr for Internal {
             "toggle-backtrace(full)" => Ok(Self::ToggleBacktrace("full")),
             "toggle-summary" => Ok(Self::ToggleSummary),
             "toggle-wrap" => Ok(Self::ToggleWrap),
+            "noop" | "no-op" | "no-operation" => Ok(Self::NoOp),
             "pause" => Ok(Self::Pause),
             "unpause" => Ok(Self::Unpause),
             "toggle-pause" => Ok(Self::TogglePause),
@@ -194,6 +197,7 @@ fn test_internal_string_round_trip() {
         Internal::Back,
         Internal::FocusSearch,
         Internal::Help,
+        Internal::NoOp,
         Internal::Pause,
         Internal::Quit,
         Internal::ReRun,

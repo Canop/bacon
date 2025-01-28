@@ -69,7 +69,7 @@ pub fn run(
                 break;
             }
         };
-        let mission = location.mission(concrete_job_ref, job, &settings)?;
+        let mission = location.mission(concrete_job_ref, &job, &settings)?;
         let do_after =
             app::run_mission(w, mission, event_source.as_ref(), message.take(), headless)?;
         match do_after {
@@ -102,7 +102,7 @@ fn run_mission(
     headless: bool,
 ) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
-    let grace_period = mission.grace_period();
+    let grace_period = mission.job.grace_period();
 
     let sound_player = mission.sound_player_if_needed();
 
@@ -115,7 +115,7 @@ fn run_mission(
 
     // create the executor, mission, and state
     let mut executor = MissionExecutor::new(&mission)?;
-    let on_change_strategy = mission.on_change_strategy();
+    let on_change_strategy = mission.job.on_change_strategy();
     let mut state = AppState::new(mission, headless)?;
     if let Some(message) = message {
         state.messages.push(message);
@@ -290,6 +290,7 @@ fn run_mission(
                     Internal::Help => {
                         state.toggle_help();
                     }
+                    Internal::NoOp => {}
                     Internal::Pause => {
                         state.auto_refresh = AutoRefresh::Paused;
                     }

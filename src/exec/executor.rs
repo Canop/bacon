@@ -76,7 +76,7 @@ impl TaskExecutor {
 impl MissionExecutor {
     /// Prepare the executor (no task/process/thread is started at this point)
     pub fn new(mission: &Mission) -> anyhow::Result<Self> {
-        let command_builder = mission.get_command();
+        let command_builder = mission.get_command()?;
         let kill_command = mission.kill_command();
         let (line_sender, line_receiver) = channel::unbounded();
         Ok(Self {
