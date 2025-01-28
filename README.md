@@ -34,6 +34,10 @@ Below is only a short overview.
 
 Run this command too if you want to update bacon. Configuration has always been retro-compatible so you won't lose anything.
 
+Some features are disabled by default. You may enable them with
+
+    cargo install --features "clipboard sound"
+
 ## check the current project
 
     bacon

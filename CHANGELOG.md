@@ -1,3 +1,7 @@
+<a name="v3.9.1"></a>
+### v3.9.1 - 2025/01/28
+- as compilation of Alsa can be a problem on some systems, the "sound" feature is now disabled by default. You can enable it by compiling with `--features "sound"` - Fix #319
+
 <a name="v3.9.0"></a>
 ### v3.9.0 - 2025/01/26
 - sound can be enabled with `sound.enabled = true`, which allows adding job parameters such as `on_success = "play-sound(name=90s-game-ui-6,volume=50)"` and `on_failure = "play-sound(name=beep-warning)"` - Fix #303
