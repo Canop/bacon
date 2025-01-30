@@ -3,7 +3,7 @@ use {
     serde::Deserialize,
 };
 
-#[derive(Debug, Clone, Default, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize, PartialEq)]
 pub struct SoundConfig {
     pub enabled: Option<bool>,
     pub base_volume: Option<Volume>,

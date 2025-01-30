@@ -5,7 +5,7 @@ use {
 };
 
 /// One of the possible job that bacon can run
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, PartialEq)]
 pub struct Job {
     /// Whether to consider that we can have a success
     /// when we have test failures
@@ -213,6 +213,9 @@ impl Job {
         if let Some(v) = job.on_success.as_ref() {
             self.on_success = Some(v.clone());
         }
+        if let Some(v) = job.grace_period {
+            self.grace_period = Some(v);
+        }
         if let Some(v) = job.on_failure.as_ref() {
             self.on_failure = Some(v.clone());
         }
@@ -224,4 +227,41 @@ impl Job {
         }
         self.sound.apply(&job.sound);
     }
+}
+
+#[test]
+fn test_job_apply() {
+    use std::str::FromStr;
+    let mut base_job = Job::default();
+    let job_to_apply = Job {
+        allow_failures: Some(true),
+        allow_warnings: Some(false),
+        analyzer: Some(AnalyzerRef::Nextest),
+        apply_gitignore: Some(false),
+        background: Some(false),
+        command: vec!["cargo".to_string(), "test".to_string()],
+        default_watch: Some(false),
+        env: vec![("RUST_LOG".to_string(), "debug".to_string())]
+            .into_iter()
+            .collect(),
+        expand_env_vars: Some(false),
+        extraneous_args: Some(false),
+        ignore: vec!["special-target".to_string(), "generated".to_string()],
+        ignored_lines: Some(vec![LinePattern::from_str("half-error.*").unwrap()]),
+        kill: Some(vec!["die".to_string()]),
+        need_stdout: Some(true),
+        grace_period: Some(Period::from_str("20ms").unwrap()),
+        on_change_strategy: Some(OnChangeStrategy::KillThenRestart),
+        on_success: Some(Action::from_str("refresh").unwrap()),
+        on_failure: Some(Action::from_str("play-sound(name=car-horn)").unwrap()),
+        watch: Some(vec!["src".to_string(), "tests".to_string()]),
+        show_changes_count: Some(true),
+        sound: SoundConfig {
+            enabled: Some(true),
+            base_volume: Some(Volume::from_str("50").unwrap()),
+        },
+    };
+    base_job.apply(&job_to_apply);
+    dbg!(&base_job);
+    assert_eq!(&base_job, &job_to_apply);
 }
