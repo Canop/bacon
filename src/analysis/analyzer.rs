@@ -9,7 +9,6 @@ use {
         standard,
     },
     crate::*,
-    anyhow::Result,
     serde::{
         Deserialize,
         Serialize,
@@ -64,5 +63,5 @@ pub trait Analyzer {
         command_output: &mut CommandOutput,
     );
 
-    fn build_report(&mut self) -> Result<Report>;
+    fn build_report(&mut self) -> anyhow::Result<Report>;
 }

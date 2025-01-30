@@ -133,9 +133,14 @@ impl Context {
     pub fn mission<'s>(
         &self,
         concrete_job_ref: ConcreteJobRef,
-        job: Job,
+        leaf_job: &Job, // the raw job as defined, without using root settings
         settings: &'s Settings,
     ) -> Result<Mission<'s>> {
+        // the real job used in the mission is built from settings.all_jobs
+        // on which the provided leaf job is applied
+        let mut job = settings.all_jobs.clone();
+        job.apply(leaf_job);
+
         let location_name = self.name.clone();
         let mut paths_to_watch: Vec<PathBuf> = Vec::new();
         if let Some(path_to_watch) = &self.path_to_watch {
@@ -144,14 +149,13 @@ impl Context {
             // Automatically watch all kinds of source files.
             // "watches", at this point, aren't full path, they still must be joined
             // with the right path which may depend on the
-            let mut watches: Vec<&str> = job
-                .watch
-                .as_ref()
-                .unwrap_or(&settings.watch)
-                .iter()
-                .map(|s| s.as_str())
-                .collect();
-            let add_default = job.default_watch.unwrap_or(settings.default_watch);
+            let mut watches = Vec::new();
+            if let Some(v) = &job.watch {
+                for watch in v.iter() {
+                    watches.push(watch.as_str());
+                }
+            }
+            let add_default = job.default_watch.unwrap_or(true);
             if add_default {
                 for watch in DEFAULT_WATCHES {
                     if !watches.contains(watch) {

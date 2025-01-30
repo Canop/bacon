@@ -123,7 +123,7 @@ impl<'s> AppState<'s> {
             wrap: mission.settings.wrap,
             backtrace: None,
             reverse: mission.settings.reverse,
-            show_changes_count: mission.settings.show_changes_count,
+            show_changes_count: mission.job.show_changes_count(),
             status_skin,
             scroll: 0,
             top_item_idx: 0,
@@ -307,7 +307,7 @@ impl<'s> AppState<'s> {
     pub fn new_task(&self) -> Task {
         Task {
             backtrace: self.backtrace,
-            grace_period: self.mission.settings.grace_period,
+            grace_period: self.mission.job.grace_period(),
         }
     }
     pub fn take_output(&mut self) -> Option<CommandOutput> {
@@ -419,7 +419,7 @@ impl<'s> AppState<'s> {
     }
     /// Called when a task has started
     pub fn computation_starts(&mut self) {
-        if !self.mission.job.background {
+        if !self.mission.job.background() {
             self.clear();
         }
         self.report_maker.start(&self.mission);

@@ -93,7 +93,7 @@ on_change_strategy | `wait_then_restart` or `kill_then_restart` |
 on_success | the action to run when there's no error, warning or test failures |
 watch | a list of files and directories that will be watched if the job is run on a package. Usual source directories are implicitly included unless `default_watch` is set to false |
 
-Some of these properties can also be defined before jobs and will apply to all of them unless overriden: `watch`, `default_watch`, `ignore` (additive), `ignored_lines`, and `on_change_strategy`.
+All these properties can also be defined before jobs and will apply to all of them unless overriden.
 
 Beware of job references in `on_success`: you must avoid loops with 2 jobs calling themselves mutually, which would make bacon run all the time.
 
@@ -305,7 +305,7 @@ You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bac
 
 You may have audio notifications on job success or failures.
 
-This requires sound to be enabled:
+This requires sound to be enabled, either at root level or in a specific job:
 
 ```TOML
 [sound]
