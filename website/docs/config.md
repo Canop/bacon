@@ -93,7 +93,7 @@ on_change_strategy | `wait_then_restart` or `kill_then_restart` |
 on_success | the action to run when there's no error, warning or test failures |
 watch | a list of files and directories that will be watched if the job is run on a package. Usual source directories are implicitly included unless `default_watch` is set to false |
 
-Some of these properties can also be defined before jobs and will apply to all of them unless overriden: `watch`, `default_watch`, `ignore` (additive), `ignored_lines`, and `on_change_strategy`.
+Some of these properties can also be defined before jobs and will apply to all of them unless overridden: `watch`, `default_watch`, `ignore` (additive), `ignored_lines`, and `on_change_strategy`.
 
 Beware of job references in `on_success`: you must avoid loops with 2 jobs calling themselves mutually, which would make bacon run all the time.
 
@@ -106,7 +106,7 @@ need_stdout = true
 ```
 
 Note: Some tools detect that their output is piped and don't add style information unless you add a parameter which usually looks like `--color always`.
-This isn't normally necessary for cargo because bacon, by default, sets the `CARGO_TERM_COLOR` environnment variable.
+This isn't normally necessary for cargo because bacon, by default, sets the `CARGO_TERM_COLOR` environment variable.
 
 ## Analyzers
 
@@ -246,7 +246,7 @@ This export works for any tool and any job.
 
 ## Cargo Spans export
 
-When using the `cargo_json` analyzer, more detailed informations are available than what's printed on screen and this analyzer can provide those data with a configuration such as this one:
+When using the `cargo_json` analyzer, more detailed information is available than what is printed on screen and this analyzer can provide that data with a configuration such as this one:
 
 ```TOML
 [jobs.bacon-ls]
@@ -320,4 +320,4 @@ on_success = "play-sound(name=90s-game-ui-6,volume=50)"
 on_failure = "play-sound(name=beep-warning,volume=100)"
 ```
 
-Sound name can be ommited. Possible values are `2`, `90s-game-ui-6`, `beep-6`, `beep-beep`, `beep-warning`, `bell-chord`, `car-horn`, `convenience-store-ring`, `cow-bells`, `pickup`, `positive-beeps`, `short-beep-tone`, `slash`, `store-scanner`, `success`.
+Sound name can be omitted. Possible values are `2`, `90s-game-ui-6`, `beep-6`, `beep-beep`, `beep-warning`, `bell-chord`, `car-horn`, `convenience-store-ring`, `cow-bells`, `pickup`, `positive-beeps`, `short-beep-tone`, `slash`, `store-scanner`, `success`.

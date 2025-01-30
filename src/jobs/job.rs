@@ -4,7 +4,7 @@ use {
     std::collections::HashMap,
 };
 
-/// One of the possible job that bacon can run
+/// One of the possible jobs that bacon can run
 #[derive(Debug, Clone, Deserialize)]
 pub struct Job {
     /// Whether to consider that we can have a success

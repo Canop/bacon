@@ -79,7 +79,7 @@ impl Settings {
     /// Read the settings from all configuration files and arguments.
     ///
     ///
-    /// Hardcoded defaults are overriden by the following configuration elements, in order:
+    /// Hardcoded defaults are overridden by the following configuration elements, in order:
     /// * the default `bacon.toml` file (embedded in the binary)
     /// * the global `prefs.toml`, from user config directory
     /// * the file whose path is in environment variable `BACON_PREFS`

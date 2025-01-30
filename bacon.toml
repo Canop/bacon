@@ -9,7 +9,7 @@ env.CARGO_TERM_COLOR = "always"
 
 [jobs]
 
-# This alternative to 'check' demontrates the use of the JSON output
+# This alternative to 'check' demonstrates the use of the JSON output
 # of cargo check - see https://github.com/Canop/bacon/issues/249
 [jobs.json-check]
 command = [
