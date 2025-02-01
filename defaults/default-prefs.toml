@@ -23,7 +23,7 @@
 # The grace period is a delay after a file event before the real
 # task is launched and during which other events will be ignored.
 # This is mostly useful when your editor does several operations
-# when saving a file and the state is temporarly wrong (eg it
+# when saving a file and the state is temporarily wrong (eg it
 # moves the file to a backup name before recreating the right one)
 # You can set it to "none" if it's useless for you.
 #
