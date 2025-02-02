@@ -1,3 +1,8 @@
+### next
+- all job parameters can now be specified at the root (to be applied to all jobs)
+- `grace_period`, `show_change_count`, `sound.enabled`, and `sound.base_volume` can now be specified at job level
+- `no-op` (no operation) internal, which can be used to disable a previously set binding
+
 <a name="v3.9.1"></a>
 ### v3.9.1 - 2025/01/28
 - as compilation of Alsa can be a problem on some systems, the "sound" feature is now disabled by default. You can enable it by compiling with `--features "sound"` - Fix #319
