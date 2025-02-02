@@ -173,30 +173,31 @@ internal | default binding | meaning
 :-|:-|:-
 back | <kbd>Esc</kbd> | get back to the previous page or job, or cancel search
 copy-unstyled-output | | write the currently displayed job output to the clipboard
+focus-search | <kbd>/</kbd> | focus the search input
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
+next-match | <kbd>tab</kbd> | go to next search match
+no-op |  | do nothing (may be used to disable a previously set binding)
+pause |  | disable automatic job execution on change
+play-sound |  | play a sound, eg `play-sound(volume=100%)`
+previous-match | <kbd>backtab</kbd> | go to previous search match
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
 refresh | <kbd>F5</kbd> | clear output then run current job again
 reload-config | | reload all configuration files
 rerun |  | run current job again
-toggle-raw-output |  | display the untransformed command output
-toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `1` or `full`
-toggle-summary | <kbd>s</kbd> | display results as abstracts
-toggle-wrap | <kbd>w</kbd> | toggle line wrapping
 scope-to-failures | <kbd>f</kbd> | restrict job to test failure(s)
-scroll-to-top | <kbd>Home</kbd> | scroll to top
-scroll-to-bottom | <kbd>End</kbd> | scroll to bottom
 scroll-lines(-1) | <kbd>↑</kbd> | move one line up
 scroll-lines(1) | <kbd>↓</kbd> | move one line down
 scroll-pages(-1) | <kbd>PageUp</kbd> | move one page up
 scroll-pages(1) | <kbd>PageDown</kbd> | move one page down
-pause |  | disable automatic job execution on change
-unpause |  | enable automatic job execution on change
+scroll-to-bottom | <kbd>End</kbd> | scroll to bottom
+scroll-to-top | <kbd>Home</kbd> | scroll to top
 toggle pause | <kbd>p</kbd> | toggle pause
-focus-search | <kbd>/</kbd> | focus the search input
+toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `1` or `full`
+toggle-raw-output |  | display the untransformed command output
+toggle-summary | <kbd>s</kbd> | display results as abstracts
+toggle-wrap | <kbd>w</kbd> | toggle line wrapping
+unpause |  | enable automatic job execution on change
 validate | <kbd>enter</kbd> | unfocus the input, keeping the search
-next-match | <kbd>tab</kbd> | go to next search match
-previous-match | <kbd>backtab</kbd> | go to previous search match
-play-sound |  | play a sound, eg `play-sound(volume=100%)`
 
 The `scroll-lines` and `scroll-pages` internals are parameterized.
 You can for example define a shortcut to move down half a page:
