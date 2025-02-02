@@ -42,3 +42,12 @@ impl<'de> Deserialize<'de> for LinePattern {
         FromStr::from_str(&s).map_err(de::Error::custom)
     }
 }
+
+impl PartialEq for LinePattern {
+    fn eq(
+        &self,
+        other: &Self,
+    ) -> bool {
+        self.regex.as_str() == other.regex.as_str()
+    }
+}

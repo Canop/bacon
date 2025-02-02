@@ -7,7 +7,6 @@ use {
     std::{
         collections::HashMap,
         path::PathBuf,
-        time::Duration,
     },
 };
 
@@ -24,24 +23,16 @@ pub struct Settings {
     /// (note that not all settings come from files)
     pub config_files: Vec<PathBuf>,
     pub default_job: ConcreteJobRef,
-    pub default_watch: bool,
     pub exports: ExportsSettings,
     pub features: Option<String>, // comma separated list
-    pub grace_period: Period,
     pub help_line: bool,
-    pub ignore: Vec<String>,
-    pub ignored_lines: Option<Vec<LinePattern>>,
     pub jobs: HashMap<String, Job>,
     pub keybindings: KeyBindings,
     pub no_default_features: bool,
-    pub on_change_strategy: Option<OnChangeStrategy>,
     pub reverse: bool,
-    pub show_changes_count: bool,
     pub summary: bool,
-    pub watch: Vec<String>,
     pub wrap: bool,
-    pub env: HashMap<String, String>,
-    pub sound: SoundConfig,
+    pub all_jobs: Job,
 }
 
 impl Default for Settings {
@@ -61,16 +52,8 @@ impl Default for Settings {
             jobs: Default::default(),
             default_job: Default::default(),
             exports: Default::default(),
-            show_changes_count: false,
-            on_change_strategy: None,
-            ignore: Default::default(),
-            ignored_lines: Default::default(),
-            grace_period: Duration::from_millis(5).into(),
             config_files: Default::default(),
-            default_watch: true,
-            watch: Default::default(),
-            env: Default::default(),
-            sound: Default::default(),
+            all_jobs: Default::default(),
         }
     }
 }
@@ -150,7 +133,7 @@ impl Settings {
         &mut self,
         config: &Config,
     ) {
-        self.env.extend(config.env.clone());
+        self.all_jobs.apply(&config.all_jobs);
         if let Some(b) = config.summary {
             self.summary = b;
         }
@@ -181,28 +164,6 @@ impl Settings {
             self.default_job = default_job.clone();
         }
         self.exports.apply_config(config);
-        if let Some(b) = config.show_changes_count {
-            self.show_changes_count = b;
-        }
-        if let Some(b) = config.on_change_strategy {
-            self.on_change_strategy = Some(b);
-        }
-        if let Some(b) = config.ignored_lines.as_ref() {
-            self.ignored_lines = Some(b.clone());
-        }
-        if let Some(p) = config.grace_period {
-            self.grace_period = p;
-        }
-        if let Some(b) = config.default_watch {
-            self.default_watch = b;
-        }
-        if let Some(watch) = config.watch.as_ref() {
-            self.watch = watch.clone();
-        }
-        for pattern in &config.ignore {
-            self.ignore.push(pattern.clone());
-        }
-        self.sound.apply(&config.sound);
     }
     pub fn apply_args(
         &mut self,

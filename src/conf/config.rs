@@ -21,13 +21,9 @@ pub struct Config {
 
     pub default_job: Option<ConcreteJobRef>,
 
-    /// Whether to apply the default watch list, which is
-    /// `["src", "tests", "benches", "examples", "build.rs"]`
-    ///
-    /// This is true by default. Set it to false if you want
-    /// to watch nothing, or only the directories you set in
-    /// `watch`.
-    pub default_watch: Option<bool>,
+    /// Default config for a job
+    #[serde(flatten)]
+    pub all_jobs: Job,
 
     /// locations export
     #[deprecated(since = "2.22.0", note = "use exports.locations")]
@@ -39,55 +35,21 @@ pub struct Config {
     #[serde(default)]
     pub exports: HashMap<String, ExportConfig>,
 
-    /// The delay between a file event and the real start of the
-    /// task. Other file events occuring during this period will be
-    /// ignored.
-    pub grace_period: Option<Period>,
-
     pub help_line: Option<bool>,
-
-    /// A list of glob patterns to ignore
-    #[serde(default)]
-    pub ignore: Vec<String>,
-
-    /// Patterns of lines which should be ignored. Patterns of
-    /// the prefs or bacon.toml can be overridden at the job
-    pub ignored_lines: Option<Vec<LinePattern>>,
 
     #[serde(default)]
     pub jobs: HashMap<String, Job>,
 
     pub keybindings: Option<KeyBindings>,
 
-    pub on_change_strategy: Option<OnChangeStrategy>,
-
     pub reverse: Option<bool>,
-
-    pub show_changes_count: Option<bool>,
 
     pub summary: Option<bool>,
 
     #[deprecated(since = "2.0.0", note = "use keybindings")]
     pub vim_keys: Option<bool>,
 
-    /// A list of files and directories that will be watched if the job
-    /// is run on a package.
-    ///
-    /// src, examples, tests, benches, and build.rs are implicitly
-    /// included unless you `set default_watch` to false.
-    pub watch: Option<Vec<String>>,
-
     pub wrap: Option<bool>,
-
-    /// Env vars to set for all job executions
-    #[serde(default)]
-    pub env: HashMap<String, String>,
-
-    /// Whether to beep when the job ends
-    pub beep_on_end: Option<bool>,
-
-    #[serde(default)]
-    pub sound: SoundConfig,
 }
 
 impl Config {
