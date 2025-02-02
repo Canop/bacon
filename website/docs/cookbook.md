@@ -189,3 +189,10 @@ Notes:
 * this configuration is simply added to the other ones and it may refer to them
 * if you add a job this way and want it executed, either define it as `default_job` in the same inline TOML or use the `--job`/`-j` argument as in the example above
 
+# Run headless
+
+Sometimes, you may want to run bacon without a TUI, for example in a container, or when you run bacon to run an application on change and you want to keep all outputs.
+
+Try the headless mode: `bacon --headless`
+
+
