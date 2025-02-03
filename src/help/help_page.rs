@@ -35,7 +35,7 @@ ${keybindings
 }
 |-:
 
-Key bindings, jobs, and other preferences were loaded from those files:
+Key bindings, jobs, and other preferences were loaded from these files:
 * internal default configuration files
 ${config_files
 * ${config_file_path}
