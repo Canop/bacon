@@ -27,7 +27,7 @@ Run this command too if you want to update bacon. Configuration has always been 
 
 Some features are disabled by default. You may enable them with
 
-    cargo install --features "clipboard sound"
+    cargo install --locked bacon --features "clipboard sound"
 
 # Usage
 
