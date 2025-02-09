@@ -1,4 +1,5 @@
-### next
+<a name="v3.10.0"></a>
+### v3.10.0 - 2025/02/09
 - all job parameters can now be specified at the root (to be applied to all jobs)
 - `grace_period`, `show_change_count`, `sound.enabled`, and `sound.base_volume` can now be specified at job level
 - `no-op` (no operation) internal, which can be used to disable a previously set binding
