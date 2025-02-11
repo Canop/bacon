@@ -33,6 +33,9 @@ fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
         } else if let Some(k) = as_fail_result_title(content) {
             key = Some(k.to_string());
             LineType::Title(Kind::TestFail)
+        } else if let Some(k) = as_stack_overflow_message(content) {
+            key = Some(k.to_string());
+            LineType::Title(Kind::TestFail)
         } else if cmd_line.origin == CommandStream::StdErr
             && regex_is_match!("^error: ", content)
             && !regex_is_match!("^error: aborting due to", content)
@@ -211,4 +214,10 @@ fn as_test_result(s: &str) -> Option<(&str, bool)> {
 /// "---- key stdout ----"
 fn as_fail_result_title(s: &str) -> Option<&str> {
     regex_captures!(r#"^---- (.+) stdout ----$"#, s).map(|(_, key)| key)
+}
+
+/// Returns Some(key) when the line is like this:
+/// thread 'key' has overflowed its stack
+fn as_stack_overflow_message(s: &str) -> Option<&str> {
+    regex_captures!("^thread '(.+)' has overflowed its stack$", s).map(|(_, key)| key)
 }
