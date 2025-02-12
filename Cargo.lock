@@ -176,6 +176,7 @@ dependencies = [
  "cargo_metadata",
  "clap",
  "clap-help",
+ "clap_complete",
  "cli-log",
  "crokey",
  "ctrlc",
@@ -389,6 +390,18 @@ dependencies = [
  "anstyle",
  "clap_lex",
  "strsim",
+]
+
+[[package]]
+name = "clap_complete"
+version = "4.5.44"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "375f9d8255adeeedd51053574fd8d4ba875ea5fa558e86617b07f09f1680c8b6"
+dependencies = [
+ "clap",
+ "clap_lex",
+ "is_executable",
+ "shlex",
 ]
 
 [[package]]
@@ -1589,6 +1602,15 @@ dependencies = [
  "lazy-regex",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "is_executable"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4a1b5bad6f9072935961dfbf1cced2f3d129963d091b6f69f007fe04e758ae2"
+dependencies = [
+ "winapi",
 ]
 
 [[package]]
