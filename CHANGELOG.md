@@ -1,3 +1,6 @@
+### next
+- standard test analyzer: fix stack overflow not detected - Fix #326 - Thanks @gmorenz
+
 <a name="v3.10.0"></a>
 ### v3.10.0 - 2025/02/09
 - all job parameters can now be specified at the root (to be applied to all jobs)

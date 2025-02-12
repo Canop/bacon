@@ -39,16 +39,22 @@ impl TLine {
         let has_after = end_byte_in_string < self.strings[string_idx].raw.len();
 
         if has_after {
-            self.strings.insert(string_idx + 1, TString {
-                csi: self.strings[string_idx].csi.clone(),
-                raw: self.strings[string_idx].raw[end_byte_in_string..].to_string(),
-            });
+            self.strings.insert(
+                string_idx + 1,
+                TString {
+                    csi: self.strings[string_idx].csi.clone(),
+                    raw: self.strings[string_idx].raw[end_byte_in_string..].to_string(),
+                },
+            );
         }
         if has_before {
-            self.strings.insert(string_idx, TString {
-                csi: self.strings[string_idx].csi.clone(),
-                raw: self.strings[string_idx].raw[..start_byte_in_string].to_string(),
-            });
+            self.strings.insert(
+                string_idx,
+                TString {
+                    csi: self.strings[string_idx].csi.clone(),
+                    raw: self.strings[string_idx].raw[..start_byte_in_string].to_string(),
+                },
+            );
             string_idx += 1;
         }
         self.strings[string_idx].csi = new_csi;

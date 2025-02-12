@@ -108,12 +108,15 @@ impl ExportsSettings {
                 Exporter::Locations => default_locations_line_format().to_string(),
                 _ => "".to_string(),
             });
-            self.exports.insert(name.clone(), ExportSettings {
-                exporter,
-                auto,
-                path,
-                line_format,
-            });
+            self.exports.insert(
+                name.clone(),
+                ExportSettings {
+                    exporter,
+                    auto,
+                    path,
+                    line_format,
+                },
+            );
         }
 
         // [export] object
