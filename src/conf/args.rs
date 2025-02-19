@@ -8,6 +8,7 @@ use {
         CommandFactory,
         Parser,
     },
+    clap_complete::ArgValueCandidates,
     termimad::ansi,
 };
 
@@ -84,6 +85,8 @@ pub struct Args {
     /// List available jobs
     #[clap(short = 'l', long)]
     pub list_jobs: bool,
+    #[clap(long, hide = true)]
+    pub completion_list_jobs: bool,
 
     /// Don't access the network
     #[clap(long)]
@@ -94,7 +97,7 @@ pub struct Args {
     pub init: bool,
 
     /// Job to launch: `check`, `clippy`, custom ones...
-    #[clap(short = 'j', long, value_name = "job")]
+    #[clap(short = 'j', long, value_name = "job", add = ArgValueCandidates::new(crate::cli::completions::list_jobs))]
     pub job: Option<ConcreteJobRef>,
 
     /// Ignore features of both the package and the bacon job
@@ -120,18 +123,18 @@ pub struct Args {
 
     /// Path to watch (overriding what's normally computed from the project's
     /// type, bacon.toml file, etc.)
-    #[clap(long, value_name = "watch")]
+    #[clap(long, value_name = "watch", value_hint = clap::ValueHint::FilePath)]
     pub watch: Option<String>,
 
     /// Project to run jobs on, and use as working directory
-    #[clap(long, value_name = "project")]
+    #[clap(long, value_name = "project", value_hint = clap::ValueHint::DirPath)]
     pub project: Option<String>,
 
     /// Configuration passed as a TOML string
     #[clap(long)]
     pub config_toml: Option<String>,
 
-    #[clap()]
+    #[clap(add = ArgValueCandidates::new(crate::cli::completions::list_jobs))]
     /// What to do: either a job, or a path, or both
     pub args: Vec<String>,
 

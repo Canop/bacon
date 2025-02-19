@@ -1,7 +1,10 @@
 use {
     crate::*,
     anyhow::anyhow,
-    clap::Parser,
+    clap::{
+        CommandFactory,
+        Parser,
+    },
     std::{
         fs,
         io::Write,
@@ -21,6 +24,9 @@ use termimad::crossterm::event::{
     DisableMouseCapture,
     EnableMouseCapture,
 };
+
+pub mod completions;
+
 /// The Write type used by all GUI writing functions
 pub type W = std::io::BufWriter<std::io::Stdout>;
 
@@ -30,6 +36,10 @@ pub fn writer() -> W {
 }
 
 pub fn run() -> anyhow::Result<()> {
+    if std::env::var_os("COMPLETE").is_some() {
+        clap_complete::CompleteEnv::with_factory(Args::command).complete();
+    }
+
     let mut args: Args = Args::parse();
     args.fix()?;
     info!("args: {:#?}", &args);
@@ -78,6 +88,12 @@ pub fn run() -> anyhow::Result<()> {
 
     if args.list_jobs {
         print_jobs(&settings);
+        return Ok(());
+    }
+    if args.completion_list_jobs {
+        for job in settings.jobs.keys() {
+            print!("{job}\0");
+        }
         return Ok(());
     }
 
