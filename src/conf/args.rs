@@ -123,11 +123,11 @@ pub struct Args {
 
     /// Path to watch (overriding what's normally computed from the project's
     /// type, bacon.toml file, etc.)
-    #[clap(long, value_name = "watch")]
+    #[clap(long, value_name = "watch", value_hint = clap::ValueHint::FilePath)]
     pub watch: Option<String>,
 
     /// Project to run jobs on, and use as working directory
-    #[clap(long, value_name = "project")]
+    #[clap(long, value_name = "project", value_hint = clap::ValueHint::DirPath)]
     pub project: Option<String>,
 
     /// Configuration passed as a TOML string
