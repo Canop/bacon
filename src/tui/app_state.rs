@@ -10,7 +10,6 @@ use {
     termimad::{
         Area,
         CompoundStyle,
-        InputField,
         MadSkin,
         crossterm::{
             cursor,
@@ -28,8 +27,7 @@ use {
     },
 };
 
-/// Currently rendered state of the application, including scroll position
-/// and the current report (if any)
+/// Currently rendered state of the TUI application
 pub struct AppState<'s> {
     /// the mission to run, with settings
     pub mission: Mission<'s>,
@@ -76,13 +74,8 @@ pub struct AppState<'s> {
     pub show_changes_count: bool,
     /// messages to display to the user for a short duration
     pub messages: Vec<Message>,
-    /// the search input field
-    search_input: InputField,
-    search_up_to_date: bool,
-    /// Locations matching the search_input content
-    founds: Vec<Found>,
-    /// The selection to show
-    selected_found: usize,
+    /// the search state
+    pub search: SearchState,
 }
 
 impl<'s> AppState<'s> {
@@ -105,11 +98,6 @@ impl<'s> AppState<'s> {
             .settings
             .help_line
             .then(|| HelpLine::new(mission.settings));
-
-        let mut search_input = InputField::default();
-        search_input.set_focus(false);
-        let founds = Default::default();
-
         Ok(Self {
             report_maker,
             output: None,
@@ -134,30 +122,23 @@ impl<'s> AppState<'s> {
             auto_refresh: AutoRefresh::Enabled,
             changes_since_last_job_start: 0,
             messages: Vec::new(),
-
-            search_input,
-            search_up_to_date: true,
-            founds,
-            selected_found: 0,
+            search: Default::default(),
         })
     }
     pub fn focus_search(&mut self) {
-        self.search_input.set_focus(true);
+        self.search.set_focus(true);
         self.show_selected_found();
     }
     // Handle the "back" operation, return true if it did (thus consuming the action)
     pub fn back(&mut self) -> bool {
-        if self.search_input.focused() {
-            self.search_input.clear();
-            self.search_input.set_focus(false);
-            self.search_up_to_date = false;
+        if self.search.focused() {
+            self.search.unfocus_and_clear();
             true
         } else if self.help_page.is_some() {
             self.help_page = None;
             true
-        } else if !self.search_input.is_empty() {
-            self.search_input.clear();
-            self.search_up_to_date = false;
+        } else if self.search.input_has_content() {
+            self.search.clear();
             true
         } else {
             false
@@ -187,34 +168,24 @@ impl<'s> AppState<'s> {
         self.messages.push(Message::short(message));
     }
     pub fn next_match(&mut self) {
-        if self.founds.is_empty() {
-            return;
-        }
-        self.selected_found = (self.selected_found + 1) % self.founds.len();
+        self.search.next_match();
         self.show_selected_found();
     }
     pub fn previous_match(&mut self) {
-        if self.founds.is_empty() {
-            return;
-        }
-        self.selected_found = (self.selected_found + self.founds.len() - 1) % self.founds.len();
+        self.search.previous_match();
         self.show_selected_found();
     }
-
     // Handle the "validate" operation, return true if it did (thus consuming the action)
     pub fn validate(&mut self) -> bool {
-        if self.search_input.focused() {
-            self.search_input.set_focus(false);
+        if self.search.focused() {
+            self.search.set_focus(false);
             true
         } else {
             false
         }
     }
     pub fn has_search(&self) -> bool {
-        self.search_input.focused() || !self.search_input.is_empty()
-    }
-    pub fn is_search_input_focused(&self) -> bool {
-        self.search_input.focused()
+        self.search.focused() || self.search.input_has_content()
     }
     /// handle a raw, uninterpreted key combination (in an input if there's one
     /// focused), return true if the key was consumed (if not, keybindings will
@@ -223,59 +194,41 @@ impl<'s> AppState<'s> {
         &mut self,
         key: KeyCombination,
     ) -> bool {
-        if self.search_input.focused() {
-            if self.search_input.apply_key_combination(key) {
-                self.search_up_to_date = false;
-                self.update_search();
-                self.show_selected_found();
-                return true;
-            }
+        if self.search.apply_key_combination(key) {
+            self.update_search();
+            self.show_selected_found();
+            return true;
         }
         false
     }
-    /// if there are search results, return the line index of the currently selected one
-    fn selected_found_line(&self) -> Option<usize> {
-        self.founds
-            .get(self.selected_found)
-            .map(|found| found.line_idx)
-    }
     pub fn update_search(&mut self) {
-        if self.search_up_to_date {
+        if self.search.is_up_to_date() {
             return;
         }
-        let old_selected_line = self.selected_found_line();
-        self.founds.clear();
-        if self.search_input.is_empty() {
-            return;
-        }
-        let pattern = Pattern {
-            pattern: self.search_input.get_content(),
+        let founds = if self.search.input_has_content() {
+            let pattern = self.search.pattern();
+            let lines = self.lines_to_draw();
+            pattern.search_lines(lines)
+        } else {
+            Vec::new()
         };
-        let lines = self.lines_to_draw();
-        self.founds = pattern.search_lines(lines);
-        let new_selected_line = self.selected_found_line();
-        if old_selected_line != new_selected_line {
-            self.selected_found = 0;
-        }
-        self.search_up_to_date = true;
+        self.search.set_founds(founds);
     }
     /// Do a partial update for some potential added lines
     pub fn update_search_from_line(
         &mut self,
         line_count_before: usize,
     ) {
-        if self.search_input.is_empty() {
+        if !self.search.input_has_content() {
             return;
         }
         // it's probably fine now to search without taking filtering into
         // account as we're only adding lines in the raw output where there's
         // no filtering
         let lines = self.lines_to_draw_unfiltered();
-        let pattern = Pattern {
-            pattern: self.search_input.get_content(),
-        };
+        let pattern = self.search.pattern();
         let new_founds = pattern.search_lines(&lines[line_count_before..]);
-        self.founds.extend(new_founds);
+        self.search.extend_founds(new_founds);
     }
     pub fn add_line(
         &mut self,
@@ -311,7 +264,7 @@ impl<'s> AppState<'s> {
         }
     }
     pub fn take_output(&mut self) -> Option<CommandOutput> {
-        self.search_up_to_date = false;
+        self.search.touch();
         self.wrapped_output = None;
         self.output.take()
     }
@@ -339,7 +292,7 @@ impl<'s> AppState<'s> {
         if self.wrap {
             self.update_wrap(self.width - 1);
         }
-        self.search_up_to_date = false;
+        self.search.touch();
     }
     pub fn finish_task(
         &mut self,
@@ -354,7 +307,7 @@ impl<'s> AppState<'s> {
         &mut self,
         mut cmd_result: CommandResult,
     ) {
-        self.search_up_to_date = false;
+        self.search.touch();
         if self.reverse {
             cmd_result.reverse();
         }
@@ -406,7 +359,7 @@ impl<'s> AppState<'s> {
         debug!("state.clear");
         self.take_output();
         self.cmd_result = CommandResult::None;
-        self.search_up_to_date = false;
+        self.search.touch();
     }
     /// Start a new task on the current mission
     pub fn start_computation(
@@ -425,7 +378,7 @@ impl<'s> AppState<'s> {
         self.report_maker.start(&self.mission);
         self.computing = true;
         self.changes_since_last_job_start = 0;
-        self.search_up_to_date = false;
+        self.search.touch();
     }
     pub fn computation_stops(&mut self) {
         self.computing = false;
@@ -484,7 +437,7 @@ impl<'s> AppState<'s> {
         }
     }
     fn show_selected_found(&mut self) {
-        if let Some(selected_line) = self.selected_found_line() {
+        if let Some(selected_line) = self.search.selected_found_line() {
             self.show_line(selected_line);
         }
     }
@@ -510,7 +463,7 @@ impl<'s> AppState<'s> {
     pub fn toggle_summary_mode(&mut self) {
         self.summary ^= true;
         self.try_scroll_to_last_top_item();
-        self.search_up_to_date = false;
+        self.search.touch();
     }
     pub fn toggle_backtrace(
         &mut self,
@@ -533,7 +486,7 @@ impl<'s> AppState<'s> {
         if self.wrapped_report.is_some() {
             self.try_scroll_to_last_top_item();
         }
-        self.search_up_to_date = false;
+        self.search.touch();
     }
     fn content_height(&self) -> usize {
         let lines = self.lines_to_draw();
@@ -557,7 +510,7 @@ impl<'s> AppState<'s> {
             self.update_wrap(self.width - 1);
         }
         self.try_scroll_to_last_top_item();
-        self.search_up_to_date = false;
+        self.search.touch();
     }
     pub fn apply_scroll_command(
         &mut self,
@@ -579,14 +532,10 @@ impl<'s> AppState<'s> {
     ) -> Result<()> {
         let mut help_start = 0;
         // Search input
-        let must_draw_search = self.search_input.focused() || !self.search_input.is_empty();
-        if must_draw_search {
-            goto_line(w, y)?;
-            draw(w, CSI_FOUND, "/")?;
-            let search_width = (self.width / 4).clamp(8, 26);
-            self.search_input.change_area(1, y, search_width);
-            self.search_input.display_on(w)?;
-            help_start += search_width + 1;
+        if self.search.must_be_drawn() {
+            let search_width = (self.width / 4).clamp(9, 27);
+            self.search.draw_prefixed_input(w, 0, y, search_width)?;
+            help_start += search_width;
         }
         goto(w, help_start, y)?;
         // Help line
@@ -655,16 +604,7 @@ impl<'s> AppState<'s> {
                 6,
             ));
         }
-        if !self.search_input.is_empty() {
-            if self.founds.is_empty() {
-                t_line.add_tstring(CSI_FOUND, "no match");
-            } else {
-                t_line.add_tstring(
-                    CSI_FOUND,
-                    format!("{}/{}", self.selected_found + 1, self.founds.len(),),
-                );
-            }
-        }
+        self.search.add_summary_tstring(&mut t_line);
         let width = self.width as usize;
         let cols = t_line.draw_in(w, width)?;
         clear_line(w)?;
@@ -840,8 +780,9 @@ impl<'s> AppState<'s> {
                     // search for the optional founds related to that line
                     let mut line_founds = Vec::new();
                     let found_idx_before_line = found_idx;
-                    while found_idx < self.founds.len() {
-                        let found = &self.founds[found_idx];
+                    let founds = self.search.founds();
+                    while found_idx < founds.len() {
+                        let found = &founds[found_idx];
                         if found.line_idx > line_idx {
                             break;
                         }
@@ -861,7 +802,7 @@ impl<'s> AppState<'s> {
                         // tstrings are added by the change_range_style method.
                         for (in_line_idx, found) in line_founds.iter().enumerate().rev() {
                             let cur_idx = found_idx_before_line + in_line_idx;
-                            let style = if self.selected_found == cur_idx {
+                            let style = if self.search.selected_found() == cur_idx {
                                 CSI_FOUND_SELECTED
                             } else {
                                 CSI_FOUND

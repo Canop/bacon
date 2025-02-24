@@ -1,5 +1,5 @@
 mod action;
-mod args;
+mod auto_refresh;
 mod cargo_wrapped_config;
 mod config;
 mod defaults;
@@ -9,7 +9,7 @@ mod settings;
 
 pub use {
     action::*,
-    args::*,
+    auto_refresh::*,
     cargo_wrapped_config::*,
     config::*,
     defaults::*,
