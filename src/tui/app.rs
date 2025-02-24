@@ -287,6 +287,9 @@ fn run_mission(
                     Internal::FocusSearch => {
                         state.focus_search();
                     }
+                    Internal::FocusGoto => {
+                        state.focus_goto();
+                    }
                     Internal::Help => {
                         state.toggle_help();
                     }

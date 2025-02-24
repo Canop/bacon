@@ -25,6 +25,7 @@ pub enum Internal {
     Back, // leave help, clear search, go to previous job, leave, etc.
     CopyUnstyledOutput,
     FocusSearch,
+    FocusGoto,
     Help,
     NextMatch,
     NoOp, // no operation, can be used to clear a binding
@@ -53,6 +54,7 @@ impl Internal {
             Self::Back => "back to previous page or job".to_string(),
             Self::CopyUnstyledOutput => "copy current job's output".to_string(),
             Self::FocusSearch => "focus search".to_string(),
+            Self::FocusGoto => "focus goto".to_string(),
             Self::Help => "help".to_string(),
             Self::NextMatch => "next match".to_string(),
             Self::NoOp => "no operation".to_string(),
@@ -100,6 +102,7 @@ impl fmt::Display for Internal {
             Self::ToggleWrap => write!(f, "toggle-wrap"),
             Self::Unpause => write!(f, "unpause"),
             Self::FocusSearch => write!(f, "focus-search"),
+            Self::FocusGoto => write!(f, "focus-goto"),
             Self::Validate => write!(f, "validate"),
             Self::NextMatch => write!(f, "next-match"),
             Self::PreviousMatch => write!(f, "previous-match"),
@@ -139,6 +142,7 @@ impl std::str::FromStr for Internal {
             "unpause" => Ok(Self::Unpause),
             "toggle-pause" => Ok(Self::TogglePause),
             "focus-search" => Ok(Self::FocusSearch),
+            "focus-goto" => Ok(Self::FocusGoto),
             "validate" => Ok(Self::Validate),
             "next-match" => Ok(Self::NextMatch),
             "previous-match" => Ok(Self::PreviousMatch),
