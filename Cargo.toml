@@ -21,7 +21,7 @@ anyhow = "1.0"
 arboard = { version = "3.4", default-features = false, optional = true }
 cargo_metadata = "0.19"
 clap = { version = "4.5", features = ["derive", "cargo"] }
-clap-help = "1.3"
+clap-help = "1.3.2"
 clap_complete = { version = "4.5.44", features = ["unstable-dynamic"] }
 cli-log = "2.1"
 crokey = "1.1"
@@ -48,7 +48,7 @@ strip = "symbols"
 codegen-units = 1
 
 [patch.crates-io]
-# clap-help = { path = "../clap-help" }
+# clap-help = { path = "../clap-help" }
 # termimad = { path = "../termimad" }
 # crokey = { path = "../crokey" }
 # coolor = { path = "../coolor" }

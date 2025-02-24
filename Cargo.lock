@@ -371,9 +371,9 @@ dependencies = [
 
 [[package]]
 name = "clap-help"
-version = "1.3.1"
+version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7dcdf9b61cc1b4c327e884e4de4f68f729b1ea5a80bc32e84c08f7bf2800a4bb"
+checksum = "cc01b70b5fd7e87b2ae778cfd151120355002f44ab1504e9943151a52cae8171"
 dependencies = [
  "clap",
  "termimad",
