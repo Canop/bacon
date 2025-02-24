@@ -50,6 +50,7 @@ impl Default for KeyBindings {
         bindings.set(key!(i), JobRef::Initial);
         bindings.set(key!(p), Internal::TogglePause);
         bindings.set(key!('/'), Internal::FocusSearch);
+        bindings.set(key!(':'), Internal::FocusGoto);
         bindings.set(key!(enter), Internal::Validate);
         bindings.set(key!(tab), Internal::NextMatch);
         bindings.set(key!(backtab), Internal::PreviousMatch);

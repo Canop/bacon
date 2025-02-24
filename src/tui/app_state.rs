@@ -126,7 +126,11 @@ impl<'s> AppState<'s> {
         })
     }
     pub fn focus_search(&mut self) {
-        self.search.set_focus(true);
+        self.search.focus_with_mode(SearchMode::Pattern);
+        self.show_selected_found();
+    }
+    pub fn focus_goto(&mut self) {
+        self.search.focus_with_mode(SearchMode::ItemIdx);
         self.show_selected_found();
     }
     // Handle the "back" operation, return true if it did (thus consuming the action)
@@ -178,7 +182,7 @@ impl<'s> AppState<'s> {
     // Handle the "validate" operation, return true if it did (thus consuming the action)
     pub fn validate(&mut self) -> bool {
         if self.search.focused() {
-            self.search.set_focus(false);
+            self.search.unfocus();
             true
         } else {
             false
@@ -206,9 +210,9 @@ impl<'s> AppState<'s> {
             return;
         }
         let founds = if self.search.input_has_content() {
-            let pattern = self.search.pattern();
+            let search = self.search.search();
             let lines = self.lines_to_draw();
-            pattern.search_lines(lines)
+            search.search_lines(lines)
         } else {
             Vec::new()
         };
@@ -226,8 +230,8 @@ impl<'s> AppState<'s> {
         // account as we're only adding lines in the raw output where there's
         // no filtering
         let lines = self.lines_to_draw_unfiltered();
-        let pattern = self.search.pattern();
-        let new_founds = pattern.search_lines(&lines[line_count_before..]);
+        let search = self.search.search();
+        let new_founds = search.search_lines(&lines[line_count_before..]);
         self.search.extend_founds(new_founds);
     }
     pub fn add_line(
