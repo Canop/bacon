@@ -1,5 +1,13 @@
 ### next
 - standard test analyzer: fix stack overflow not detected - Fix #326 - Thanks @gmorenz
+#### Dynamic Completion
+The script providing location aware completion needs to be sourced once.
+This can be done for example in your .profile with
+```bash
+    source <(COMPLETE=bash bacon)
+```
+(adapt for your shell) This feature is still experimental. Please give feedback, positive or negative, in the chat.
+Thanks @bryceberger
 
 <a name="v3.10.0"></a>
 ### v3.10.0 - 2025/02/09
