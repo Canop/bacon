@@ -150,7 +150,8 @@ impl std::str::FromStr for Internal {
                     let mut volume = Volume::default();
                     let mut name = None;
                     for (_, [prop_name, prop_value]) in iter.map(|c| c.extract()) {
-                        match prop_name {
+                        let prop_value = prop_value.trim();
+                        match prop_name.trim() {
                             "name" => {
                                 name = Some(prop_value.to_string());
                             }
@@ -233,5 +234,25 @@ fn test_internal_string_round_trip() {
     for internal in internals {
         println!("testing {:?}", internal.to_string());
         assert_eq!(internal.to_string().parse(), Ok(internal));
+    }
+}
+
+/// Check that white space is allowed around play-sound parameters
+/// See https://github.com/Canop/bacon/issues/322
+#[test]
+fn test_play_sound_parsing_with_space() {
+    use crate::Action;
+    let strings = [
+        "play-sound(name=car-horn,volume=5)",
+        "play-sound(name=car-horn, volume=5)",
+        "play-sound( name = car-horn , volume = 5 )",
+    ];
+    let psc = PlaySoundCommand {
+        name: Some("car-horn".to_string()),
+        volume: Volume::new(5),
+    };
+    for string in &strings {
+        let action: Action = string.parse().unwrap();
+        assert_eq!(action, Action::Internal(Internal::PlaySound(psc.clone())));
     }
 }
