@@ -48,49 +48,6 @@ impl SearchState {
     pub fn must_be_drawn(&self) -> bool {
         self.focused() || !self.input.is_empty()
     }
-    // /// update search
-    // ///
-    // /// As it's an expensive operation, it shoud be tested before whether
-    // /// it's up to date
-    // pub fn update<'l, I>(
-    //     &mut self,
-    //     lines: I,
-    // )
-    // where I: Iterator<Item = &'l Line>,
-    // {
-    //     if self.is_up_to_date() {
-    //         return;
-    //     }
-    //     let old_selected_line = self.selected_found_line();
-    //     self.founds.clear();
-    //     if self.input.is_empty() {
-    //         return;
-    //     }
-    //     let pattern = Pattern {
-    //         pattern: self.input.get_content(),
-    //     };
-    //     self.founds = pattern.search_lines(lines);
-    //     let new_selected_line = self.selected_found_line();
-    //     if old_selected_line != new_selected_line {
-    //         self.selected_found = 0;
-    //     }
-    //     self.up_to_date = true;
-    // }
-    // /// Do a partial update for some potential added lines
-    // pub fn update_from_line(
-    //     &mut self,
-    //     line_count_before: usize,
-    //     lines: &[Line],
-    // ) {
-    //     if self.input.is_empty() {
-    //         return;
-    //     }
-    //     let pattern = Pattern {
-    //         pattern: self.input.get_content(),
-    //     };
-    //     let new_founds = pattern.search_lines(&lines[line_count_before..]);
-    //     self.founds.extend(new_founds);
-    // }
     pub fn set_focus(
         &mut self,
         f: bool,
