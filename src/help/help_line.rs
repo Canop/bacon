@@ -112,7 +112,7 @@ impl HelpLine {
             if let Some(s) = &self.clear_search {
                 parts.push(s);
             }
-            if state.is_search_input_focused() {
+            if state.search.focused() {
                 if let Some(s) = &self.validate_search {
                     parts.push(s);
                 }
