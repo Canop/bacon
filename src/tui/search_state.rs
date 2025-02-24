@@ -105,17 +105,25 @@ impl SearchState {
         }
         false
     }
-    //pub fn pattern(&self) -> Pattern {
-    //    Pattern {
-    //        pattern: self.input.get_content(),
-    //    }
-    //}
     pub fn search(&self) -> Search {
         match self.mode {
             SearchMode::Pattern => Search::Pattern(Pattern {
                 pattern: self.input.get_content(),
             }),
             SearchMode::ItemIdx => Search::ItemIdx(self.input.get_content().parse().unwrap_or(0)),
+        }
+    }
+    pub fn is_invalid(&self) -> bool {
+        match self.mode {
+            SearchMode::Pattern => false,
+            SearchMode::ItemIdx => {
+                if self.input.is_empty() {
+                    false
+                } else {
+                    let n = self.input.get_content().parse::<usize>();
+                    n.is_err()
+                }
+            }
         }
     }
     pub fn set_founds(
@@ -173,7 +181,11 @@ impl SearchState {
     ) {
         if self.input_has_content() {
             if self.founds.is_empty() {
-                t_line.add_tstring(CSI_FOUND, "no match");
+                if self.mode == SearchMode::ItemIdx && self.is_invalid() {
+                    t_line.add_tstring(CSI_FOUND, "integer expected");
+                } else {
+                    t_line.add_tstring(CSI_FOUND, "no match");
+                }
             } else {
                 t_line.add_tstring(
                     CSI_FOUND,
