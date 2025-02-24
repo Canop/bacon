@@ -468,6 +468,8 @@ impl<'s> AppState<'s> {
         self.summary ^= true;
         self.try_scroll_to_last_top_item();
         self.search.touch();
+        self.update_search();
+        self.show_selected_found();
     }
     pub fn toggle_backtrace(
         &mut self,
