@@ -1,4 +1,6 @@
-### next
+<a name="v3.11.0"></a>
+### v3.11.0 - 2025/03/03
+- hit `:` then type an integer to go to a diagnostic by number - Fix #104
 - standard test analyzer: fix stack overflow not detected - Fix #326 - Thanks @gmorenz
 #### Dynamic Completion
 The script providing location aware completion needs to be sourced once.
