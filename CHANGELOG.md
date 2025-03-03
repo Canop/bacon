@@ -1,3 +1,6 @@
+### next
+- cargo-json analyzer (for bacon-ls): fix invalid spans for errors from proc-macros - Fix #332 - Thanks @Leandros
+
 <a name="v3.11.0"></a>
 ### v3.11.0 - 2025/03/03
 - hit `:` then type an integer to go to a diagnostic by number - Fix #104
