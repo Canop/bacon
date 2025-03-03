@@ -38,7 +38,14 @@ impl CargoJsonExport {
         diagnostic: &Diagnostic,
     ) {
         for span in &diagnostic.spans {
-            let data = OnSpanData { diagnostic, span };
+            let data = {
+                // This is a diagnostic that originates from a proc-macro.
+                if let Some(expansion) = &span.expansion {
+                    OnSpanData { diagnostic, span: &expansion.span }
+                } else {
+                    OnSpanData { diagnostic, span }
+                }
+            };
             let line = self.line_template.render(&data);
             if !line.is_empty() {
                 self.export.push_str(&line);
