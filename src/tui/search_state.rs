@@ -7,6 +7,7 @@ use {
 
 /// Search related state, part of the app state
 pub struct SearchState {
+    mode: SearchMode,
     /// the search input field
     input: InputField,
     /// whether the app state is up to date with the search
@@ -23,6 +24,7 @@ impl Default for SearchState {
         search_input.set_focus(false);
         let founds = Default::default();
         Self {
+            mode: SearchMode::Pattern,
             input: search_input,
             up_to_date: true,
             founds,
@@ -48,11 +50,18 @@ impl SearchState {
     pub fn must_be_drawn(&self) -> bool {
         self.focused() || !self.input.is_empty()
     }
-    pub fn set_focus(
+    pub fn focus_with_mode(
         &mut self,
-        f: bool,
+        mode: SearchMode,
     ) {
-        self.input.set_focus(f);
+        if mode != self.mode {
+            self.input.clear();
+        }
+        self.mode = mode;
+        self.input.set_focus(true);
+    }
+    pub fn unfocus(&mut self) {
+        self.input.set_focus(false);
     }
     pub fn focused(&self) -> bool {
         self.input.focused()
@@ -96,9 +105,25 @@ impl SearchState {
         }
         false
     }
-    pub fn pattern(&self) -> Pattern {
-        Pattern {
-            pattern: self.input.get_content(),
+    pub fn search(&self) -> Search {
+        match self.mode {
+            SearchMode::Pattern => Search::Pattern(Pattern {
+                pattern: self.input.get_content(),
+            }),
+            SearchMode::ItemIdx => Search::ItemIdx(self.input.get_content().parse().unwrap_or(0)),
+        }
+    }
+    pub fn is_invalid(&self) -> bool {
+        match self.mode {
+            SearchMode::Pattern => false,
+            SearchMode::ItemIdx => {
+                if self.input.is_empty() {
+                    false
+                } else {
+                    let n = self.input.get_content().parse::<usize>();
+                    n.is_err()
+                }
+            }
         }
     }
     pub fn set_founds(
@@ -137,7 +162,15 @@ impl SearchState {
         width: u16, // must be > 1
     ) -> Result<()> {
         goto_line(w, y)?;
-        draw(w, CSI_FOUND, "/")?;
+        draw(
+            w,
+            CSI_FOUND,
+            if self.mode == SearchMode::ItemIdx {
+                ":"
+            } else {
+                "/"
+            },
+        )?;
         self.input.change_area(x + 1, y, width - 1);
         self.input.display_on(w)?;
         Ok(())
@@ -148,7 +181,11 @@ impl SearchState {
     ) {
         if self.input_has_content() {
             if self.founds.is_empty() {
-                t_line.add_tstring(CSI_FOUND, "no match");
+                if self.mode == SearchMode::ItemIdx && self.is_invalid() {
+                    t_line.add_tstring(CSI_FOUND, "integer expected");
+                } else {
+                    t_line.add_tstring(CSI_FOUND, "no match");
+                }
             } else {
                 t_line.add_tstring(
                     CSI_FOUND,
