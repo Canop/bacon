@@ -65,13 +65,15 @@ impl TString {
     }
     pub fn push_csi(
         &mut self,
-        params: &[i64],
+        params: &vte::Params,
         action: char,
     ) {
         self.csi.push('\u{1b}');
         self.csi.push('[');
-        for (idx, p) in params.iter().enumerate() {
-            let _ = write!(self.csi, "{}", p);
+        for (idx, param) in params.iter().enumerate() {
+            for (_, p) in param.iter().enumerate() {
+                let _ = write!(self.csi, "{}", p);
+            }
             if idx < params.len() - 1 {
                 self.csi.push(';');
             }
