@@ -22,7 +22,8 @@ use {
 /// to a key or ran after a successful job
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Internal {
-    Back, // leave help, clear search, go to previous job, leave, etc.
+    Back,       // leave help, clear search, go to previous job, leave, etc.
+    BackOrQuit, // same as Back but quits if there is nothing to go back to
     CopyUnstyledOutput,
     FocusSearch,
     FocusGoto,
@@ -52,6 +53,9 @@ impl Internal {
     pub fn doc(&self) -> String {
         match self {
             Self::Back => "back to previous page or job".to_string(),
+            Self::BackOrQuit => {
+                "back to previous page or job, quitting if there is none".to_string()
+            }
             Self::CopyUnstyledOutput => "copy current job's output".to_string(),
             Self::FocusSearch => "focus search".to_string(),
             Self::FocusGoto => "focus goto".to_string(),
@@ -85,6 +89,7 @@ impl fmt::Display for Internal {
     ) -> fmt::Result {
         match self {
             Self::Back => write!(f, "back"),
+            Self::BackOrQuit => write!(f, "back-or-quit"),
             Self::CopyUnstyledOutput => write!(f, "copy-unstyled-output"),
             Self::Help => write!(f, "help"),
             Self::NoOp => write!(f, "no-op"),
@@ -124,6 +129,7 @@ impl std::str::FromStr for Internal {
         }
         match s {
             "back" => Ok(Self::Back),
+            "back-or-quit" => Ok(Self::BackOrQuit),
             "help" => Ok(Self::Help),
             "quit" => Ok(Self::Quit),
             "refresh" => Ok(Self::Refresh),
@@ -200,6 +206,7 @@ fn test_internal_string_round_trip() {
     use crate::Volume;
     let internals = [
         Internal::Back,
+        Internal::BackOrQuit,
         Internal::FocusSearch,
         Internal::Help,
         Internal::NoOp,
