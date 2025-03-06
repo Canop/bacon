@@ -12,9 +12,7 @@ impl TLineBuilder {
         s: &str,
     ) {
         let mut parser = vte::Parser::new();
-        for byte in s.bytes() {
-            parser.advance(self, byte);
-        }
+        parser.advance(self, s.as_bytes());
     }
     pub fn build(mut self) -> TLine {
         self.take_tstring();
@@ -49,12 +47,12 @@ impl vte::Perform for TLineBuilder {
     }
     fn csi_dispatch(
         &mut self,
-        params: &[i64],
+        params: &vte::Params,
         _intermediates: &[u8],
         _ignore: bool,
         action: char,
     ) {
-        if *params == [0] {
+        if params.len() == 1 && params.iter().next() == Some(&[0]) {
             self.take_tstring();
             return;
         }
@@ -76,7 +74,7 @@ impl vte::Perform for TLineBuilder {
     }
     fn hook(
         &mut self,
-        _params: &[i64],
+        _params: &vte::Params,
         _intermediates: &[u8],
         _ignore: bool,
         _action: char,
