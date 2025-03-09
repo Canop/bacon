@@ -15,6 +15,7 @@ rust-version = "1.76"
 default = []
 clipboard = ["arboard"]
 sound = ["rodio"]
+default-sounds = ["sound"]
 
 [dependencies]
 anyhow = "1.0"
