@@ -20,10 +20,12 @@ struct Sound {
 
 static SOUNDS: LazyCell<RwLock<HashMap<&'static str, Sound>>> = LazyCell::new(|| {
     let mut sounds = HashMap::new();
+    #[cfg(feature = "default-sounds")]
     sounds.extend(DEFAULT_SOUNDS);
     RwLock::new(sounds)
 });
 
+#[cfg(feature = "default-sounds")]
 const DEFAULT_SOUNDS: [(&str, Sound); 15] = [
     ("2", Sound {
         bytes: include_bytes!("../../resources/2-100419.mp3"),
@@ -87,7 +89,8 @@ const DEFAULT_SOUNDS: [(&str, Sound); 15] = [
     }),
 ];
 
-/// Get a sound by name; or the default sound if name is None.
+/// Get a sound by name; or the default sound if name is None,
+/// and the default-sounds feature is enabled.
 ///
 /// There are too kinds of sounds: default and custom.
 /// 
@@ -96,6 +99,10 @@ const DEFAULT_SOUNDS: [(&str, Sound); 15] = [
 /// redundancy. Resource file names are kept identical to their original
 /// names to ease retrival for attribution).
 fn get_sound(name: Option<&str>) -> Result<Sound, SoundError> {
+    // NOTE: This doesn't distinguish from whether the default-sound feature is
+    // enabled, and might confuse users. But then again, that only happens when
+    // a default name is requested while default-sound feature is disabled,
+    // which shouldn't happen anyway.
     let name = name.unwrap_or("store-scanner");
     SOUNDS.read().unwrap().get(name).copied().ok_or_else(|| SoundError::UnknownSoundName(name.to_string()))
 }
