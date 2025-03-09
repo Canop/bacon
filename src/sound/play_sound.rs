@@ -1,6 +1,6 @@
 use {
     super::*,
-    rodio::OutputStream,
+    rodio::{OutputStream, Decoder, Source},
     std::{
         fmt,
         collections::HashMap,
@@ -119,6 +119,8 @@ pub(crate) fn add_sound(name: &str, path: &str) -> Result<(), SoundError> {
     let bytes: &'static [u8] = std::fs::read(&path)
         .map_err(|_| SoundError::MissingSoundFile(path.to_string()))?
         .leak();
+    // TODO: check for duration right here, or use Option?
+    // If to check, might as well replace `bytes` with decoded struct
     SOUNDS.write().unwrap()
         .insert(name.to_string().leak(), Sound {
             bytes,
@@ -133,8 +135,14 @@ pub enum SoundError {
     Interrupted,
     UnknownSoundName(String),
     MissingSoundFile(String),
+    RodioDecode(rodio::decoder::DecoderError),
     RodioStream(rodio::StreamError),
     RodioPlay(rodio::PlayError),
+}
+impl From<rodio::decoder::DecoderError> for SoundError {
+    fn from(e: rodio::decoder::DecoderError) -> Self {
+        SoundError::RodioDecode(e)
+    }
 }
 impl From<rodio::StreamError> for SoundError {
     fn from(e: rodio::StreamError) -> Self {
@@ -155,6 +163,7 @@ impl fmt::Display for SoundError {
             SoundError::Interrupted => write!(f, "sound interrupted"),
             SoundError::UnknownSoundName(name) => write!(f, "unknown sound name: {}", name),
             SoundError::MissingSoundFile(path) => write!(f, "missing sound file: {}", path),
+            SoundError::RodioDecode(e) => write!(f, "rodio decode error: {}", e),
             SoundError::RodioStream(e) => write!(f, "rodio stream error: {}", e),
             SoundError::RodioPlay(e) => write!(f, "rodio play error: {}", e),
         }
@@ -172,9 +181,15 @@ pub fn play_sound(
     let Sound { bytes, duration } = get_sound(psc.name.as_deref())?;
     let (_stream, stream_handle) = OutputStream::try_default()?;
     let sound = Cursor::new(bytes);
+    let decoder = Decoder::new(sound.clone())?;
+    let duration = if duration == Duration::ZERO {
+        decoder.total_duration()
+    } else {
+        Some(duration)
+    };
     let sink = stream_handle.play_once(sound)?;
     sink.set_volume(psc.volume.as_part());
-    if interrupt.recv_timeout(duration).is_ok() {
+    if duration.is_some() && interrupt.recv_timeout(duration.unwrap()).is_ok() {
         info!("sound interrupted");
         Err(SoundError::Interrupted)
     } else {
