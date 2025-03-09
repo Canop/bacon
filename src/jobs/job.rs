@@ -318,6 +318,7 @@ fn test_job_apply() {
         sound: SoundConfig {
             enabled: Some(true),
             base_volume: Some(Volume::from_str("50").unwrap()),
+            collection: None,
         },
         workdir: Some(PathBuf::from("/path/to/workdir")),
         skin: Default::default(),
