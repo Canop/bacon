@@ -178,7 +178,15 @@ pub fn play_sound(
     interrupt: Receiver<()>,
 ) -> Result<(), SoundError> {
     debug!("play sound: {:#?}", psc);
-    let Sound { bytes, duration } = get_sound(psc.name.as_deref())?;
+    let name = if let Some(ref path) = psc.path {
+        // For one-off paths, there's no need to make up a name for it, but the
+        // HashMap needs a key. Just use its path.
+        add_sound(path, path).map_err(|_| SoundError::MissingSoundFile(path.to_string()))?;
+        Some(path.as_str())
+    } else {
+        psc.name.as_deref()
+    };
+    let Sound { bytes, duration } = get_sound(name)?;
     let (_stream, stream_handle) = OutputStream::try_default()?;
     let sound = Cursor::new(bytes);
     let decoder = Decoder::new(sound.clone())?;
