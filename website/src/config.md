@@ -393,7 +393,24 @@ on_success = "play-sound(name=90s-game-ui-6,volume=50)"
 on_failure = "play-sound(name=beep-warning,volume=100)"
 ```
 
-Sound name can be omitted. Possible values are `2`, `90s-game-ui-6`, `beep-6`, `beep-beep`, `beep-warning`, `bell-chord`, `car-horn`, `convenience-store-ring`, `cow-bells`, `pickup`, `positive-beeps`, `short-beep-tone`, `slash`, `store-scanner`, `success`.
+Sound name can be omitted.
+
+If the `default-sounds` feature is enabled, some pre-chosen sounds are available; their names are `2`, `90s-game-ui-6`, `beep-6`, `beep-beep`, `beep-warning`, `bell-chord`, `car-horn`, `convenience-store-ring`, `cow-bells`, `pickup`, `positive-beeps`, `short-beep-tone`, `slash`, `store-scanner`, `success`.
+
+Or, you can add your own sounds.
+
+Add sounds to a root level collection, eg
+
+```TOML
+[sound.collection]
+bepop = "~/audio/bepop.mp3"
+```
+
+then use its name in a job as usual, eg
+
+```TOML
+on_success = "play-sound(name=bepop,volume=42)"
+```
 
 ## Skin
 
@@ -421,4 +438,3 @@ skin.status_bg = 6
 
 All available skin entries, with meaning and default values, are listed in [src/conf/skin.rs](https://github.com/Canop/bacon/blob/main/src/conf/skin.rs#62).
 Skin entries may be added or removed in minor versions of bacon. Unrecognized entries are just ignored.
-
