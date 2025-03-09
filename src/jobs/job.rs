@@ -260,6 +260,7 @@ fn test_job_apply() {
         sound: SoundConfig {
             enabled: Some(true),
             base_volume: Some(Volume::from_str("50").unwrap()),
+            collection: None,
         },
     };
     base_job.apply(&job_to_apply);
