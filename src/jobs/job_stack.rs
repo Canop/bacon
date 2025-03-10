@@ -1,6 +1,9 @@
 use {
     crate::*,
-    anyhow::anyhow,
+    anyhow::{
+        Result,
+        anyhow,
+    },
 };
 
 /// The stack of jobs that bacon ran, allowing to get back to the previous one,
@@ -10,21 +13,15 @@ pub struct JobStack {
     entries: Vec<ConcreteJobRef>,
 }
 
-/// Possible variants:
-/// `Ok(job)` -> application should run the given job
-/// `Err(None)` -> application should exit
-/// `Err(Some(err))` -> application should exit with error
-pub type JobResult = Result<(ConcreteJobRef, Job), Option<anyhow::Error>>;
-
 impl JobStack {
     /// Apply the job ref instruction to determine the job to run, updating the stack.
     ///
-    /// See [`JobResult`] for meanings of return values.
+    /// When no job is returned, the application is supposed to quit.
     pub fn pick_job(
         &mut self,
         job_ref: &JobRef,
         settings: &Settings,
-    ) -> JobResult {
+    ) -> Result<Option<(ConcreteJobRef, Job)>> {
         debug!("picking job {job_ref:?}");
         let concrete = match job_ref {
             JobRef::Default => settings.default_job.clone(),
@@ -33,7 +30,7 @@ impl JobStack {
                 .as_ref()
                 .unwrap_or(&settings.default_job)
                 .clone(),
-            JobRef::PreviousOrQuit | JobRef::Previous => {
+            JobRef::Previous | JobRef::PreviousOrQuit => {
                 let current = self.entries.pop();
                 match self.entries.pop() {
                     Some(concrete) => concrete,
@@ -47,17 +44,15 @@ impl JobStack {
                             scope: Scope::default(),
                         }
                     }
+                    None if *job_ref == JobRef::PreviousOrQuit => {
+                        return Ok(None);
+                    }
                     None => {
-                        if let JobRef::PreviousOrQuit = job_ref {
-                            return Err(None);
-                        }
-
-                        // this has a side effect of reloading the job, which isn't ideal
-                        // but the main loop needs some mission to avoid spinning forever
-                        ConcreteJobRef {
-                            name_or_alias: current.unwrap().name_or_alias,
-                            scope: Scope::default(),
-                        }
+                        let Some(current) = current else {
+                            error!("no current job"); // job stack was misused
+                            return Ok(None);
+                        };
+                        current
                     }
                 }
             }
@@ -68,7 +63,7 @@ impl JobStack {
                     scope: scope.clone(),
                 },
                 None => {
-                    return Err(None);
+                    return Ok(None);
                 }
             },
         };
@@ -83,6 +78,6 @@ impl JobStack {
         if self.entries.last() != Some(&concrete) {
             self.entries.push(concrete.clone());
         }
-        Ok((concrete, job))
+        Ok(Some((concrete, job)))
     }
 }

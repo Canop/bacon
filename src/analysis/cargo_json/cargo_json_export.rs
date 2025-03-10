@@ -41,7 +41,10 @@ impl CargoJsonExport {
             let data = {
                 // This is a diagnostic that originates from a proc-macro.
                 if let Some(expansion) = &span.expansion {
-                    OnSpanData { diagnostic, span: &expansion.span }
+                    OnSpanData {
+                        diagnostic,
+                        span: &expansion.span,
+                    }
                 } else {
                     OnSpanData { diagnostic, span }
                 }

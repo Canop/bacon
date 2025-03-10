@@ -71,7 +71,7 @@ impl TString {
         self.csi.push('\u{1b}');
         self.csi.push('[');
         for (idx, param) in params.iter().enumerate() {
-            for (_, p) in param.iter().enumerate() {
+            for p in param {
                 let _ = write!(self.csi, "{}", p);
             }
             if idx < params.len() - 1 {
