@@ -31,6 +31,9 @@ command = [
 ]
 need_stdout = false
 
+[jobs.fmt]
+command = ["cargo", "+nightly", "fmt"]
+
 [jobs.nightly]
 command = [
 	"cargo",
@@ -86,3 +89,4 @@ ctrl-c = "copy-unstyled-output"
 #shift-n = "previous-match"
 #h = "play-sound(name=car-horn)"
 #b = "play-sound(name=beep-6)"
+f = "job:fmt"
