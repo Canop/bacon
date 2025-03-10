@@ -1,9 +1,6 @@
 use {
     crate::*,
-    anyhow::{
-        Result,
-        anyhow,
-    },
+    anyhow::anyhow,
 };
 
 /// The stack of jobs that bacon ran, allowing to get back to the previous one,
@@ -13,15 +10,21 @@ pub struct JobStack {
     entries: Vec<ConcreteJobRef>,
 }
 
+/// Possible variants:
+/// `Ok(job)` -> application should run the given job
+/// `Err(None)` -> application should exit
+/// `Err(Some(err))` -> application should exit with error
+pub type JobResult = Result<(ConcreteJobRef, Job), Option<anyhow::Error>>;
+
 impl JobStack {
     /// Apply the job ref instruction to determine the job to run, updating the stack.
     ///
-    /// When no job is returned, the application is supposed to quit.
+    /// See [`JobResult`] for meanings of return values.
     pub fn pick_job(
         &mut self,
         job_ref: &JobRef,
         settings: &Settings,
-    ) -> Result<Option<(ConcreteJobRef, Job)>> {
+    ) -> JobResult {
         debug!("picking job {job_ref:?}");
         let concrete = match job_ref {
             JobRef::Default => settings.default_job.clone(),
@@ -30,7 +33,7 @@ impl JobStack {
                 .as_ref()
                 .unwrap_or(&settings.default_job)
                 .clone(),
-            JobRef::Previous => {
+            JobRef::PreviousOrQuit | JobRef::Previous => {
                 let current = self.entries.pop();
                 match self.entries.pop() {
                     Some(concrete) => concrete,
@@ -45,7 +48,16 @@ impl JobStack {
                         }
                     }
                     None => {
-                        return Ok(None);
+                        if let JobRef::PreviousOrQuit = job_ref {
+                            return Err(None);
+                        }
+
+                        // this has a side effect of reloading the job, which isn't ideal
+                        // but the main loop needs some mission to avoid spinning forever
+                        ConcreteJobRef {
+                            name_or_alias: current.unwrap().name_or_alias,
+                            scope: Scope::default(),
+                        }
                     }
                 }
             }
@@ -56,7 +68,7 @@ impl JobStack {
                     scope: scope.clone(),
                 },
                 None => {
-                    return Ok(None);
+                    return Err(None);
                 }
             },
         };
@@ -71,6 +83,6 @@ impl JobStack {
         if self.entries.last() != Some(&concrete) {
             self.entries.push(concrete.clone());
         }
-        Ok(Some((concrete, job)))
+        Ok((concrete, job))
     }
 }

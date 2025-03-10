@@ -63,11 +63,10 @@ pub fn run(
     let mut next_job = JobRef::Initial;
     let mut message = None;
     loop {
-        let (concrete_job_ref, job) = match job_stack.pick_job(&next_job, &settings)? {
-            Some(t) => t,
-            None => {
-                break;
-            }
+        let (concrete_job_ref, job) = match job_stack.pick_job(&next_job, &settings) {
+            Ok(t) => t,
+            Err(None) => break,
+            Err(Some(err)) => return Err(err),
         };
         let mission = location.mission(concrete_job_ref, &job, &settings)?;
         let do_after =
@@ -270,9 +269,14 @@ fn run_mission(
                         .push(Message::short(format!("Export *{}* done", &export_name)));
                 }
                 Action::Internal(internal) => match internal {
-                    Internal::Back => {
+                    Internal::BackOrQuit | Internal::Back => {
                         if !state.back() {
-                            mission_end = Some(DoAfterMission::NextJob(JobRef::Previous));
+                            let job_ref = if let Internal::Back = internal {
+                                JobRef::Previous
+                            } else {
+                                JobRef::PreviousOrQuit
+                            };
+                            mission_end = Some(DoAfterMission::NextJob(job_ref));
                         }
                     }
                     Internal::CopyUnstyledOutput => {

@@ -9,6 +9,7 @@ pub enum JobRef {
     Default,
     Initial,
     Previous,
+    PreviousOrQuit,
     Concrete(ConcreteJobRef),
     Scope(Scope),
 }
@@ -46,6 +47,7 @@ impl fmt::Display for JobRef {
             Self::Default => write!(f, "default"),
             Self::Initial => write!(f, "initial"),
             Self::Previous => write!(f, "previous"),
+            Self::PreviousOrQuit => write!(f, "previous-or-quit"),
             Self::Scope(Scope { tests }) => write!(f, "scope:{}", tests.join(",")),
             Self::Concrete(concrete) => write!(f, "{}", concrete),
         }
@@ -58,6 +60,7 @@ impl From<&str> for JobRef {
             "^default$"i => Self::Default,
             "^initial$"i => Self::Initial,
             "^previous$"i => Self::Previous,
+            "^previous-or-quit$"i => Self::PreviousOrQuit,
             "^scope:(?<tests>.+)$"i => Self::Scope(Scope {
                 tests: tests
                     .split(',')
@@ -76,6 +79,7 @@ fn test_job_ref_string_round_trip() {
         JobRef::Default,
         JobRef::Initial,
         JobRef::Previous,
+        JobRef::PreviousOrQuit,
         JobRef::Concrete(ConcreteJobRef {
             name_or_alias: NameOrAlias::Name("run".to_string()),
             scope: Scope::default(),

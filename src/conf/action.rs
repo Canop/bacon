@@ -142,6 +142,7 @@ fn test_action_string_round_trip() {
     let actions = vec![
         Action::Job(JobRef::Default),
         Action::Job(JobRef::Initial),
+        Action::Job(JobRef::PreviousOrQuit),
         Action::Job(JobRef::Previous),
         Action::Job(JobRef::Concrete(ConcreteJobRef {
             name_or_alias: NameOrAlias::Name("run".to_string()),
