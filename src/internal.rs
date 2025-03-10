@@ -111,10 +111,13 @@ impl fmt::Display for Internal {
             Self::Validate => write!(f, "validate"),
             Self::NextMatch => write!(f, "next-match"),
             Self::PreviousMatch => write!(f, "previous-match"),
-            Self::PlaySound(PlaySoundCommand { name, volume }) => {
+            Self::PlaySound(PlaySoundCommand { name, path, volume }) => {
                 write!(f, "play-sound(")?;
                 if let Some(name) = name {
                     write!(f, "name={},", name)?;
+                }
+                if let Some(path) = path {
+                    write!(f, "path={},", path)?;
                 }
                 write!(f, "volume={})", volume)
             }
@@ -159,11 +162,15 @@ impl std::str::FromStr for Internal {
                     let iter = regex_captures_iter!(r"([^=,]+)=([^=,]+)", props);
                     let mut volume = Volume::default();
                     let mut name = None;
+                    let mut path = None;
                     for (_, [prop_name, prop_value]) in iter.map(|c| c.extract()) {
                         let prop_value = prop_value.trim();
                         match prop_name.trim() {
                             "name" => {
                                 name = Some(prop_value.to_string());
+                            }
+                            "path" => {
+                                path = Some(prop_value.to_string());
                             }
                             "volume" => {
                                 volume = prop_value.parse()?;
@@ -173,7 +180,10 @@ impl std::str::FromStr for Internal {
                             }
                         }
                     }
-                    return Ok(Self::PlaySound(PlaySoundCommand { name, volume }));
+                    if name.is_some() && path.is_some() {
+                        return Err("invalid play-sound parameter: only one of name or path can be specified".to_string());
+                    }
+                    return Ok(Self::PlaySound(PlaySoundCommand { name, path, volume }));
                 }
                 Err("invalid internal".to_string())
             }
@@ -231,14 +241,17 @@ fn test_internal_string_round_trip() {
         Internal::PlaySound(PlaySoundCommand::default()),
         Internal::PlaySound(PlaySoundCommand {
             name: None,
+            path: None,
             volume: Volume::new(50),
         }),
         Internal::PlaySound(PlaySoundCommand {
             name: Some("beep-beep".to_string()),
+            path: None,
             volume: Volume::new(100),
         }),
         Internal::PlaySound(PlaySoundCommand {
             name: None,
+            path: None,
             volume: Volume::new(0),
         }),
     ];
@@ -260,6 +273,7 @@ fn test_play_sound_parsing_with_space() {
     ];
     let psc = PlaySoundCommand {
         name: Some("car-horn".to_string()),
+        path: None,
         volume: Volume::new(5),
     };
     for string in &strings {
