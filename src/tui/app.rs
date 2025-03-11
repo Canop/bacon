@@ -63,11 +63,8 @@ pub fn run(
     let mut next_job = JobRef::Initial;
     let mut message = None;
     loop {
-        let (concrete_job_ref, job) = match job_stack.pick_job(&next_job, &settings)? {
-            Some(t) => t,
-            None => {
-                break;
-            }
+        let Some((concrete_job_ref, job)) = job_stack.pick_job(&next_job, &settings)? else {
+            break;
         };
         let mission = location.mission(concrete_job_ref, &job, &settings)?;
         let do_after =
