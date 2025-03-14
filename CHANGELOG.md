@@ -1,4 +1,5 @@
-### next
+<a name="v3.12.0"></a>
+### v3.12.0 - 2025/03/14
 - cargo-json analyzer (for bacon-ls): fix invalid spans for errors from proc-macros - Fix #332 - Thanks @Leandros
 - `back` action, usually mapped to the `esc` key, no longer quits on first job. If you want the old behavior, add this binding: `esc = "back-or-quit"`. Fix #338 - Thanks @ian-h-chamberlain
 
