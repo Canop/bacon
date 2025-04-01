@@ -1,6 +1,6 @@
 use {
     super::*,
-    rodio::{OutputStream, Decoder, Source},
+    rodio::{OutputStreamBuilder, Decoder, Source},
     std::{
         fmt,
         collections::HashMap,
@@ -187,20 +187,28 @@ pub fn play_sound(
         psc.name.as_deref()
     };
     let Sound { bytes, duration } = get_sound(name)?;
-    let (_stream, stream_handle) = OutputStream::try_default()?;
+    let stream = OutputStreamBuilder::from_default_device()?.open_stream()?;
     let sound = Cursor::new(bytes);
-    let decoder = Decoder::new(sound.clone())?;
+    let decoder = Decoder::builder()
+        .with_data(sound.clone())
+        .with_byte_len(bytes.len() as u64)
+        .build()?;
     let duration = if duration == Duration::ZERO {
-        decoder.total_duration()
+        let duration = decoder.total_duration();
+        info!("sound duration not predefined, decoder reports {duration:?}");
+        duration
     } else {
+        info!("sound duration: {duration:?}");
         Some(duration)
     };
-    let sink = stream_handle.play_once(sound)?;
+    let mixer = stream.mixer();
+    let sink = rodio::play(mixer, sound)?;
     sink.set_volume(psc.volume.as_part());
-    if duration.is_some() && interrupt.recv_timeout(duration.unwrap()).is_ok() {
-        info!("sound interrupted");
-        Err(SoundError::Interrupted)
-    } else {
-        Ok(())
+    if interrupt.recv_timeout(duration.unwrap_or(Duration::MAX)).is_ok() {
+        if duration.is_some() {
+            info!("sound interrupted");
+            return Err(SoundError::Interrupted)
+        }
     }
+    Ok(())
 }
