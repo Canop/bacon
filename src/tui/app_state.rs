@@ -317,8 +317,7 @@ impl<'s> AppState<'s> {
         }
         match &cmd_result {
             CommandResult::Report(report) => {
-                debug!("Got report");
-                info!("Stats: {:#?}", report.stats);
+                debug!("Got report - Stats: {:#?}", report.stats);
             }
             CommandResult::Failure(_) => {
                 debug!("Got failure");
@@ -819,16 +818,13 @@ impl<'s> AppState<'s> {
                                     trange: *continued,
                                     style,
                                 });
-                                info!("pending_continuation: {:?}", &pending_continuation);
                             }
                         }
                         if let Some(continuation) = previous_continuation {
-                            info!("APPLY continuation {:#?}", &continuation);
                             modified.change_range_style(
                                 continuation.trange,
                                 continuation.style.to_string(),
                             );
-                            info!(" -> modified: {:#?}", &modified);
                         }
                         tline = &modified;
                     }

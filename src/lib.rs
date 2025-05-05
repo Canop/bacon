@@ -13,6 +13,8 @@ mod jobs;
 mod mission;
 mod result;
 mod search;
+#[cfg(unix)]
+mod server;
 mod sound;
 mod tty;
 mod tui;
@@ -38,6 +40,9 @@ pub use {
     tui::*,
     watcher::*,
 };
+
+#[cfg(unix)]
+pub use server::Server;
 
 #[macro_use]
 extern crate cli_log;

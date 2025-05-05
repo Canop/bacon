@@ -96,6 +96,16 @@ pub struct Args {
     #[clap(long)]
     pub init: bool,
 
+    /// Listen on a unix socket for commands
+    #[cfg(unix)]
+    #[clap(long)]
+    pub listen: bool,
+
+    /// Don't listen on a unix socket for commands
+    #[cfg(unix)]
+    #[clap(long)]
+    pub no_listen: bool,
+
     /// Job to launch: `check`, `clippy`, custom ones...
     #[clap(short = 'j', long, value_name = "job", add = ArgValueCandidates::new(crate::cli::completions::list_jobs))]
     pub job: Option<ConcreteJobRef>,

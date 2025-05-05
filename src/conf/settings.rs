@@ -32,6 +32,8 @@ pub struct Settings {
     pub reverse: bool,
     pub summary: bool,
     pub wrap: bool,
+    /// Whether to listen for actions on a unix socket (if on unix)
+    pub listen: bool,
     pub all_jobs: Job,
 }
 
@@ -53,6 +55,7 @@ impl Default for Settings {
             default_job: Default::default(),
             exports: Default::default(),
             config_files: Default::default(),
+            listen: false,
             all_jobs: Default::default(),
         }
     }
@@ -163,6 +166,9 @@ impl Settings {
         if let Some(default_job) = &config.default_job {
             self.default_job = default_job.clone();
         }
+        if let Some(listen) = config.listen {
+            self.listen = listen;
+        }
         self.exports.apply_config(config);
     }
     pub fn apply_args(
@@ -210,6 +216,12 @@ impl Settings {
         }
         if args.features.is_some() {
             self.features.clone_from(&args.features);
+        }
+        if args.listen {
+            self.listen = true;
+        }
+        if args.no_listen {
+            self.listen = false;
         }
         self.additional_job_args
             .clone_from(&args.additional_job_args);

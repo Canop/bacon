@@ -14,7 +14,7 @@ use {
     },
 };
 
-/// An action that can be mapped to a key
+/// An action that can be executed in the system, eg mapped to a key.
 ///
 /// While it's not really specified, export names, just like
 /// job names, must be gentle enough so as to be correctly parsed
