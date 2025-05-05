@@ -16,7 +16,7 @@ pub struct EslintLineAnalyzer;
 
 impl LineAnalyzer for EslintLineAnalyzer {
     fn analyze_line(
-        &self,
+        &mut self,
         cmd_line: &CommandOutputLine,
     ) -> LineAnalysis {
         if is_line_col_error_line(&cmd_line.content) {

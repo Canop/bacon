@@ -5,7 +5,7 @@ use {
 
 pub fn build_report<L: LineAnalyzer>(
     cmd_lines: &[CommandOutputLine],
-    line_analyzer: L,
+    mut line_analyzer: L,
 ) -> anyhow::Result<Report> {
     #[derive(Debug, Default)]
     struct Failure {

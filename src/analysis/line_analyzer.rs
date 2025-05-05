@@ -4,7 +4,7 @@ use crate::*;
 pub trait LineAnalyzer {
     /// this function will disappear
     fn analyze_line(
-        &self,
+        &mut self,
         line: &CommandOutputLine,
     ) -> LineAnalysis;
 }

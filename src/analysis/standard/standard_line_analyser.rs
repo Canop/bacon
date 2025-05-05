@@ -13,7 +13,7 @@ pub struct StandardLineAnalyzer;
 
 impl LineAnalyzer for StandardLineAnalyzer {
     fn analyze_line(
-        &self,
+        &mut self,
         cmd_line: &CommandOutputLine,
     ) -> LineAnalysis {
         analyze_line(cmd_line)
@@ -22,7 +22,6 @@ impl LineAnalyzer for StandardLineAnalyzer {
 
 fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
     let content = &cmd_line.content;
-    //debug!("content: {:?}", &content);
     let mut key = None;
     let line_type = if cmd_line.content.is_blank() {
         LineType::Normal
@@ -123,7 +122,7 @@ fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
             }
             (Some(content), None) => {
                 if regex_is_match!(
-                    r#"^thread '.+' panicked at [^:\s'"]+:\d+:\d+:$"#,
+                    r#"^\s*thread '.+' panicked at [^:\s'"]+:\d+:\d+:$"#,
                     &content.raw
                 ) {
                     // this comes up in nextest failures
@@ -197,7 +196,7 @@ fn as_test_name(s: &str) -> Option<&str> {
 /// (in this case, the " - should panic" part isn't in the key, see #95)
 fn as_test_result(s: &str) -> Option<(&str, bool)> {
     regex_captures!(
-        r#"^(?:test\s+)?(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s+(\w+)$"#,
+        r#"^\s*(?:test\s+)?(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s+(\w+)$"#,
         s
     )
     .and_then(|(_, key, outcome)| match outcome {

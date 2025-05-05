@@ -41,7 +41,7 @@ impl Analyzer for EslintAnalyzer {
 /// before the errors of the file, each error coming with the line and column
 /// in the file.
 pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
-    let line_analyzer = EslintLineAnalyzer {};
+    let mut line_analyzer = EslintLineAnalyzer {};
     let mut items = ItemAccumulator::default();
     let mut last_location_path = None;
     for cmd_line in cmd_lines {
