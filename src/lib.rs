@@ -14,7 +14,7 @@ mod mission;
 mod result;
 mod search;
 #[cfg(unix)]
-mod server;
+mod socket;
 mod sound;
 mod tty;
 mod tui;
@@ -42,7 +42,7 @@ pub use {
 };
 
 #[cfg(unix)]
-pub use server::Server;
+pub use socket::*;
 
 #[macro_use]
 extern crate cli_log;

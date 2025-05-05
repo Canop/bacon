@@ -62,6 +62,7 @@ pub fn run(
             ..Default::default()
         })?)
     };
+    #[allow(unused_variables)]
     let (action_tx, action_rx) = termimad::crossbeam::channel::unbounded();
     #[cfg(unix)]
     let _server = if settings.listen {

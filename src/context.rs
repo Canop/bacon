@@ -227,6 +227,9 @@ impl Context {
     pub fn package_dot_config_path(&self) -> PathBuf {
         self.package_directory.join(".config/bacon.toml")
     }
+    pub fn unix_socket_path(&self) -> PathBuf {
+        self.package_directory.join(".bacon.socket")
+    }
 }
 
 fn add_to_paths_to_watch(

@@ -26,7 +26,7 @@ impl Server {
         context: &Context,
         tx: Sender<Action>,
     ) -> Result<Self> {
-        let path = context.package_directory.join("bacon.socket");
+        let path = context.unix_socket_path();
         if fs::metadata(&path).is_ok() {
             fs::remove_file(&path)
                 .with_context(|| format!("Failed to remove socket file {}", &path.display()))?;

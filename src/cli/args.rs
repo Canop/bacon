@@ -106,6 +106,11 @@ pub struct Args {
     #[clap(long)]
     pub no_listen: bool,
 
+    /// Send a command on bacon's unix socket
+    #[cfg(unix)]
+    #[clap(long)]
+    pub send: Option<String>,
+
     /// Job to launch: `check`, `clippy`, custom ones...
     #[clap(short = 'j', long, value_name = "job", add = ArgValueCandidates::new(crate::cli::completions::list_jobs))]
     pub job: Option<ConcreteJobRef>,

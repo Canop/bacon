@@ -217,11 +217,14 @@ impl Settings {
         if args.features.is_some() {
             self.features.clone_from(&args.features);
         }
-        if args.listen {
-            self.listen = true;
-        }
-        if args.no_listen {
-            self.listen = false;
+        #[cfg(unix)]
+        {
+            if args.listen {
+                self.listen = true;
+            }
+            if args.no_listen {
+                self.listen = false;
+            }
         }
         self.additional_job_args
             .clone_from(&args.additional_job_args);
