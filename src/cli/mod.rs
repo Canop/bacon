@@ -87,6 +87,7 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
 
+    #[cfg(unix)]
     if let Some(action) = &args.send {
         socket::send_action(&context, action)?;
         return Ok(());

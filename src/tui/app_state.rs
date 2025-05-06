@@ -125,6 +125,19 @@ impl<'s> AppState<'s> {
             search: Default::default(),
         })
     }
+    pub fn focus_file(
+        &mut self,
+        ffc: &FocusFileCommand,
+    ) {
+        if let CommandResult::Report(report) = &mut self.cmd_result {
+            report.focus_file(ffc);
+            if self.wrap {
+                self.wrapped_report = None;
+                self.update_wrap(self.width - 1);
+            }
+            self.reset_scroll();
+        }
+    }
     pub fn focus_search(&mut self) {
         self.search.focus_with_mode(SearchMode::Pattern);
         self.show_selected_found();

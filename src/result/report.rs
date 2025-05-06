@@ -2,6 +2,7 @@ use {
     crate::*,
     anyhow::Result,
     lazy_regex::*,
+    rustc_hash::FxHashSet,
     serde::{
         Deserialize,
         Serialize,
@@ -43,6 +44,36 @@ impl Report {
         !(self.stats.errors != 0
             || (!allow_failures && self.stats.test_fails != 0)
             || (!allow_warnings && self.stats.warnings != 0))
+    }
+
+    pub fn focus_file(
+        &mut self,
+        ffc: &FocusFileCommand,
+    ) {
+        let focused_idxs = self
+            .lines
+            .iter()
+            .filter(|line| {
+                line.location()
+                    .is_some_and(|location| ffc.matches(location))
+            })
+            .map(|line| line.item_idx)
+            .collect::<FxHashSet<_>>();
+        let is_reversed = self.lines.first().map_or(0, |line| line.item_idx)
+            > self.lines.last().map_or(0, |line| line.item_idx);
+        let cmp = |a: &Line, b: &Line| match (
+            focused_idxs.contains(&a.item_idx),
+            focused_idxs.contains(&b.item_idx),
+        ) {
+            (true, false) => std::cmp::Ordering::Less,
+            (false, true) => std::cmp::Ordering::Greater,
+            _ => a.item_idx.cmp(&b.item_idx),
+        };
+        if is_reversed {
+            self.lines.sort_by(|a, b| cmp(b, a));
+        } else {
+            self.lines.sort_by(cmp);
+        }
     }
 
     /// Extract all the diagnostic context, that is all the normal lines

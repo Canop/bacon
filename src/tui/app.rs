@@ -307,6 +307,9 @@ fn run_mission(
                     Internal::PreviousMatch => {
                         state.previous_match();
                     }
+                    Internal::FocusFile(focus_file_command) => {
+                        state.focus_file(&focus_file_command);
+                    }
                     Internal::FocusSearch => {
                         state.focus_search();
                     }
