@@ -99,7 +99,10 @@ impl NextestLineAnalyzer {
     ) -> Option<String> {
         let mut strings = content.strings.iter().skip_while(|ts| ts.is_blank());
         let ts = strings.next()?;
-        if ts.csi != CSI_ERROR || (ts.raw != "stderr" && ts.raw != "stdout") {
+        if ts.csi != CSI_ERROR {
+            return None;
+        }
+        if ts.raw != "stderr" && ts.raw != "stdout" && ts.raw != "output" {
             return None;
         }
         let ts = strings.next()?;
