@@ -23,7 +23,7 @@ use {
 /// A more generic parsing would have to:
 /// - parse the csi params (it's simple enough to map but takes code)
 /// - use a simple state machine to keep style (bold, italic, etc.),
-///    foreground color, and background color across tstrings
+///   foreground color, and background color across tstrings
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TString {
     pub csi: String,

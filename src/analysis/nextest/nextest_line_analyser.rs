@@ -13,18 +13,20 @@ const CSI_ERROR: &str = "\u{1b}[31;1m";
 #[derive(Debug, Default)]
 pub struct NextestLineAnalyzer {
     default_analyzer: StandardLineAnalyzer,
+    last_test_key: Option<String>,
 }
 
 impl LineAnalyzer for NextestLineAnalyzer {
     fn analyze_line(
-        &self,
+        &mut self,
         cmd_line: &CommandOutputLine,
     ) -> LineAnalysis {
         let content = &cmd_line.content;
-        if let Some(key) = title_key(content).or_else(|| title_key_v2(content)) {
+        if let Some(key) = self.stdx_section_key(content) {
             return LineAnalysis::title_key(Kind::TestFail, key);
         }
         if let Some((key, pass)) = as_test_result(content) {
+            self.last_test_key = Some(key.clone());
             return LineAnalysis::test_result(key, pass);
         }
         if is_canceling(content) {
@@ -32,6 +34,9 @@ impl LineAnalyzer for NextestLineAnalyzer {
         }
         if is_error_test_run_failed(content) {
             return LineAnalysis::of_type(LineType::Garbage);
+        }
+        if is_location_v3(content) {
+            return LineAnalysis::of_type(LineType::Location);
         }
         if let Some(content) = cmd_line.content.if_unstyled() {
             if regex_is_match!(r"^running \d+ tests?$", content) {
@@ -48,31 +53,97 @@ impl LineAnalyzer for NextestLineAnalyzer {
         self.default_analyzer.analyze_line(cmd_line)
     }
 }
-
-fn title_key(content: &TLine) -> Option<String> {
-    title_key_v1(content).or_else(|| title_key_v2(content))
-}
-/// Return the key when the line is like "--- STD(OUT|ERR): somekey ---"
-fn title_key_v1(content: &TLine) -> Option<String> {
-    let mut strings = content.strings.iter();
-    let first = strings.next()?;
-    if !regex_is_match!(r"^--- STD(OUT|ERR):\s*", &first.raw) {
-        return None;
+impl NextestLineAnalyzer {
+    fn stdx_section_key(
+        &self,
+        content: &TLine,
+    ) -> Option<String> {
+        self.stdx_section_key_v1(content)
+            .or_else(|| self.stdx_section_key_v2(content))
+            .or_else(|| self.stdx_section_key_v3(content))
     }
-    extract_key_after_crate_name_v1(strings)
-}
-/// Return the key when the line is like "──── STD(OUT|ERR): cratename some::key"
-fn title_key_v2(content: &TLine) -> Option<String> {
-    let mut strings = content.strings.iter();
-    let ts = strings.next()?;
-    if ts.csi != CSI_ERROR || ts.raw != "────" {
-        return None;
+    /// Return the key when the line is like "--- STD(OUT|ERR): somekey ---"
+    fn stdx_section_key_v1(
+        &self,
+        content: &TLine,
+    ) -> Option<String> {
+        let mut strings = content.strings.iter();
+        let first = strings.next()?;
+        if !regex_is_match!(r"^--- STD(OUT|ERR):\s*", &first.raw) {
+            return None;
+        }
+        extract_key_after_crate_name_v1(strings)
     }
-    let ts = strings.find(|ts| ts.raw != " ")?;
-    if !regex_is_match!(r"^STD(OUT|ERR):\s*", &ts.raw) {
-        return None;
+    /// Return the key when the line is like "──── STD(OUT|ERR): cratename some::key"
+    fn stdx_section_key_v2(
+        &self,
+        content: &TLine,
+    ) -> Option<String> {
+        let mut strings = content.strings.iter();
+        let ts = strings.next()?;
+        if ts.csi != CSI_ERROR || ts.raw != "────" {
+            return None;
+        }
+        let ts = strings.find(|ts| ts.raw != " ")?;
+        if !regex_is_match!(r"^STD(OUT|ERR):\s*", &ts.raw) {
+            return None;
+        }
+        extract_key_after_crate_name_v2(strings)
     }
-    extract_key_after_crate_name_v2(strings)
+    /// Return the last test key when the line is like either
+    ///  - "──── stderr"
+    ///  - "── stderr ──" (with --no-output-indent)
+    /// (with stderr maybe replaced by stdout or output)
+    ///
+    /// This supports nextest 0.9.95+ (see https://github.com/Canop/bacon/issues/350)
+    fn stdx_section_key_v3(
+        &self,
+        content: &TLine,
+    ) -> Option<String> {
+        let mut strings = content.strings.iter().skip_while(|ts| ts.is_blank());
+        let ts = strings.next()?;
+        if ts.csi != CSI_ERROR {
+            return None;
+        }
+        if ts.raw == "──" {
+            // checking the --no-output-indent case
+            let ts = strings.next()?;
+            if !ts.is_blank() {
+                return None;
+            }
+            let ts = strings.next()?;
+            if ts.csi != CSI_ERROR {
+                return None;
+            }
+            if ts.raw != "stderr" && ts.raw != "stdout" && ts.raw != "output" {
+                return None;
+            }
+            let ts = strings.next()?;
+            if !ts.is_blank() {
+                return None;
+            }
+            let ts = strings.next()?;
+            if ts.csi != CSI_ERROR || ts.raw != "──" {
+                return None;
+            }
+        } else if ts.raw == "stderr" || ts.raw == "stdout" || ts.raw == "output" {
+            // checking the default case
+            let ts = strings.next()?;
+            if !ts.is_blank() {
+                return None;
+            }
+            let ts = strings.next()?;
+            if ts.csi != CSI_ERROR || ts.raw != "───" {
+                return None;
+            }
+        } else {
+            return None;
+        }
+        if strings.next().is_some() {
+            return None;
+        }
+        self.last_test_key.clone()
+    }
 }
 
 fn extract_key_after_crate_name_v1(mut strings: std::slice::Iter<'_, TString>) -> Option<String> {
@@ -106,6 +177,19 @@ fn extract_key_after_crate_name_v2(mut strings: std::slice::Iter<'_, TString>) -
     if key.is_empty() { None } else { Some(key) }
 }
 
+fn is_location_v3(content: &TLine) -> bool {
+    let mut strings = content.strings.iter().skip_while(|ts| ts.is_blank());
+    let Some(ts) = strings.next() else {
+        return false;
+    };
+    if ts.csi != CSI_ERROR {
+        return false;
+    }
+    regex_is_match!(
+        r#"^\s*thread '.+' panicked at [^:\s'"]+:\d+:\d+:$"#,
+        &ts.raw
+    )
+}
 fn is_error_test_run_failed(content: &TLine) -> bool {
     let mut strings = content.strings.iter();
     let (Some(first), Some(second), None) = (strings.next(), strings.next(), strings.next()) else {
@@ -166,7 +250,8 @@ fn as_test_result_v2(content: &TLine) -> Option<(String, bool)> {
 }
 
 #[test]
-fn test_title_key_v1() {
+fn test_stdx_section_key_v1() {
+    let analyzer = NextestLineAnalyzer::default();
     let content = TLine {
         strings: vec![
             TString::new("\u{1b}[35;1m", "--- STDOUT:              bacon-test"),
@@ -177,7 +262,7 @@ fn test_title_key_v1() {
         ],
     };
     assert_eq!(
-        title_key_v1(&content),
+        analyzer.stdx_section_key_v1(&content),
         Some("tests::failing_test3".to_string())
     );
     let content = TLine {
@@ -190,7 +275,7 @@ fn test_title_key_v1() {
         ],
     };
     assert_eq!(
-        title_key_v1(&content),
+        analyzer.stdx_section_key_v1(&content),
         Some("analysis::nextest_analyzer::test_as_test_result".to_string())
     );
 }
