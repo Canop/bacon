@@ -1,3 +1,6 @@
+### next
+- add support for nextest 0.9.95 - Fix #350
+
 <a name="v3.12.0"></a>
 ### v3.12.0 - 2025/03/14
 - cargo-json analyzer (for bacon-ls): fix invalid spans for errors from proc-macros - Fix #332 - Thanks @Leandros
