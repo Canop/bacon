@@ -90,9 +90,12 @@ impl NextestLineAnalyzer {
         }
         extract_key_after_crate_name_v2(strings)
     }
-    /// Return the last test key when the line is like "──── std(out|err)"
-    /// For nextest 0.9.95+ (see https://github.com/Canop/bacon/issues/350)
+    /// Return the last test key when the line is like either
+    ///  - "──── stderr"
+    ///  - "── stderr ──" (with --no-output-indent)
+    /// (with stderr maybe replaced by stdout or output)
     ///
+    /// This supports nextest 0.9.95+ (see https://github.com/Canop/bacon/issues/350)
     fn stdx_section_key_v3(
         &self,
         content: &TLine,
@@ -102,15 +105,38 @@ impl NextestLineAnalyzer {
         if ts.csi != CSI_ERROR {
             return None;
         }
-        if ts.raw != "stderr" && ts.raw != "stdout" && ts.raw != "output" {
-            return None;
-        }
-        let ts = strings.next()?;
-        if !ts.is_blank() {
-            return None;
-        }
-        let ts = strings.next()?;
-        if ts.csi != CSI_ERROR || ts.raw != "───" {
+        if ts.raw == "──" {
+            // checking the --no-output-indent case
+            let ts = strings.next()?;
+            if !ts.is_blank() {
+                return None;
+            }
+            let ts = strings.next()?;
+            if ts.csi != CSI_ERROR {
+                return None;
+            }
+            if ts.raw != "stderr" && ts.raw != "stdout" && ts.raw != "output" {
+                return None;
+            }
+            let ts = strings.next()?;
+            if !ts.is_blank() {
+                return None;
+            }
+            let ts = strings.next()?;
+            if ts.csi != CSI_ERROR || ts.raw != "──" {
+                return None;
+            }
+        } else if ts.raw == "stderr" || ts.raw == "stdout" || ts.raw == "output" {
+            // checking the default case
+            let ts = strings.next()?;
+            if !ts.is_blank() {
+                return None;
+            }
+            let ts = strings.next()?;
+            if ts.csi != CSI_ERROR || ts.raw != "───" {
+                return None;
+            }
+        } else {
             return None;
         }
         if strings.next().is_some() {

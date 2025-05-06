@@ -253,7 +253,7 @@ fn run_mission(
             }
         }
         for action in actions.drain(..) {
-            info!("requested action: {action:?}");
+            debug!("requested action: {action:?}");
             match action {
                 Action::Export(export_name) => {
                     let export_name = export_name.to_string();
