@@ -10,7 +10,10 @@ use {
         EventSource,
         EventSourceOptions,
         Ticker,
-        crossbeam::channel::select,
+        crossbeam::channel::{
+            Receiver,
+            select,
+        },
         crossterm::event::Event,
     },
 };
@@ -41,7 +44,7 @@ pub fn run(
     w: &mut W,
     mut settings: Settings,
     args: &Args,
-    location: Context,
+    context: Context,
     headless: bool,
 ) -> Result<()> {
     let event_source = if headless {
@@ -59,6 +62,14 @@ pub fn run(
             ..Default::default()
         })?)
     };
+    #[allow(unused_variables)]
+    let (action_tx, action_rx) = termimad::crossbeam::channel::unbounded();
+    #[cfg(unix)]
+    let _server = if settings.listen {
+        Some(Server::new(&context, action_tx.clone())?)
+    } else {
+        None
+    };
     let mut job_stack = JobStack::default();
     let mut next_job = JobRef::Initial;
     let mut message = None;
@@ -66,14 +77,20 @@ pub fn run(
         let Some((concrete_job_ref, job)) = job_stack.pick_job(&next_job, &settings)? else {
             break;
         };
-        let mission = location.mission(concrete_job_ref, &job, &settings)?;
-        let do_after =
-            app::run_mission(w, mission, event_source.as_ref(), message.take(), headless)?;
+        let mission = context.mission(concrete_job_ref, &job, &settings)?;
+        let do_after = app::run_mission(
+            w,
+            mission,
+            event_source.as_ref(),
+            action_rx.clone(),
+            message.take(),
+            headless,
+        )?;
         match do_after {
             DoAfterMission::NextJob(job_ref) => {
                 next_job = job_ref;
             }
-            DoAfterMission::ReloadConfig => match Settings::read(args, &location) {
+            DoAfterMission::ReloadConfig => match Settings::read(args, &context) {
                 Ok(new_settings) => {
                     settings = new_settings;
                     message = Some(Message::short("Config reloaded"));
@@ -95,6 +112,7 @@ fn run_mission(
     w: &mut W,
     mission: Mission,
     event_source: Option<&EventSource>,
+    action_rx: Receiver<Action>,
     message: Option<Message>,
     headless: bool,
 ) -> Result<DoAfterMission> {
@@ -251,6 +269,9 @@ fn run_mission(
                     event_source.unblock(false);
                 }
             }
+            recv(action_rx) -> action => {
+                actions.push(action?);
+            }
         }
         for action in actions.drain(..) {
             debug!("requested action: {action:?}");
@@ -285,6 +306,9 @@ fn run_mission(
                     }
                     Internal::PreviousMatch => {
                         state.previous_match();
+                    }
+                    Internal::FocusFile(focus_file_command) => {
+                        state.focus_file(&focus_file_command);
                     }
                     Internal::FocusSearch => {
                         state.focus_search();

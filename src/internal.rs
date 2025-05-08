@@ -1,9 +1,5 @@
 use {
-    crate::{
-        PlaySoundCommand,
-        ScrollCommand,
-        Volume,
-    },
+    crate::*,
     lazy_regex::*,
     serde::{
         Deserialize,
@@ -25,6 +21,7 @@ pub enum Internal {
     Back,       // leave help, clear search, go to previous job, leave, etc.
     BackOrQuit, // same as Back but quits if there is nothing to go back to
     CopyUnstyledOutput,
+    FocusFile(FocusFileCommand),
     FocusSearch,
     FocusGoto,
     Help,
@@ -57,6 +54,7 @@ impl Internal {
                 "back to previous page or job, quitting if there is none".to_string()
             }
             Self::CopyUnstyledOutput => "copy current job's output".to_string(),
+            Self::FocusFile(fc) => fc.doc(),
             Self::FocusSearch => "focus search".to_string(),
             Self::FocusGoto => "focus goto".to_string(),
             Self::Help => "help".to_string(),
@@ -106,6 +104,9 @@ impl fmt::Display for Internal {
             Self::ToggleSummary => write!(f, "toggle-summary"),
             Self::ToggleWrap => write!(f, "toggle-wrap"),
             Self::Unpause => write!(f, "unpause"),
+            Self::FocusFile(FocusFileCommand { file }) => {
+                write!(f, "focus-file({file})")
+            }
             Self::FocusSearch => write!(f, "focus-search"),
             Self::FocusGoto => write!(f, "focus-goto"),
             Self::Validate => write!(f, "validate"),
@@ -155,6 +156,7 @@ impl std::str::FromStr for Internal {
             "copy-unstyled-output" => Ok(Self::CopyUnstyledOutput),
             "play-sound" => Ok(Self::PlaySound(PlaySoundCommand::default())),
             _ => {
+                // play-sound, focus-file
                 if let Some((_, props)) = regex_captures!(r"^play[_-]sound\((.*)\)$", s) {
                     let iter = regex_captures_iter!(r"([^=,]+)=([^=,]+)", props);
                     let mut volume = Volume::default();
@@ -174,6 +176,11 @@ impl std::str::FromStr for Internal {
                         }
                     }
                     return Ok(Self::PlaySound(PlaySoundCommand { name, volume }));
+                }
+                if let Some((_, file)) = regex_captures!(r"^focus[_-]file\((.*)\)$", s) {
+                    return Ok(Self::FocusFile(FocusFileCommand {
+                        file: file.trim().to_string(),
+                    }));
                 }
                 Err("invalid internal".to_string())
             }

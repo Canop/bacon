@@ -49,6 +49,9 @@ pub struct Config {
     #[deprecated(since = "2.0.0", note = "use keybindings")]
     pub vim_keys: Option<bool>,
 
+    /// Whether to listen for actions on a unix socket (if on unix)
+    pub listen: Option<bool>,
+
     pub wrap: Option<bool>,
 }
 

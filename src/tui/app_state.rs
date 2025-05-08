@@ -125,6 +125,19 @@ impl<'s> AppState<'s> {
             search: Default::default(),
         })
     }
+    pub fn focus_file(
+        &mut self,
+        ffc: &FocusFileCommand,
+    ) {
+        if let CommandResult::Report(report) = &mut self.cmd_result {
+            report.focus_file(ffc);
+            if self.wrap {
+                self.wrapped_report = None;
+                self.update_wrap(self.width - 1);
+            }
+            self.reset_scroll();
+        }
+    }
     pub fn focus_search(&mut self) {
         self.search.focus_with_mode(SearchMode::Pattern);
         self.show_selected_found();
@@ -317,8 +330,7 @@ impl<'s> AppState<'s> {
         }
         match &cmd_result {
             CommandResult::Report(report) => {
-                debug!("Got report");
-                info!("Stats: {:#?}", report.stats);
+                debug!("Got report - Stats: {:#?}", report.stats);
             }
             CommandResult::Failure(_) => {
                 debug!("Got failure");
@@ -819,16 +831,13 @@ impl<'s> AppState<'s> {
                                     trange: *continued,
                                     style,
                                 });
-                                info!("pending_continuation: {:?}", &pending_continuation);
                             }
                         }
                         if let Some(continuation) = previous_continuation {
-                            info!("APPLY continuation {:#?}", &continuation);
                             modified.change_range_style(
                                 continuation.trange,
                                 continuation.style.to_string(),
                             );
-                            info!(" -> modified: {:#?}", &modified);
                         }
                         tline = &modified;
                     }
