@@ -150,6 +150,20 @@ You would call it with
 bacon ex -- example4578
 ```
 
+# Remote control
+
+Setting `listen = true` in the configuration makes bacon listen for commands (see [config/listen](../config#listen), unix systems only).
+
+It's possible to send commands with `bacon --send` launched in the same project.
+
+This can be used to add shortcuts controlling bacon in your favourite code editor.
+
+For example to launch clippy from vim on hitting <kbd>space</kbd><kbd>b</kbd><kbd>c</kbd>:
+
+```vim
+nnoremap <Leader>bc :execute ":%!bacon --send 'job:clippy'"<CR>`
+```
+
 # Specific Rust toolchain
 
 Bacon calls `cargo` under the hood to analyze the workspace, before even trying to run a job.

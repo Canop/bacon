@@ -1,5 +1,11 @@
 ### next
 - add support for nextest 0.9.95 - Fix #350
+- new `focus-file` internal. Example: `focus-file(some-partial-path)`
+### Remote Control
+With `listen = true` in configuration, bacon listens for actions in a unix socket on file `.bacon.socket` in the package directory.
+Goal is to allow controlling bacon from your code editor.
+A simple way to try it is to launch `socat - UNIX-CONNECT:bacon.socket` then issue actions ending in new lines.
+You may also use bacon with  `--send`, eg `bacon --send "job:clippy"`.
 
 <a name="v3.12.0"></a>
 ### v3.12.0 - 2025/03/14

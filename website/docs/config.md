@@ -174,6 +174,7 @@ internal | default binding | meaning
 back | <kbd>Esc</kbd> | get back to the previous page or job, or cancel search
 back-or-quit | | back to previous page or job, quitting if there is none
 copy-unstyled-output | | write the currently displayed job output to the clipboard
+focus-file(path) | | show this file's diagnostics first
 focus-search | <kbd>/</kbd> | focus the search input
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 next-match | <kbd>tab</kbd> | go to next search match
@@ -282,6 +283,14 @@ ctrl-e = "export:json-report"
 
 Have a look, at least once, at the default configuration files.
 They contain many other properties, commented out, that you may find useful.
+
+## listen
+
+Setting `listen = true` in the configuration makes bacon listen for commands on a `.bacon.socket` unix socket, in the package directory (i.e. next to the `.bacon-locations` file).
+
+Any action that can be bound to a key can also be sent on this socket, in text, one action per line.
+
+As a convenience, bacon can also be used to send those actions, eg `bacon --send 'scroll-lines(-2)'`.
 
 ## summary, wrap, reverse
 
