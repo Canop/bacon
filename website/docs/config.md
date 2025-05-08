@@ -332,4 +332,27 @@ on_success = "play-sound(name=90s-game-ui-6,volume=50)"
 on_failure = "play-sound(name=beep-warning,volume=100)"
 ```
 
-Sound name can be omitted. Possible values are `2`, `90s-game-ui-6`, `beep-6`, `beep-beep`, `beep-warning`, `bell-chord`, `car-horn`, `convenience-store-ring`, `cow-bells`, `pickup`, `positive-beeps`, `short-beep-tone`, `slash`, `store-scanner`, `success`.
+Sound name can be omitted.
+
+If the `default-sounds` feature is enabled, some pre-chosen sounds are available; their names are `2`, `90s-game-ui-6`, `beep-6`, `beep-beep`, `beep-warning`, `bell-chord`, `car-horn`, `convenience-store-ring`, `cow-bells`, `pickup`, `positive-beeps`, `short-beep-tone`, `slash`, `store-scanner`, `success`.
+
+Or, you can add your own sounds.
+
+Either use a direct path, eg
+
+```TOML
+on_success = "play-sound(path=media/bepop.mp3,volume=42)"
+```
+
+or, add sounds to a root level collection, eg
+
+```TOML
+[sound.collection]
+bepop = "~/audio/bepop.mp3"
+```
+
+then use its name in a job as usual, eg
+
+```TOML
+on_success = "play-sound(name=bepop,volume=42)"
+```

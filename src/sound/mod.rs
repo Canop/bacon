@@ -23,5 +23,6 @@ pub use {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub struct PlaySoundCommand {
     pub name: Option<String>,
+    pub path: Option<String>,
     pub volume: Volume,
 }

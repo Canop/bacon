@@ -36,7 +36,7 @@ Run this command too if you want to update bacon. Configuration has always been 
 
 Some features are disabled by default. You may enable them with
 
-    cargo install --features "clipboard sound"
+    cargo install --features "clipboard sound default-sounds"
 
 ## check the current project
 
@@ -116,6 +116,7 @@ Some bacon features can be disabled or enabled at compilation:
 
 * `"clipboard"` - disabled by default : necessary for the `copy-unstyled-output` internal
 * `"sound"` - disabled by default : necessary for the `play-sound` internal
+* `"default-sounds"` - disabled by default: embed some default sounds for the `play-sound` internal
 
 ## Licences
 
