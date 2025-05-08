@@ -119,14 +119,18 @@ pub(crate) fn add_sound(name: &str, path: &str) -> Result<(), SoundError> {
     let bytes: &'static [u8] = std::fs::read(&path)
         .map_err(|_| SoundError::MissingSoundFile(path.to_string()))?
         .leak();
-    // TODO: check for duration right here, or use Option?
-    // If to check, might as well replace `bytes` with decoded struct
-    SOUNDS.write().unwrap()
-        .insert(name.to_string().leak(), Sound {
-            bytes,
-            duration: Duration::ZERO,
-        });
-    info!("loaded sound {name:?} from {path:?}");
+
+    let decoder = Decoder::builder()
+        .with_data(Cursor::new(bytes))
+        .with_byte_len(bytes.len() as u64)
+        .build()?;
+    // Duration::MAX guarantees the sound is played. See discussion in
+    // https://github.com/Canop/bacon/pull/341
+    let duration = decoder.total_duration().unwrap_or(Duration::MAX);
+
+    SOUNDS.write().unwrap().insert(name.to_string().leak(), Sound { bytes, duration });
+
+    info!("loaded sound {name:?} from {path:?}, duration: {duration:?}");
     Ok(())
 }
 
@@ -189,26 +193,12 @@ pub fn play_sound(
     let Sound { bytes, duration } = get_sound(name)?;
     let stream = OutputStreamBuilder::from_default_device()?.open_stream()?;
     let sound = Cursor::new(bytes);
-    let decoder = Decoder::builder()
-        .with_data(sound.clone())
-        .with_byte_len(bytes.len() as u64)
-        .build()?;
-    let duration = if duration == Duration::ZERO {
-        let duration = decoder.total_duration();
-        info!("sound duration not predefined, decoder reports {duration:?}");
-        duration
-    } else {
-        info!("sound duration: {duration:?}");
-        Some(duration)
-    };
     let mixer = stream.mixer();
     let sink = rodio::play(mixer, sound)?;
     sink.set_volume(psc.volume.as_part());
-    if interrupt.recv_timeout(duration.unwrap_or(Duration::MAX)).is_ok() {
-        if duration.is_some() {
-            info!("sound interrupted");
-            return Err(SoundError::Interrupted)
-        }
+    if interrupt.recv_timeout(duration).is_ok() {
+        info!("sound interrupted");
+        return Err(SoundError::Interrupted)
     }
     Ok(())
 }
