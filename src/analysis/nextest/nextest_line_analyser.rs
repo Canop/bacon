@@ -93,7 +93,8 @@ impl NextestLineAnalyzer {
     /// Return the last test key when the line is like either
     ///  - "──── stderr"
     ///  - "── stderr ──" (with --no-output-indent)
-    /// (with stderr maybe replaced by stdout or output)
+    ///
+    /// with stderr maybe replaced by stdout or output
     ///
     /// This supports nextest 0.9.95+ (see https://github.com/Canop/bacon/issues/350)
     fn stdx_section_key_v3(

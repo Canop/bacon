@@ -21,10 +21,10 @@ anyhow = "1.0"
 arboard = { version = "3.4", default-features = false, optional = true }
 cargo_metadata = "0.19"
 clap = { version = "4.5", features = ["derive", "cargo"] }
-clap-help = "1.3.2"
+clap-help = "1.4"
 clap_complete = { version = "4.5.44", features = ["unstable-dynamic"] }
 cli-log = "2.1"
-crokey = "1.1"
+crokey = "1.2"
 ctrlc = "3.4"
 directories-next = "2.0.0"
 gix = { version = "0.67", default-features = false, features = ["index", "excludes", "parallel"] }
@@ -36,7 +36,7 @@ rodio = { version = "0.20", optional = true, default-features = false, features 
 rustc-hash = "2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-termimad = "0.31.1"
+termimad = "0.32"
 toml = "0.8"
 unicode-width = "0.2"
 vte = "0.15"
