@@ -54,7 +54,7 @@ impl GitIgnorer {
         for path in paths {
             // cache.at_path panics if not provided a path relative
             // to the work directory, so we compute the relative path
-            let Some(work_dir) = self.repo.work_dir() else {
+            let Some(work_dir) = self.repo.workdir() else {
                 return Ok(false);
             };
             let Ok(relative_path) = path.strip_prefix(work_dir) else {

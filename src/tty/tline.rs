@@ -176,7 +176,7 @@ impl TLine {
     pub fn if_unstyled(&self) -> Option<&str> {
         if self.strings.len() == 1 {
             self.strings
-                .get(0)
+                .first()
                 .filter(|s| s.csi.is_empty())
                 .map(|s| s.raw.as_str())
         } else {
