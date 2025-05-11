@@ -139,6 +139,7 @@ impl std::str::FromStr for Internal {
             "scope-to-failures" => Ok(Self::ScopeToFailures),
             "toggle-raw-output" => Ok(Self::ToggleRawOutput),
             "toggle-backtrace" => Ok(Self::ToggleBacktrace("1")),
+            "toggle-backtrace(0)" => Ok(Self::ToggleBacktrace("0")),
             "toggle-backtrace(1)" => Ok(Self::ToggleBacktrace("1")),
             "toggle-backtrace(2)" => Ok(Self::ToggleBacktrace("2")),
             "toggle-backtrace(full)" => Ok(Self::ToggleBacktrace("full")),
