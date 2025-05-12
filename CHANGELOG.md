@@ -1,3 +1,7 @@
+### next
+- bacon no longer overrides RUST_BACKTRACE unless required (by env parameter or with toggle_backtrace) - Fix #356
+- toggle_backtrace now accepts `0` as parameterv. This allows defining a shortcut to disable externally set backtraces
+
 <a name="v3.13.0"></a>
 ### v3.13.0 - 2025/05-10
 - add support for nextest 0.9.95 - Fix #350
