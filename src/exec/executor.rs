@@ -100,7 +100,9 @@ impl MissionExecutor {
             Some(Instant::now())
         };
         let mut command_builder = self.command_builder.clone();
-        command_builder.env("RUST_BACKTRACE", task.backtrace.unwrap_or("0"));
+        if let Some(backtrace) = task.backtrace {
+            command_builder.env("RUST_BACKTRACE", backtrace);
+        }
         let kill_command = self.kill_command.clone();
         let with_stdout = command_builder.is_with_stdout();
         let line_sender = self.line_sender.clone();
