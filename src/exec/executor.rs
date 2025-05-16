@@ -1,6 +1,7 @@
 use {
     crate::*,
     std::{
+        collections::HashSet,
         io::{
             self,
             BufRead,
@@ -75,8 +76,11 @@ impl TaskExecutor {
 
 impl MissionExecutor {
     /// Prepare the executor (no task/process/thread is started at this point)
-    pub fn new(mission: &Mission) -> anyhow::Result<Self> {
-        let command_builder = mission.get_command()?;
+    pub fn new(
+        mission: &Mission,
+        options: &HashSet<String>,
+    ) -> anyhow::Result<Self> {
+        let command_builder = mission.get_command(options)?;
         let kill_command = mission.kill_command();
         let (line_sender, line_receiver) = channel::unbounded();
         Ok(Self {

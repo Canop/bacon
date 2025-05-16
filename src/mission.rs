@@ -3,7 +3,10 @@ use {
     lazy_regex::regex_replace_all,
     rustc_hash::FxHashSet,
     std::{
-        collections::HashMap,
+        collections::{
+            HashMap,
+            HashSet,
+        },
         path::PathBuf,
     },
 };
@@ -76,10 +79,18 @@ impl Mission<'_> {
     }
 
     /// build (and doesn't call) the external cargo command
-    pub fn get_command(&self) -> anyhow::Result<CommandBuilder> {
-        let mut command = if self.job.expand_env_vars() {
-            self.job
-                .command
+    pub fn get_command(
+        &self,
+        options: &HashSet<String>,
+    ) -> anyhow::Result<CommandBuilder> {
+        let mut command: Vec<_> = self
+            .job
+            .command
+            .iter()
+            .filter_map(|arg| Some(arg.resolve(options)?.to_string()))
+            .collect();
+        if self.job.expand_env_vars() {
+            command = command
                 .iter()
                 .map(|token| {
                     regex_replace_all!(r"\$([A-Z0-9a-z_]+)", token, |whole: &str, name| {
@@ -94,9 +105,7 @@ impl Mission<'_> {
                     .to_string()
                 })
                 .collect()
-        } else {
-            self.job.command.clone()
-        };
+        }
 
         if command.is_empty() {
             anyhow::bail!(

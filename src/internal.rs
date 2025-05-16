@@ -37,6 +37,7 @@ pub enum Internal {
     ScopeToFailures,
     Scroll(ScrollCommand),
     ToggleBacktrace(&'static str),
+    ToggleOption(String),
     TogglePause, // either pause or unpause
     ToggleRawOutput,
     ToggleSummary,
@@ -70,6 +71,7 @@ impl Internal {
             Self::ScopeToFailures => "scope to failures".to_string(),
             Self::Scroll(scroll_command) => scroll_command.doc(),
             Self::ToggleBacktrace(level) => format!("toggle backtrace ({level})"),
+            Self::ToggleOption(option) => format!("toggle option {option:?}"),
             Self::TogglePause => "toggle pause".to_string(),
             Self::ToggleRawOutput => "toggle raw output".to_string(),
             Self::ToggleSummary => "toggle summary".to_string(),
@@ -99,6 +101,7 @@ impl fmt::Display for Internal {
             Self::ScopeToFailures => write!(f, "scope-to-failures"),
             Self::Scroll(scroll_command) => scroll_command.fmt(f),
             Self::ToggleBacktrace(level) => write!(f, "toggle-backtrace({level})"),
+            Self::ToggleOption(option) => write!(f, "toggle-option({option})"),
             Self::TogglePause => write!(f, "toggle-pause"),
             Self::ToggleRawOutput => write!(f, "toggle-raw-output"),
             Self::ToggleSummary => write!(f, "toggle-summary"),
@@ -183,6 +186,9 @@ impl std::str::FromStr for Internal {
                         file: file.trim().to_string(),
                     }));
                 }
+                if let Some((_, option)) = regex_captures!(r"^toggle-option\((.*)\)$", s) {
+                    return Ok(Self::ToggleOption(option.to_string()));
+                }
                 Err("invalid internal".to_string())
             }
         }
@@ -228,6 +234,7 @@ fn test_internal_string_round_trip() {
         Internal::Scroll(ScrollCommand::MilliPages(1561)),
         Internal::Scroll(ScrollCommand::Top),
         Internal::ToggleBacktrace("1"),
+        Internal::ToggleOption("some-op\"tion".to_string()),
         Internal::ToggleBacktrace("full"),
         Internal::TogglePause,
         Internal::ToggleSummary,

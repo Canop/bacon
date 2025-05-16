@@ -1,7 +1,13 @@
 use {
     crate::*,
     serde::Deserialize,
-    std::collections::HashMap,
+    std::{
+        collections::{
+            HashMap,
+            HashSet,
+        },
+        fmt::Display,
+    },
 };
 
 /// One of the possible jobs that bacon can run
@@ -35,7 +41,7 @@ pub struct Job {
     /// The tokens making the command to execute (first one
     /// is the executable).
     #[serde(default)]
-    pub command: Vec<String>,
+    pub command: Vec<CommandItem>,
 
     /// Whether to apply the default watch list, which is
     /// `["src", "tests", "benches", "examples", "build.rs"]`
@@ -113,14 +119,17 @@ impl Job {
         alias_name: &str,
         settings: &Settings,
     ) -> Self {
-        let mut command = vec!["cargo".to_string(), alias_name.to_string()];
+        let mut command = vec![
+            CommandItem::String("cargo".to_string()),
+            CommandItem::String(alias_name.to_string()),
+        ];
         if let Some(additional_args) = settings.additional_alias_args.as_ref() {
             for arg in additional_args {
-                command.push(arg.to_string())
+                command.push(CommandItem::String(arg.to_string()))
             }
         } else {
             for arg in DEFAULT_ARGS {
-                command.push(arg.to_string())
+                command.push(CommandItem::String(arg.to_string()))
             }
         }
         Self {
@@ -230,6 +239,76 @@ impl Job {
     }
 }
 
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum CommandItem {
+    String(String),
+    Conditional {
+        #[serde(rename = "if")]
+        condition: String,
+        then: Option<String>,
+        #[serde(rename = "else")]
+        or_else: Option<String>,
+    },
+}
+
+impl CommandItem {
+    pub(crate) fn resolve<'a>(
+        &'a self,
+        options: &HashSet<String>,
+    ) -> Option<&'a str> {
+        match self {
+            CommandItem::String(s) => Some(s),
+            CommandItem::Conditional {
+                condition,
+                then,
+                or_else,
+            } => {
+                if options.contains(condition) {
+                    then.as_deref()
+                } else {
+                    or_else.as_deref()
+                }
+            }
+        }
+    }
+}
+
+impl PartialEq<&str> for CommandItem {
+    fn eq(
+        &self,
+        other: &&str,
+    ) -> bool {
+        match self {
+            CommandItem::String(s) => s == other,
+            CommandItem::Conditional { .. } => false,
+        }
+    }
+}
+
+impl Display for CommandItem {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
+        match self {
+            CommandItem::String(s) => write!(f, "{s}"),
+            CommandItem::Conditional {
+                condition,
+                then,
+                or_else,
+            } => {
+                write!(
+                    f,
+                    "${{{{ if {condition} {{ {} }} else {{ {} }} }}}}",
+                    then.as_deref().unwrap_or("∅"),
+                    or_else.as_deref().unwrap_or("∅"),
+                )
+            }
+        }
+    }
+}
+
 #[test]
 fn test_job_apply() {
     use std::str::FromStr;
@@ -240,7 +319,10 @@ fn test_job_apply() {
         analyzer: Some(AnalyzerRef::Nextest),
         apply_gitignore: Some(false),
         background: Some(false),
-        command: vec!["cargo".to_string(), "test".to_string()],
+        command: vec![
+            CommandItem::String("cargo".to_string()),
+            CommandItem::String("test".to_string()),
+        ],
         default_watch: Some(false),
         env: vec![("RUST_LOG".to_string(), "debug".to_string())]
             .into_iter()

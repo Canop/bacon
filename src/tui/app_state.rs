@@ -3,6 +3,7 @@ use {
     anyhow::Result,
     crokey::KeyCombination,
     std::{
+        collections::HashSet,
         io::Write,
         process::ExitStatus,
         time::Instant,
@@ -76,6 +77,7 @@ pub struct AppState<'s> {
     pub messages: Vec<Message>,
     /// the search state
     pub search: SearchState,
+    pub options: HashSet<String>,
 }
 
 impl<'s> AppState<'s> {
@@ -123,6 +125,7 @@ impl<'s> AppState<'s> {
             changes_since_last_job_start: 0,
             messages: Vec::new(),
             search: Default::default(),
+            options: HashSet::default(),
         })
     }
     pub fn focus_file(
