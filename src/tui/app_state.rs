@@ -232,7 +232,7 @@ impl<'s> AppState<'s> {
         self.search.set_founds(founds);
     }
     /// Do a partial update for some potential added lines
-    pub fn update_search_from_line(
+    fn update_search_from_line(
         &mut self,
         line_count_before: usize,
     ) {
@@ -244,6 +244,10 @@ impl<'s> AppState<'s> {
         // no filtering
         let lines = self.lines_to_draw_unfiltered();
         let search = self.search.search();
+        if line_count_before >= lines.len() {
+            warn!("unconsistent line_count_before");
+            return;
+        }
         let new_founds = search.search_lines(&lines[line_count_before..]);
         self.search.extend_founds(new_founds);
     }
@@ -269,6 +273,9 @@ impl<'s> AppState<'s> {
                 self.report_maker.receive_line(line, &mut output);
                 Some(output)
             };
+            if self.wrap {
+                self.update_wrap(self.width - 1);
+            }
             self.scroll = 0;
             self.fix_scroll();
         }
