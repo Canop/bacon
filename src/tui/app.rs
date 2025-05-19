@@ -129,9 +129,9 @@ fn run_mission(
     let config_watcher = Watcher::new(&mission.settings.config_files, IgnorerSet::default())?;
 
     // create the executor, mission, and state
-    let mut executor = MissionExecutor::new(&mission)?;
-    let on_change_strategy = mission.job.on_change_strategy();
     let mut state = AppState::new(mission, headless)?;
+    let mut executor = MissionExecutor::new(&state.mission, &state.options)?;
+    let on_change_strategy = state.mission.job.on_change_strategy();
     if let Some(message) = message {
         state.messages.push(message);
     }
@@ -362,6 +362,19 @@ fn run_mission(
                     }
                     Internal::Scroll(scroll_command) => {
                         state.apply_scroll_command(scroll_command);
+                    }
+                    Internal::ToggleOption(option) => {
+                        if state.options.contains(&option) {
+                            state.options.remove(&option);
+                        } else {
+                            state.options.insert(option);
+                        }
+                        warn!("options: {:?}", state.options);
+                        task_executor.die();
+                        // recreate `executor` to account for the changed option
+                        executor = MissionExecutor::new(&state.mission, &state.options)?;
+                        task_executor = state.start_computation(&mut executor)?;
+                        break; // drop following actions
                     }
                     Internal::ToggleBacktrace(level) => {
                         state.toggle_backtrace(level);

@@ -24,10 +24,14 @@ pub fn print_jobs(settings: &Settings) {
     let mut jobs: Vec<_> = settings.jobs.iter().collect();
     jobs.sort_by_key(|(name, _)| name.to_string());
     for (name, job) in &jobs {
-        expander
-            .sub("jobs")
-            .set("job_name", name)
-            .set("job_command", job.command.join(" "));
+        expander.sub("jobs").set("job_name", name).set(
+            "job_command",
+            job.command
+                .iter()
+                .map(|arg| arg.to_string())
+                .collect::<Vec<_>>()
+                .join(" "),
+        );
     }
     expander.set("default_job", &settings.default_job);
     let skin = MadSkin::default();
