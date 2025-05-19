@@ -257,10 +257,9 @@ fn run_kill_command(
     let mut proc = kill.spawn()?;
     let status = proc.wait()?;
     if !status.success() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("kill command returned nonzero status: {status}"),
-        ));
+        return Err(io::Error::other(format!(
+            "kill command returned nonzero status: {status}"
+        )));
     }
     child.wait()?;
     Ok(())

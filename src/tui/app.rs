@@ -181,8 +181,10 @@ fn run_mission(
             }
             recv(config_watcher.receiver) -> _ => {
                 info!("config watch event received");
-                grace_period.sleep(); // Fix #310
-                actions.push(Action::Internal(Internal::ReloadConfig));
+                if state.auto_refresh.is_enabled() {
+                    grace_period.sleep(); // Fix #310
+                    actions.push(Action::Internal(Internal::ReloadConfig));
+                }
             }
             recv(executor.line_receiver) -> info => {
                 if let Ok(info) = info {
@@ -372,13 +374,13 @@ fn run_mission(
                             state.auto_refresh = AutoRefresh::Paused;
                         }
                         AutoRefresh::Paused => {
+                            state.auto_refresh = AutoRefresh::Enabled;
                             if state.changes_since_last_job_start > 0 {
                                 state.clear();
                                 task_executor.die();
                                 task_executor = state.start_computation(&mut executor)?;
                                 break; // drop following actions
                             }
-                            state.auto_refresh = AutoRefresh::Enabled;
                         }
                     },
                     Internal::ToggleRawOutput => {
