@@ -22,55 +22,53 @@ impl HelpLine {
     pub fn new(settings: &Settings) -> Self {
         let kb = &settings.keybindings;
         let quit = kb
-            .shortest_internal_key(Internal::Quit)
+            .shortest_internal_key(Action::Quit)
             .map(|k| format!("*{k}* to quit"))
             .expect("the app to be quittable");
         let toggle_summary = kb
-            .shortest_internal_key(Internal::ToggleSummary)
+            .shortest_internal_key(Action::ToggleSummary)
             .map(|k| format!("*{k}* to toggle summary mode"));
         let wrap = kb
-            .shortest_internal_key(Internal::ToggleWrap)
+            .shortest_internal_key(Action::ToggleWrap)
             .map(|k| format!("*{k}* to wrap lines"));
         let not_wrap = kb
-            .shortest_internal_key(Internal::ToggleWrap)
+            .shortest_internal_key(Action::ToggleWrap)
             .map(|k| format!("*{k}* to not wrap lines"));
         let toggle_backtrace = kb
-            .shortest_action_key(|action| {
-                matches!(action, Action::Internal(Internal::ToggleBacktrace(_)))
-            })
+            .shortest_action_key(|action| matches!(action, Action::ToggleBacktrace(_)))
             .map(|k| format!("*{k}* to toggle backtraces"));
         let help = kb
-            .shortest_internal_key(Internal::Help)
+            .shortest_internal_key(Action::Help)
             .map(|k| format!("*{k}* for help"));
         let close_help = kb
-            .shortest_internal_key(Internal::Back)
-            .or_else(|| kb.shortest_internal_key(Internal::Help))
+            .shortest_internal_key(Action::Back)
+            .or_else(|| kb.shortest_internal_key(Action::Help))
             .map(|k| format!("*{k}* to close this help"));
         let pause = kb
-            .shortest_internal_key(Internal::Pause)
-            .or(kb.shortest_internal_key(Internal::TogglePause))
+            .shortest_internal_key(Action::Pause)
+            .or(kb.shortest_internal_key(Action::TogglePause))
             .map(|k| format!("*{k}* to pause"));
         let unpause = kb
-            .shortest_internal_key(Internal::Unpause)
-            .or(kb.shortest_internal_key(Internal::TogglePause))
+            .shortest_internal_key(Action::Unpause)
+            .or(kb.shortest_internal_key(Action::TogglePause))
             .map(|k| format!("*{k}* to unpause"));
         let scope = kb
-            .shortest_internal_key(Internal::ScopeToFailures)
+            .shortest_internal_key(Action::ScopeToFailures)
             .map(|k| format!("*{k}* to scope to failures"));
         let search = kb
-            .shortest_internal_key(Internal::FocusSearch)
+            .shortest_internal_key(Action::FocusSearch)
             .map(|k| format!("*{k}* to search"));
         let next_match = kb
-            .shortest_internal_key(Internal::NextMatch)
+            .shortest_internal_key(Action::NextMatch)
             .map(|k| format!("*{k}* for next match"));
         let previous_match = kb
-            .shortest_internal_key(Internal::PreviousMatch)
+            .shortest_internal_key(Action::PreviousMatch)
             .map(|k| format!("*{k}* for previous match"));
         let clear_search = kb
-            .shortest_internal_key(Internal::Back)
+            .shortest_internal_key(Action::Back)
             .map(|k| format!("*{k}* to clear"));
         let validate_search = kb
-            .shortest_internal_key(Internal::Validate)
+            .shortest_internal_key(Action::Validate)
             .map(|k| format!("*{k}* to validate"));
         Self {
             quit,

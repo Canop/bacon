@@ -8,6 +8,11 @@ pub struct FocusFileCommand {
 }
 
 impl FocusFileCommand {
+    pub fn new(s: &str) -> Self {
+        Self {
+            file: s.trim().to_string(),
+        }
+    }
     /// Return the action description to show in doc/help
     pub fn doc(&self) -> String {
         format!("focus file {}", self.file)

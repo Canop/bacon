@@ -161,26 +161,22 @@ Actions are launched
 * on key presses, depending on key-binding
 * when triggered by a job ending success
 
-Actions are parsed from strings, for example `quit` (long form: `internal:quit`) is the action of quitting bacon and can be bound to a key.
+Actions are parsed from strings, for example `quit` is the action of quitting bacon and can be bound to a key.
 
-An action is either an *internal*, based on a hardcoded behavior of bacon, a *job reference*, or an *export*.
-
-An export action is defined as `export:` followed by the export name.
-
-## Internals
-
-internal | default binding | meaning
+action | default binding | meaning
 :-|:-|:-
 back | <kbd>Esc</kbd> | get back to the previous page or job, or cancel search
 back-or-quit | | back to previous page or job, quitting if there is none
 copy-unstyled-output | | write the currently displayed job output to the clipboard
+export:name | | runs the [export](#exports) with this name
 focus-file(path) | | show this file's diagnostics first
 focus-search | <kbd>/</kbd> | focus the search input
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
+job:job-reference | | execute the job with [job-reference](#job-references)
 next-match | <kbd>tab</kbd> | go to next search match
 no-op |  | do nothing (may be used to disable a previously set binding)
 pause |  | disable automatic job execution on change
-play-sound |  | play a sound, eg `play-sound(volume=100%)`
+play-sound |  | play a [sound](#sound) with optional parameters, eg `play-sound(volume=100%)`
 previous-match | <kbd>backtab</kbd> | go to previous search match
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
 refresh | <kbd>F5</kbd> | clear output then run current job again
@@ -194,21 +190,21 @@ scroll-pages(1) | <kbd>PageDown</kbd> | move one page down
 scroll-to-bottom | <kbd>End</kbd> | scroll to bottom
 scroll-to-top | <kbd>Home</kbd> | scroll to top
 toggle pause | <kbd>p</kbd> | toggle pause
-toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `1` or `full`
+toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `0`, `1`, `2`, or `full`
 toggle-raw-output |  | display the untransformed command output
 toggle-summary | <kbd>s</kbd> | display results as abstracts
 toggle-wrap | <kbd>w</kbd> | toggle line wrapping
 unpause |  | enable automatic job execution on change
 validate | <kbd>enter</kbd> | unfocus the input, keeping the search
 
-The `scroll-lines` and `scroll-pages` internals are parameterized.
+The `scroll-lines` and `scroll-pages` actions are parameterized.
 You can for example define a shortcut to move down half a page:
 
 ```toml
 ctrl-d = "scroll-pages(.5)"
 ```
 
-## Job References
+# Job References
 
 Job references are useful as actions, which can be bound to key combinations.
 
@@ -224,8 +220,8 @@ job reference | meaning
 -|-
 `job:default` | the job defined as *default* in the bacon.toml file
 `job:initial` | the job specified as argument, or the default one if there was none explicit
-`job:previous` | the job which ran before, if any. The `back` internal has usually the same effect
-`job:previous-or-quit` | same as `job:previous`, but will quit if there was no job. The `back-or-quit` internal has usually the same effect
+`job:previous` | the job which ran before, if any. The `back` action has usually the same effect
+`job:previous-or-quit` | same as `job:previous`, but will quit if there was no job. The `back-or-quit` action has usually the same effect
 
 # Exports
 

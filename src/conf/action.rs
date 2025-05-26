@@ -21,26 +21,79 @@ use {
 /// (if not, they won't go very far in the system).
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Action {
+    Back,       // leave help, clear search, go to previous job, leave, etc.
+    BackOrQuit, // same as Back but quits if there is nothing to go back to
+    CopyUnstyledOutput,
     Export(String),
-    Internal(Internal),
+    FocusFile(FocusFileCommand),
+    FocusGoto,
+    FocusSearch,
+    Help,
     Job(JobRef),
+    NextMatch,
+    NoOp, // no operation, can be used to clear a binding
+    Pause,
+    PlaySound(PlaySoundCommand),
+    PreviousMatch,
+    Quit,
+    ReRun,
+    Refresh, // clear and rerun
+    ReloadConfig,
+    ScopeToFailures,
+    Scroll(ScrollCommand),
+    ToggleBacktrace(&'static str),
+    TogglePause, // either pause or unpause
+    ToggleRawOutput,
+    ToggleSummary,
+    ToggleWrap,
+    Unpause,
+    Validate, // validate search entry
 }
 
 impl Action {
     /// Return the action description to show in doc/help
     pub fn doc(&self) -> String {
         match self {
+            Self::Back => "back to previous page or job".to_string(),
+            Self::BackOrQuit => {
+                "back to previous page or job, quitting if there is none".to_string()
+            }
+            Self::CopyUnstyledOutput => "copy current job's output".to_string(),
             Self::Export(export_name) => format!("run *{export_name}* export"),
-            Self::Internal(internal) => internal.doc(),
+            Self::FocusFile(fc) => fc.doc(),
+            Self::FocusGoto => "focus goto".to_string(),
+            Self::FocusSearch => "focus search".to_string(),
+            Self::Help => "help".to_string(),
             Self::Job(job_name) => format!("start the *{job_name}* job"),
+            Self::NextMatch => "next match".to_string(),
+            Self::NoOp => "no operation".to_string(),
+            Self::Pause => "pause".to_string(),
+            Self::PlaySound(_) => "play sound".to_string(),
+            Self::PreviousMatch => "previous match".to_string(),
+            Self::Quit => "quit".to_string(),
+            Self::ReRun => "run current job again".to_string(),
+            Self::Refresh => "clear then run current job again".to_string(),
+            Self::ReloadConfig => "reload configuration files".to_string(),
+            Self::ScopeToFailures => "scope to failures".to_string(),
+            Self::Scroll(scroll_command) => scroll_command.doc(),
+            Self::ToggleBacktrace(level) => format!("toggle backtrace ({level})"),
+            Self::TogglePause => "toggle pause".to_string(),
+            Self::ToggleRawOutput => "toggle raw output".to_string(),
+            Self::ToggleSummary => "toggle summary".to_string(),
+            Self::ToggleWrap => "toggle wrap".to_string(),
+            Self::Unpause => "unpause".to_string(),
+            Self::Validate => "validate".to_string(),
         }
     }
 }
 
 #[derive(Debug, PartialEq)]
 pub enum ParseActionError {
+    InvalidBacktraceLevel(String),
+    InvalidPlaySoundParameter(String),
+    InvalidScrollCommand(String),
+    InvalidVolume(ParseVolumeError),
     UnknownAction(String),
-    UnknowCategory(String),
     UnknownInternal(String),
 }
 
@@ -50,14 +103,23 @@ impl fmt::Display for ParseActionError {
         f: &mut fmt::Formatter,
     ) -> fmt::Result {
         match self {
+            Self::InvalidBacktraceLevel(level) => {
+                write!(f, "Invalid backtrace level: {level:?}")
+            }
+            Self::InvalidPlaySoundParameter(param) => {
+                write!(f, "Invalid play sound parameter: {param:?}")
+            }
+            Self::InvalidScrollCommand(cmd) => {
+                write!(f, "Invalid scroll command: {cmd:?}")
+            }
+            Self::InvalidVolume(e) => {
+                write!(f, "Invalid volume: {e}")
+            }
             Self::UnknownAction(s) => {
                 write!(
                     f,
                     "Action not understood: {s:?} (did you mean \"job:{s}\"?)"
                 )
-            }
-            Self::UnknowCategory(s) => {
-                write!(f, "Unknown category: {s:?}")
             }
             Self::UnknownInternal(s) => {
                 write!(f, "Internal not understood: {s:?}")
@@ -67,6 +129,12 @@ impl fmt::Display for ParseActionError {
 }
 impl std::error::Error for ParseActionError {}
 
+impl From<ParseVolumeError> for ParseActionError {
+    fn from(e: ParseVolumeError) -> Self {
+        Self::InvalidVolume(e)
+    }
+}
+
 impl fmt::Display for Action {
     fn fmt(
         &self,
@@ -74,39 +142,113 @@ impl fmt::Display for Action {
     ) -> fmt::Result {
         match self {
             Self::Export(name) => write!(f, "export:{}", name),
-            Self::Internal(internal) => internal.fmt(f),
             Self::Job(job_ref) => write!(f, "job:{}", job_ref),
+            Self::Back => write!(f, "back"),
+            Self::BackOrQuit => write!(f, "back-or-quit"),
+            Self::CopyUnstyledOutput => write!(f, "copy-unstyled-output"),
+            Self::Help => write!(f, "help"),
+            Self::NoOp => write!(f, "no-op"),
+            Self::Pause => write!(f, "pause"),
+            Self::Quit => write!(f, "quit"),
+            Self::ReRun => write!(f, "rerun"),
+            Self::Refresh => write!(f, "refresh"),
+            Self::ReloadConfig => write!(f, "reload-config"),
+            Self::ScopeToFailures => write!(f, "scope-to-failures"),
+            Self::Scroll(scroll_command) => scroll_command.fmt(f),
+            Self::ToggleBacktrace(level) => write!(f, "toggle-backtrace({level})"),
+            Self::TogglePause => write!(f, "toggle-pause"),
+            Self::ToggleRawOutput => write!(f, "toggle-raw-output"),
+            Self::ToggleSummary => write!(f, "toggle-summary"),
+            Self::ToggleWrap => write!(f, "toggle-wrap"),
+            Self::Unpause => write!(f, "unpause"),
+            Self::FocusFile(FocusFileCommand { file }) => {
+                write!(f, "focus-file({file})")
+            }
+            Self::FocusSearch => write!(f, "focus-search"),
+            Self::FocusGoto => write!(f, "focus-goto"),
+            Self::Validate => write!(f, "validate"),
+            Self::NextMatch => write!(f, "next-match"),
+            Self::PreviousMatch => write!(f, "previous-match"),
+            Self::PlaySound(PlaySoundCommand { name, volume }) => {
+                write!(f, "play-sound(")?;
+                if let Some(name) = name {
+                    write!(f, "name={},", name)?;
+                }
+                write!(f, "volume={})", volume)
+            }
         }
     }
 }
 impl FromStr for Action {
     type Err = ParseActionError;
     fn from_str(s: &str) -> Result<Self, ParseActionError> {
-        if let Some((_, cat, con)) = regex_captures!(r#"^(\w+)\s*:\s*(.+)$"#, s) {
-            match cat {
-                "export" => Ok(Self::Export(con.into())),
-                "internal" => {
-                    // this prefix is optional
-                    if let Ok(internal) = Internal::from_str(con) {
-                        Ok(Self::Internal(internal))
-                    } else {
-                        Err(ParseActionError::UnknownInternal(con.to_string()))
+        regex_switch!(s,
+            r"^export:(?<name>.+)$" => Self::Export(name.to_string()),
+            r"^job:(?<job_ref>.+)$" => Self::Job(job_ref.into()),
+            r"^(?:internal:)?back$" => Self::Back,
+            r"^(?:internal:)?back-or-quit$" => Self::BackOrQuit,
+            r"^(?:internal:)?help$" => Self::Help,
+            r"^(?:internal:)?quit$" => Self::Quit,
+            r"^(?:internal:)?refresh$" => Self::Refresh,
+            r"^(?:internal:)?reload-config$" => Self::ReloadConfig,
+            r"^(?:internal:)?rerun$" => Self::ReRun,
+            r"^(?:internal:)?scope-to-failures$" => Self::ScopeToFailures,
+            r"^(?:internal:)?toggle-raw-output$" => Self::ToggleRawOutput,
+            r"^(?:internal:)?toggle-backtrace$" => Self::ToggleBacktrace("1"),
+            r"^(?:internal:)?toggle-backtrace\(\s*(?<level>.+)\s*\)$" => {
+                let level = match level {
+                    "0" => "0",
+                    "1" => "1",
+                    "2" => "2",
+                    "full" => "full",
+                    _ => {
+                        return Err(ParseActionError::InvalidBacktraceLevel(level.to_string()));
+                    }
+                };
+                Self::ToggleBacktrace(level)
+            }
+            r"^(?:internal:)?toggle-summary$" => Self::ToggleSummary,
+            r"^(?:internal:)?toggle-wrap$" => Self::ToggleWrap,
+            r"^(?:internal:)?(noop|no-op|no-operation)$" => Self::NoOp,
+            r"^(?:internal:)?pause$" => Self::Pause,
+            r"^(?:internal:)?unpause$" => Self::Unpause,
+            r"^(?:internal:)?toggle-pause$" => Self::TogglePause,
+            r"^(?:internal:)?focus-search$" => Self::FocusSearch,
+            r"^(?:internal:)?focus-goto$" => Self::FocusGoto,
+            r"^(?:internal:)?validate$" => Self::Validate,
+            r"^(?:internal:)?next-match$" => Self::NextMatch,
+            r"^(?:internal:)?previous-match$" => Self::PreviousMatch,
+            r"^(?:internal:)?copy-unstyled-output$" => Self::CopyUnstyledOutput,
+            r"^(?:internal:)?play-sound$" => Self::PlaySound(PlaySoundCommand::default()),
+            r"^(?:internal:)?play-sound\((?<props>.*)\)$" => {
+                let iter = regex_captures_iter!(r"([^=,]+)=([^=,]+)", props);
+                let mut volume = Volume::default();
+                let mut name = None;
+                for (_, [prop_name, prop_value]) in iter.map(|c| c.extract()) {
+                    let prop_value = prop_value.trim();
+                    match prop_name.trim() {
+                        "name" => {
+                            name = Some(prop_value.to_string());
+                        }
+                        "volume" => {
+                            volume = prop_value.parse()?;
+                        }
+                        _ => {
+                            return Err(ParseActionError::InvalidPlaySoundParameter(
+                                prop_name.to_string(),
+                            ));
+                        }
                     }
                 }
-                "job" => Ok(Self::Job(con.into())),
-                _ => Err(ParseActionError::UnknowCategory(cat.to_string())),
+                Self::PlaySound(PlaySoundCommand { name, volume })
             }
-        } else if let Ok(internal) = Internal::from_str(s) {
-            Ok(Self::Internal(internal))
-        } else {
-            Err(ParseActionError::UnknownAction(s.to_string()))
-        }
-    }
-}
-
-impl From<Internal> for Action {
-    fn from(i: Internal) -> Self {
-        Self::Internal(i)
+            r"^(?:internal:)?focus[_-]file\((?<file>.*)\)$" => Self::FocusFile(FocusFileCommand::new(file)),
+            r"^(?:internal:)?(?<cmd>scroll.+)$" => {
+                let cmd = ScrollCommand::from_str(cmd)
+                    .map_err(|_| ParseActionError::InvalidScrollCommand(cmd.to_string()))?;
+                Self::Scroll(cmd)
+            }
+        ).ok_or(ParseActionError::UnknownAction(s.to_string()))
     }
 }
 
@@ -170,14 +312,71 @@ fn test_action_string_round_trip() {
                 tests: vec!["abc".to_string()],
             },
         })),
-        Action::Internal(Internal::Help),
-        Action::Internal(Internal::Scroll(ScrollCommand::MilliPages(1500))),
-        Action::Internal(Internal::Scroll(ScrollCommand::MilliPages(-500))),
-        Action::Internal(Internal::Scroll(ScrollCommand::MilliPages(-2000))),
+        Action::Help,
+        Action::Scroll(ScrollCommand::MilliPages(1500)),
+        Action::Scroll(ScrollCommand::MilliPages(-500)),
+        Action::Scroll(ScrollCommand::MilliPages(-2000)),
         Action::Export("my export".to_string()),
+        Action::Back,
+        Action::BackOrQuit,
+        Action::FocusSearch,
+        Action::Help,
+        Action::NoOp,
+        Action::Pause,
+        Action::Quit,
+        Action::ReRun,
+        Action::ReloadConfig,
+        Action::ScopeToFailures,
+        Action::Scroll(ScrollCommand::MilliPages(-3000)),
+        Action::Scroll(ScrollCommand::MilliPages(-350)),
+        Action::Scroll(ScrollCommand::MilliPages(1561)),
+        Action::Scroll(ScrollCommand::Top),
+        Action::ToggleBacktrace("1"),
+        Action::ToggleBacktrace("full"),
+        Action::TogglePause,
+        Action::ToggleSummary,
+        Action::ToggleWrap,
+        Action::Unpause,
+        Action::Validate,
+        Action::NextMatch,
+        Action::PreviousMatch,
+        Action::PlaySound(PlaySoundCommand::default()),
+        Action::PlaySound(PlaySoundCommand {
+            name: None,
+            volume: Volume::new(50),
+        }),
+        Action::PlaySound(PlaySoundCommand {
+            name: Some("beep-beep".to_string()),
+            volume: Volume::new(100),
+        }),
+        Action::PlaySound(PlaySoundCommand {
+            name: None,
+            volume: Volume::new(0),
+        }),
     ];
     for action in actions {
         println!("action: {}", action.to_string());
         assert_eq!(action.to_string().parse(), Ok(action));
+    }
+}
+
+/// Check that white space is allowed around play-sound parameters
+/// See https://github.com/Canop/bacon/issues/322
+#[test]
+fn test_play_sound_parsing_with_space() {
+    use crate::Action;
+    let strings = [
+        "play-sound(name=car-horn,volume=5)",
+        "play-sound(name=car-horn, volume=5)",
+        "internal:play-sound(name=car-horn, volume=5)",
+        "play-sound( name = car-horn , volume = 5 )",
+    ];
+    let psc = PlaySoundCommand {
+        name: Some("car-horn".to_string()),
+        volume: Volume::new(5),
+    };
+    for string in &strings {
+        let action: Action = string.parse().unwrap();
+        assert_eq!(action, Action::PlaySound(psc.clone()));
     }
 }

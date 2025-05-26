@@ -91,6 +91,7 @@ base_volume = "100%" # global volume multiplier
 # k = "scroll-lines(-1)"
 # j = "scroll-lines(1)"
 # ctrl-c = "quit"
+# ctrl-c = "copy-unstyled-output"
 # ctrl-q = "quit"
 # q = "quit"
 # F5 = "rerun"
@@ -112,5 +113,4 @@ base_volume = "100%" # global volume multiplier
 # t = "job:test"
 # r = "job:run"
 # ctrl-e = "export:analysis"
-# ctrl-c = "copy-unstyled-output"
 

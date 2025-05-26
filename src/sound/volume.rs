@@ -7,6 +7,7 @@ use {
         de,
     },
     std::{
+        fmt,
         ops::Mul,
         str::FromStr,
     },
@@ -48,14 +49,35 @@ impl Volume {
         self.percent as f32 / 100f32
     }
 }
+#[derive(Debug, Clone, PartialEq)]
+pub enum ParseVolumeError {
+    ValueOutOfRange,
+    NotU16(String),
+}
+impl fmt::Display for ParseVolumeError {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
+        match self {
+            Self::ValueOutOfRange => write!(f, "value out of [0-100] range"),
+            Self::NotU16(s) => write!(f, "value '{}' is not a valid integer", s),
+        }
+    }
+}
+impl std::error::Error for ParseVolumeError {}
+
 impl FromStr for Volume {
-    type Err = &'static str;
+    type Err = ParseVolumeError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s.trim_end_matches('%');
-        let percent: u16 = s.parse().map_err(|_| "number in 0-100 expected")?;
-        Ok(Self {
-            percent: percent.clamp(0, 100),
-        })
+        let percent: u16 = s
+            .parse()
+            .map_err(|_| ParseVolumeError::NotU16(s.to_string()))?;
+        if percent > 100 {
+            return Err(ParseVolumeError::ValueOutOfRange);
+        }
+        Ok(Self { percent })
     }
 }
 impl std::fmt::Display for Volume {

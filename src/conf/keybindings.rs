@@ -25,36 +25,33 @@ impl Default for KeyBindings {
         let mut bindings = Self {
             map: HashMap::default(),
         };
-        bindings.set(key!('?'), Internal::Help);
-        bindings.set(key!(h), Internal::Help);
-        bindings.set(key!(ctrl - c), Internal::Quit);
-        bindings.set(key!(ctrl - q), Internal::Quit);
-        bindings.set(key!(q), Internal::Quit);
-        bindings.set(key!(F5), Internal::Refresh);
-        bindings.set(key!(s), Internal::ToggleSummary);
-        bindings.set(key!(w), Internal::ToggleWrap);
-        bindings.set(key!(b), Internal::ToggleBacktrace("1"));
-        bindings.set(key!(Home), Internal::Scroll(ScrollCommand::Top));
-        bindings.set(key!(End), Internal::Scroll(ScrollCommand::Bottom));
-        bindings.set(key!(Up), Internal::Scroll(ScrollCommand::Lines(-1)));
-        bindings.set(key!(Down), Internal::Scroll(ScrollCommand::Lines(1)));
-        bindings.set(key!(PageUp), Internal::Scroll(ScrollCommand::pages(-1)));
-        bindings.set(key!(PageDown), Internal::Scroll(ScrollCommand::pages(1)));
-        bindings.set(
-            key!(Space),
-            Internal::Scroll(ScrollCommand::MilliPages(800)),
-        );
-        bindings.set(key!(f), Internal::ScopeToFailures);
-        bindings.set(key!(esc), Internal::Back);
+        bindings.set(key!('?'), Action::Help);
+        bindings.set(key!(h), Action::Help);
+        bindings.set(key!(ctrl - c), Action::Quit);
+        bindings.set(key!(ctrl - q), Action::Quit);
+        bindings.set(key!(q), Action::Quit);
+        bindings.set(key!(F5), Action::Refresh);
+        bindings.set(key!(s), Action::ToggleSummary);
+        bindings.set(key!(w), Action::ToggleWrap);
+        bindings.set(key!(b), Action::ToggleBacktrace("1"));
+        bindings.set(key!(Home), Action::Scroll(ScrollCommand::Top));
+        bindings.set(key!(End), Action::Scroll(ScrollCommand::Bottom));
+        bindings.set(key!(Up), Action::Scroll(ScrollCommand::Lines(-1)));
+        bindings.set(key!(Down), Action::Scroll(ScrollCommand::Lines(1)));
+        bindings.set(key!(PageUp), Action::Scroll(ScrollCommand::pages(-1)));
+        bindings.set(key!(PageDown), Action::Scroll(ScrollCommand::pages(1)));
+        bindings.set(key!(Space), Action::Scroll(ScrollCommand::MilliPages(800)));
+        bindings.set(key!(f), Action::ScopeToFailures);
+        bindings.set(key!(esc), Action::Back);
         bindings.set(key!(ctrl - d), JobRef::Default);
         bindings.set(key!(i), JobRef::Initial);
-        bindings.set(key!(p), Internal::TogglePause);
-        bindings.set(key!('/'), Internal::FocusSearch);
-        bindings.set(key!(':'), Internal::FocusGoto);
-        bindings.set(key!(enter), Internal::Validate);
-        bindings.set(key!(tab), Internal::NextMatch);
-        bindings.set(key!(backtab), Internal::PreviousMatch);
-        bindings.set(key!(shift - backtab), Internal::PreviousMatch);
+        bindings.set(key!(p), Action::TogglePause);
+        bindings.set(key!('/'), Action::FocusSearch);
+        bindings.set(key!(':'), Action::FocusGoto);
+        bindings.set(key!(enter), Action::Validate);
+        bindings.set(key!(tab), Action::NextMatch);
+        bindings.set(key!(backtab), Action::PreviousMatch);
+        bindings.set(key!(shift - backtab), Action::PreviousMatch);
 
         // keybindings for some common jobs
         bindings.set(key!(a), JobRef::from_job_name("check-all"));
@@ -76,10 +73,10 @@ impl KeyBindings {
         self.map.insert(ck, action.into());
     }
     pub fn add_vim_keys(&mut self) {
-        self.set(key!(g), Internal::Scroll(ScrollCommand::Top));
-        self.set(key!(shift - g), Internal::Scroll(ScrollCommand::Bottom));
-        self.set(key!(k), Internal::Scroll(ScrollCommand::Lines(-1)));
-        self.set(key!(j), Internal::Scroll(ScrollCommand::Lines(1)));
+        self.set(key!(g), Action::Scroll(ScrollCommand::Top));
+        self.set(key!(shift - g), Action::Scroll(ScrollCommand::Bottom));
+        self.set(key!(k), Action::Scroll(ScrollCommand::Lines(-1)));
+        self.set(key!(j), Action::Scroll(ScrollCommand::Lines(1)));
     }
     pub fn add_all(
         &mut self,
@@ -94,6 +91,13 @@ impl KeyBindings {
         key: KeyCombination,
     ) -> Option<&Action> {
         self.map.get(&key)
+    }
+    /// return the shortest key.to_string for the internal, if any
+    pub fn shortest_internal_key(
+        &self,
+        internal: Action,
+    ) -> Option<String> {
+        self.shortest_action_key(|action| action == &internal)
     }
     /// return the shortest key.to_string for the internal, if any
     pub fn shortest_action_key<F>(
@@ -116,14 +120,6 @@ impl KeyBindings {
             }
         }
         shortest
-    }
-    /// return the shortest key.to_string for the internal, if any
-    pub fn shortest_internal_key(
-        &self,
-        internal: Internal,
-    ) -> Option<String> {
-        let internal_action = Action::Internal(internal);
-        self.shortest_action_key(|action| action == &internal_action)
     }
     /// build and return a map from actions to all the possible shortcuts
     pub fn build_reverse_map(&self) -> HashMap<&Action, Vec<KeyCombination>> {
@@ -167,26 +163,22 @@ fn test_deserialize_keybindings() {
     Ctrl-U = "internal:scroll-pages(-.5)"
     Ctrl-d = "internal:scroll-page(1)"
     alt-q = "internal:quit"
+    ctrl-q = "quit"
     alt-p = "job:previous"
+    ctrl-p = "play-sound"
+    ctrl-shift-p = "play-sound(volume=100)"
     "#;
     let conf = toml::from_str::<Config>(toml).unwrap();
     assert_eq!(
         conf.keybindings.get(key!(ctrl - u)),
-        Some(&Action::Internal(Internal::Scroll(
-            ScrollCommand::MilliPages(-500)
-        ))),
+        Some(&Action::Scroll(ScrollCommand::MilliPages(-500))),
     );
     assert_eq!(
         conf.keybindings.get(key!(ctrl - d)),
-        Some(&Action::Internal(Internal::Scroll(
-            ScrollCommand::MilliPages(1000)
-        ))),
+        Some(&Action::Scroll(ScrollCommand::MilliPages(1000))),
     );
     assert_eq!(conf.keybindings.get(key!(z)), None,);
-    assert_eq!(
-        conf.keybindings.get(key!(alt - q)),
-        Some(&Action::Internal(Internal::Quit)),
-    );
+    assert_eq!(conf.keybindings.get(key!(alt - q)), Some(&Action::Quit),);
     assert_eq!(
         conf.keybindings.get(key!(alt - p)),
         Some(&Action::Job(JobRef::Previous)),
