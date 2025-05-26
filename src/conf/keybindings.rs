@@ -40,10 +40,7 @@ impl Default for KeyBindings {
         bindings.set(key!(Down), Action::Scroll(ScrollCommand::Lines(1)));
         bindings.set(key!(PageUp), Action::Scroll(ScrollCommand::pages(-1)));
         bindings.set(key!(PageDown), Action::Scroll(ScrollCommand::pages(1)));
-        bindings.set(
-            key!(Space),
-            Action::Scroll(ScrollCommand::MilliPages(800)),
-        );
+        bindings.set(key!(Space), Action::Scroll(ScrollCommand::MilliPages(800)));
         bindings.set(key!(f), Action::ScopeToFailures);
         bindings.set(key!(esc), Action::Back);
         bindings.set(key!(ctrl - d), JobRef::Default);
@@ -174,21 +171,14 @@ fn test_deserialize_keybindings() {
     let conf = toml::from_str::<Config>(toml).unwrap();
     assert_eq!(
         conf.keybindings.get(key!(ctrl - u)),
-        Some(&Action::Scroll(
-            ScrollCommand::MilliPages(-500)
-        )),
+        Some(&Action::Scroll(ScrollCommand::MilliPages(-500))),
     );
     assert_eq!(
         conf.keybindings.get(key!(ctrl - d)),
-        Some(&Action::Scroll(
-            ScrollCommand::MilliPages(1000)
-        )),
+        Some(&Action::Scroll(ScrollCommand::MilliPages(1000))),
     );
     assert_eq!(conf.keybindings.get(key!(z)), None,);
-    assert_eq!(
-        conf.keybindings.get(key!(alt - q)),
-        Some(&Action::Quit),
-    );
+    assert_eq!(conf.keybindings.get(key!(alt - q)), Some(&Action::Quit),);
     assert_eq!(
         conf.keybindings.get(key!(alt - p)),
         Some(&Action::Job(JobRef::Previous)),

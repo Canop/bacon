@@ -52,7 +52,7 @@ impl Volume {
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParseVolumeError {
     ValueOutOfRange,
-    NotU16(String)
+    NotU16(String),
 }
 impl fmt::Display for ParseVolumeError {
     fn fmt(
@@ -71,13 +71,13 @@ impl FromStr for Volume {
     type Err = ParseVolumeError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s.trim_end_matches('%');
-        let percent: u16 = s.parse().map_err(|_| ParseVolumeError::NotU16(s.to_string()))?;
+        let percent: u16 = s
+            .parse()
+            .map_err(|_| ParseVolumeError::NotU16(s.to_string()))?;
         if percent > 100 {
             return Err(ParseVolumeError::ValueOutOfRange);
         }
-        Ok(Self {
-            percent
-        })
+        Ok(Self { percent })
     }
 }
 impl std::fmt::Display for Volume {

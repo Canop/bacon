@@ -35,9 +35,7 @@ impl HelpLine {
             .shortest_internal_key(Action::ToggleWrap)
             .map(|k| format!("*{k}* to not wrap lines"));
         let toggle_backtrace = kb
-            .shortest_action_key(|action| {
-                matches!(action, Action::ToggleBacktrace(_))
-            })
+            .shortest_action_key(|action| matches!(action, Action::ToggleBacktrace(_)))
             .map(|k| format!("*{k}* to toggle backtraces"));
         let help = kb
             .shortest_internal_key(Action::Help)
