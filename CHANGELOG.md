@@ -1,3 +1,6 @@
+### next
+- the concept of "internals" has been removed. They were a category of actions and they're just actions now. This has no functional impact.
+
 <a name="v3.14.0"></a>
 ### v3.14.0 - 2025/05/19
 - bacon no longer overrides `RUST_BACKTRACE` unless required (by env parameter or with `toggle_backtrace`) - Fix #356
