@@ -235,7 +235,7 @@ impl FromStr for Action {
                             name = Some(prop_value.to_string());
                         }
                         "volume" => {
-                            volume = prop_value.parse() ?;
+                            volume = prop_value.parse()?;
                         }
                         _ => {
                             return Err(ParseActionError::InvalidPlaySoundParameter(
