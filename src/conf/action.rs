@@ -93,7 +93,6 @@ pub enum ParseActionError {
     InvalidPlaySoundParameter(String),
     InvalidScrollCommand(String),
     InvalidVolume(ParseVolumeError),
-    UnknowCategory(String),
     UnknownAction(String),
     UnknownInternal(String),
 }
@@ -115,9 +114,6 @@ impl fmt::Display for ParseActionError {
             }
             Self::InvalidVolume(e) => {
                 write!(f, "Invalid volume: {e}")
-            }
-            Self::UnknowCategory(s) => {
-                write!(f, "Unknown category: {s:?}")
             }
             Self::UnknownAction(s) => {
                 write!(
