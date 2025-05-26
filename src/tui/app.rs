@@ -175,7 +175,7 @@ fn run_mission(
                 state.receive_watch_event();
                 if state.auto_refresh.is_enabled() {
                     if !state.is_computing() || on_change_strategy == OnChangeStrategy::KillThenRestart {
-                        actions.push(Action::Internal(Internal::ReRun));
+                        actions.push(Action::ReRun);
                     }
                 }
             }
@@ -183,7 +183,7 @@ fn run_mission(
                 info!("config watch event received");
                 if state.auto_refresh.is_enabled() {
                     grace_period.sleep(); // Fix #310
-                    actions.push(Action::Internal(Internal::ReloadConfig));
+                    actions.push(Action::ReloadConfig);
                 }
             }
             recv(executor.line_receiver) -> info => {
@@ -223,7 +223,7 @@ fn run_mission(
                             if state.changes_since_last_job_start > 0 && state.auto_refresh.is_enabled() {
                                 // will be ignored if a on_success or on_failures ends the mission
                                 // or does a rerun already
-                                actions.push(Action::Internal(Internal::ReRun))
+                                actions.push(Action::ReRun)
                             }
                         }
                         CommandExecInfo::Error(e) => {
@@ -278,6 +278,19 @@ fn run_mission(
         for action in actions.drain(..) {
             debug!("requested action: {action:?}");
             match action {
+                Action::Back => {
+                    if !state.back() {
+                        mission_end = Some(DoAfterMission::NextJob(JobRef::Previous));
+                    }
+                }
+                Action::BackOrQuit => {
+                    if !state.back() {
+                        mission_end = Some(DoAfterMission::NextJob(JobRef::PreviousOrQuit));
+                    }
+                }
+                Action::CopyUnstyledOutput => {
+                    state.copy_unstyled_output();
+                }
                 Action::Export(export_name) => {
                     let export_name = export_name.to_string();
                     state
@@ -289,125 +302,110 @@ fn run_mission(
                         .messages
                         .push(Message::short(format!("Export *{}* done", &export_name)));
                 }
-                Action::Internal(internal) => match internal {
-                    Internal::Back => {
-                        if !state.back() {
-                            mission_end = Some(DoAfterMission::NextJob(JobRef::Previous));
-                        }
+                Action::FocusFile(focus_file_command) => {
+                    state.focus_file(&focus_file_command);
+                }
+                Action::FocusGoto => {
+                    state.focus_goto();
+                }
+                Action::FocusSearch => {
+                    state.focus_search();
+                }
+                Action::Help => {
+                    state.toggle_help();
+                }
+                Action::Job(job_ref) => {
+                    mission_end = Some(job_ref.clone().into());
+                    break;
+                }
+                Action::NextMatch => {
+                    state.next_match();
+                }
+                Action::NoOp => {}
+                Action::Pause => {
+                    state.auto_refresh = AutoRefresh::Paused;
+                }
+                Action::PlaySound(play_sound_command) => {
+                    if let Some(sound_player) = &sound_player {
+                        sound_player.play(play_sound_command.clone());
+                    } else {
+                        debug!("sound not enabled");
                     }
-                    Internal::BackOrQuit => {
-                        if !state.back() {
-                            mission_end = Some(DoAfterMission::NextJob(JobRef::PreviousOrQuit));
-                        }
+                }
+                Action::PreviousMatch => {
+                    state.previous_match();
+                }
+                Action::Quit => {
+                    mission_end = Some(DoAfterMission::Quit);
+                    break;
+                }
+                Action::ReRun => {
+                    task_executor.die();
+                    task_executor = state.start_computation(&mut executor)?;
+                    break; // drop following actions
+                }
+                Action::Refresh => {
+                    state.clear();
+                    task_executor.die();
+                    task_executor = state.start_computation(&mut executor)?;
+                    break; // drop following actions
+                }
+                Action::ReloadConfig => {
+                    mission_end = Some(DoAfterMission::ReloadConfig);
+                    break;
+                }
+                Action::ScopeToFailures => {
+                    if let Some(scope) = state.failures_scope() {
+                        info!("scoping to failures: {scope:#?}");
+                        mission_end = Some(JobRef::from(scope).into());
+                        break;
+                    } else {
+                        warn!("no available failures scope");
                     }
-                    Internal::CopyUnstyledOutput => {
-                        state.copy_unstyled_output();
-                    }
-                    Internal::NextMatch => {
-                        state.next_match();
-                    }
-                    Internal::PreviousMatch => {
-                        state.previous_match();
-                    }
-                    Internal::FocusFile(focus_file_command) => {
-                        state.focus_file(&focus_file_command);
-                    }
-                    Internal::FocusSearch => {
-                        state.focus_search();
-                    }
-                    Internal::FocusGoto => {
-                        state.focus_goto();
-                    }
-                    Internal::Help => {
-                        state.toggle_help();
-                    }
-                    Internal::NoOp => {}
-                    Internal::Pause => {
+                }
+                Action::Scroll(scroll_command) => {
+                    state.apply_scroll_command(scroll_command);
+                }
+                Action::ToggleBacktrace(level) => {
+                    state.toggle_backtrace(level);
+                    task_executor.die();
+                    task_executor = state.start_computation(&mut executor)?;
+                    break; // drop following actions
+                }
+                Action::TogglePause => match state.auto_refresh {
+                    AutoRefresh::Enabled => {
                         state.auto_refresh = AutoRefresh::Paused;
                     }
-                    Internal::PlaySound(play_sound_command) => {
-                        if let Some(sound_player) = &sound_player {
-                            sound_player.play(play_sound_command.clone());
-                        } else {
-                            debug!("sound not enabled");
-                        }
-                    }
-                    Internal::Quit => {
-                        mission_end = Some(DoAfterMission::Quit);
-                        break;
-                    }
-                    Internal::ReRun => {
-                        task_executor.die();
-                        task_executor = state.start_computation(&mut executor)?;
-                        break; // drop following actions
-                    }
-                    Internal::Refresh => {
-                        state.clear();
-                        task_executor.die();
-                        task_executor = state.start_computation(&mut executor)?;
-                        break; // drop following actions
-                    }
-                    Internal::ReloadConfig => {
-                        mission_end = Some(DoAfterMission::ReloadConfig);
-                        break;
-                    }
-                    Internal::ScopeToFailures => {
-                        if let Some(scope) = state.failures_scope() {
-                            info!("scoping to failures: {scope:#?}");
-                            mission_end = Some(JobRef::from(scope).into());
-                            break;
-                        } else {
-                            warn!("no available failures scope");
-                        }
-                    }
-                    Internal::Scroll(scroll_command) => {
-                        state.apply_scroll_command(scroll_command);
-                    }
-                    Internal::ToggleBacktrace(level) => {
-                        state.toggle_backtrace(level);
-                        task_executor.die();
-                        task_executor = state.start_computation(&mut executor)?;
-                        break; // drop following actions
-                    }
-                    Internal::TogglePause => match state.auto_refresh {
-                        AutoRefresh::Enabled => {
-                            state.auto_refresh = AutoRefresh::Paused;
-                        }
-                        AutoRefresh::Paused => {
-                            state.auto_refresh = AutoRefresh::Enabled;
-                            if state.changes_since_last_job_start > 0 {
-                                state.clear();
-                                task_executor.die();
-                                task_executor = state.start_computation(&mut executor)?;
-                                break; // drop following actions
-                            }
-                        }
-                    },
-                    Internal::ToggleRawOutput => {
-                        state.toggle_raw_output();
-                    }
-                    Internal::ToggleSummary => {
-                        state.toggle_summary_mode();
-                    }
-                    Internal::ToggleWrap => {
-                        state.toggle_wrap_mode();
-                    }
-                    Internal::Unpause => {
+                    AutoRefresh::Paused => {
+                        state.auto_refresh = AutoRefresh::Enabled;
                         if state.changes_since_last_job_start > 0 {
                             state.clear();
                             task_executor.die();
                             task_executor = state.start_computation(&mut executor)?;
                             break; // drop following actions
                         }
-                        state.auto_refresh = AutoRefresh::Enabled;
-                    }
-                    Internal::Validate => {
-                        state.validate();
                     }
                 },
-                Action::Job(job_ref) => {
-                    mission_end = Some(job_ref.clone().into());
-                    break;
+                Action::ToggleRawOutput => {
+                    state.toggle_raw_output();
+                }
+                Action::ToggleSummary => {
+                    state.toggle_summary_mode();
+                }
+                Action::ToggleWrap => {
+                    state.toggle_wrap_mode();
+                }
+                Action::Unpause => {
+                    if state.changes_since_last_job_start > 0 {
+                        state.clear();
+                        task_executor.die();
+                        task_executor = state.start_computation(&mut executor)?;
+                        break; // drop following actions
+                    }
+                    state.auto_refresh = AutoRefresh::Enabled;
+                }
+                Action::Validate => {
+                    state.validate();
                 }
             }
         }

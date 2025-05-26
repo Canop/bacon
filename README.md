@@ -114,8 +114,8 @@ The `bacon.toml` file may evolve with the features and settings of your project 
 
 Some bacon features can be disabled or enabled at compilation:
 
-* `"clipboard"` - disabled by default : necessary for the `copy-unstyled-output` internal
-* `"sound"` - disabled by default : necessary for the `play-sound` internal
+* `"clipboard"` - disabled by default : necessary for the `copy-unstyled-output` action
+* `"sound"` - disabled by default : necessary for the `play-sound` action
 
 ## Licences
 
