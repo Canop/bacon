@@ -1,18 +1,7 @@
 use {
-    super::{
-        biome,
-        cargo_json,
-        cpp,
-        eslint,
-        nextest,
-        python,
-        standard,
-    },
+    super::{biome, cargo_json, cpp, eslint, nextest, python, standard, swift},
     crate::*,
-    serde::{
-        Deserialize,
-        Serialize,
-    },
+    serde::{Deserialize, Serialize},
 };
 
 /// A stateless operator building a report from a list of command output lines.
@@ -32,6 +21,8 @@ pub enum AnalyzerRef {
     PythonUnittest,
     Cpp,
     CppDoctest,
+    SwiftBuild,
+    SwiftLint,
 }
 
 impl AnalyzerRef {
@@ -47,6 +38,8 @@ impl AnalyzerRef {
             Self::CargoJson => Box::new(cargo_json::CargoJsonAnalyzer::default()),
             Self::Cpp => Box::new(cpp::CppAnalyzer::default()),
             Self::CppDoctest => Box::new(cpp::CppDoctestAnalyzer::default()),
+            Self::SwiftBuild => Box::new(swift::build::SwiftBuildAnalyzer::default()),
+            Self::SwiftLint => Box::new(swift::lint::SwiftLintAnalyzer::default()),
         }
     }
 }
