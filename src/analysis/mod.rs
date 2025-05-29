@@ -11,12 +11,8 @@ mod nextest;
 mod python;
 mod standard;
 mod stats;
+mod swift;
 
 pub use {
-    analyzer::*,
-    item_accumulator::*,
-    line_analysis::*,
-    line_analyzer::*,
-    line_type::*,
-    stats::*,
+    analyzer::*, item_accumulator::*, line_analysis::*, line_analyzer::*, line_type::*, stats::*,
 };
