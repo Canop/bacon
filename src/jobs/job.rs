@@ -1,11 +1,13 @@
 use {
     crate::*,
     serde::Deserialize,
-    std::collections::HashMap,
+    std::{
+        collections::HashMap,
+        path::PathBuf,
+    },
 };
 
 /// One of the possible jobs that bacon can run
-/// One of the possible job that bacon can run
 #[derive(Debug, Default, Clone, Deserialize, PartialEq)]
 pub struct Job {
     /// Whether to consider that we can have a success
@@ -103,6 +105,10 @@ pub struct Job {
 
     #[serde(default)]
     pub sound: SoundConfig,
+
+    /// An optional working directory for the job command, which
+    /// would override the package directory.
+    pub workdir: Option<PathBuf>,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -227,6 +233,9 @@ impl Job {
             self.show_changes_count = Some(b);
         }
         self.sound.apply(&job.sound);
+        if let Some(p) = job.workdir.as_ref() {
+            self.workdir = Some(p.clone());
+        }
     }
 }
 
@@ -261,6 +270,7 @@ fn test_job_apply() {
             enabled: Some(true),
             base_volume: Some(Volume::from_str("50").unwrap()),
         },
+        workdir: Some(PathBuf::from("/path/to/workdir")),
     };
     base_job.apply(&job_to_apply);
     dbg!(&base_job);

@@ -1,5 +1,6 @@
 ### next
 - the concept of "internals" has been removed. They were a category of actions and they're just actions now. This has no functional impact.
+- the optional `workdir` job setting allows explicitely overriding the execution directory of a job's command - experimental, feedback welcome
 
 <a name="v3.14.0"></a>
 ### v3.14.0 - 2025/05/19
