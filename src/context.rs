@@ -193,7 +193,17 @@ impl Context {
             }
         }
 
-        let execution_directory = self.package_directory.clone();
+        let mut conf_execution_directory = job.workdir.as_ref();
+        if let Some(path) = conf_execution_directory {
+            if !path.exists() {
+                error!("Ignoring configured non existing workdir: {:?}", path);
+                conf_execution_directory = None;
+            }
+        }
+        let execution_directory = conf_execution_directory
+            .unwrap_or(&self.package_directory)
+            .to_path_buf();
+
         Ok(Mission {
             location_name,
             concrete_job_ref,
