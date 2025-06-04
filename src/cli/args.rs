@@ -156,6 +156,10 @@ pub struct Args {
     #[clap(last = true)]
     /// Arguments given to the job
     pub additional_job_args: Vec<String>,
+
+    /// Change the recommended file watcher into a polling watcher by setting its polling interval (in seconds)
+    #[clap(long, value_name = "seconds")]
+    pub poll: Option<u64>,
 }
 
 impl Args {

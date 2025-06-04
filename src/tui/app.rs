@@ -85,6 +85,7 @@ pub fn run(
             action_rx.clone(),
             message.take(),
             headless,
+            args,
         )?;
         match do_after {
             DoAfterMission::NextJob(job_ref) => {
@@ -115,6 +116,7 @@ fn run_mission(
     action_rx: Receiver<Action>,
     message: Option<Message>,
     headless: bool,
+    args: &Args
 ) -> Result<DoAfterMission> {
     let keybindings = mission.settings.keybindings.clone();
     let grace_period = mission.job.grace_period();
@@ -123,10 +125,10 @@ fn run_mission(
 
     // build the watcher detecting and transmitting mission file changes
     let ignorer = time!(Info, mission.ignorer());
-    let mission_watcher = Watcher::new(&mission.paths_to_watch, ignorer)?;
+    let mission_watcher = Watcher::new(&mission.paths_to_watch, ignorer, args.poll)?;
 
     // create the watcher for config file changes
-    let config_watcher = Watcher::new(&mission.settings.config_files, IgnorerSet::default())?;
+    let config_watcher = Watcher::new(&mission.settings.config_files, IgnorerSet::default(), args.poll)?;
 
     // create the executor, mission, and state
     let mut executor = MissionExecutor::new(&mission)?;
