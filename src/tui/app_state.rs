@@ -16,10 +16,6 @@ use {
             execute,
             style::{
                 Attribute,
-                Color::{
-                    self,
-                    *,
-                },
                 Print,
             },
         },

@@ -1,20 +1,7 @@
 use {
     paste::paste,
     serde::Deserialize,
-    termimad::{
-        crossterm::style::{
-            Attribute,
-            Color::{
-                self,
-                *,
-            },
-            Print,
-        },
-        minimad::{
-            Alignment,
-            Composite,
-        },
-    },
+    termimad::crossterm::style::Color,
 };
 
 /// Define a BaconSkin struct with fields being u8 with default values.
