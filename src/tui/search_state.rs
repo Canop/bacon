@@ -153,18 +153,19 @@ impl SearchState {
     pub fn founds(&self) -> &[Found] {
         &self.founds
     }
-    /// Draw at the given position, with the specified width
+    /// Draw the input with its '/', at the given position, with the specified width
     pub fn draw_prefixed_input(
         &mut self,
         w: &mut W,
         x: u16,
         y: u16,
+        prefix_style: &str,
         width: u16, // must be > 1
     ) -> Result<()> {
         goto_line(w, y)?;
         draw(
             w,
-            CSI_FOUND,
+            prefix_style,
             if self.mode == SearchMode::ItemIdx {
                 ":"
             } else {
@@ -178,20 +179,19 @@ impl SearchState {
     pub fn add_summary_tstring(
         &self,
         t_line: &mut TLine,
+        style: &str,
     ) {
-        if self.input_has_content() {
-            if self.founds.is_empty() {
-                if self.mode == SearchMode::ItemIdx && self.is_invalid() {
-                    t_line.add_tstring(CSI_FOUND, "integer expected");
-                } else {
-                    t_line.add_tstring(CSI_FOUND, "no match");
-                }
+        if self.founds.is_empty() {
+            if self.mode == SearchMode::ItemIdx && self.is_invalid() {
+                t_line.add_tstring(style, "integer expected");
             } else {
-                t_line.add_tstring(
-                    CSI_FOUND,
-                    format!("{}/{}", self.selected_found + 1, self.founds.len(),),
-                );
+                t_line.add_tstring(style, "no match");
             }
+        } else {
+            t_line.add_tstring(
+                style,
+                format!("{}/{}", self.selected_found + 1, self.founds.len(),),
+            );
         }
     }
 }

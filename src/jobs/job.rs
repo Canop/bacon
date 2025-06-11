@@ -109,6 +109,9 @@ pub struct Job {
     /// An optional working directory for the job command, which
     /// would override the package directory.
     pub workdir: Option<PathBuf>,
+
+    #[serde(default)]
+    pub skin: BaconSkin,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -236,6 +239,7 @@ impl Job {
         if let Some(p) = job.workdir.as_ref() {
             self.workdir = Some(p.clone());
         }
+        self.skin.apply(job.skin);
     }
 }
 
@@ -271,6 +275,7 @@ fn test_job_apply() {
             base_volume: Some(Volume::from_str("50").unwrap()),
         },
         workdir: Some(PathBuf::from("/path/to/workdir")),
+        skin: Default::default(),
     };
     base_job.apply(&job_to_apply);
     dbg!(&base_job);

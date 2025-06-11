@@ -4,8 +4,8 @@ mod cargo_wrapped_config;
 mod config;
 mod defaults;
 mod keybindings;
-
 mod settings;
+mod skin;
 
 pub use {
     action::*,
@@ -15,6 +15,7 @@ pub use {
     defaults::*,
     keybindings::*,
     settings::*,
+    skin::*,
 };
 
 use std::path::{

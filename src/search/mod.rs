@@ -27,9 +27,6 @@ pub struct Found {
     pub continued: Option<TRange>,
 }
 
-pub const CSI_FOUND: &str = "\u{1b}[1m\u{1b}[38;5;208m"; // bold, orange foreground
-pub const CSI_FOUND_SELECTED: &str = "\u{1b}[1m\u{1b}[30m\u{1b}[48;5;208m"; // bold, orange background
-
 pub enum Search {
     Pattern(Pattern),
     ItemIdx(usize),
