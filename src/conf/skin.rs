@@ -1,14 +1,14 @@
 use {
-    serde::Deserialize,
     paste::paste,
+    serde::Deserialize,
     termimad::{
-        crossterm::{
-            style::{
-                Color,
-                Attribute,
-                Color::*,
-                Print,
+        crossterm::style::{
+            Attribute,
+            Color::{
+                self,
+                *,
             },
+            Print,
         },
         minimad::{
             Alignment,

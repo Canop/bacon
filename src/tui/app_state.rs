@@ -569,7 +569,8 @@ impl<'s> AppState<'s> {
             let search_width = (self.width / 4).clamp(9, 27);
             let skin = self.mission.job.skin;
             let csi = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.search_input_prefix_fg());
-            self.search.draw_prefixed_input(w, 0, y, &csi, search_width)?;
+            self.search
+                .draw_prefixed_input(w, 0, y, &csi, search_width)?;
             help_start += search_width;
         }
         goto(w, help_start, y)?;
@@ -624,10 +625,19 @@ impl<'s> AppState<'s> {
                     skin.test_fails_badge_bg(),
                 ));
             } else if stats.passed_tests > 0 {
-                badges.push(TString::badge("pass!", skin.test_pass_badge_fg(), skin.test_pass_badge_bg()));
+                badges.push(TString::badge(
+                    "pass!",
+                    skin.test_pass_badge_fg(),
+                    skin.test_pass_badge_bg(),
+                ));
             }
             if stats.warnings > 0 {
-                badges.push(TString::num_badge(stats.warnings, "warning", skin.warnings_badge_fg(), skin.warnings_badge_bg()));
+                badges.push(TString::num_badge(
+                    stats.warnings,
+                    "warning",
+                    skin.warnings_badge_fg(),
+                    skin.warnings_badge_bg(),
+                ));
             }
         } else if let CommandResult::Failure(failure) = &self.cmd_result {
             badges.push(TString::badge(
@@ -806,7 +816,10 @@ impl<'s> AppState<'s> {
         }
         let skin = self.mission.job.skin;
         let csi_found = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.found_fg()); // bold, colored foreground
-        let csi_found_selected = format!("\u{1b}[1m\u{1b}[30m\u{1b}[48;5;{}m", skin.found_selected_bg()); // bold, colored background
+        let csi_found_selected = format!(
+            "\u{1b}[1m\u{1b}[30m\u{1b}[48;5;{}m",
+            skin.found_selected_bg()
+        ); // bold, colored background
         let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
         let content_height = self.content_height();
         let scrollbar = area.scrollbar(self.scroll, content_height);
