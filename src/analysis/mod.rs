@@ -11,6 +11,7 @@ mod nextest;
 mod python;
 mod standard;
 mod stats;
+mod swift;
 
 pub use {
     analyzer::*,

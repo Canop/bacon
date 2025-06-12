@@ -7,6 +7,7 @@ use {
         nextest,
         python,
         standard,
+        swift,
     },
     crate::*,
     serde::{
@@ -32,6 +33,8 @@ pub enum AnalyzerRef {
     PythonUnittest,
     Cpp,
     CppDoctest,
+    SwiftBuild,
+    SwiftLint,
 }
 
 impl AnalyzerRef {
@@ -47,6 +50,8 @@ impl AnalyzerRef {
             Self::CargoJson => Box::new(cargo_json::CargoJsonAnalyzer::default()),
             Self::Cpp => Box::new(cpp::CppAnalyzer::default()),
             Self::CppDoctest => Box::new(cpp::CppDoctestAnalyzer::default()),
+            Self::SwiftBuild => Box::new(swift::build::SwiftBuildAnalyzer::default()),
+            Self::SwiftLint => Box::new(swift::lint::SwiftLintAnalyzer::default()),
         }
     }
 }
