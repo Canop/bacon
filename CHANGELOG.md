@@ -1,3 +1,6 @@
+### next
+- bacon colors configuration, see https://dystroy.org/bacon/config/#skin - Fix #215
+
 <a name="v3.11.0"></a>
 ### v3.11.0 - 2025/06/01
 - the concept of "internals" has been removed. They were a category of actions and they're just actions now. This has no functional impact.

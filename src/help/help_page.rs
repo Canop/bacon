@@ -7,10 +7,7 @@ use {
         FmtText,
         MadSkin,
         TextView,
-        crossterm::style::{
-            Attribute,
-            Color::*,
-        },
+        crossterm::style::Attribute,
         minimad::{
             Alignment,
             OwningTemplateExpander,

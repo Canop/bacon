@@ -3,7 +3,7 @@
 
 All configuration files are optional but you'll probably need specific jobs for your targets, examples, etc.
 
-All accept the same properties (preferences, keybindings, jobs, etc.).
+All configuration files accept the same properties (preferences, keybindings, jobs, etc.).
 
 Bacon loads in order:
 
@@ -91,6 +91,7 @@ extraneous_args | if `false`, the action is run "as is" from `bacon.toml`, eg: n
 need_stdout |whether we need to capture stdout too (stderr is always captured) | `false`
 on_change_strategy | `wait_then_restart` or `kill_then_restart` |
 on_success | the action to run when there's no error, warning or test failures |
+skin | bacon application colors, [see below](#skin) |
 watch | a list of files and directories that will be watched if the job is run on a package. Usual source directories are implicitly included unless `default_watch` is set to false |
 workdir | overrides the execution directory |
 
@@ -287,7 +288,9 @@ Setting `listen = true` in the configuration makes bacon listen for commands on 
 
 Any action that can be bound to a key can also be sent on this socket, in text, one action per line.
 
-As a convenience, bacon can also be used to send those actions, eg `bacon --send 'scroll-lines(-2)'`.
+You can use standard unix programs. For example run `socat - UNIX-CONNECT:bacon.socket` then issue actions ending in new lines.
+
+Bacon can also be used to send those actions, eg `bacon --send 'scroll-lines(-2)'`.
 
 ## summary, wrap, reverse
 
@@ -330,3 +333,31 @@ on_failure = "play-sound(name=beep-warning,volume=100)"
 ```
 
 Sound name can be omitted. Possible values are `2`, `90s-game-ui-6`, `beep-6`, `beep-beep`, `beep-warning`, `bell-chord`, `car-horn`, `convenience-store-ring`, `cow-bells`, `pickup`, `positive-beeps`, `short-beep-tone`, `slash`, `store-scanner`, `success`.
+
+## Skin
+
+Most colors of the bacon application can be redefined in a `skin`, with colors being [8 bit ANSI values](https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit).
+
+You can set colors within a `[skin]` object in any configuration file:
+
+```TOML
+[skin]
+status_fg = 251
+status_bg = 4
+key_fg = 11
+status_key_fg = 11
+project_name_badge_fg = 11
+project_name_badge_bg = 69
+```
+and you can override colors in a job:
+
+```TOML
+[jobs.test]
+command = ["cargo", "test"]
+need_stdout = true
+skin.status_bg = 6
+```
+
+All available skin entries, with meaning and default values, are listed in [src/conf/skin.rs](https://github.com/Canop/bacon/blob/main/src/conf/skin.rs#62).
+Skin entries may be added or removed in minor versions of bacon. Unrecognized entries are just ignored.
+
