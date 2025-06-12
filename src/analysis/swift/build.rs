@@ -22,7 +22,16 @@
 //! This analyzer processes warnings, but `swift build` is incremental by default, and so warnings
 //! will not be consistent. Consider treating warnings as errors if this is a problem.
 
-use crate::{Analyzer, CommandOutputLine, ItemAccumulator, Kind, LineType, TLine, TString, burp};
+use crate::{
+    Analyzer,
+    CommandOutputLine,
+    ItemAccumulator,
+    Kind,
+    LineType,
+    TLine,
+    TString,
+    burp,
+};
 
 use super::parse_swift_location;
 

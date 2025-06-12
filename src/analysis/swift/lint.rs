@@ -15,7 +15,16 @@
 //! analyzer = "swift_lint"
 //! ```
 
-use crate::{Analyzer, CommandOutputLine, ItemAccumulator, Kind, LineType, TLine, TString, burp};
+use crate::{
+    Analyzer,
+    CommandOutputLine,
+    ItemAccumulator,
+    Kind,
+    LineType,
+    TLine,
+    TString,
+    burp,
+};
 
 use super::parse_swift_location;
 

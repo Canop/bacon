@@ -1,7 +1,19 @@
 use {
-    super::{biome, cargo_json, cpp, eslint, nextest, python, standard, swift},
+    super::{
+        biome,
+        cargo_json,
+        cpp,
+        eslint,
+        nextest,
+        python,
+        standard,
+        swift,
+    },
     crate::*,
-    serde::{Deserialize, Serialize},
+    serde::{
+        Deserialize,
+        Serialize,
+    },
 };
 
 /// A stateless operator building a report from a list of command output lines.
