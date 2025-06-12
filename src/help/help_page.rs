@@ -56,9 +56,10 @@ impl HelpPage {
     pub fn new(settings: &Settings) -> Self {
         let mut skin = MadSkin::default();
         skin.paragraph.align = Alignment::Center;
-        skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
+        let key_color = settings.all_jobs.skin.key_fg.color();
+        skin.italic = CompoundStyle::new(Some(key_color), None, Attribute::Bold.into());
         skin.table.align = Alignment::Center;
-        skin.bullet.set_fg(AnsiValue(204));
+        skin.bullet.set_fg(key_color);
         let mut expander = OwningTemplateExpander::new();
         expander.set("version", env!("CARGO_PKG_VERSION"));
         let mut bindings: Vec<(String, String)> = settings
