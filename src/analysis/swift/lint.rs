@@ -9,7 +9,7 @@
 //! l = "job:swift_lint"
 //!
 //! [jobs.swift_lint]
-//! wcommand = ["swiftlint", "lint", "--config", ".swiftlint.yml", "--strict"]
+//! command = ["swiftlint", "lint", "--config", ".swiftlint.yml", "--strict"]
 //! watch = ["Sources"]
 //! need_stdout = true
 //! analyzer = "swift_lint"

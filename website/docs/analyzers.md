@@ -17,6 +17,8 @@ Analyzer | Languages | Tool
 [eslint](#eslint)| JS/TS/CSS |  [ESLint](https://eslint.org/)
 [biome](#biome)| JS/TS/CSS |  [Biome](https://biomejs.dev/)
 [cpp](#gcc-clang)| C++ |  Clang and GCC
+[swift_build](#swift-build)| Swift |  swift build
+[swift_lint](#swift-lint)| Swift |  swift lint
 cpp_doctest| C++ |  [doctest](https://github.com/doctest/doctest).
 
 # Rust
@@ -198,7 +200,35 @@ need_stdout = true
 analyzer = "cpp"
 ```
 
-##
+# Swift
+
+**Status: <span style="background-color:orange;color:white;padding:3px">young</span>**
+
+[Swift](https://www.swift.org/)
+
+## Swift build
+
+Example configuration:
+
+```TOML
+[jobs.swift_build]
+command = ["swift", "build"]
+watch = ["Sources"]
+need_stdout = true
+analyzer = "swift_build"
+```
+
+## Swift lint
+
+Example configuration:
+
+```TOML
+command = ["swiftlint", "lint", "--config", ".swiftlint.yml", "--strict"]
+watch = ["Sources"]
+need_stdout = true
+analyzer = "swift_lint"
+```
+
 
 # Other tools
 
