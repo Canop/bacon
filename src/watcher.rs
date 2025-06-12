@@ -2,44 +2,40 @@ use {
     crate::*,
     anyhow::Result,
     notify::{
-        RecommendedWatcher,
-        RecursiveMode,
-        Watcher as NotifyWatcher,
         event::{
-            AccessKind,
-            AccessMode,
-            DataChange,
-            EventKind,
-            ModifyKind,
-        },
+            AccessKind, AccessMode, DataChange, EventKind, MetadataKind, ModifyKind
+        }, RecursiveMode, Watcher as NotifyWatcher
     },
-    std::path::PathBuf,
+    std::{path::PathBuf, time::Duration},
     termimad::crossbeam::channel::{
-        Receiver,
-        bounded,
+        bounded, Receiver
     },
 };
 
 /// A file watcher, providing a channel to receive notifications
 pub struct Watcher {
     pub receiver: Receiver<()>,
-    _notify_watcher: RecommendedWatcher,
+    _notify_watcher: Box<dyn NotifyWatcher>,
 }
 
 impl Watcher {
     pub fn new(
         paths_to_watch: &[PathBuf],
         mut ignorer: IgnorerSet,
+        polling: Option<u64>,
     ) -> Result<Self> {
         info!("watcher on {:#?}", paths_to_watch);
         let (sender, receiver) = bounded(0);
-        let mut notify_watcher =
-            notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
+        let event_handler = move |res: notify::Result<notify::Event>| match res {
                 Ok(we) => {
                     match we.kind {
-                        EventKind::Modify(ModifyKind::Metadata(_)) => {
-                            debug!("ignoring metadata change");
-                            return; // useless event
+                        EventKind::Modify(ModifyKind::Metadata(kind)) => {
+                            if kind == MetadataKind::WriteTime && polling.is_some() {
+                                // the only event triggered usable when polling on WSL2   
+                            } else {
+                                debug!("ignoring metadata change: {:?}", kind);
+                                return; // useless event
+                            }
                         }
                         EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
                             debug!("ignoring 'any' data change");
@@ -73,7 +69,20 @@ impl Watcher {
                     }
                 }
                 Err(e) => warn!("watch error: {:?}", e),
-            })?;
+            };
+            let use_polling = polling.is_some();
+        let notify_watcher: Result<Box<dyn NotifyWatcher>, notify::Error> = if use_polling {
+            let config = notify::Config::default()
+                .with_poll_interval(Duration::from_secs(polling.unwrap_or_default()))
+                .with_compare_contents(true);
+            notify::PollWatcher::new(event_handler, config)
+                .map(|w| Box::new(w) as Box<dyn NotifyWatcher>)
+        } else {
+            notify::recommended_watcher(event_handler)
+                .map(|w| Box::new(w) as Box<dyn NotifyWatcher>)
+        };
+        let mut notify_watcher = notify_watcher?;
+
         for path in paths_to_watch {
             if !path.exists() {
                 warn!("watch path doesn't exist: {:?}", path);
