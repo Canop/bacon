@@ -1,4 +1,5 @@
-### next
+<a name="v3.16.0"></a>
+### v3.16.0 - 2025/06/14
 - bacon colors configuration, see https://dystroy.org/bacon/config/#skin - Fix #215
 - swift analyzers for building and linting - Thanks @mhedgpeth
 - `open-jobs-menu` (bound to ctrl-j) and configurable `open-menu` - Fix #364
