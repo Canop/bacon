@@ -87,6 +87,12 @@ BaconSkin! {
     found_selected_bg: 208, // background color of a selected search match
     search_input_prefix_fg: 208, // foreground color of the '/' search prefix
     search_summary_fg: 208, // foreground color of the search summary
+    menu_border: 234,
+    menu_bg: 235,
+    menu_item_bg: 235,
+    menu_item_selected_bg: 239,
+    menu_item_fg: 250,
+    menu_item_selected_fg: 255,
 }
 
 #[test]

@@ -79,6 +79,7 @@ command = [
 	"-A", "clippy::len_without_is_empty",
 	"-A", "clippy::map_entry",
 	"-A", "clippy::while_let_on_iterator",
+	"-A", "clippy::new_without_default",
 ]
 need_stdout = false
 

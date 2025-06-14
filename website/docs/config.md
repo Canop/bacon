@@ -177,6 +177,8 @@ help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 job:job-reference | | execute the job with [job-reference](#job-references)
 next-match | <kbd>tab</kbd> | go to next search match
 no-op |  | do nothing (may be used to disable a previously set binding)
+open-menu(*menu-definition*) |  | open a user defined menu. For example<br>` "open-menu(intro=a text,actions=[job:ch,export:mx,quit])"`
+open-jobs-menu | <kbd>ctrl</kbd>-<kbd>j</kbd> | open a menu with all jobs
 pause |  | disable automatic job execution on change
 play-sound |  | play a [sound](#sound) with optional parameters, eg `play-sound(volume=100%)`
 previous-match | <kbd>backtab</kbd> | go to previous search match

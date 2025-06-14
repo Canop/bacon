@@ -75,6 +75,8 @@ pub struct AppState<'s> {
     pub messages: Vec<Message>,
     /// the search state
     pub search: SearchState,
+    /// The dialog that may be displayed over the rest of the UI
+    pub dialog: Dialog,
 }
 
 impl<'s> AppState<'s> {
@@ -127,7 +129,22 @@ impl<'s> AppState<'s> {
             changes_since_last_job_start: 0,
             messages: Vec::new(),
             search: Default::default(),
+            dialog: Dialog::None,
         })
+    }
+    pub fn open_jobs_menu(&mut self) {
+        self.dialog = Dialog::Menu(ActionMenu::with_all_jobs(&self.mission));
+    }
+    pub fn open_menu(
+        &mut self,
+        def: ActionMenuDefinition,
+    ) {
+        self.dialog = Dialog::Menu(ActionMenu::from_definition(def, self.mission.settings));
+    }
+    pub fn close_menu(&mut self) {
+        if let Dialog::Menu(_) = self.dialog {
+            self.dialog = Dialog::None;
+        }
     }
     pub fn focus_file(
         &mut self,
@@ -152,18 +169,18 @@ impl<'s> AppState<'s> {
     }
     // Handle the "back" operation, return true if it did (thus consuming the action)
     pub fn back(&mut self) -> bool {
-        if self.search.focused() {
+        if self.dialog.is_some() {
+            self.dialog = Dialog::None; // FIXME or send the 'back' to the dialog?
+        } else if self.search.focused() {
             self.search.unfocus_and_clear();
-            true
         } else if self.help_page.is_some() {
             self.help_page = None;
-            true
         } else if self.search.input_has_content() {
             self.search.clear();
-            true
         } else {
-            false
+            return false;
         }
+        true
     }
     pub fn copy_unstyled_output(&mut self) {
         let message = {
@@ -209,18 +226,24 @@ impl<'s> AppState<'s> {
         self.search.focused() || self.search.input_has_content()
     }
     /// handle a raw, uninterpreted key combination (in an input if there's one
-    /// focused), return true if the key was consumed (if not, keybindings will
-    /// be computed)
-    pub fn apply_key_combination(
+    /// focused), return an action (may be noop) if the key was consumed
+    /// (if not, keybindings will be computed by the app)
+    pub fn on_key(
         &mut self,
         key: KeyCombination,
-    ) -> bool {
+    ) -> Option<Action> {
+        match &mut self.dialog {
+            Dialog::None => {}
+            Dialog::Menu(menu) => {
+                return menu.state.on_key(key);
+            }
+        }
         if self.search.apply_key_combination(key) {
             self.update_search();
             self.show_selected_found();
-            return true;
+            return Some(Action::NoOp);
         }
-        false
+        None
     }
     pub fn update_search(&mut self) {
         if self.search.is_up_to_date() {
@@ -932,6 +955,13 @@ impl<'s> AppState<'s> {
                 self.draw_content(w, 2)?;
             }
             self.draw_status_line(w, self.height - 1)?;
+        }
+        match &mut self.dialog {
+            Dialog::None => {}
+            Dialog::Menu(menu) => {
+                menu.set_available_area(Area::new(0, 0, self.width, self.height));
+                menu.draw(w, &self.mission.job.skin)?;
+            }
         }
         w.flush()?;
         Ok(())

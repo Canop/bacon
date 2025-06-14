@@ -244,10 +244,15 @@ fn run_mission(
                     Event::Key(key_event) => {
                         let key_combination = KeyCombination::from(key_event);
                         debug!("key combination pressed: {}", key_combination);
-                        if !state.apply_key_combination(key_combination) {
-                            let action = keybindings.get(key_combination);
-                            if let Some(action) = action {
-                                actions.push(action.clone());
+                        match state.on_key(key_combination) {
+                            Some(action) => {
+                                actions.push(action);
+                            }
+                            None => {
+                                let action = keybindings.get(key_combination);
+                                if let Some(action) = action {
+                                    actions.push(action.clone());
+                                }
                             }
                         }
                     }
@@ -322,6 +327,12 @@ fn run_mission(
                     state.next_match();
                 }
                 Action::NoOp => {}
+                Action::OpenJobsMenu => {
+                    state.open_jobs_menu();
+                }
+                Action::OpenMenu(definition) => {
+                    state.open_menu(*definition);
+                }
                 Action::Pause => {
                     state.auto_refresh = AutoRefresh::Paused;
                 }

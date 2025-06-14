@@ -33,6 +33,7 @@ iq = { version = "0.4", features = ["template"] }
 lazy-regex = "3.4.1"
 notify = "7.0"
 paste = "1.0"
+pretty_assertions = "1.4"
 rodio = { version = "0.20", optional = true, default-features = false, features = ["mp3"] }
 rustc-hash = "2"
 serde = { version = "1.0", features = ["derive"] }

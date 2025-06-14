@@ -32,6 +32,8 @@ pub enum Action {
     Job(JobRef),
     NextMatch,
     NoOp, // no operation, can be used to clear a binding
+    OpenMenu(Box<ActionMenuDefinition>),
+    OpenJobsMenu,
     Pause,
     PlaySound(PlaySoundCommand),
     PreviousMatch,
@@ -67,6 +69,8 @@ impl Action {
             Self::Job(job_name) => format!("start the *{job_name}* job"),
             Self::NextMatch => "next match".to_string(),
             Self::NoOp => "no operation".to_string(),
+            Self::OpenMenu(_) => "open specific menu".to_string(),
+            Self::OpenJobsMenu => "open jobs menu".to_string(),
             Self::Pause => "pause".to_string(),
             Self::PlaySound(_) => "play sound".to_string(),
             Self::PreviousMatch => "previous match".to_string(),
@@ -148,6 +152,21 @@ impl fmt::Display for Action {
             Self::CopyUnstyledOutput => write!(f, "copy-unstyled-output"),
             Self::Help => write!(f, "help"),
             Self::NoOp => write!(f, "no-op"),
+            Self::OpenMenu(def) => {
+                write!(f, "open-menu(")?;
+                if let Some(intro) = &def.intro {
+                    write!(f, "intro={intro},")?;
+                }
+                write!(f, "actions=[")?;
+                for (i, action) in def.actions.iter().enumerate() {
+                    if i > 0 {
+                        write!(f, ",")?;
+                    }
+                    write!(f, "{action}")?;
+                }
+                write!(f, "])")
+            }
+            Self::OpenJobsMenu => write!(f, "open-jobs-menu"),
             Self::Pause => write!(f, "pause"),
             Self::Quit => write!(f, "quit"),
             Self::ReRun => write!(f, "rerun"),
@@ -189,6 +208,18 @@ impl FromStr for Action {
             r"^(?:internal:)?back-or-quit$" => Self::BackOrQuit,
             r"^(?:internal:)?help$" => Self::Help,
             r"^(?:internal:)?quit$" => Self::Quit,
+            r"^(?:internal:)?open-menu\((?:intro=(?<intro>.+),\s*)?(?:actions=\[(?<actions>.+)\])\)$" => {
+                let actions = actions.split(',')
+                    .map(|s| s.trim())
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.parse::<Action>())
+                    .collect::<Result<Vec<_>, _>>()?;
+                Self::OpenMenu(Box::new(ActionMenuDefinition {
+                    intro: if intro.is_empty() { None } else { Some(intro.to_string()) },
+                    actions,
+                }))
+            }
+            r"^?open-jobs?-menu$" => Self::OpenJobsMenu,
             r"^(?:internal:)?refresh$" => Self::Refresh,
             r"^(?:internal:)?reload-config$" => Self::ReloadConfig,
             r"^(?:internal:)?rerun$" => Self::ReRun,
@@ -320,6 +351,19 @@ fn test_action_string_round_trip() {
         Action::Back,
         Action::BackOrQuit,
         Action::FocusSearch,
+        Action::OpenJobsMenu,
+        Action::OpenMenu(Box::new(ActionMenuDefinition {
+            intro: Some("This is a menu".to_string()),
+            actions: vec![
+                Action::Job(JobRef::Initial),
+                Action::Job(JobRef::PreviousOrQuit),
+                Action::Job(JobRef::Concrete(ConcreteJobRef {
+                    name_or_alias: NameOrAlias::Name("run".to_string()),
+                    scope: Scope::default(),
+                })),
+                Action::Help,
+            ],
+        })),
         Action::Help,
         Action::NoOp,
         Action::Pause,
@@ -364,7 +408,10 @@ fn test_action_string_round_trip() {
 /// See https://github.com/Canop/bacon/issues/322
 #[test]
 fn test_play_sound_parsing_with_space() {
-    use crate::Action;
+    use {
+        crate::Action,
+        pretty_assertions::assert_eq,
+    };
     let strings = [
         "play-sound(name=car-horn,volume=5)",
         "play-sound(name=car-horn, volume=5)",
