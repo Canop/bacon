@@ -1,4 +1,5 @@
 ### next
+- bacon colors configuration, see https://dystroy.org/bacon/config/#skin - Fix #215
 - swift analyzers for building and linting - Thanks @mhedgpeth
 
 <a name="v3.11.0"></a>

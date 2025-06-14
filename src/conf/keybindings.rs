@@ -52,6 +52,7 @@ impl Default for KeyBindings {
         bindings.set(key!(tab), Action::NextMatch);
         bindings.set(key!(backtab), Action::PreviousMatch);
         bindings.set(key!(shift - backtab), Action::PreviousMatch);
+        bindings.set(key!(ctrl - j), Action::OpenJobsMenu);
 
         // keybindings for some common jobs
         bindings.set(key!(a), JobRef::from_job_name("check-all"));
@@ -92,34 +93,35 @@ impl KeyBindings {
     ) -> Option<&Action> {
         self.map.get(&key)
     }
-    /// return the shortest key.to_string for the internal, if any
-    pub fn shortest_internal_key(
+    /// return the shortest key.to_string for the action, if any
+    pub fn shortest_key_for(
         &self,
-        internal: Action,
-    ) -> Option<String> {
-        self.shortest_action_key(|action| action == &internal)
+        action: &Action,
+    ) -> Option<KeyCombination> {
+        self.shortest_key(|a| a == action)
     }
-    /// return the shortest key.to_string for the internal, if any
-    pub fn shortest_action_key<F>(
+    /// return the key combination for the action matching the filter, choosing
+    /// the one with the shortest Display representation.
+    pub fn shortest_key<F>(
         &self,
         filter: F,
-    ) -> Option<String>
+    ) -> Option<KeyCombination>
     where
         F: Fn(&Action) -> bool,
     {
-        let mut shortest: Option<String> = None;
-        for (ck, action) in &self.map {
+        let mut shortest: Option<(KeyCombination, String)> = None;
+        for (&ck, action) in &self.map {
             if filter(action) {
                 let s = ck.to_string();
                 match &shortest {
-                    Some(previous) if previous.len() < s.len() => {}
+                    Some(previous) if previous.1.len() < s.len() => {}
                     _ => {
-                        shortest = Some(s);
+                        shortest = Some((ck, s));
                     }
                 }
             }
         }
-        shortest
+        shortest.map(|o| o.0)
     }
     /// build and return a map from actions to all the possible shortcuts
     pub fn build_reverse_map(&self) -> HashMap<&Action, Vec<KeyCombination>> {

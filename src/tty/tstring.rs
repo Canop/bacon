@@ -46,7 +46,7 @@ impl TString {
         bg: u8,
     ) -> Self {
         Self {
-            csi: format!("\u{1b}[1m\u{1b}[38;5;{}m\u{1b}[48;5;{}m", fg, bg),
+            csi: csi(fg, bg),
             raw: format!(" {} ", con),
         }
     }

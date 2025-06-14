@@ -205,7 +205,7 @@ impl Args {
         let skin = printer.skin_mut();
         skin.headers[0].compound_style.set_fg(ansi(204));
         skin.bold.set_fg(ansi(204));
-        skin.italic = termimad::CompoundStyle::with_fg(ansi(204)); // 2, 81, 73, 38
+        skin.italic = termimad::CompoundStyle::with_fg(ansi(204));
         printer.template_keys_mut().push("examples");
         printer.set_template("examples", EXAMPLES_TEMPLATE);
         for (i, example) in EXAMPLES.iter().enumerate() {

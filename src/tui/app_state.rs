@@ -16,7 +16,6 @@ use {
             execute,
             style::{
                 Attribute,
-                Color::*,
                 Print,
             },
         },
@@ -76,6 +75,8 @@ pub struct AppState<'s> {
     pub messages: Vec<Message>,
     /// the search state
     pub search: SearchState,
+    /// The dialog that may be displayed over the rest of the UI
+    pub dialog: Dialog,
 }
 
 impl<'s> AppState<'s> {
@@ -85,10 +86,15 @@ impl<'s> AppState<'s> {
     ) -> Result<Self> {
         let report_maker = ReportMaker::new(&mission);
         let mut status_skin = MadSkin::default();
+        let skin = mission.job.skin;
         status_skin
             .paragraph
-            .set_fgbg(AnsiValue(252), AnsiValue(239));
-        status_skin.italic = CompoundStyle::new(Some(AnsiValue(204)), None, Attribute::Bold.into());
+            .set_fgbg(skin.status_fg.color(), skin.status_bg.color());
+        status_skin.italic = CompoundStyle::new(
+            Some(skin.status_key_fg.color()),
+            None,
+            Attribute::Bold.into(),
+        );
         let (width, height) = if headless {
             (50, 50)
         } else {
@@ -123,7 +129,22 @@ impl<'s> AppState<'s> {
             changes_since_last_job_start: 0,
             messages: Vec::new(),
             search: Default::default(),
+            dialog: Dialog::None,
         })
+    }
+    pub fn open_jobs_menu(&mut self) {
+        self.dialog = Dialog::Menu(ActionMenu::with_all_jobs(&self.mission));
+    }
+    pub fn open_menu(
+        &mut self,
+        def: ActionMenuDefinition,
+    ) {
+        self.dialog = Dialog::Menu(ActionMenu::from_definition(def, self.mission.settings));
+    }
+    pub fn close_menu(&mut self) {
+        if let Dialog::Menu(_) = self.dialog {
+            self.dialog = Dialog::None;
+        }
     }
     pub fn focus_file(
         &mut self,
@@ -148,18 +169,18 @@ impl<'s> AppState<'s> {
     }
     // Handle the "back" operation, return true if it did (thus consuming the action)
     pub fn back(&mut self) -> bool {
-        if self.search.focused() {
+        if self.dialog.is_some() {
+            self.dialog = Dialog::None; // FIXME or send the 'back' to the dialog?
+        } else if self.search.focused() {
             self.search.unfocus_and_clear();
-            true
         } else if self.help_page.is_some() {
             self.help_page = None;
-            true
         } else if self.search.input_has_content() {
             self.search.clear();
-            true
         } else {
-            false
+            return false;
         }
+        true
     }
     pub fn copy_unstyled_output(&mut self) {
         let message = {
@@ -205,18 +226,24 @@ impl<'s> AppState<'s> {
         self.search.focused() || self.search.input_has_content()
     }
     /// handle a raw, uninterpreted key combination (in an input if there's one
-    /// focused), return true if the key was consumed (if not, keybindings will
-    /// be computed)
-    pub fn apply_key_combination(
+    /// focused), return an action (may be noop) if the key was consumed
+    /// (if not, keybindings will be computed by the app)
+    pub fn on_key(
         &mut self,
         key: KeyCombination,
-    ) -> bool {
+    ) -> Option<Action> {
+        match &mut self.dialog {
+            Dialog::None => {}
+            Dialog::Menu(menu) => {
+                return menu.state.on_key(key);
+            }
+        }
         if self.search.apply_key_combination(key) {
             self.update_search();
             self.show_selected_found();
-            return true;
+            return Some(Action::NoOp);
         }
-        false
+        None
     }
     pub fn update_search(&mut self) {
         if self.search.is_up_to_date() {
@@ -559,7 +586,10 @@ impl<'s> AppState<'s> {
         // Search input
         if self.search.must_be_drawn() {
             let search_width = (self.width / 4).clamp(9, 27);
-            self.search.draw_prefixed_input(w, 0, y, search_width)?;
+            let skin = self.mission.job.skin;
+            let csi = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.search_input_prefix_fg());
+            self.search
+                .draw_prefixed_input(w, 0, y, &csi, search_width)?;
             help_start += search_width;
         }
         goto(w, help_start, y)?;
@@ -584,27 +614,55 @@ impl<'s> AppState<'s> {
     pub fn job_badges(&self) -> Vec<TString> {
         let mut badges = Vec::new();
         let project_name = &self.mission.location_name;
-        badges.push(TString::badge(project_name, 255, 240));
+        let skin = self.mission.job.skin;
+        badges.push(TString::badge(
+            project_name,
+            skin.project_name_badge_fg(),
+            skin.project_name_badge_bg(),
+        ));
         let job_label = self.mission.concrete_job_ref.badge_label();
-        badges.push(TString::badge(&job_label, 235, 204));
+        badges.push(TString::badge(
+            &job_label,
+            skin.job_label_badge_fg(),
+            skin.job_label_badge_bg(),
+        ));
         if let CommandResult::Report(report) = &self.cmd_result {
             let stats = &report.stats;
             if stats.errors > 0 {
-                badges.push(TString::num_badge(stats.errors, "error", 235, 9));
+                badges.push(TString::num_badge(
+                    stats.errors,
+                    "error",
+                    skin.errors_badge_fg(),
+                    skin.errors_badge_bg(),
+                ));
             }
             if stats.test_fails > 0 {
-                badges.push(TString::num_badge(stats.test_fails, "fail", 235, 208));
+                badges.push(TString::num_badge(
+                    stats.test_fails,
+                    "fail",
+                    skin.test_fails_badge_fg(),
+                    skin.test_fails_badge_bg(),
+                ));
             } else if stats.passed_tests > 0 {
-                badges.push(TString::badge("pass!", 254, 2));
+                badges.push(TString::badge(
+                    "pass!",
+                    skin.test_pass_badge_fg(),
+                    skin.test_pass_badge_bg(),
+                ));
             }
             if stats.warnings > 0 {
-                badges.push(TString::num_badge(stats.warnings, "warning", 235, 11));
+                badges.push(TString::num_badge(
+                    stats.warnings,
+                    "warning",
+                    skin.warnings_badge_fg(),
+                    skin.warnings_badge_bg(),
+                ));
             }
         } else if let CommandResult::Failure(failure) = &self.cmd_result {
             badges.push(TString::badge(
                 &format!("Command error code: {}", failure.error_code),
-                235,
-                9,
+                skin.command_error_badge_fg(),
+                skin.command_error_badge_bg(),
             ));
         }
         badges
@@ -616,6 +674,7 @@ impl<'s> AppState<'s> {
         w: &mut W,
         y: u16,
     ) -> Result<usize> {
+        let skin = self.mission.job.skin;
         goto_line(w, y)?;
         let mut t_line = TLine::default();
         for badge in self.job_badges() {
@@ -625,11 +684,14 @@ impl<'s> AppState<'s> {
             t_line.add_badge(TString::num_badge(
                 self.changes_since_last_job_start,
                 "change",
-                235,
-                6,
+                skin.change_badge_fg(),
+                skin.change_badge_bg(),
             ));
         }
-        self.search.add_summary_tstring(&mut t_line);
+        if self.search.input_has_content() {
+            let csi_found = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.found_fg()); // bold, colored foreground
+            self.search.add_summary_tstring(&mut t_line, &csi_found);
+        }
         let width = self.width as usize;
         let cols = t_line.draw_in(w, width)?;
         clear_line(w)?;
@@ -642,11 +704,14 @@ impl<'s> AppState<'s> {
         y: u16,
     ) -> Result<()> {
         goto_line(w, y)?;
+        let skin = self.mission.job.skin;
         let width = self.width as usize;
         if self.computing {
             write!(
                 w,
-                "\u{1b}[38;5;235m\u{1b}[48;5;204m{:^w$}\u{1b}[0m",
+                "\u{1b}[38;5;{}m\u{1b}[48;5;{}m{:^w$}\u{1b}[0m",
+                skin.computing_fg(),
+                skin.computing_bg(),
                 "computing...",
                 w = width
             )?;
@@ -768,6 +833,12 @@ impl<'s> AppState<'s> {
         if self.height < 4 {
             return Ok(());
         }
+        let skin = self.mission.job.skin;
+        let csi_found = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.found_fg()); // bold, colored foreground
+        let csi_found_selected = format!(
+            "\u{1b}[1m\u{1b}[30m\u{1b}[48;5;{}m",
+            skin.found_selected_bg()
+        ); // bold, colored background
         let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
         let content_height = self.content_height();
         let scrollbar = area.scrollbar(self.scroll, content_height);
@@ -787,9 +858,9 @@ impl<'s> AppState<'s> {
         let mut lines = lines.enumerate().skip(self.scroll);
         let mut found_idx = 0;
         #[derive(Debug)]
-        struct PendingContinuation {
+        struct PendingContinuation<'s> {
             trange: TRange,
-            style: &'static str,
+            style: &'s str,
         }
         let mut pending_continuation = None;
         for row_idx in 0..area.height {
@@ -828,9 +899,9 @@ impl<'s> AppState<'s> {
                         for (in_line_idx, found) in line_founds.iter().enumerate().rev() {
                             let cur_idx = found_idx_before_line + in_line_idx;
                             let style = if self.search.selected_found() == cur_idx {
-                                CSI_FOUND_SELECTED
+                                &csi_found_selected
                             } else {
-                                CSI_FOUND
+                                &csi_found
                             };
                             modified.change_range_style(found.trange, style.to_string());
                             if let Some(continued) = &found.continued {
@@ -884,6 +955,13 @@ impl<'s> AppState<'s> {
                 self.draw_content(w, 2)?;
             }
             self.draw_status_line(w, self.height - 1)?;
+        }
+        match &mut self.dialog {
+            Dialog::None => {}
+            Dialog::Menu(menu) => {
+                menu.set_available_area(Area::new(0, 0, self.width, self.height));
+                menu.draw(w, &self.mission.job.skin)?;
+            }
         }
         w.flush()?;
         Ok(())
