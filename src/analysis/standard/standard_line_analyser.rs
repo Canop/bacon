@@ -178,7 +178,7 @@ fn as_test_name(s: &str) -> Option<&str> {
     .map(|(_, key)| key)
 }
 
-/// return Some when the line is the non detailled
+/// return Some when the line is the non detailed
 /// result of a test, for example
 ///
 ///  "test str_fit::fitting_count_tests::test_count_fitting ... FAILED"

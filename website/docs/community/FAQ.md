@@ -13,7 +13,7 @@ Rendering is adapted to the dimensions of the terminal to ensure you get a prope
 
 # Parallel bacon ?
 
-It's perfectly OK to have several bacon running in paralle, and can be useful to check several compilation targets.
+It's perfectly OK to have several bacon running in parallel, and can be useful to check several compilation targets.
 
 Similarly you don't have to stop bacon when you want to use cargo to build the application, or when you're just working on something else. You may have a dozen bacon running without problem.
 

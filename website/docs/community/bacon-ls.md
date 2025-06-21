@@ -9,7 +9,7 @@
 
 # Features
 
-* Read diagnostics from produced by Bacon.
+* Read diagnostics produced by Bacon.
 * Push diagnostics to the LSP client on certain events like saving or files changes.
 * Precise diagnostics positions.
 * Ability to react to changes over document saves and changes that can be configured.

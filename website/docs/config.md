@@ -95,7 +95,7 @@ skin | bacon application colors, [see below](#skin) |
 watch | a list of files and directories that will be watched if the job is run on a package. Usual source directories are implicitly included unless `default_watch` is set to false |
 workdir | overrides the execution directory |
 
-All these properties can also be defined before jobs and will apply to all of them unless overriden.
+All these properties can also be defined before jobs and will apply to all of them unless overridden.
 
 Beware of job references in `on_success`: you must avoid loops with 2 jobs calling themselves mutually, which would make bacon run all the time.
 

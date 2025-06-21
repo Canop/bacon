@@ -13,7 +13,7 @@ It shows you errors before warnings, and the first errors before the last ones, 
 
 ![vi-and-bacon](img/vi-and-bacon.png)
 
-You don't have to remember commands: the essential ones are listed on bottom and the few other ones are shown on a hit on the <kbd>h</kbd> key.
+You don't have to remember commands: the essential ones are listed at the bottom and the few other ones are shown when you hit the <kbd>h</kbd> key.
 
 # Installation
 
@@ -23,7 +23,7 @@ Run
 cargo install --locked bacon
 ```
 
-Run this command too if you want to update bacon. Configuration has always been retro-compatible so you won't lose anything.
+Run this command too if you want to update bacon. Configuration has always been backward compatible so you won't lose anything.
 
 Some features are disabled by default. You may enable them with
 
@@ -37,8 +37,8 @@ Launch bacon in a terminal you'll keep visible
 bacon
 ```
 
-This launches the default job, usually based on `cargo check` :
-Bacon will watch the source directories and shows you the errors and warnings found by the cargo command.
+This launches the default job, usually based on `cargo check`:
+Bacon will watch the source directories and show you the errors and warnings found by the cargo command.
 
 You may decide to launch and watch tests by either hitting the <kbd>t</kbd> key, or by launching bacon with
 

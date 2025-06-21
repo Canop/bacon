@@ -18,7 +18,7 @@ pub enum Kind {
     Error,
     /// a test failure
     TestFail,
-    /// a sum of errors and/or warnings, typically occuring
+    /// a sum of errors and/or warnings, typically occurring
     /// at the end of the compilation of a package
     Sum,
 }
@@ -74,7 +74,7 @@ impl LineType {
         match line.line_type {
             Self::Continuation { offset, .. } => {
                 if offset > idx {
-                    error!("unconsistent offset in continuation line");
+                    error!("inconsistent offset in continuation line");
                     return None;
                 }
                 let idx = idx - offset;

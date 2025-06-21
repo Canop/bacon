@@ -83,7 +83,7 @@ need_stdout = true
 
 You may add `on_success = "back"` if you don't want the executable to run again on changes.
 
-The `allow_warnings = true` line tells bacon to run the executable even when there are warnings. The excutable's output would come below warnings.
+The `allow_warnings = true` line tells bacon to run the executable even when there are warnings. The executable's output would come below warnings.
 
 Some libraries and programs test whether they run in a TTY and remove style in such case.
 Most usually, those applications provide a way to bypass this test with a launch argument.
