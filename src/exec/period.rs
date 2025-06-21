@@ -13,7 +13,7 @@ use {
 };
 
 /// A small wrapper over time::Duration, to allow reading from a string in
-/// config. There's no symetric serialization and the input format is
+/// config. There's no symmetric serialization and the input format is
 /// quite crude (eg "25ms" or "254ns" or "none")
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Period {

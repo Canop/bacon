@@ -80,7 +80,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
                             );
                             item_location_written = true;
                         } else {
-                            warn!("unconsistent line parsing");
+                            warn!("inconsistent line parsing");
                         }
                         continue;
                     }

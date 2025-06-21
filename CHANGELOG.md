@@ -7,7 +7,7 @@
 <a name="v3.15.0"></a>
 ### v3.15.0 - 2025/06/01
 - the concept of "internals" has been removed. They were a category of actions and they're just actions now. This has no functional impact.
-- the optional `workdir` job setting allows explicitely overriding the execution directory of a job's command - experimental, feedback welcome
+- the optional `workdir` job setting allows explicitly overriding the execution directory of a job's command - experimental, feedback welcome
 
 <a name="v3.14.0"></a>
 ### v3.14.0 - 2025/05/19
@@ -193,7 +193,7 @@ The on_change_strategy can be defined in the global prefs, in the project settin
 - insert features related arguments before the -- when there's some - Fix #171
 - fix offset in Windows terminal - Fix #175
 - better `--help` with examples and main shortcuts
-- rewriten execution engine
+- rewritten execution engine
 
 <a name="v2.14.2"></a>
 ### v2.14.2 - 2024/02/10
@@ -432,7 +432,7 @@ If the job's command returns an error code and no error was read in the output, 
 
 <a name="v0.5.3"></a>
 ### v0.5.3 - 2020/11/14
-* "reverse" option allows having the focus on bottom - Fix #19
+* "reverse" option allows having the focus at the bottom - Fix #19
 * initial compilation autoscroll based on scroll position - Fix #22
 * remove flickering
 
