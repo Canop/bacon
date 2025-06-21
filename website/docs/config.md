@@ -227,7 +227,7 @@ job reference | meaning
 `job:previous` | the job which ran before, if any. The `back` action has usually the same effect
 `job:previous-or-quit` | same as `job:previous`, but will quit if there was no job. The `back-or-quit` action has usually the same effect
 
-# Exports
+# Exports
 
 If necessary, exports can be defined to write files either on end of task or on key presses.
 

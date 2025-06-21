@@ -6,7 +6,7 @@ This page is an overview of the supported tools and how bacon can be configured 
 
 # Summary
 
-Analyzer | Languages | Tool
+Analyzer | Languages | Tool
 -|-|-
 [standard](#rust) (*default*) | Rust | [cargo](https://doc.rust-lang.org/cargo/) `check`, `build`, `test`, `clippy`, `doc`, `run`, `miri`
 [nextest](#nextest)| Rust |  [cargo-nextest](https://nexte.st/)
