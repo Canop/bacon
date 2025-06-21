@@ -42,7 +42,7 @@
 # Uncomment and change the value (true/false) to
 # set whether to display the count of changes since last job start
 #
-# show_changes_count = false
+# show_changes_count = false
 
 
 # Uncomment one of those lines if you don't want the default
@@ -74,12 +74,12 @@ line_format = "{kind} {path}:{line}:{column} {message}"
 
 # If you want some job to emit a beep on success or on failure,
 # you need to globally enable sound, and you may set up the max volume here
-# 
+#
 # With sound enabled, you may set up sound on a job with eg
 #    on_success = "play-sound(name=90s-game-ui-6,volume=50)"
 #    on_failure = "play-sound(name=beep-warning,volume=100)"
 [sound]
-enabled = false # set true to allow sound
+enabled = false # set true to allow sound
 base_volume = "100%" # global volume multiplier
 
 # Uncomment and change the key-bindings you want to define
