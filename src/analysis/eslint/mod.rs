@@ -61,7 +61,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
                     last_location_path = Some(path);
                     continue;
                 } else {
-                    warn!("unconsistent line parsing");
+                    warn!("inconsistent line parsing");
                 }
             }
             _ => {}
@@ -73,7 +73,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             // to choose the format we want so we're choosing the BURP one
             let line_col: Option<&str> = cmd_line.content.strings.get(1).map(|s| s.raw.as_ref());
             let Some(line_col) = line_col else {
-                warn!("unconsistent line parsing");
+                warn!("inconsistent line parsing");
                 continue;
             };
             let Some(location_path) = last_location_path.as_ref() else {

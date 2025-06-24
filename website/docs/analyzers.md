@@ -1,4 +1,4 @@
-While Bacon was initially developped for the Rust language, it covers more and more tools and language.
+While Bacon was initially developed for the Rust language, it covers more and more tools and language.
 
 For most of them, a dedicated `analyzer` must be specified in the [job settings](../config#jobs).
 
@@ -6,7 +6,7 @@ This page is an overview of the supported tools and how bacon can be configured 
 
 # Summary
 
-Analyzer | Languages | Tool
+Analyzer | Languages | Tool
 -|-|-
 [standard](#rust) (*default*) | Rust | [cargo](https://doc.rust-lang.org/cargo/) `check`, `build`, `test`, `clippy`, `doc`, `run`, `miri`
 [nextest](#nextest)| Rust |  [cargo-nextest](https://nexte.st/)
@@ -88,7 +88,7 @@ It doesn't use the standard analyzer but bacon comes preconfigured with a nextes
 
 # Python
 
-Support of Python is just starting, and Python developpers should raise their hand if they want to see progress here.
+Support of Python is just starting, and Python developers should raise their hand if they want to see progress here.
 
 ## Unittest
 
@@ -96,7 +96,7 @@ Support of Python is just starting, and Python developpers should raise their ha
 
 Support for the [Unittest](https://docs.python.org/3/library/unittest.html) framework seems to work, but lacks testers and users.
 
-Exemple configuration:
+Example configuration:
 
 ```TOML
 [jobs.unittest]
@@ -132,7 +132,7 @@ watch = ["."]
 
 [ruff](https://docs.astral.sh/ruff/)
 
-Exemple configuration:
+Example configuration:
 
 ```TOML
 [jobs.ruff]

@@ -272,7 +272,7 @@ impl<'s> AppState<'s> {
         let lines = self.lines_to_draw_unfiltered();
         let search = self.search.search();
         if line_count_before >= lines.len() {
-            warn!("unconsistent line_count_before");
+            warn!("inconsistent line_count_before");
             return;
         }
         let new_founds = search.search_lines(&lines[line_count_before..]);

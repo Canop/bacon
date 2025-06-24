@@ -10,7 +10,7 @@ license = "AGPL-3.0"
 categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
 rust-version = "1.76"
-        
+
 [features]
 default = []
 clipboard = ["arboard"]
@@ -54,5 +54,5 @@ codegen-units = 1
 # termimad = { path = "../termimad" }
 # crokey = { path = "../crokey" }
 # coolor = { path = "../coolor" }
-# iq = { path = "../iq" }
+# iq = { path = "../iq" }
 # lazy-regex = { path = "../lazy-regex" }

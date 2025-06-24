@@ -19,7 +19,7 @@ struct Sound {
 /// Names here are as near as possible from the file names in the
 /// reources directory but without the number, syntax unconsistency and
 /// redundancy. Resource file names are kept identical to their original
-/// names to ease retrival for attribution).
+/// names to ease retrieval for attribution).
 fn get_sound(name: Option<&str>) -> Result<Sound, SoundError> {
     let name = name.unwrap_or("store-scanner");
     let sound = match name {

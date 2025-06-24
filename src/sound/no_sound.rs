@@ -12,6 +12,6 @@ impl SoundPlayer {
         &self,
         _beep: PlaySoundCommand,
     ) {
-        // should never be called as the  sound player is not instanciated
+        // should never be called as the  sound player is not instantiated
     }
 }
