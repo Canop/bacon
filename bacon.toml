@@ -22,7 +22,6 @@ analyzer = "cargo_json"
 [jobs.check]
 command = ["cargo", "check"]
 need_stdout = false
-default_watch = false
 
 [jobs.check-all]
 command = [
