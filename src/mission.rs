@@ -55,7 +55,7 @@ impl Mission<'_> {
             }
         }
 
-        // Direct env vars from job have highest priority
+        // Direct env vars from job have the highest priority
         for (k, v) in &self.job.env {
             all_env_vars.insert(k.clone(), v.clone());
         }
