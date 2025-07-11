@@ -393,12 +393,10 @@ EMPTY_VARIABLE=
 fn test_env_file_integration() {
     use std::fs;
 
-    // Create a temporary directory for the test
     let temp_dir = std::env::temp_dir();
     let test_dir = temp_dir.join("bacon_env_test");
     fs::create_dir_all(&test_dir).unwrap();
 
-    // Create test .env file
     let env_file_path = test_dir.join(".env");
     let env_content = r#"
 # Test env file
@@ -440,6 +438,5 @@ RUST_BACKTRACE=0
     assert_eq!(job.env.get("DIRECT_VAR"), Some(&"direct_value".to_string()));
     assert_eq!(job.env.get("CARGO_TERM_COLOR"), Some(&"always".to_string())); // Should be overridden
 
-    // Clean up
     fs::remove_dir_all(&test_dir).unwrap();
 }
