@@ -147,24 +147,34 @@ impl Job {
                 continue;
             }
 
-            // Parse KEY=VALUE format
-            if let Some(eq_pos) = line.find('=') {
-                let key = line[..eq_pos].trim().to_string();
-                let value = line[eq_pos + 1..].trim().to_string();
-
-                // Remove surrounding quotes if present
-                let value = if (value.starts_with('"') && value.ends_with('"')) ||
-                             (value.starts_with('\'') && value.ends_with('\'')) {
-                    value[1..value.len() - 1].to_string()
-                } else {
-                    value
-                };
-
-                env_vars.insert(key, value);
-            }
+            Self::parse_key_value_pairs(&mut env_vars, line);
         }
 
         Ok(env_vars)
+    }
+
+    fn parse_key_value_pairs(env_vars: &mut HashMap<String, String>, line: &str) {
+        if let Some(eq_pos) = line.find('=') {
+            let key = line[..eq_pos].trim().to_string();
+            let value = line[eq_pos + 1..].trim().to_string();
+
+            let value = if Self::has_surrounding_quotes(&value) {
+                Self::remove_surrounding_quotes(&value)
+            } else {
+                value
+            };
+
+            env_vars.insert(key, value);
+        }
+    }
+
+    fn remove_surrounding_quotes(value: &str) -> String {
+        value[1..value.len() - 1].to_string()
+    }
+
+    fn has_surrounding_quotes(value: &str) -> bool {
+        (value.starts_with('"') && value.ends_with('"')) ||
+            (value.starts_with('\'') && value.ends_with('\''))
     }
 
     /// Build a `Job` for a cargo alias
