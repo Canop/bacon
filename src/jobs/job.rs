@@ -361,7 +361,6 @@ fn test_job_apply() {
 fn test_load_env_from_file() {
     use std::fs;
 
-    // Create a temporary file for testing
     let temp_dir = std::env::temp_dir();
     let env_file_path = temp_dir.join("test_env_file");
 
@@ -387,7 +386,6 @@ EMPTY_VARIABLE=
     assert_eq!(env_vars.get("EMPTY_VARIABLE"), Some(&"".to_string()));
     assert!(!env_vars.contains_key("NONEXISTENT"));
 
-    // Clean up
     fs::remove_file(&env_file_path).unwrap();
 }
 
