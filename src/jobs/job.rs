@@ -3,6 +3,7 @@ use {
     serde::Deserialize,
     std::{
         collections::HashMap,
+        fs,
         path::PathBuf,
     },
 };
@@ -50,6 +51,10 @@ pub struct Job {
     /// Env vars to set for this job execution
     #[serde(default)]
     pub env: HashMap<String, String>,
+
+    /// Path to a file containing environment variables to load
+    /// The file should contain KEY=VALUE pairs, one per line
+    pub env_file: Option<PathBuf>,
 
     /// Whether to expand environment variables in the command
     pub expand_env_vars: Option<bool>,
@@ -117,6 +122,51 @@ pub struct Job {
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
 
 impl Job {
+    /// Load environment variables from a file
+    /// Expected format: KEY=VALUE, one per line
+    /// Lines starting with # are treated as comments and ignored
+    /// Empty lines are ignored
+    /// If env_file is relative, it's resolved relative to base_dir (usually package directory)
+    pub fn load_env_from_file(env_file: &PathBuf, base_dir: Option<&PathBuf>) -> Result<HashMap<String, String>, std::io::Error> {
+        let resolved_path = if env_file.is_absolute() {
+            env_file.clone()
+        } else if let Some(base) = base_dir {
+            base.join(env_file)
+        } else {
+            env_file.clone()
+        };
+
+        let content = fs::read_to_string(&resolved_path)?;
+        let mut env_vars = HashMap::new();
+
+        for line in content.lines() {
+            let line = line.trim();
+
+            // Skip empty lines and comments
+            if line.is_empty() || line.starts_with('#') {
+                continue;
+            }
+
+            // Parse KEY=VALUE format
+            if let Some(eq_pos) = line.find('=') {
+                let key = line[..eq_pos].trim().to_string();
+                let value = line[eq_pos + 1..].trim().to_string();
+
+                // Remove surrounding quotes if present
+                let value = if (value.starts_with('"') && value.ends_with('"')) ||
+                             (value.starts_with('\'') && value.ends_with('\'')) {
+                    value[1..value.len() - 1].to_string()
+                } else {
+                    value
+                };
+
+                env_vars.insert(key, value);
+            }
+        }
+
+        Ok(env_vars)
+    }
+
     /// Build a `Job` for a cargo alias
     pub fn from_alias(
         alias_name: &str,
@@ -197,6 +247,17 @@ impl Job {
         for (k, v) in &job.env {
             self.env.insert(k.clone(), v.clone());
         }
+        if let Some(env_file) = job.env_file.as_ref() {
+            if let Ok(file_env_vars) = Self::load_env_from_file(env_file, None) {
+                for (k, v) in file_env_vars {
+                    // env_file variables have lower priority than direct env vars
+                    self.env.entry(k).or_insert(v);
+                }
+            }
+        }
+        if let Some(env_file) = job.env_file.as_ref() {
+            self.env_file = Some(env_file.clone());
+        }
         if let Some(b) = job.expand_env_vars {
             self.expand_env_vars = Some(b);
         }
@@ -258,6 +319,7 @@ fn test_job_apply() {
         env: vec![("RUST_LOG".to_string(), "debug".to_string())]
             .into_iter()
             .collect(),
+        env_file: Some(PathBuf::from("/path/to/.env")),
         expand_env_vars: Some(false),
         extraneous_args: Some(false),
         ignore: vec!["special-target".to_string(), "generated".to_string()],
@@ -280,4 +342,93 @@ fn test_job_apply() {
     base_job.apply(&job_to_apply);
     dbg!(&base_job);
     assert_eq!(&base_job, &job_to_apply);
+}
+
+#[test]
+fn test_load_env_from_file() {
+    use std::fs;
+
+    // Create a temporary file for testing
+    let temp_dir = std::env::temp_dir();
+    let env_file_path = temp_dir.join("test_env_file");
+
+    let env_content = r#"
+# This is a comment
+VARIABLE1=value1
+VARIABLE2="quoted value"
+VARIABLE3='single quoted'
+
+# Another comment
+VARIABLE4=unquoted value
+EMPTY_VARIABLE=
+"#;
+
+    fs::write(&env_file_path, env_content).unwrap();
+
+    let env_vars = Job::load_env_from_file(&env_file_path, None).unwrap();
+
+    assert_eq!(env_vars.get("VARIABLE1"), Some(&"value1".to_string()));
+    assert_eq!(env_vars.get("VARIABLE2"), Some(&"quoted value".to_string()));
+    assert_eq!(env_vars.get("VARIABLE3"), Some(&"single quoted".to_string()));
+    assert_eq!(env_vars.get("VARIABLE4"), Some(&"unquoted value".to_string()));
+    assert_eq!(env_vars.get("EMPTY_VARIABLE"), Some(&"".to_string()));
+    assert!(!env_vars.contains_key("NONEXISTENT"));
+
+    // Clean up
+    fs::remove_file(&env_file_path).unwrap();
+}
+
+#[test]
+fn test_env_file_integration() {
+    use std::fs;
+
+    // Create a temporary directory for the test
+    let temp_dir = std::env::temp_dir();
+    let test_dir = temp_dir.join("bacon_env_test");
+    fs::create_dir_all(&test_dir).unwrap();
+
+    // Create test .env file
+    let env_file_path = test_dir.join(".env");
+    let env_content = r#"
+# Test env file
+FILE_VAR_1=from_file
+FILE_VAR_2="quoted from file"
+CARGO_TERM_COLOR=never
+RUST_BACKTRACE=0
+"#;
+    fs::write(&env_file_path, env_content).unwrap();
+
+    // Test loading environment variables from file
+    let loaded_vars = Job::load_env_from_file(&env_file_path, None).unwrap();
+
+    assert_eq!(loaded_vars.get("FILE_VAR_1"), Some(&"from_file".to_string()));
+    assert_eq!(loaded_vars.get("FILE_VAR_2"), Some(&"quoted from file".to_string()));
+    assert_eq!(loaded_vars.get("CARGO_TERM_COLOR"), Some(&"never".to_string()));
+    assert_eq!(loaded_vars.get("RUST_BACKTRACE"), Some(&"0".to_string()));
+
+    // Test with relative path
+    let relative_env_file = PathBuf::from(".env");
+    let loaded_vars_relative = Job::load_env_from_file(&relative_env_file, Some(&test_dir)).unwrap();
+    assert_eq!(loaded_vars, loaded_vars_relative);
+
+    // Test job with env_file
+    let mut job = Job {
+        env_file: Some(relative_env_file),
+        env: vec![
+            ("DIRECT_VAR".to_string(), "direct_value".to_string()),
+            ("CARGO_TERM_COLOR".to_string(), "always".to_string()), // Should override file
+        ].into_iter().collect(),
+        ..Default::default()
+    };
+
+    // Apply the job to itself to trigger env_file processing
+    let job_copy = job.clone();
+    job.apply(&job_copy);
+
+    // Verify that direct env vars override env_file vars
+    assert_eq!(job.env.get("DIRECT_VAR"), Some(&"direct_value".to_string()));
+    assert_eq!(job.env.get("CARGO_TERM_COLOR"), Some(&"always".to_string())); // Should be overridden
+
+    // Clean up
+    fs::remove_dir_all(&test_dir).unwrap();
 }
