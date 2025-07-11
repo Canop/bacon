@@ -173,6 +173,10 @@ This means that direct `env` variables will always override variables loaded fro
 
 Environment file paths are resolved relative to the package directory (where your `Cargo.toml` is located). Absolute paths are used as-is.
 
+#### Examples
+
+For complete examples of `env_file` usage, see the [example configurations](https://github.com/Canop/bacon/tree/main/doc/examples) in the repository.
+
 ## Analyzers
 
 The output of the standard cargo tools is understood by bacon's standard analyzer.
