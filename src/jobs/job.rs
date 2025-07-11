@@ -136,7 +136,6 @@ impl Job {
         for line in content.lines() {
             let line = line.trim();
 
-            // Skip empty lines and comments
             if line.is_empty() || line.starts_with('#') {
                 continue;
             }
