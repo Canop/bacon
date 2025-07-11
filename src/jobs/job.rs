@@ -128,13 +128,7 @@ impl Job {
     /// Empty lines are ignored
     /// If env_file is relative, it's resolved relative to base_dir (usually package directory)
     pub fn load_env_from_file(env_file: &PathBuf, base_dir: Option<&PathBuf>) -> Result<HashMap<String, String>, std::io::Error> {
-        let resolved_path = if env_file.is_absolute() {
-            env_file.clone()
-        } else if let Some(base) = base_dir {
-            base.join(env_file)
-        } else {
-            env_file.clone()
-        };
+        let resolved_path = Self::filepath_of(env_file, base_dir);
 
         let content = fs::read_to_string(&resolved_path)?;
         let mut env_vars = HashMap::new();
@@ -151,6 +145,16 @@ impl Job {
         }
 
         Ok(env_vars)
+    }
+
+    fn filepath_of(env_file: &PathBuf, base_dir: Option<&PathBuf>) -> PathBuf {
+        if env_file.is_absolute() {
+            env_file.clone()
+        } else if let Some(base) = base_dir {
+            base.join(env_file)
+        } else {
+            env_file.clone()
+        }
     }
 
     fn parse_key_value_pairs(env_vars: &mut HashMap<String, String>, line: &str) {
