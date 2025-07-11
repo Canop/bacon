@@ -40,7 +40,7 @@ impl Mission<'_> {
                     all_env_vars.entry(k).or_insert(v);
                 }
             } else {
-                warn!("Failed to load global environment file: {:?}", env_file);
+                warn!("Failed to load global environment file: {env_file:?}");
             }
         }
 
@@ -51,7 +51,7 @@ impl Mission<'_> {
                     all_env_vars.entry(k).or_insert(v);
                 }
             } else {
-                warn!("Failed to load job environment file: {:?}", env_file);
+                warn!("Failed to load job environment file: {env_file:?}");
             }
         }
 
