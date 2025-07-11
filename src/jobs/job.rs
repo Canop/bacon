@@ -262,9 +262,9 @@ impl Job {
         }
         if let Some(env_file) = job.env_file.as_ref() {
             if let Ok(file_env_vars) = Self::load_env_from_file(env_file, None) {
-                for (k, v) in file_env_vars {
+                for (key, value) in file_env_vars {
                     // env_file variables have lower priority than direct env vars
-                    self.env.entry(k).or_insert(v);
+                    self.env.entry(key).or_insert(value);
                 }
             }
         }
