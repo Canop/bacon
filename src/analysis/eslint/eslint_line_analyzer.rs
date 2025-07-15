@@ -113,7 +113,7 @@ pub fn get_location_path(content: &TLine) -> Option<String> {
     }
     // trying to recognize a path, I might make some wrong assumptions here,
     // especially for windows...
-    if !regex_is_match!(r"^\s*/\S+\.\w+s\s*$", &first.raw) {
+    if !regex_is_match!(r"^\s*/\S+\.\w+\s*$", &first.raw) {
         return None;
     }
     Some(first.raw.to_string())
