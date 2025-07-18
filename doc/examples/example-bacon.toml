@@ -1,0 +1,21 @@
+# Example bacon.toml configuration demonstrating the env_file feature
+
+default_job = "check"
+
+# Global environment variables (these have higher priority than env_file)
+env.CARGO_TERM_COLOR = "always"
+
+# Load additional environment variables from a file
+env_file = "./example.env"
+
+[jobs.check]
+command = ["cargo", "check"]
+need_stdout = false
+
+[jobs.test-with-env]
+command = ["cargo", "test"]
+need_stdout = true
+# Job-specific env file (if you want different env for different jobs)
+env_file = "./test.env"
+# Direct env vars have the highest priority
+env.TEST_MODE = "true"
