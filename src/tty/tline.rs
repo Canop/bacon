@@ -124,6 +124,21 @@ impl TLine {
         }
         TLine { strings }
     }
+    pub fn passed(key: &str) -> Self {
+        let mut strings = Vec::with_capacity(4);
+        strings.push(TString::new(CSI_BOLD_GREEN, "passed"));
+        strings.push(TString::new("", ": "));
+        if let Some((module, function)) = key.rsplit_once("::") {
+            strings.push(TString {
+                csi: "".to_string(),
+                raw: format!("{module}::"),
+            });
+            strings.push(TString::new(CSI_BOLD_GREEN, function));
+        } else {
+            strings.push(TString::new(CSI_BOLD_GREEN, key));
+        }
+        TLine { strings }
+    }
     pub fn add_badge(
         &mut self,
         badge: TString,

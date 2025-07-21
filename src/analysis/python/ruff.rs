@@ -98,7 +98,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             items.push_error_title(burp::error_line_ts(message));
             items.push_line(
                 LineType::Location,
-                burp::location_line(format!("{}:{}:{}", path, line, column)),
+                burp::location_line(format!("{path}:{line}:{column}")),
             );
             last_is_blank = false;
         } else {

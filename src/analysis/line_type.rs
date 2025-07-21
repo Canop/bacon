@@ -18,6 +18,8 @@ pub enum Kind {
     Error,
     /// a test failure
     TestFail,
+    /// a test output (may be a failure, or just --show-output)
+    TestOutput,
     /// a sum of errors and/or warnings, typically occurring
     /// at the end of the compilation of a package
     Sum,
@@ -104,21 +106,16 @@ impl LineType {
     ) -> Result<()> {
         match self {
             Self::Title(Kind::Error) => {
-                write!(w, "{}", format!("{:^3}", item_idx).black().bold().on_red())?;
+                write!(w, "{}", format!("{item_idx:^3}").black().bold().on_red())?;
             }
-            Self::Title(Kind::TestFail) => {
+            Self::Title(Kind::TestFail | Kind::TestOutput) => {
                 write!(
                     w,
-                    "\u{1b}[1m\u{1b}[38;5;235m\u{1b}[48;5;208m{:^3}\u{1b}[0m\u{1b}[0m",
-                    item_idx
+                    "\u{1b}[1m\u{1b}[38;5;235m\u{1b}[48;5;208m{item_idx:^3}\u{1b}[0m\u{1b}[0m"
                 )?;
             }
             Self::Title(Kind::Warning) => {
-                write!(
-                    w,
-                    "{}",
-                    format!("{:^3}", item_idx).black().bold().on_yellow()
-                )?;
+                write!(w, "{}", format!("{item_idx:^3}").black().bold().on_yellow())?;
             }
             _ => {}
         }

@@ -58,7 +58,7 @@ impl Analyzer for CargoJsonAnalyzer {
                 self.receive_cargo_message(message, cmd_line.origin, command_output);
             }
             Err(err) => {
-                let line = TLine::from_tty(&format!("Error parsing JSON: {}", err));
+                let line = TLine::from_tty(&format!("Error parsing JSON: {err}"));
                 let cmd_line = CommandOutputLine {
                     content: line,
                     origin: cmd_line.origin,

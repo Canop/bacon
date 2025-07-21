@@ -8,15 +8,17 @@ pub fn build_report<L: LineAnalyzer>(
     mut line_analyzer: L,
 ) -> anyhow::Result<Report> {
     #[derive(Debug, Default)]
-    struct Failure {
+    struct Test {
+        passed: bool,
         has_title: bool,
     }
     // we first accumulate warnings, test fails and errors in separate vectors
     let mut warnings = Vec::new();
     let mut errors = Vec::new();
     let mut fails = Vec::new();
-    let mut failures: FxHashMap<String, Failure> = Default::default();
+    let mut tests: FxHashMap<String, Test> = Default::default();
     let mut passed_tests = 0;
+    let mut failed_tests = 0;
     let mut cur_err_kind = None; // the current kind among stderr lines
     let mut is_in_out_fail = false;
     let mut suggest_backtrace = false;
@@ -33,25 +35,38 @@ pub fn build_report<L: LineAnalyzer>(
                 continue;
             }
             (LineType::TestResult(r), Some(key)) => {
+                info!("TEST RESULT  {key:?} r={r}");
                 if r {
                     passed_tests += 1;
-                } else if !failures.contains_key(&key) {
-                    // we should receive the test failure section later,
+                    tests.insert(
+                        key,
+                        Test {
+                            passed: true,
+                            has_title: false,
+                        },
+                    );
+                } else if !tests.contains_key(&key) {
+                    failed_tests += 1;
+                    // we should receive the test test section later,
                     // right now we just whitelist it
-                    failures.insert(key, Failure::default());
+                    tests.insert(key, Test::default());
                 }
             }
-            (LineType::Title(Kind::TestFail), Some(key)) => {
-                let failure = failures.entry(key.clone()).or_default();
+            (LineType::Title(Kind::TestOutput | Kind::TestFail), Some(key)) => {
+                let test = tests.entry(key.clone()).or_default();
                 is_in_out_fail = true;
                 cur_err_kind = Some(Kind::TestFail);
-                if failure.has_title {
-                    // we already have a title for this failure
+                if test.has_title {
+                    // we already have a title for this test
                     // (for nextest, we have a title for stdout and one for stderr)
                     continue;
                 }
-                failure.has_title = true;
-                line.content = TLine::failed(&key);
+                test.has_title = true;
+                line.content = if test.passed {
+                    TLine::passed(&key)
+                } else {
+                    TLine::failed(&key)
+                };
                 fails.push(line);
             }
             (LineType::Normal, None) => {
@@ -108,9 +123,9 @@ pub fn build_report<L: LineAnalyzer>(
             _ => {}
         }
     }
-    for (key, failure) in &failures {
-        // if we know of a failure but there was no content, we add some
-        if failure.has_title {
+    for (key, test) in &tests {
+        // if we know of a test but there was no content, we add some
+        if test.has_title || test.passed {
             continue;
         }
         fails.push(Line {
@@ -140,8 +155,12 @@ pub fn build_report<L: LineAnalyzer>(
     // have been read but not added (at start or end)
     let mut stats = Stats::from(&lines);
     stats.passed_tests = passed_tests;
-    debug!("stats: {:#?}", &stats);
-    let failure_keys = failures.keys().cloned().collect();
+    stats.test_fails = failed_tests;
+    info!("stats: {:#?}", &stats);
+    let failure_keys = tests
+        .drain()
+        .filter_map(|(key, test)| if !test.passed { Some(key) } else { None })
+        .collect::<Vec<_>>();
     let report = Report {
         lines,
         stats,

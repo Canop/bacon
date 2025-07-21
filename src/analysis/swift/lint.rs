@@ -72,7 +72,7 @@ impl Analyzer for SwiftLintAnalyzer {
                 );
 
                 if let Some(rule) = diagnostic.rule {
-                    items.push_line(LineType::Normal, TLine::from_raw(format!("Rule: {}", rule)));
+                    items.push_line(LineType::Normal, TLine::from_raw(format!("Rule: {rule}")));
                 }
             } else {
                 items.push_line(LineType::Normal, line.content.clone());

@@ -1,5 +1,5 @@
 ### next
-- allow more any file extension in eslint analyzer - Fix #377 - Thanks @meepleek
+- allow any file extension in eslint analyzer - Fix #377 - Thanks @meepleek
 
 <a name="v3.16.0"></a>
 ### v3.16.0 - 2025/06/14
