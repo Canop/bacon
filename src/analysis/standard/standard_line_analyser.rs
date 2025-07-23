@@ -29,9 +29,9 @@ fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
         if let Some((k, r)) = as_test_result(content) {
             key = Some(k.to_string());
             LineType::TestResult(r)
-        } else if let Some(k) = as_fail_result_title(content) {
+        } else if let Some(k) = as_test_stdout_title(content) {
             key = Some(k.to_string());
-            LineType::Title(Kind::TestFail)
+            LineType::Title(Kind::TestOutput)
         } else if let Some(k) = as_stack_overflow_message(content) {
             key = Some(k.to_string());
             LineType::Title(Kind::TestFail)
@@ -203,7 +203,7 @@ fn as_test_result(s: &str) -> Option<(&str, bool)> {
         "ok" => Some((key, true)),
         "FAILED" => Some((key, false)),
         other => {
-            warn!("unrecognized doctest outcome: {:?}", other);
+            warn!("unrecognized doctest outcome: {other:?}");
             None
         }
     })
@@ -211,7 +211,7 @@ fn as_test_result(s: &str) -> Option<(&str, bool)> {
 
 /// return Some(key) when the line is like this:
 /// "---- key stdout ----"
-fn as_fail_result_title(s: &str) -> Option<&str> {
+fn as_test_stdout_title(s: &str) -> Option<&str> {
     regex_captures!(r#"^---- (.+) stdout ----$"#, s).map(|(_, key)| key)
 }
 

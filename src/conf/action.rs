@@ -145,8 +145,8 @@ impl fmt::Display for Action {
         f: &mut fmt::Formatter,
     ) -> fmt::Result {
         match self {
-            Self::Export(name) => write!(f, "export:{}", name),
-            Self::Job(job_ref) => write!(f, "job:{}", job_ref),
+            Self::Export(name) => write!(f, "export:{name}"),
+            Self::Job(job_ref) => write!(f, "job:{job_ref}"),
             Self::Back => write!(f, "back"),
             Self::BackOrQuit => write!(f, "back-or-quit"),
             Self::CopyUnstyledOutput => write!(f, "copy-unstyled-output"),
@@ -191,9 +191,9 @@ impl fmt::Display for Action {
             Self::PlaySound(PlaySoundCommand { name, volume }) => {
                 write!(f, "play-sound(")?;
                 if let Some(name) = name {
-                    write!(f, "name={},", name)?;
+                    write!(f, "name={name},")?;
                 }
-                write!(f, "volume={})", volume)
+                write!(f, "volume={volume})")
             }
         }
     }

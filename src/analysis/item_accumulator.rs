@@ -36,7 +36,7 @@ impl ItemAccumulator {
             Some(Kind::Warning) => self.warnings.push(line),
             Some(Kind::Error) => self.errors.push(line),
             Some(Kind::TestFail) => self.test_fails.push(line),
-            _ => {} // before warnings and errors, or in a sum
+            _ => {} // before warnings and errors, or in a sum, or test output
         }
     }
     pub fn push_error_title(

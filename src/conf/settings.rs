@@ -102,7 +102,7 @@ impl Settings {
             if path.exists() {
                 let configs = Config::from_path_detect(&path)?;
                 if !configs.is_empty() {
-                    info!("config loaded from {:?}", path);
+                    info!("config loaded from {path:?}");
                     settings.register_config_file(path.clone());
                     for config in configs {
                         settings.apply_config(&config);
