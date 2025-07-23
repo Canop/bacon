@@ -1,5 +1,6 @@
 ### next
 - allow any file extension in eslint analyzer - Fix #377 - Thanks @meepleek
+- correctly understand cargo tests passing but with output - Fix #379
 
 <a name="v3.16.0"></a>
 ### v3.16.0 - 2025/06/14
