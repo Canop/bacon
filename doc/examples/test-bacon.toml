@@ -1,0 +1,7 @@
+# Test bacon.toml to verify env_file feature
+env_file = "./test.env"
+env.DIRECT_VAR = "direct"
+env.CARGO_TERM_COLOR = "always"  # This should override the one from test.env
+
+[jobs.check]
+command = ["cargo", "check"]
