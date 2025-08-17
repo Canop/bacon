@@ -1,4 +1,3 @@
-
 # Configuration Files
 
 All configuration files are optional but you'll probably need specific jobs for your targets, examples, etc.
@@ -84,6 +83,7 @@ background | compute in background and display only on end | `true`
 command | the tokens making the command to execute (first one is the executable) |
 default_watch | whether to watch default files (`src`, `tests`, `examples`, `build.rs`, and `benches`). When it's set to `false`, only the files in your `watch` parameter are watched | `true`
 env | a map of environment vars, for example `env.LOG_LEVEL="die"` |
+env_file | path to a file containing environment variables in KEY=VALUE format. Relative paths are resolved from the package directory. Variables from env_file have lower priority than direct env vars |
 kill | a command replacing the default job interruption (platform dependant, `SIGKILL` on unix). For example `kill = ["kill", "-s", "INT"]` |
 ignore | list of glob patterns for files to ignore |
 ignored_lines | regular expressions for lines to ignore |
@@ -109,6 +109,73 @@ need_stdout = true
 
 Note: Some tools detect that their output is piped and don't add style information unless you add a parameter which usually looks like `--color always`.
 This isn't normally necessary for cargo because bacon, by default, sets the `CARGO_TERM_COLOR` environment variable.
+
+## Environment Variables
+
+Bacon supports setting environment variables for job execution in two ways:
+
+### Direct Environment Variables
+
+You can set environment variables directly in your `bacon.toml` file using the `env` property:
+
+```TOML
+# Global environment variables for all jobs
+env.CARGO_TERM_COLOR = "always"
+env.RUST_BACKTRACE = "1"
+
+[jobs.test]
+command = ["cargo", "test"]
+# Job-specific environment variables
+env.TEST_MODE = "true"
+env.LOG_LEVEL = "debug"
+```
+
+### Environment Files
+
+You can load environment variables from a file using the `env_file` property:
+
+```TOML
+# Load environment variables from a file
+env_file = "./.env"
+
+[jobs.test]
+command = ["cargo", "test"]
+# Job-specific environment file
+env_file = "./test.env"
+```
+
+The environment file should contain KEY=VALUE pairs, one per line:
+
+```bash
+# .env file example
+CARGO_TERM_COLOR=always
+RUST_BACKTRACE=1
+BUILD_ENV=development
+CUSTOM_MESSAGE="Hello, Bacon!"
+ANOTHER_VAR='Single quoted value'
+
+# Comments and empty lines are ignored
+SIMPLE_VAR=simple_value
+```
+
+#### Priority Order
+
+Environment variables are applied in the following priority order (highest to lowest):
+
+1. Direct `env` variables in job configuration
+2. Direct `env` variables in global configuration
+3. Variables from `env_file` in job configuration
+4. Variables from `env_file` in global configuration
+
+This means that direct `env` variables will always override variables loaded from `env_file`.
+
+#### Path Resolution
+
+Environment file paths are resolved relative to the package directory (where your `Cargo.toml` is located). Absolute paths are used as-is.
+
+#### Examples
+
+For complete examples of `env_file` usage, see the [example configurations](https://github.com/Canop/bacon/tree/main/doc/examples) in the repository.
 
 ## Analyzers
 

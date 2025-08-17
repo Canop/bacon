@@ -23,6 +23,46 @@ pub struct Mission<'s> {
 }
 
 impl Mission<'_> {
+    /// Load environment variables from the job's env_file if specified
+    /// Returns a HashMap of all environment variables (direct env + env_file)
+    fn collect_env_vars(&self) -> HashMap<String, String> {
+        let mut all_env_vars = HashMap::new();
+
+        // Start with global env vars from settings
+        for (k, v) in &self.settings.all_jobs.env {
+            all_env_vars.insert(k.clone(), v.clone());
+        }
+
+        // Load env vars from global env_file if specified (lowest priority)
+        if let Some(env_file) = &self.settings.all_jobs.env_file {
+            if let Ok(file_env_vars) = Job::load_env_from_file(env_file, Some(&self.package_directory)) {
+                for (k, v) in file_env_vars {
+                    all_env_vars.entry(k).or_insert(v);
+                }
+            } else {
+                warn!("Failed to load global environment file: {env_file:?}");
+            }
+        }
+
+        // Load env vars from job-specific env_file if specified
+        if let Some(env_file) = &self.job.env_file {
+            if let Ok(file_env_vars) = Job::load_env_from_file(env_file, Some(&self.package_directory)) {
+                for (k, v) in file_env_vars {
+                    all_env_vars.entry(k).or_insert(v);
+                }
+            } else {
+                warn!("Failed to load job environment file: {env_file:?}");
+            }
+        }
+
+        // Direct env vars from job have the highest priority
+        for (k, v) in &self.job.env {
+            all_env_vars.insert(k.clone(), v.clone());
+        }
+
+        all_env_vars
+    }
+
     /// Return an Ignorer according to the job's settings
     pub fn ignorer(&self) -> IgnorerSet {
         let mut set = IgnorerSet::default();
@@ -124,12 +164,9 @@ impl Mission<'_> {
             tokens.next().unwrap(), // implies a check in the job
         );
         command.with_stdout(self.job.need_stdout());
-        let envs: HashMap<&String, &String> = self
-            .settings
-            .all_jobs
-            .env
+        let all_env_vars = self.collect_env_vars();
+        let envs: HashMap<&String, &String> = all_env_vars
             .iter()
-            .chain(self.job.env.iter())
             .collect();
         if !self.job.extraneous_args() {
             command.args(tokens);
