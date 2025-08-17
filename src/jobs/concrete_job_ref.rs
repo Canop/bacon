@@ -113,7 +113,7 @@ impl From<&str> for ConcreteJobRef {
         let Some((_, alias_prefix, name_or_alias, scope)) =
             regex_captures!(r"^(alias:)?([^\(\)]+)(?:\(([^\)]+)\))?$", str_entry,)
         else {
-            warn!("unexpected job ref: {:?}", str_entry);
+            warn!("unexpected job ref: {str_entry:?}");
             return Self::from_job_name(str_entry.to_string());
         };
         let name_or_alias = if alias_prefix.is_empty() {

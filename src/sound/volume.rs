@@ -61,7 +61,7 @@ impl fmt::Display for ParseVolumeError {
     ) -> fmt::Result {
         match self {
             Self::ValueOutOfRange => write!(f, "value out of [0-100] range"),
-            Self::NotU16(s) => write!(f, "value '{}' is not a valid integer", s),
+            Self::NotU16(s) => write!(f, "value '{s}' is not a valid integer"),
         }
     }
 }

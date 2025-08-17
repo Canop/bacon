@@ -92,7 +92,7 @@ struct SwiftLintDiagnostic<'a> {
     rule: Option<&'a str>,
 }
 
-fn recognize_swiftlint_diagnostic(line: &TLine) -> Option<SwiftLintDiagnostic> {
+fn recognize_swiftlint_diagnostic(line: &TLine) -> Option<SwiftLintDiagnostic<'_>> {
     let content = line.if_unstyled()?;
 
     // Skip linting progress lines

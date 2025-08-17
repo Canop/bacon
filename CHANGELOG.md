@@ -1,4 +1,5 @@
-### next
+<a name="v3.17.0"></a>
+### v3.17.0 - 2025/08/17
 - allow any file extension in eslint analyzer - Fix #377 - Thanks @meepleek
 - correctly understand cargo tests passing but with output - Fix #379
 

@@ -24,7 +24,7 @@ impl GlobIgnorer {
         } else {
             // as glob doesn't work with non absolute paths, we make it absolute
             self.globs
-                .push(glob::Pattern::new(&format!("/**/{}", pattern))?);
+                .push(glob::Pattern::new(&format!("/**/{pattern}"))?);
         }
         Ok(())
     }

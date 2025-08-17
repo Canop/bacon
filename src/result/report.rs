@@ -151,7 +151,7 @@ impl Report {
                     }
                 }
             });
-            writeln!(w, "{}", exported)?;
+            writeln!(w, "{exported}")?;
         }
         debug!("exported locations");
         Ok(())

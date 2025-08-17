@@ -47,14 +47,14 @@ impl Analyzer for BiomeAnalyzer {
     }
 }
 
-fn recognize_line(tline: &TLine) -> BiomeLine {
+fn recognize_line(tline: &TLine) -> BiomeLine<'_> {
     if let Some(lc) = recognize_location_code(tline) {
         return BiomeLine::LocationCode(lc);
     }
     BiomeLine::Other
 }
 
-fn recognize_location_code(tline: &TLine) -> Option<LocationCode> {
+fn recognize_location_code(tline: &TLine) -> Option<LocationCode<'_>> {
     if let Some(s) = tline.if_unstyled() {
         // untagged
         if let Some((_, location, code)) = regex_captures!(r"([^\s:]+:\d+:\d+) (\S+) ━+$", s) {

@@ -28,7 +28,7 @@ impl LinePattern {
 impl FromStr for LinePattern {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let regex = Regex::new(s).map_err(|e| format!("invalid regex: {}", e))?;
+        let regex = Regex::new(s).map_err(|e| format!("invalid regex: {e}"))?;
         Ok(Self { regex })
     }
 }

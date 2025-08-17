@@ -94,7 +94,7 @@ struct SwiftDiagnostic<'a> {
     message: Vec<TString>,
 }
 
-fn recognize_swift_diagnostic(line: &TLine) -> Option<SwiftDiagnostic> {
+fn recognize_swift_diagnostic(line: &TLine) -> Option<SwiftDiagnostic<'_>> {
     // Look for Swift format: path:line:column: (error|warning): message
     let content = line.if_unstyled()?;
 

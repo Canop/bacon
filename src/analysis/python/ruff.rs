@@ -47,14 +47,14 @@ impl Analyzer for RuffAnalyzer {
     }
 }
 
-fn recognize_line(tline: &TLine) -> RuffLine {
+fn recognize_line(tline: &TLine) -> RuffLine<'_> {
     if let Some(lt) = recognize_location_message(tline) {
         return RuffLine::LocationTitle(lt);
     }
     RuffLine::Other
 }
 
-fn recognize_location_message(tline: &TLine) -> Option<LocationTitle> {
+fn recognize_location_message(tline: &TLine) -> Option<LocationTitle<'_>> {
     let tstrings = &tline.strings;
     if tstrings.len() < 8 {
         return None;

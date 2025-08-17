@@ -54,9 +54,9 @@ pub fn draw(
     raw: &str,
 ) -> Result<()> {
     if csi.is_empty() {
-        write!(w, "{}", raw)?;
+        write!(w, "{raw}")?;
     } else {
-        write!(w, "{}{}{}", csi, raw, CSI_RESET,)?;
+        write!(w, "{csi}{raw}{CSI_RESET}")?;
     }
     Ok(())
 }

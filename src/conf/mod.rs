@@ -40,10 +40,7 @@ pub fn config_path_from_env(env_var_name: &str) -> Option<PathBuf> {
     } else {
         // some users may want to use an env var to point to a file that may not always exist
         // so we don't throw an error here
-        warn!(
-            "Env var {:?} points to file {:?} which does not exist",
-            env_var_name, path
-        );
+        warn!("Env var {env_var_name:?} points to file {path:?} which does not exist");
         None
     }
 }

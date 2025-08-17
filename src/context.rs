@@ -196,7 +196,7 @@ impl Context {
         let mut conf_execution_directory = job.workdir.as_ref();
         if let Some(path) = conf_execution_directory {
             if !path.exists() {
-                error!("Ignoring configured non existing workdir: {:?}", path);
+                error!("Ignoring configured non existing workdir: {path:?}");
                 conf_execution_directory = None;
             }
         }

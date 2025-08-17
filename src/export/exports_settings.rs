@@ -30,9 +30,9 @@ impl ExportsSettings {
     ) {
         for (name, export) in &self.exports {
             if export.auto {
-                info!("doing auto export {:?}", name);
+                info!("doing auto export {name:?}");
                 if let Err(e) = export.do_export(name, state) {
-                    error!("error while exporting {:?}: {:?}", name, e);
+                    error!("error while exporting {name:?}: {e:?}");
                 }
             }
         }
@@ -45,10 +45,10 @@ impl ExportsSettings {
     ) {
         if let Some(export) = self.exports.get(requested_name) {
             if let Err(e) = export.do_export(requested_name, state) {
-                error!("error while exporting {:?}: {:?}", requested_name, e);
+                error!("error while exporting {requested_name:?}: {e:?}");
             }
         } else {
-            warn!("no export named {:?}", requested_name);
+            warn!("no export named {requested_name:?}");
         }
     }
 
@@ -89,10 +89,7 @@ impl ExportsSettings {
                     "json-report" => Exporter::JsonReport,
                     "locations" => Exporter::Locations,
                     _ => {
-                        warn!(
-                            "Exporter not specified for export {:?}, using 'locations'",
-                            name
-                        );
+                        warn!("Exporter not specified for export {name:?}, using 'locations'");
                         Exporter::Locations
                     }
                 },

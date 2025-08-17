@@ -47,7 +47,7 @@ impl TString {
     ) -> Self {
         Self {
             csi: csi(fg, bg),
-            raw: format!(" {} ", con),
+            raw: format!(" {con} "),
         }
     }
     pub fn num_badge(
@@ -57,9 +57,9 @@ impl TString {
         bg: u8,
     ) -> Self {
         let raw = if num < 2 {
-            format!(" {} {} ", num, cat)
+            format!(" {num} {cat} ")
         } else {
-            format!(" {} {}s ", num, cat)
+            format!(" {num} {cat}s ")
         };
         Self::badge(&raw, fg, bg)
     }
@@ -72,7 +72,7 @@ impl TString {
         self.csi.push('[');
         for (idx, param) in params.iter().enumerate() {
             for p in param {
-                let _ = write!(self.csi, "{}", p);
+                let _ = write!(self.csi, "{p}");
             }
             if idx < params.len() - 1 {
                 self.csi.push(';');

@@ -81,7 +81,7 @@ fn build_report(lines: &[CommandOutputLine]) -> Result<Report> {
 /// ```
 ///
 /// ... where each part is contained within a potentially styled section.
-fn recognize_diagnostic(line: &TLine) -> Option<Diagnostic> {
+fn recognize_diagnostic(line: &TLine) -> Option<Diagnostic<'_>> {
     let (pos, level, kind_end) = line.strings.iter().enumerate().find_map(|(idx, section)| {
         if let Some(found) = section.raw.find("error:") {
             let remaining = (found + "error: ".len()).min(section.raw.len());

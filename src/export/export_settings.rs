@@ -25,7 +25,7 @@ impl ExportSettings {
         } else {
             self.path.to_path_buf()
         };
-        info!("exporting to {:?}", path);
+        info!("exporting to {path:?}");
         let Some(report) = state.cmd_result.report() else {
             info!("No report to export");
             return Ok(());
@@ -35,7 +35,7 @@ impl ExportSettings {
                 if let Some(export) = report.analyzer_exports.get(name) {
                     std::fs::write(&path, export)?;
                 } else {
-                    info!("Analyzer didn't build export {:?}", name);
+                    info!("Analyzer didn't build export {name:?}");
                 }
             }
             Exporter::Analysis => {

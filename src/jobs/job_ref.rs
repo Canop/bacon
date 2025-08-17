@@ -49,7 +49,7 @@ impl fmt::Display for JobRef {
             Self::Previous => write!(f, "previous"),
             Self::PreviousOrQuit => write!(f, "previous-or-quit"),
             Self::Scope(Scope { tests }) => write!(f, "scope:{}", tests.join(",")),
-            Self::Concrete(concrete) => write!(f, "{}", concrete),
+            Self::Concrete(concrete) => write!(f, "{concrete}"),
         }
     }
 }
