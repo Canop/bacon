@@ -2,14 +2,27 @@ use {
     crate::*,
     anyhow::Result,
     crokey::KeyCombination,
-    std::{io::Write, process::ExitStatus, time::Instant},
+    std::{
+        io::Write,
+        process::ExitStatus,
+        time::Instant,
+    },
     termimad::{
-        Area, CompoundStyle, MadSkin,
+        Area,
+        CompoundStyle,
+        MadSkin,
         crossterm::{
-            cursor, execute,
-            style::{Attribute, Print},
+            cursor,
+            execute,
+            style::{
+                Attribute,
+                Print,
+            },
         },
-        minimad::{Alignment, Composite},
+        minimad::{
+            Alignment,
+            Composite,
+        },
     },
 };
 
@@ -52,8 +65,6 @@ pub struct AppState<'s> {
     help_page: Option<HelpPage>,
     /// display the raw output instead of the report
     raw_output: bool,
-    /// whether the scrollbar is hidden
-    hide_scrollbar: bool,
     /// whether auto-refresh is enabled
     pub auto_refresh: AutoRefresh,
     /// How many watch events were received since last job start
@@ -112,7 +123,6 @@ impl<'s> AppState<'s> {
             top_item_idx: 0,
             help_line,
             help_page: None,
-            hide_scrollbar: mission.settings.hide_scrollbar,
             mission,
             raw_output: false,
             auto_refresh: AutoRefresh::Enabled,
@@ -831,7 +841,7 @@ impl<'s> AppState<'s> {
         ); // bold, colored background
         let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
         let content_height = self.content_height();
-        let scrollbar = if self.hide_scrollbar {
+        let scrollbar = if self.mission.job.hide_scrollbar() {
             None
         } else {
             area.scrollbar(self.scroll, content_height)

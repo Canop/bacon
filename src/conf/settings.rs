@@ -1,7 +1,13 @@
 use {
     crate::*,
-    anyhow::{Result, bail},
-    std::{collections::HashMap, path::PathBuf},
+    anyhow::{
+        Result,
+        bail,
+    },
+    std::{
+        collections::HashMap,
+        path::PathBuf,
+    },
 };
 
 /// The settings used in the application.
@@ -29,8 +35,6 @@ pub struct Settings {
     /// Whether to listen for actions on a unix socket (if on unix)
     pub listen: bool,
     pub all_jobs: Job,
-    /// Whether to hide the scrollbar, allowing copy-pasting of the output.
-    pub hide_scrollbar: bool,
 }
 
 impl Default for Settings {
@@ -53,7 +57,6 @@ impl Default for Settings {
             config_files: Default::default(),
             listen: false,
             all_jobs: Default::default(),
-            hide_scrollbar: false,
         }
     }
 }
@@ -134,9 +137,6 @@ impl Settings {
         config: &Config,
     ) {
         self.all_jobs.apply(&config.all_jobs);
-        if let Some(b) = config.hide_scrollbar {
-            self.hide_scrollbar = b;
-        }
         if let Some(b) = config.summary {
             self.summary = b;
         }

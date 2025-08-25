@@ -59,6 +59,11 @@ pub struct Job {
     /// Eg: --all-features or anything after -- in bacon incantation
     pub extraneous_args: Option<bool>,
 
+    pub grace_period: Option<Period>,
+
+    /// Whether to hide the scrollbar
+    pub hide_scrollbar: Option<bool>,
+
     /// A list of glob patterns to ignore
     #[serde(default)]
     pub ignore: Vec<String>,
@@ -79,6 +84,10 @@ pub struct Job {
     /// restarting it.
     pub on_change_strategy: Option<OnChangeStrategy>,
 
+    /// The optional action to run when it's not a success
+    #[serde(default)]
+    pub on_failure: Option<Action>,
+
     /// The optional action to run when there's no
     /// error, warning or test failures
     /// (depending on whether allow_warnings is true or false)
@@ -89,11 +98,13 @@ pub struct Job {
     #[serde(default)]
     pub on_success: Option<Action>,
 
-    pub grace_period: Option<Period>,
+    pub show_changes_count: Option<bool>,
 
-    /// The optional action to run when it's not a success
     #[serde(default)]
-    pub on_failure: Option<Action>,
+    pub skin: BaconSkin,
+
+    #[serde(default)]
+    pub sound: SoundConfig,
 
     /// A list of directories that will be watched if the job
     /// is run on a package.
@@ -101,17 +112,9 @@ pub struct Job {
     /// unless you `set default_watch` to false.
     pub watch: Option<Vec<String>>,
 
-    pub show_changes_count: Option<bool>,
-
-    #[serde(default)]
-    pub sound: SoundConfig,
-
     /// An optional working directory for the job command, which
     /// would override the package directory.
     pub workdir: Option<PathBuf>,
-
-    #[serde(default)]
-    pub skin: BaconSkin,
 }
 
 static DEFAULT_ARGS: &[&str] = &["--color", "always"];
@@ -151,6 +154,9 @@ impl Job {
     }
     pub fn expand_env_vars(&self) -> bool {
         self.expand_env_vars.unwrap_or(true)
+    }
+    pub fn hide_scrollbar(&self) -> bool {
+        self.hide_scrollbar.unwrap_or(false)
     }
     pub fn need_stdout(&self) -> bool {
         self.need_stdout.unwrap_or(false)
@@ -202,6 +208,9 @@ impl Job {
         }
         if let Some(b) = job.extraneous_args {
             self.extraneous_args = Some(b);
+        }
+        if let Some(b) = job.hide_scrollbar {
+            self.hide_scrollbar = Some(b);
         }
         for v in &job.ignore {
             if !self.ignore.contains(v) {
@@ -260,6 +269,7 @@ fn test_job_apply() {
             .collect(),
         expand_env_vars: Some(false),
         extraneous_args: Some(false),
+        hide_scrollbar: Some(true),
         ignore: vec!["special-target".to_string(), "generated".to_string()],
         ignored_lines: Some(vec![LinePattern::from_str("half-error.*").unwrap()]),
         kill: Some(vec!["die".to_string()]),

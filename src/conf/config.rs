@@ -3,7 +3,11 @@ use {
     anyhow::*,
     lazy_regex::regex_is_match,
     serde::Deserialize,
-    std::{collections::HashMap, fs, path::Path},
+    std::{
+        collections::HashMap,
+        fs,
+        path::Path,
+    },
 };
 
 /// A configuration item which may be stored in various places, eg as `bacon.toml`
@@ -49,8 +53,6 @@ pub struct Config {
     pub listen: Option<bool>,
 
     pub wrap: Option<bool>,
-
-    pub hide_scrollbar: Option<bool>,
 }
 
 impl Config {
