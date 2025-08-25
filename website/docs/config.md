@@ -84,6 +84,7 @@ background | compute in background and display only on end | `true`
 command | the tokens making the command to execute (first one is the executable) |
 default_watch | whether to watch default files (`src`, `tests`, `examples`, `build.rs`, and `benches`). When it's set to `false`, only the files in your `watch` parameter are watched | `true`
 env | a map of environment vars, for example `env.LOG_LEVEL="die"` |
+hide_scrollbar | whether to hide the scrollbar (for easier select & copy) | `false`
 kill | a command replacing the default job interruption (platform dependant, `SIGKILL` on unix). For example `kill = ["kill", "-s", "INT"]` |
 ignore | list of glob patterns for files to ignore |
 ignored_lines | regular expressions for lines to ignore |
