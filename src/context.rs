@@ -62,14 +62,7 @@ impl fmt::Debug for CargoContext {
 
 impl Context {
     pub fn new(args: &Args) -> Result<Self> {
-        let package_directory = args
-            .project
-            .as_ref()
-            .map_or_else(|| env::current_dir().unwrap(), PathBuf::from);
-
-        if !package_directory.exists() || !package_directory.is_dir() {
-            bail!("The project path must be a directory");
-        }
+        let package_directory = find_package_directory(args)?;
 
         let name = package_directory
             .file_name()
@@ -163,7 +156,6 @@ impl Context {
                     }
                 }
             }
-            debug!("watches: {watches:?}");
             add_to_paths_to_watch(&watches, &self.package_directory, &mut paths_to_watch);
             if let Some(workspace_root) = &self.workspace_root {
                 // there's usually not much src at the workspace level but we must
@@ -253,4 +245,39 @@ fn add_to_paths_to_watch(
             paths_to_watch.push(full_path);
         }
     }
+}
+
+/// The "package directory", unless specified with --project, is the closest
+/// bacon.toml or Cargo.toml directory, or the current directory if none is found.
+fn find_package_directory(args: &Args) -> Result<PathBuf> {
+    if let Some(dir) = args.project.as_ref() {
+        let path = PathBuf::from(dir);
+        if !path.exists() || !path.is_dir() {
+            bail!("The project path must be a directory");
+        }
+        return Ok(path);
+    }
+    let base_dir = PathBuf::from(env::current_dir().unwrap());
+    let package_directory = closest_bacon_or_cargo_dir(&base_dir).unwrap_or(base_dir);
+    Ok(package_directory)
+}
+
+fn closest_bacon_or_cargo_dir(start_path: &Path) -> Option<PathBuf> {
+    let mut current_path = start_path;
+    loop {
+        let bacon_toml = current_path.join("bacon.toml");
+        if bacon_toml.exists() && bacon_toml.is_file() {
+            return Some(current_path.to_path_buf());
+        }
+        let cargo_toml = current_path.join("Cargo.toml");
+        if cargo_toml.exists() && cargo_toml.is_file() {
+            return Some(current_path.to_path_buf());
+        }
+        if let Some(parent) = current_path.parent() {
+            current_path = parent;
+        } else {
+            break;
+        }
+    }
+    None
 }
