@@ -1,4 +1,5 @@
-### next
+<a name="v3.18.0"></a>
+### v3.18.0 - 2025/08/29
 - key bindings can use the `cmd` modifier (called "Command", "Super", "Windows", depending on the system)
 - with `hide_scrollbar = true`, you can make copy-pasting easier - Thanks @JeanMertz
 - when project dir isn't specified explicitly (with `--project`) bacon looks for an enclosing dir having a bacon.toml or Cargo.toml file - Fix #385
