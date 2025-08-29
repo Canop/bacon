@@ -257,7 +257,7 @@ fn find_package_directory(args: &Args) -> Result<PathBuf> {
         }
         return Ok(path);
     }
-    let base_dir = PathBuf::from(env::current_dir().unwrap());
+    let base_dir = env::current_dir().unwrap();
     let package_directory = closest_bacon_or_cargo_dir(&base_dir).unwrap_or(base_dir);
     Ok(package_directory)
 }

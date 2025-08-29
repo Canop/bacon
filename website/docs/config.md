@@ -138,6 +138,7 @@ For example:
 h = "job:clippy"
 shift-F9 = "toggle-backtrace(1)"
 ctrl-r = "toggle-raw-output"
+cmd-e = "play-sound"
 ```
 
 Note that you may have keybindings for jobs which aren't defined in your project, this isn't an error, and it's convenient to help keep define your personal keybindings in one place.

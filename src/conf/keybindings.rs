@@ -169,6 +169,7 @@ fn test_deserialize_keybindings() {
     alt-p = "job:previous"
     ctrl-p = "play-sound"
     ctrl-shift-p = "play-sound(volume=100)"
+    cmd-e = "quit"
     "#;
     let conf = toml::from_str::<Config>(toml).unwrap();
     assert_eq!(
@@ -185,4 +186,5 @@ fn test_deserialize_keybindings() {
         conf.keybindings.get(key!(alt - p)),
         Some(&Action::Job(JobRef::Previous)),
     );
+    assert_eq!(conf.keybindings.get(key!(cmd - e)), Some(&Action::Quit),);
 }
