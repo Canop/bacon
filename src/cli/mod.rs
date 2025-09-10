@@ -100,7 +100,9 @@ pub fn run() -> anyhow::Result<()> {
         return Ok(());
     }
     if args.completion_list_jobs {
-        for job in settings.jobs.keys() {
+        let mut keys = settings.jobs.keys().cloned().collect::<Vec<_>>();
+        keys.sort();
+        for job in keys {
             print!("{job}\0");
         }
         return Ok(());
