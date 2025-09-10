@@ -1,3 +1,6 @@
+### next
+- update notify to fix a crash on BSD - Thanks @omarandlorraine
+
 <a name="v3.18.0"></a>
 ### v3.18.0 - 2025/08/29
 - key bindings can use the `cmd` modifier (called "Command", "Super", "Windows", depending on the system)
