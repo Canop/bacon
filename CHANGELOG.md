@@ -1,5 +1,6 @@
 ### next
 - update notify to fix a crash on BSD - Thanks @omarandlorraine
+- order list of jobs visible eg on shell completion - Fix #390
 
 <a name="v3.18.0"></a>
 ### v3.18.0 - 2025/08/29

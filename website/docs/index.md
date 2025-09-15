@@ -59,6 +59,8 @@ You may also open the `cargo doc` in your browser with the <kbd>d</kbd> key.
 
 You can configure and launch the jobs of your choice: tests, specific target compilations, examples, etc. and look at the results while you code.
 
+Hit <kbd>ctrl</kbd><kbd>j</kbd> to see all jobs.
+
 Run `bacon --help` to see all launch arguments, and read the [cookbook](cookbook).
 
 # Configuration
