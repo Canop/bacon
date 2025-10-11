@@ -60,9 +60,8 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
                 if let Some(path) = path {
                     last_location_path = Some(path);
                     continue;
-                } else {
-                    warn!("inconsistent line parsing");
                 }
+                warn!("inconsistent line parsing");
             }
             _ => {}
         }

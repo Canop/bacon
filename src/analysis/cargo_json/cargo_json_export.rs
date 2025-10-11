@@ -7,7 +7,7 @@ use {
     serde::Serialize,
 };
 
-/// An export in progress for the cargo_json analyzer
+/// An export in progress for the `cargo_json` analyzer
 pub struct CargoJsonExport {
     pub name: String,
     /// The written data to write to the file

@@ -16,7 +16,7 @@ use {
     },
 };
 
-static TEMPLATE: &str = r#"
+static TEMPLATE: &str = r"
 
 # bacon ${version}
 
@@ -39,7 +39,7 @@ ${config_files
 }
 
 
-"#;
+";
 
 pub struct HelpPage {
     area: Area,
@@ -66,7 +66,7 @@ impl HelpPage {
             .map(|(action, cks)| {
                 let cks: Vec<String> = cks.iter().map(|ck| format!("*{ck}*")).collect();
                 let cks = cks.join(" or ");
-                (action.doc(), cks)
+                (action.md(), cks)
             })
             .collect();
         bindings.sort_by(|a, b| a.0.cmp(&b.0));
@@ -124,7 +124,7 @@ impl HelpPage {
                 text_view.try_scroll_lines(lines);
             }
             ScrollCommand::MilliPages(milli_pages) => {
-                text_view.try_scroll_pages(milli_pages as f64 / 1000f64);
+                text_view.try_scroll_pages(f64::from(milli_pages) / 1000f64);
             }
         }
         self.scroll = text_view.scroll;

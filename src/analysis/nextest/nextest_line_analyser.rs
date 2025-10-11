@@ -96,7 +96,7 @@ impl NextestLineAnalyzer {
     ///
     /// with stderr maybe replaced by stdout or output
     ///
-    /// This supports nextest 0.9.95+ (see https://github.com/Canop/bacon/issues/350)
+    /// This supports nextest 0.9.95+ (see <https://github.com/Canop/bacon/issues/350>)
     fn stdx_section_key_v3(
         &self,
         content: &TLine,

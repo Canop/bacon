@@ -93,3 +93,4 @@ f = "job:fmt"
 w = "job:win"
 alt-b = "toggle-backtrace(0)" # disable backtrace when set with env var
 cmd-e = "play-sound"
+alt-m = "open-menu(intro=a text,actions=[play-sound,quit])"

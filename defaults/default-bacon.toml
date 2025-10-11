@@ -37,6 +37,16 @@ need_stdout = false
 command = ["cargo", "clippy", "--all-targets"]
 need_stdout = false
 
+# Run clippy in pedantic mode
+# The 'dismiss' feature may come handy
+[jobs.pedantic]
+command = [
+	"cargo", "clippy",
+	"--",
+	"-W", "clippy::pedantic",
+]
+need_stdout = false
+
 # This job lets you run
 # - all tests: bacon test
 # - a specific test: bacon test -- config::test_default_files
@@ -112,3 +122,4 @@ allow_warnings = true
 [keybindings]
 # alt-m = "job:my-job"
 c = "job:clippy-all" # comment this to have 'c' run clippy on only the default target
+p = "job:pedantic" 

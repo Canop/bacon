@@ -85,7 +85,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
                     items.push_failure_title(burp::failure_line(title));
                     last_location_in_item = None;
                 }
-                _ => {}
+                Section::Other => {}
             },
             PytLineFormat::Location { path, line } => {
                 if let Some(last_location) = last_location_in_item {

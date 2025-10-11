@@ -90,7 +90,7 @@ impl HelpLine {
     }
     fn applicable_parts(
         &self,
-        state: &AppState,
+        state: &MissionState,
     ) -> Vec<&str> {
         let mut parts: Vec<&str> = Vec::new();
         if state.is_help() {
@@ -164,7 +164,7 @@ impl HelpLine {
     }
     pub fn markdown(
         &self,
-        state: &AppState,
+        state: &MissionState,
     ) -> String {
         let parts = self.applicable_parts(state);
         format!("Hit {}", parts.join(", "))

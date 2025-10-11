@@ -21,10 +21,13 @@ pub struct MenuView {
 }
 
 impl MenuView {
-    fn compute_area_width(&self) -> u16 {
+    fn compute_area_width(
+        &self,
+        content_width: u16,
+    ) -> u16 {
         let screen = &self.available_area;
         let sw2 = screen.width / 2;
-        let w2 = 24.min(sw2 - 3); // menu half width
+        let w2 = 24.max(content_width / 2 + 1).min(sw2 - 3); // menu half width
         w2 * 2
     }
     fn compute_area(
@@ -48,8 +51,19 @@ impl MenuView {
         }
     }
 
+    fn estimate_content_optimal_width<I: Md>(state: &MenuState<I>) -> u16 {
+        state
+            .items
+            .iter()
+            .map(|item| item.action.md().len() + 8)
+            .max()
+            .unwrap_or(0)
+            .try_into()
+            .unwrap_or(100)
+    }
+
     /// Draw the menu and set the area of all visible items in the state
-    pub fn draw<I: ToString + Clone>(
+    pub fn draw<I: Md + Clone>(
         &mut self,
         w: &mut W,
         state: &mut MenuState<I>,
@@ -69,7 +83,7 @@ impl MenuView {
             skin.menu_item_selected_bg.color(),
         );
         sel_md_skin.italic.set_fg(skin.key_fg.color());
-        let area_width = self.compute_area_width();
+        let area_width = self.compute_area_width(Self::estimate_content_optimal_width(state));
         let mut intro_lines = Vec::new();
         let text_width = area_width - 2;
         let intro = state.intro.clone();
@@ -119,7 +133,7 @@ impl MenuView {
                 goto(w, item_area.left, y)?;
                 skin.write_composite_fill(
                     w,
-                    Composite::from_inline(&item.action.to_string()),
+                    Composite::from_inline(&item.action.md()),
                     label_width,
                     Alignment::Left,
                 )?;

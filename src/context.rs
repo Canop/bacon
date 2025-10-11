@@ -2,6 +2,7 @@ use {
     crate::*,
     anyhow::{
         Result,
+        anyhow,
         bail,
     },
     cargo_metadata::MetadataCommand,
@@ -103,7 +104,9 @@ impl Context {
                     .iter()
                     .find(|p| p.id == resolved_root)
                     .map(|p| p.manifest_path.as_std_path().to_path_buf())
-                    .expect("resolved manifest was not in package list");
+                    .ok_or_else(|| {
+                        anyhow!("the resolved root package was not in the package list")
+                    })?;
                 if metadata.workspace_root.as_std_path() != package_directory {
                     workspace_root = Some(metadata.workspace_root.as_std_path().to_path_buf());
                 }
@@ -194,7 +197,7 @@ impl Context {
         }
         let execution_directory = conf_execution_directory
             .unwrap_or(&self.package_directory)
-            .to_path_buf();
+            .clone();
 
         Ok(Mission {
             location_name,

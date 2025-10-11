@@ -12,17 +12,19 @@ pub struct Stats {
     pub warnings: usize,
     pub errors: usize,
     pub test_fails: usize,
-    pub passed_tests: usize,
+    //pub passed_tests: usize,
     pub location_lines: usize,
     pub normal_lines: usize,
 }
 impl From<&Vec<Line>> for Stats {
     fn from(lines: &Vec<Line>) -> Self {
         lines.iter().fold(Stats::default(), |mut stats, line| {
+            info!("linet_type: {:?}", line.line_type);
             match line.line_type {
                 LineType::Title(Kind::Error) => stats.errors += 1,
                 LineType::Title(Kind::Warning) => stats.warnings += 1,
                 LineType::Title(Kind::TestFail) => stats.test_fails += 1,
+                LineType::Title(Kind::TestOutput) => stats.test_fails += 1,
                 LineType::Location => stats.location_lines += 1,
                 _ => stats.normal_lines += 1,
             }
@@ -43,8 +45,5 @@ impl Stats {
     }
     pub fn items(&self) -> usize {
         self.warnings + self.errors + self.test_fails
-    }
-    pub fn can_scope_tests(&self) -> bool {
-        self.passed_tests > 0 && self.test_fails > 0
     }
 }
