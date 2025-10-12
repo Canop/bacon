@@ -223,7 +223,6 @@ impl<'a, 'm> MissionState<'a, 'm> {
         self.dialog = Dialog::Menu(self.app_state.filter.undismiss_menu());
     }
     fn apply_filter(&mut self) {
-        info!("APPLY FILTER");
         let Some(report) = self.cmd_result.report_mut() else {
             return;
         };

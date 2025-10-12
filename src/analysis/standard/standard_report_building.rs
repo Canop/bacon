@@ -32,7 +32,6 @@ pub fn build_report<L: LineAnalyzer>(
         match (line_type, line_analysis.key) {
             (LineType::Garbage, _) => {}
             (LineType::TestResult(r), Some(key)) => {
-                info!("TEST RESULT  {key:?} r={r}");
                 if r {
                     passed_tests += 1;
                     tests.insert(
@@ -155,7 +154,5 @@ pub fn build_report<L: LineAnalyzer>(
         .drain()
         .filter_map(|(key, test)| if !test.passed { Some(key) } else { None })
         .collect::<Vec<_>>();
-    //report.stats.test_fails = failed_tests; // FIXME make it computable from lines
-    info!("stats: {:#?}", &report.stats);
     Ok(report)
 }

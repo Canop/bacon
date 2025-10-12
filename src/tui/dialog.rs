@@ -5,7 +5,6 @@ use crate::*;
 pub enum Dialog {
     None,
     Menu(ActionMenu),
-    //UndismissMenu(UndismissMenu),
 }
 
 impl Dialog {
