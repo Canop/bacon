@@ -172,6 +172,9 @@ action | default binding | meaning
 back | <kbd>Esc</kbd> | get back to the previous page or job, or cancel search
 back-or-quit | | back to previous page or job, quitting if there is none
 copy-unstyled-output | | write the currently displayed job output to the clipboard
+dismiss-top-item | <kbd>alt</kbd><kbd>i</kbd> | [dismiss](../cookbook/#deal-with-pedantic) the top item
+dismiss-top-item-type | | dismiss the top item's type
+dismiss-top | <kbd>alt</kbd><kbd>t</kbd> | dismiss the top item's (its type if possible)
 export:name | | runs the [export](#exports) with this name
 focus-file(path) | | show this file's diagnostics first
 focus-search | <kbd>/</kbd> | focus the search input
@@ -180,6 +183,7 @@ job:job-reference | | execute the job with [job-reference](#job-references)
 next-match | <kbd>tab</kbd> | go to next search match
 no-op |  | do nothing (may be used to disable a previously set binding)
 open-menu(*menu-definition*) |  | open a user defined menu. For example<br>` "open-menu(intro=a text,actions=[job:ch,export:mx,quit])"`
+open-undismiss-menu | <kbd>alt</kbd><kbd>t</kbd> | open a menu to [undismiss](../cookbook/#deal-with-pedantic) chosen items
 open-jobs-menu | <kbd>ctrl</kbd>-<kbd>j</kbd> | open a menu with all jobs
 pause |  | disable automatic job execution on change
 play-sound |  | play a [sound](#sound) with optional parameters, eg `play-sound(volume=100%)`
@@ -200,6 +204,7 @@ toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either 
 toggle-raw-output |  | display the untransformed command output
 toggle-summary | <kbd>s</kbd> | display results as abstracts
 toggle-wrap | <kbd>w</kbd> | toggle line wrapping
+undismiss-all |  | [undismiss](../cookbook/#deal-with-pedantic) all items
 unpause |  | enable automatic job execution on change
 validate | <kbd>enter</kbd> | unfocus the input, keeping the search
 

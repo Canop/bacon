@@ -54,6 +54,14 @@ bacon clippy -- -W clippy::pedantic
 
 Note that bacon doesn't need to be killed and relaunched when you change the job config.
 
+# Deal with pedantic
+
+The *pedantic* and *nursery* modes of clippy produce many warnings, and you may not want to permanently exclude the ones that you don't want to immediately handle.
+
+Bacon has "dismiss" commands to this end, that you'd better call from your IDE.
+
+Here's a dedicated article: [https://dystroy.org/blog/practical-pedantism/](https://dystroy.org/blog/practical-pedantism/)
+
 # Check for other platforms
 
 You may define specific jobs for specific targets:

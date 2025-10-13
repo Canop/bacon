@@ -37,6 +37,7 @@ pub enum Action {
     NoOp, // no operation, can be used to clear a binding
     OpenJobsMenu,
     OpenMenu(Box<ActionMenuDefinition>),
+    OpenUndismissMenu,
     Pause,
     PlaySound(PlaySoundCommand),
     PreviousMatch,
@@ -52,9 +53,8 @@ pub enum Action {
     ToggleSummary,
     ToggleWrap,
     UndismissAll,
-    UndismissLocation(String),
     UndismissDiagType(String),
-    OpenUndismissMenu,
+    UndismissLocation(String),
     Unpause,
     Validate, // validate search entry
 }
