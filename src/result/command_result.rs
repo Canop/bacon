@@ -62,6 +62,13 @@ impl CommandResult {
         }
     }
 
+    pub fn report_mut(&mut self) -> Option<&mut Report> {
+        match self {
+            Self::Report(report) => Some(report),
+            _ => None,
+        }
+    }
+
     pub fn suggest_backtrace(&self) -> bool {
         match self {
             Self::Report(report) => report.suggest_backtrace,

@@ -47,6 +47,10 @@ pub fn run(
     context: Context,
     headless: bool,
 ) -> Result<()> {
+    let mut app_state = AppState {
+        headless,
+        ..Default::default()
+    };
     let event_source = if headless {
         // in headless mode, in some contexts, ctrl-c might not be enough to kill
         // bacon so we add this handler
@@ -80,11 +84,11 @@ pub fn run(
         let mission = context.mission(concrete_job_ref, &job, &settings)?;
         let do_after = app::run_mission(
             w,
+            &mut app_state,
             mission,
             event_source.as_ref(),
             action_rx.clone(),
             message.take(),
-            headless,
         )?;
         match do_after {
             DoAfterMission::NextJob(job_ref) => {
@@ -110,12 +114,13 @@ pub fn run(
 /// Run the mission and return what to do afterwards
 fn run_mission(
     w: &mut W,
+    app_state: &mut AppState,
     mission: Mission,
     event_source: Option<&EventSource>,
     action_rx: Receiver<Action>,
     message: Option<Message>,
-    headless: bool,
 ) -> Result<DoAfterMission> {
+    let headless = app_state.headless;
     let keybindings = mission.settings.keybindings.clone();
     let grace_period = mission.job.grace_period();
 
@@ -131,15 +136,15 @@ fn run_mission(
     // create the executor, mission, and state
     let mut executor = MissionExecutor::new(&mission)?;
     let on_change_strategy = mission.job.on_change_strategy();
-    let mut state = AppState::new(mission, headless)?;
+    let mut mission_state = MissionState::new(app_state, mission)?;
     if let Some(message) = message {
-        state.messages.push(message);
+        mission_state.messages.push(message);
     }
-    state.computation_starts();
+    mission_state.computation_starts();
     if !headless {
-        state.draw(w)?;
+        mission_state.draw(w)?;
     }
-    let mut task_executor = executor.start(state.new_task())?; // first computation
+    let mut task_executor = executor.start(mission_state.new_task())?; // first computation
 
     // A very low frequency tick generator, to ensure "config loaded" message doesn't stick
     // too long on the screen
@@ -172,16 +177,16 @@ fn run_mission(
                     debug!("ignoring notify event in grace period");
                     continue;
                 }
-                state.receive_watch_event();
-                if state.auto_refresh.is_enabled() {
-                    if !state.is_computing() || on_change_strategy == OnChangeStrategy::KillThenRestart {
+                mission_state.receive_watch_event();
+                if mission_state.auto_refresh.is_enabled() {
+                    if !mission_state.is_computing() || on_change_strategy == OnChangeStrategy::KillThenRestart {
                         actions.push(Action::ReRun);
                     }
                 }
             }
             recv(config_watcher.receiver) -> _ => {
                 info!("config watch event received");
-                if state.auto_refresh.is_enabled() {
+                if mission_state.auto_refresh.is_enabled() {
                     grace_period.sleep(); // Fix #310
                     actions.push(Action::ReloadConfig);
                 }
@@ -197,38 +202,38 @@ fn run_mission(
                                 }
                             }
                             let line = line.into();
-                            state.add_line(line);
+                            mission_state.add_line(line);
                         }
                         CommandExecInfo::End { status } => {
                             // computation finished
                             info!("execution finished with status: {:?}", status);
-                            state.finish_task(status)?;
+                            mission_state.finish_task(status)?;
                             if headless {
-                                for badge in state.job_badges() {
+                                for badge in mission_state.job_badges() {
                                     badge.draw(w)?;
                                 }
                                 writeln!(w)?;
                                 w.flush()?;
                             }
-                            if state.is_success() {
-                                if let Some(action) = &state.mission.job.on_success {
+                            if mission_state.is_success() {
+                                if let Some(action) = &mission_state.mission.job.on_success {
                                     actions.push(action.clone());
                                 }
                             }
-                            if state.is_failure() {
-                                if let Some(action) = &state.mission.job.on_failure {
+                            if mission_state.is_failure() {
+                                if let Some(action) = &mission_state.mission.job.on_failure {
                                     actions.push(action.clone());
                                 }
                             }
-                            if state.changes_since_last_job_start > 0 && state.auto_refresh.is_enabled() {
+                            if mission_state.changes_since_last_job_start > 0 && mission_state.auto_refresh.is_enabled() {
                                 // will be ignored if a on_success or on_failures ends the mission
                                 // or does a rerun already
                                 actions.push(Action::ReRun)
                             }
                         }
                         CommandExecInfo::Error(e) => {
-                            state.computation_stops();
-                            return Err(e.context(format!("error in computation for job '{}'", state.mission.concrete_job_ref.badge_label())));
+                            mission_state.computation_stops();
+                            return Err(e.context(format!("error in computation for job '{}'", mission_state.mission.concrete_job_ref.badge_label())));
                         }
                         CommandExecInfo::Interruption => {
                             debug!("command was interrupted (by us)");
@@ -239,12 +244,12 @@ fn run_mission(
             recv(user_events) -> user_event => {
                 match user_event?.event {
                     Event::Resize(mut width, mut height) => {
-                        state.resize(width, height);
+                        mission_state.resize(width, height);
                     }
                     Event::Key(key_event) => {
                         let key_combination = KeyCombination::from(key_event);
                         debug!("key combination pressed: {}", key_combination);
-                        match state.on_key(key_combination) {
+                        match mission_state.on_key(key_combination) {
                             Some(action) => {
                                 actions.push(action);
                             }
@@ -284,57 +289,82 @@ fn run_mission(
             debug!("requested action: {action:?}");
             match action {
                 Action::Back => {
-                    if !state.back() {
+                    if !mission_state.back() {
                         mission_end = Some(DoAfterMission::NextJob(JobRef::Previous));
                     }
                 }
                 Action::BackOrQuit => {
-                    if !state.back() {
+                    if !mission_state.back() {
                         mission_end = Some(DoAfterMission::NextJob(JobRef::PreviousOrQuit));
                     }
                 }
                 Action::CopyUnstyledOutput => {
-                    state.copy_unstyled_output();
+                    mission_state.copy_unstyled_output();
+                }
+                Action::DismissTop => {
+                    mission_state.dismiss_top();
+                }
+                Action::DismissTopItem => {
+                    mission_state.dismiss_top_item();
+                }
+                Action::DismissTopItemType => {
+                    if !mission_state.dismiss_top_item_type() {
+                        mission_state
+                            .messages
+                            .push(Message::short("No type found for the top item"));
+                    }
+                }
+                Action::UndismissAll => {
+                    mission_state.undismiss_all();
+                }
+                Action::UndismissLocation(location) => {
+                    mission_state.remove_dismissal(&Dismissal::Location(location));
+                }
+                Action::UndismissDiagType(diag_type) => {
+                    mission_state.remove_dismissal(&Dismissal::DiagType(diag_type));
+                }
+                Action::OpenUndismissMenu => {
+                    mission_state.open_undismiss_menu();
                 }
                 Action::Export(export_name) => {
                     let export_name = export_name.to_string();
-                    state
+                    mission_state
                         .mission
                         .settings
                         .exports
-                        .do_named_export(&export_name, &state);
-                    state
+                        .do_named_export(&export_name, &mission_state);
+                    mission_state
                         .messages
                         .push(Message::short(format!("Export *{}* done", &export_name)));
                 }
                 Action::FocusFile(focus_file_command) => {
-                    state.focus_file(&focus_file_command);
+                    mission_state.focus_file(&focus_file_command);
                 }
                 Action::FocusGoto => {
-                    state.focus_goto();
+                    mission_state.focus_goto();
                 }
                 Action::FocusSearch => {
-                    state.focus_search();
+                    mission_state.focus_search();
                 }
                 Action::Help => {
-                    state.toggle_help();
+                    mission_state.toggle_help();
                 }
                 Action::Job(job_ref) => {
                     mission_end = Some(job_ref.clone().into());
                     break;
                 }
                 Action::NextMatch => {
-                    state.next_match();
+                    mission_state.next_match();
                 }
                 Action::NoOp => {}
                 Action::OpenJobsMenu => {
-                    state.open_jobs_menu();
+                    mission_state.open_jobs_menu();
                 }
                 Action::OpenMenu(definition) => {
-                    state.open_menu(*definition);
+                    mission_state.open_menu(*definition);
                 }
                 Action::Pause => {
-                    state.auto_refresh = AutoRefresh::Paused;
+                    mission_state.auto_refresh = AutoRefresh::Paused;
                 }
                 Action::PlaySound(play_sound_command) => {
                     if let Some(sound_player) = &sound_player {
@@ -344,7 +374,7 @@ fn run_mission(
                     }
                 }
                 Action::PreviousMatch => {
-                    state.previous_match();
+                    mission_state.previous_match();
                 }
                 Action::Quit => {
                     mission_end = Some(DoAfterMission::Quit);
@@ -352,13 +382,13 @@ fn run_mission(
                 }
                 Action::ReRun => {
                     task_executor.die();
-                    task_executor = state.start_computation(&mut executor)?;
+                    task_executor = mission_state.start_computation(&mut executor)?;
                     break; // drop following actions
                 }
                 Action::Refresh => {
-                    state.clear();
+                    mission_state.clear();
                     task_executor.die();
-                    task_executor = state.start_computation(&mut executor)?;
+                    task_executor = mission_state.start_computation(&mut executor)?;
                     break; // drop following actions
                 }
                 Action::ReloadConfig => {
@@ -366,62 +396,61 @@ fn run_mission(
                     break;
                 }
                 Action::ScopeToFailures => {
-                    if let Some(scope) = state.failures_scope() {
+                    if let Some(scope) = mission_state.failures_scope() {
                         info!("scoping to failures: {scope:#?}");
                         mission_end = Some(JobRef::from(scope).into());
                         break;
-                    } else {
-                        warn!("no available failures scope");
                     }
+                    warn!("no available failures scope");
                 }
                 Action::Scroll(scroll_command) => {
-                    state.apply_scroll_command(scroll_command);
+                    mission_state.apply_scroll_command(scroll_command);
                 }
                 Action::ToggleBacktrace(level) => {
-                    state.toggle_backtrace(level);
+                    mission_state.toggle_backtrace(level);
                     task_executor.die();
-                    task_executor = state.start_computation(&mut executor)?;
+                    task_executor = mission_state.start_computation(&mut executor)?;
                     break; // drop following actions
                 }
-                Action::TogglePause => match state.auto_refresh {
+                Action::TogglePause => match mission_state.auto_refresh {
                     AutoRefresh::Enabled => {
-                        state.auto_refresh = AutoRefresh::Paused;
+                        mission_state.auto_refresh = AutoRefresh::Paused;
                     }
                     AutoRefresh::Paused => {
-                        state.auto_refresh = AutoRefresh::Enabled;
-                        if state.changes_since_last_job_start > 0 {
-                            state.clear();
+                        mission_state.auto_refresh = AutoRefresh::Enabled;
+                        if mission_state.changes_since_last_job_start > 0 {
+                            mission_state.clear();
                             task_executor.die();
-                            task_executor = state.start_computation(&mut executor)?;
+                            task_executor = mission_state.start_computation(&mut executor)?;
                             break; // drop following actions
                         }
                     }
                 },
                 Action::ToggleRawOutput => {
-                    state.toggle_raw_output();
+                    mission_state.toggle_raw_output();
                 }
                 Action::ToggleSummary => {
-                    state.toggle_summary_mode();
+                    mission_state.toggle_summary_mode();
                 }
                 Action::ToggleWrap => {
-                    state.toggle_wrap_mode();
+                    mission_state.toggle_wrap_mode();
                 }
                 Action::Unpause => {
-                    if state.changes_since_last_job_start > 0 {
-                        state.clear();
+                    if mission_state.changes_since_last_job_start > 0 {
+                        mission_state.clear();
                         task_executor.die();
-                        task_executor = state.start_computation(&mut executor)?;
+                        task_executor = mission_state.start_computation(&mut executor)?;
                         break; // drop following actions
                     }
-                    state.auto_refresh = AutoRefresh::Enabled;
+                    mission_state.auto_refresh = AutoRefresh::Enabled;
                 }
                 Action::Validate => {
-                    state.validate();
+                    mission_state.validate();
                 }
             }
         }
         if !headless {
-            state.draw(w)?;
+            mission_state.draw(w)?;
         }
         if let Some(mission_end) = mission_end {
             task_executor.die();

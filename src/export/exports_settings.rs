@@ -26,7 +26,7 @@ impl ExportsSettings {
 
     pub fn do_auto_exports(
         &self,
-        state: &AppState<'_>,
+        state: &MissionState<'_, '_>,
     ) {
         for (name, export) in &self.exports {
             if export.auto {
@@ -41,7 +41,7 @@ impl ExportsSettings {
     pub fn do_named_export(
         &self,
         requested_name: &str,
-        state: &AppState<'_>,
+        state: &MissionState<'_, '_>,
     ) {
         if let Some(export) = self.exports.get(requested_name) {
             if let Err(e) = export.do_export(requested_name, state) {
@@ -75,10 +75,10 @@ impl ExportsSettings {
                     e.auto = b;
                 }
                 if let Some(p) = &ec.path {
-                    e.path = p.clone();
+                    e.path.clone_from(p);
                 }
                 if let Some(lf) = &ec.line_format {
-                    e.line_format = lf.clone();
+                    e.line_format.clone_from(lf);
                 }
                 continue;
             }
@@ -103,7 +103,7 @@ impl ExportsSettings {
             });
             let line_format = ec.line_format.clone().unwrap_or_else(|| match exporter {
                 Exporter::Locations => default_locations_line_format().to_string(),
-                _ => "".to_string(),
+                _ => String::new(),
             });
             self.exports.insert(
                 name.clone(),
@@ -129,7 +129,7 @@ impl ExportsSettings {
                         analysis_export.auto = b;
                     }
                     if let Some(p) = &ec.path {
-                        analysis_export.path = p.clone();
+                        analysis_export.path.clone_from(p);
                     }
                 }
                 Some(Exporter::JsonReport) => {
@@ -141,7 +141,7 @@ impl ExportsSettings {
                         json_report_export.auto = b;
                     }
                     if let Some(p) = &ec.path {
-                        json_report_export.path = p.clone();
+                        json_report_export.path.clone_from(p);
                     }
                 }
                 _ => {
@@ -153,10 +153,10 @@ impl ExportsSettings {
                         locations_export.auto = b;
                     }
                     if let Some(p) = &ec.path {
-                        locations_export.path = p.clone();
+                        locations_export.path.clone_from(p);
                     }
                     if let Some(lf) = &ec.line_format {
-                        locations_export.line_format = lf.clone();
+                        locations_export.line_format.clone_from(lf);
                     }
                 }
             }

@@ -1,4 +1,5 @@
 use {
+    crate::Md,
     crokey::{
         KeyCombination,
         crossterm::event::{
@@ -35,7 +36,7 @@ impl<I> Default for MenuState<I> {
     }
 }
 
-impl<I: ToString + Clone> MenuState<I> {
+impl<I: Md + Clone> MenuState<I> {
     pub fn set_intro<S: Into<String>>(
         &mut self,
         intro: S,
@@ -79,25 +80,30 @@ impl<I: ToString + Clone> MenuState<I> {
         }
     }
     /// Handle a key event (not triggering the actions on their keys, only apply
-    /// the menu mechanics)
+    /// the menu mechanics).
+    ///
+    /// Return an optional action and a bool telling whether the event was
+    ///  consumed by the menu.
     pub fn on_key(
         &mut self,
         key: KeyCombination,
-    ) -> Option<I> {
+    ) -> (Option<I>, bool) {
         let items = &self.items;
         if key == key!(down) {
             self.selection = (self.selection + 1) % items.len();
+            return (None, true);
         } else if key == key!(up) {
             self.selection = (self.selection + items.len() - 1) % items.len();
+            return (None, true);
         } else if key == key!(enter) {
-            return Some(items[self.selection].action.clone());
+            return (Some(items[self.selection].action.clone()), true);
         }
         for item in &self.items {
             if item.key == Some(key) {
-                return Some(item.action.clone());
+                return (Some(item.action.clone()), true);
             }
         }
-        None
+        (None, false)
     }
     pub fn item_idx_at(
         &self,

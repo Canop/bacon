@@ -22,7 +22,7 @@ pub struct Menu<I> {
     view: MenuView,
 }
 
-impl<I: ToString + Clone> Menu<I> {
+impl<I: Md + Clone> Menu<I> {
     pub fn new() -> Self {
         Self {
             state: Default::default(),

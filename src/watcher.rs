@@ -38,18 +38,18 @@ impl Watcher {
                 Ok(we) => {
                     match we.kind {
                         EventKind::Modify(ModifyKind::Metadata(_)) => {
-                            debug!("ignoring metadata change");
+                            //debug!("ignoring metadata change");
                             return; // useless event
                         }
                         EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
-                            debug!("ignoring 'any' data change");
+                            //debug!("ignoring 'any' data change");
                             return; // probably useless event with no real change
                         }
                         EventKind::Access(AccessKind::Close(AccessMode::Write)) => {
-                            info!("close write event: {we:?}");
+                            debug!("close write event: {we:?}");
                         }
                         EventKind::Access(_) => {
-                            debug!("ignoring access event: {we:?}");
+                            //debug!("ignoring access event: {we:?}");
                             return; // probably useless event
                         }
                         _ => {

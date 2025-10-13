@@ -24,6 +24,9 @@ pub enum Action {
     Back,       // leave help, clear search, go to previous job, leave, etc.
     BackOrQuit, // same as Back but quits if there is nothing to go back to
     CopyUnstyledOutput,
+    DismissTop,
+    DismissTopItem,
+    DismissTopItemType,
     Export(String),
     FocusFile(FocusFileCommand),
     FocusGoto,
@@ -32,8 +35,8 @@ pub enum Action {
     Job(JobRef),
     NextMatch,
     NoOp, // no operation, can be used to clear a binding
-    OpenMenu(Box<ActionMenuDefinition>),
     OpenJobsMenu,
+    OpenMenu(Box<ActionMenuDefinition>),
     Pause,
     PlaySound(PlaySoundCommand),
     PreviousMatch,
@@ -48,25 +51,32 @@ pub enum Action {
     ToggleRawOutput,
     ToggleSummary,
     ToggleWrap,
+    UndismissAll,
+    UndismissLocation(String),
+    UndismissDiagType(String),
+    OpenUndismissMenu,
     Unpause,
     Validate, // validate search entry
 }
 
-impl Action {
+impl Md for Action {
     /// Return the action description to show in doc/help
-    pub fn doc(&self) -> String {
+    fn md(&self) -> String {
         match self {
             Self::Back => "back to previous page or job".to_string(),
             Self::BackOrQuit => {
                 "back to previous page or job, quitting if there is none".to_string()
             }
             Self::CopyUnstyledOutput => "copy current job's output".to_string(),
+            Self::DismissTop => "dismiss top".to_string(),
+            Self::DismissTopItem => "dismiss top item".to_string(),
+            Self::DismissTopItemType => "dismiss top item type".to_string(),
             Self::Export(export_name) => format!("run *{export_name}* export"),
             Self::FocusFile(fc) => fc.doc(),
             Self::FocusGoto => "focus goto".to_string(),
             Self::FocusSearch => "focus search".to_string(),
             Self::Help => "help".to_string(),
-            Self::Job(job_name) => format!("start the *{job_name}* job"),
+            Self::Job(job_name) => format!("*{job_name}* job"),
             Self::NextMatch => "next match".to_string(),
             Self::NoOp => "no operation".to_string(),
             Self::OpenMenu(_) => "open specific menu".to_string(),
@@ -87,6 +97,10 @@ impl Action {
             Self::ToggleWrap => "toggle wrap".to_string(),
             Self::Unpause => "unpause".to_string(),
             Self::Validate => "validate".to_string(),
+            Self::UndismissAll => "undismiss everything".to_string(),
+            Self::UndismissLocation(loc) => format!("undismiss *{loc}*"),
+            Self::UndismissDiagType(dt) => format!("undismiss *{dt}*"),
+            Self::OpenUndismissMenu => "open undismiss menu".to_string(),
         }
     }
 }
@@ -145,13 +159,23 @@ impl fmt::Display for Action {
         f: &mut fmt::Formatter,
     ) -> fmt::Result {
         match self {
-            Self::Export(name) => write!(f, "export:{name}"),
-            Self::Job(job_ref) => write!(f, "job:{job_ref}"),
             Self::Back => write!(f, "back"),
             Self::BackOrQuit => write!(f, "back-or-quit"),
             Self::CopyUnstyledOutput => write!(f, "copy-unstyled-output"),
+            Self::DismissTop => write!(f, "dismiss-top"),
+            Self::DismissTopItem => write!(f, "dismiss-top-item"),
+            Self::DismissTopItemType => write!(f, "dismiss-top-item-type"),
+            Self::Export(name) => write!(f, "export:{name}"),
+            Self::FocusFile(FocusFileCommand { file }) => {
+                write!(f, "focus-file({file})")
+            }
+            Self::FocusGoto => write!(f, "focus-goto"),
+            Self::FocusSearch => write!(f, "focus-search"),
             Self::Help => write!(f, "help"),
+            Self::Job(job_ref) => write!(f, "job:{job_ref}"),
+            Self::NextMatch => write!(f, "next-match"),
             Self::NoOp => write!(f, "no-op"),
+            Self::OpenJobsMenu => write!(f, "open-jobs-menu"),
             Self::OpenMenu(def) => {
                 write!(f, "open-menu(")?;
                 if let Some(intro) = &def.intro {
@@ -166,8 +190,16 @@ impl fmt::Display for Action {
                 }
                 write!(f, "])")
             }
-            Self::OpenJobsMenu => write!(f, "open-jobs-menu"),
+            Self::OpenUndismissMenu => write!(f, "open-undismiss-menu"),
             Self::Pause => write!(f, "pause"),
+            Self::PlaySound(PlaySoundCommand { name, volume }) => {
+                write!(f, "play-sound(")?;
+                if let Some(name) = name {
+                    write!(f, "name={name},")?;
+                }
+                write!(f, "volume={volume})")
+            }
+            Self::PreviousMatch => write!(f, "previous-match"),
             Self::Quit => write!(f, "quit"),
             Self::ReRun => write!(f, "rerun"),
             Self::Refresh => write!(f, "refresh"),
@@ -179,22 +211,11 @@ impl fmt::Display for Action {
             Self::ToggleRawOutput => write!(f, "toggle-raw-output"),
             Self::ToggleSummary => write!(f, "toggle-summary"),
             Self::ToggleWrap => write!(f, "toggle-wrap"),
+            Self::UndismissAll => write!(f, "undismiss-all"),
+            Self::UndismissLocation(loc) => write!(f, "undismiss-location({loc})"),
+            Self::UndismissDiagType(dt) => write!(f, "undismiss-diag-type({dt})"),
             Self::Unpause => write!(f, "unpause"),
-            Self::FocusFile(FocusFileCommand { file }) => {
-                write!(f, "focus-file({file})")
-            }
-            Self::FocusSearch => write!(f, "focus-search"),
-            Self::FocusGoto => write!(f, "focus-goto"),
             Self::Validate => write!(f, "validate"),
-            Self::NextMatch => write!(f, "next-match"),
-            Self::PreviousMatch => write!(f, "previous-match"),
-            Self::PlaySound(PlaySoundCommand { name, volume }) => {
-                write!(f, "play-sound(")?;
-                if let Some(name) = name {
-                    write!(f, "name={name},")?;
-                }
-                write!(f, "volume={volume})")
-            }
         }
     }
 }
@@ -206,13 +227,16 @@ impl FromStr for Action {
             r"^job:(?<job_ref>.+)$" => Self::Job(job_ref.into()),
             r"^(?:internal:)?back$" => Self::Back,
             r"^(?:internal:)?back-or-quit$" => Self::BackOrQuit,
+            r"^(?:internal:)?dismiss-top$" => Self::DismissTop,
+            r"^(?:internal:)?dismiss-top-item$" => Self::DismissTopItem,
+            r"^(?:internal:)?dismiss-top-item-type$" => Self::DismissTopItemType,
             r"^(?:internal:)?help$" => Self::Help,
             r"^(?:internal:)?quit$" => Self::Quit,
             r"^(?:internal:)?open-menu\((?:intro=(?<intro>.+),\s*)?(?:actions=\[(?<actions>.+)\])\)$" => {
                 let actions = actions.split(',')
-                    .map(|s| s.trim())
+                    .map(str::trim)
                     .filter(|s| !s.is_empty())
-                    .map(|s| s.parse::<Action>())
+                    .map(str::parse::<Action>)
                     .collect::<Result<Vec<_>, _>>()?;
                 Self::OpenMenu(Box::new(ActionMenuDefinition {
                     intro: if intro.is_empty() { None } else { Some(intro.to_string()) },
@@ -249,6 +273,10 @@ impl FromStr for Action {
             r"^(?:internal:)?validate$" => Self::Validate,
             r"^(?:internal:)?next-match$" => Self::NextMatch,
             r"^(?:internal:)?previous-match$" => Self::PreviousMatch,
+            r"^(?:internal:)?undismiss-all$" => Self::UndismissAll,
+            r"^(?:internal:)?undismiss-location\((?<location>.+)\)$" => Self::UndismissLocation(location.to_string()),
+            r"^(?:internal:)?undismiss-diag-type\((?<diag_type>.+)\)$" => Self::UndismissDiagType(diag_type.to_string()),
+            r"^(?:internal:)?open-undismiss-menu$" => Self::OpenUndismissMenu,
             r"^(?:internal:)?copy-unstyled-output$" => Self::CopyUnstyledOutput,
             r"^(?:internal:)?play-sound$" => Self::PlaySound(PlaySoundCommand::default()),
             r"^(?:internal:)?play-sound\((?<props>.*)\)$" => {
@@ -350,6 +378,11 @@ fn test_action_string_round_trip() {
         Action::Export("my export".to_string()),
         Action::Back,
         Action::BackOrQuit,
+        Action::DismissTop,
+        Action::DismissTopItem,
+        Action::DismissTopItemType,
+        Action::UndismissAll,
+        Action::UndismissLocation("src/main.rs:42".to_string()),
         Action::FocusSearch,
         Action::OpenJobsMenu,
         Action::OpenMenu(Box::new(ActionMenuDefinition {

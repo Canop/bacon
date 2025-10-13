@@ -38,6 +38,7 @@ pub enum AnalyzerRef {
 }
 
 impl AnalyzerRef {
+    #[must_use]
     pub fn create_analyzer(self) -> Box<dyn Analyzer> {
         match self {
             Self::Standard => Box::new(standard::StandardAnalyzer::default()),

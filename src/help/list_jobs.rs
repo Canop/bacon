@@ -10,7 +10,7 @@ use {
 };
 
 pub fn print_jobs(settings: &Settings) {
-    static MD: &str = r#"
+    static MD: &str = r"
     |:-:|:-|
     |**job**|**command**|
     |:-:|:-|
@@ -19,7 +19,7 @@ pub fn print_jobs(settings: &Settings) {
     }
     |-|-|
     default job: ${default_job}
-    "#;
+    ";
     let mut expander = OwningTemplateExpander::new();
     let mut jobs: Vec<_> = settings.jobs.iter().collect();
     jobs.sort_by_key(|(name, _)| name.to_string());

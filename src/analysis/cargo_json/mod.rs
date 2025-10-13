@@ -20,7 +20,7 @@ use {
 /// In order to be useful, this analyzer would have to read more than
 /// just the 'rendered' field of the diagnostic. It would have to read
 /// for example the spans, detect what's a suggestion, etc.
-/// See https://github.com/Canop/bacon/issues/249
+/// See <https://github.com/Canop/bacon/issues/249>
 ///
 /// There are so many problems with this approach, though, that I'm
 /// not sure this is worth it.

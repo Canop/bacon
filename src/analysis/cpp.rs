@@ -17,7 +17,7 @@ impl Analyzer for CppAnalyzer {
         &mut self,
         _mission: &Mission,
     ) {
-        self.lines.clear()
+        self.lines.clear();
     }
 
     fn receive_line(
@@ -68,7 +68,7 @@ fn build_report(lines: &[CommandOutputLine]) -> Result<Report> {
                 burp::location_line(format!("{path}:{line}:{column}")),
             );
         } else {
-            items.push_line(LineType::Normal, line.content.clone())
+            items.push_line(LineType::Normal, line.content.clone());
         }
     }
     Ok(items.report())
@@ -137,7 +137,7 @@ impl Analyzer for CppDoctestAnalyzer {
         &mut self,
         _mission: &Mission,
     ) {
-        self.lines.clear()
+        self.lines.clear();
     }
 
     fn receive_line(

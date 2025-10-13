@@ -29,6 +29,9 @@ impl Default for KeyBindings {
         bindings.set(key!(h), Action::Help);
         bindings.set(key!(ctrl - c), Action::Quit);
         bindings.set(key!(ctrl - q), Action::Quit);
+        bindings.set(key!(alt - i), Action::DismissTopItem);
+        bindings.set(key!(alt - t), Action::DismissTop);
+        bindings.set(key!(alt - u), Action::OpenUndismissMenu);
         bindings.set(key!(q), Action::Quit);
         bindings.set(key!(F5), Action::Refresh);
         bindings.set(key!(s), Action::ToggleSummary);
@@ -83,7 +86,7 @@ impl KeyBindings {
         &mut self,
         other: &KeyBindings,
     ) {
-        for (ck, action) in other.map.iter() {
+        for (ck, action) in &other.map {
             self.map.insert(*ck, action.clone());
         }
     }

@@ -79,6 +79,8 @@ BaconSkin! {
     warnings_badge_bg: 11, // background color of the warnings badge
     command_error_badge_fg: 235, // foreground color of the command error badge
     command_error_badge_bg: 9, // background color of the command error badge
+    dismissed_badge_fg: 235, // foreground color of the dismissed badge
+    dismissed_badge_bg: 6, // background color of the dismissed badge
     change_badge_fg: 235, // foreground color of the change badge
     change_badge_bg: 6, // background color of the change badge
     computing_fg: 235, // foreground color of the "computing..." stripe

@@ -241,7 +241,7 @@ fn kill(
         };
         warn!("specific kill command failed: {e}");
     }
-    child.kill().expect("command couldn't be killed")
+    child.kill().expect("command couldn't be killed");
 }
 
 fn run_kill_command(

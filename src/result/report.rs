@@ -18,22 +18,47 @@ use {
 /// lightly analyzed
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Report {
+    pub output: CommandOutput,
     pub lines: Vec<Line>,
     pub stats: Stats,
     pub suggest_backtrace: bool,
-    pub output: CommandOutput,
     pub failure_keys: Vec<String>,
     /// the exports that the analyzers have done, by name
     pub analyzer_exports: HashMap<String, String>,
+
+    pub has_passed_tests: bool,
+
+    pub dismissed_items: usize,
+    pub dismissed_lines: Vec<Line>,
 }
 
 impl Report {
+    pub fn new(lines: Vec<Line>) -> Self {
+        let stats = Stats::from(&lines);
+        Self {
+            output: Default::default(),
+            lines,
+            suggest_backtrace: false,
+            failure_keys: Vec::new(),
+            analyzer_exports: Default::default(),
+            has_passed_tests: false,
+            stats,
+            dismissed_items: 0,
+            dismissed_lines: Vec::new(),
+        }
+    }
+
+    pub fn lines_changed(&mut self) {
+        self.stats = Stats::from(&self.lines);
+    }
+
     /// change the order of the lines so that items are in reverse order
     /// (but keep the order of lines of a given item)
     pub fn reverse(&mut self) {
         self.lines
             .sort_by_key(|line| std::cmp::Reverse(line.item_idx));
     }
+
     /// A successful report is one with nothing to tell: no warning,
     /// no error, no test failure
     pub fn is_success(
@@ -44,6 +69,13 @@ impl Report {
         !(self.stats.errors != 0
             || (!allow_failures && self.stats.test_fails != 0)
             || (!allow_warnings && self.stats.warnings != 0))
+    }
+
+    pub fn remove_item(
+        &mut self,
+        item_idx: usize,
+    ) {
+        self.lines.retain(|line| line.item_idx != item_idx);
     }
 
     pub fn focus_file(
@@ -74,6 +106,39 @@ impl Report {
         } else {
             self.lines.sort_by(cmp);
         }
+    }
+
+    pub fn top_item_idx(&self) -> Option<usize> {
+        self.lines.first().map(|line| line.item_idx)
+    }
+
+    pub fn item_location(
+        &self,
+        item_idx: usize,
+    ) -> Option<&str> {
+        info!("looking for location of item {item_idx}");
+        self.lines
+            .iter()
+            .find(|line| line.item_idx == item_idx && line.location().is_some())
+            .and_then(|line| line.location())
+        //.and_then(|loc| loc.parse().ok())
+    }
+
+    pub fn item_diag_type(
+        &self,
+        item_idx: usize,
+    ) -> Option<&str> {
+        info!("looking for diag_type of item {item_idx}");
+        for line in &self.lines {
+            if line.item_idx != item_idx {
+                continue;
+            }
+            let diag_type = line.diag_type();
+            if diag_type.is_some() {
+                return diag_type;
+            }
+        }
+        None
     }
 
     /// Extract all the diagnostic context, that is all the normal lines
@@ -155,5 +220,8 @@ impl Report {
         }
         debug!("exported locations");
         Ok(())
+    }
+    pub fn can_scope_tests(&self) -> bool {
+        self.has_passed_tests && self.stats.test_fails > 0
     }
 }

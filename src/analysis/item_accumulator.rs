@@ -53,6 +53,7 @@ impl ItemAccumulator {
         self.curr_kind = Some(Kind::TestFail);
         self.push_line(LineType::Title(Kind::TestFail), content);
     }
+    #[must_use]
     pub fn lines(mut self) -> Vec<Line> {
         let mut lines = self.errors;
         lines.append(&mut self.test_fails);
@@ -66,17 +67,9 @@ impl ItemAccumulator {
         }
         lines
     }
+    #[must_use]
     pub fn report(self) -> Report {
         let lines = self.lines();
-        let stats = Stats::from(&lines);
-        info!("stats: {:#?}", &stats);
-        Report {
-            lines,
-            stats,
-            suggest_backtrace: false,
-            output: Default::default(),
-            failure_keys: Vec::new(),
-            analyzer_exports: Default::default(),
-        }
+        Report::new(lines)
     }
 }

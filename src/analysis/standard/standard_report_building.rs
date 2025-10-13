@@ -18,7 +18,6 @@ pub fn build_report<L: LineAnalyzer>(
     let mut fails = Vec::new();
     let mut tests: FxHashMap<String, Test> = Default::default();
     let mut passed_tests = 0;
-    let mut failed_tests = 0;
     let mut cur_err_kind = None; // the current kind among stderr lines
     let mut is_in_out_fail = false;
     let mut suggest_backtrace = false;
@@ -31,11 +30,8 @@ pub fn build_report<L: LineAnalyzer>(
             content: cmd_line.content.clone(),
         };
         match (line_type, line_analysis.key) {
-            (LineType::Garbage, _) => {
-                continue;
-            }
+            (LineType::Garbage, _) => {}
             (LineType::TestResult(r), Some(key)) => {
-                info!("TEST RESULT  {key:?} r={r}");
                 if r {
                     passed_tests += 1;
                     tests.insert(
@@ -46,7 +42,6 @@ pub fn build_report<L: LineAnalyzer>(
                         },
                     );
                 } else if !tests.contains_key(&key) {
-                    failed_tests += 1;
                     // we should receive the test test section later,
                     // right now we just whitelist it
                     tests.insert(key, Test::default());
@@ -151,23 +146,13 @@ pub fn build_report<L: LineAnalyzer>(
         }
         line.item_idx = item_idx;
     }
-    // we compute the stats at end because some lines may
-    // have been read but not added (at start or end)
-    let mut stats = Stats::from(&lines);
-    stats.passed_tests = passed_tests;
-    stats.test_fails = failed_tests;
-    info!("stats: {:#?}", &stats);
-    let failure_keys = tests
+
+    let mut report = Report::new(lines);
+    report.suggest_backtrace = suggest_backtrace;
+    report.has_passed_tests = passed_tests > 0;
+    report.failure_keys = tests
         .drain()
         .filter_map(|(key, test)| if !test.passed { Some(key) } else { None })
         .collect::<Vec<_>>();
-    let report = Report {
-        lines,
-        stats,
-        suggest_backtrace,
-        output: Default::default(),
-        failure_keys,
-        analyzer_exports: Default::default(),
-    };
     Ok(report)
 }

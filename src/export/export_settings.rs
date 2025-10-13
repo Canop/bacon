@@ -18,12 +18,12 @@ impl ExportSettings {
     pub fn do_export(
         &self,
         name: &str,
-        state: &AppState<'_>,
+        state: &MissionState<'_, '_>,
     ) -> anyhow::Result<()> {
         let path = if self.path.is_relative() {
             state.mission.package_directory.join(&self.path)
         } else {
-            self.path.to_path_buf()
+            self.path.clone()
         };
         info!("exporting to {path:?}");
         let Some(report) = state.cmd_result.report() else {
