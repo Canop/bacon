@@ -1,8 +1,10 @@
-### next
+<a name="v3.19.0"></a>
+### v3.19.0 - 2025/10/13
 - update notify to fix a crash on BSD - Thanks @omarandlorraine
 - order list of jobs visible eg on shell completion - Fix #390
 #### Major feature: commands to dismiss and undismiss items or types of items
-This makes it practical and efficient to do occasional "pedantic" reviews of your code, see https://github.com/Canop/bacon/pull/396 - Fix #304
+This makes it practical and efficient to do occasional "pedantic" reviews of your code - Fix #304
+I wrote a blog post about it: https://dystroy.org/blog/practical-pedantism/
 
 <a name="v3.18.0"></a>
 ### v3.18.0 - 2025/08/29
