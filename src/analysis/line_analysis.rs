@@ -15,22 +15,18 @@ pub struct LineAnalysis {
 }
 
 impl LineAnalysis {
-    #[must_use]
     pub fn of_type(line_type: LineType) -> Self {
         Self {
             line_type,
             key: None,
         }
     }
-    #[must_use]
     pub fn normal() -> Self {
         Self::of_type(LineType::Normal)
     }
-    #[must_use]
     pub fn garbage() -> Self {
         Self::of_type(LineType::Garbage)
     }
-    #[must_use]
     pub fn title_key(
         kind: Kind,
         key: String,
@@ -46,7 +42,6 @@ impl LineAnalysis {
             key: Some(key.into()),
         }
     }
-    #[must_use]
     pub fn test_result(
         key: String,
         pass: bool,

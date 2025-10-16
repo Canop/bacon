@@ -19,7 +19,7 @@ pub fn error_line(error: &str) -> TLine {
     line.strings.push(TString::new("", error.to_string()));
     line
 }
-/// Make a BURP compliant error line (title) from a [TString]
+/// Make a BURP compliant error line (title) from a `[TString]`
 pub fn error_line_ts(error: &[TString]) -> TLine {
     let mut line = TLine::default();
     line.strings.push(TString::new(CSI_BOLD_RED, "error"));
@@ -27,7 +27,7 @@ pub fn error_line_ts(error: &[TString]) -> TLine {
     line.strings.extend(error.iter().cloned());
     line
 }
-/// Make a BURP compliant warning line (title) from a [TString]
+/// Make a BURP compliant warning line (title) from a `[TString]`
 pub fn warning_line_ts(warning: &[TString]) -> TLine {
     let mut line = TLine::default();
     line.strings.push(TString::new(CSI_BOLD_YELLOW, "warning"));

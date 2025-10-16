@@ -116,7 +116,7 @@ pub fn run() -> anyhow::Result<()> {
         w.queue(EnableMouseCapture)?;
         w.flush()?;
     }
-    let result = tui::app::run(&mut w, settings, &args, context, headless);
+    let result = tui::app::run(&mut w, settings, &args, &context, headless);
     if !headless {
         #[cfg(windows)]
         w.queue(DisableMouseCapture)?;

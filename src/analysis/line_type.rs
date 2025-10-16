@@ -62,14 +62,12 @@ pub enum LineType {
 
 impl LineType {
     /// Width on screen for the specific prefix of line of this type
-    #[must_use]
     pub fn cols(self) -> usize {
         match self {
             Self::Title(_) => 3,
             _ => 0,
         }
     }
-    #[must_use]
     pub fn at_index_in(
         idx: usize,
         lines: &[Line],
@@ -88,7 +86,6 @@ impl LineType {
             line_type => Some(line_type),
         }
     }
-    #[must_use]
     pub fn is_summary(self) -> bool {
         match self {
             Self::Normal | Self::Raw(_) => false,
@@ -96,7 +93,6 @@ impl LineType {
             _ => true,
         }
     }
-    #[must_use]
     pub fn matches(
         self,
         summary: bool,

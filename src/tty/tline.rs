@@ -115,7 +115,7 @@ impl TLine {
         strings.push(TString::new("", ": "));
         if let Some((module, function)) = key.rsplit_once("::") {
             strings.push(TString {
-                csi: "".to_string(),
+                csi: String::new(),
                 raw: format!("{module}::"),
             });
             strings.push(TString::new(CSI_BOLD_ORANGE, function));
@@ -130,7 +130,7 @@ impl TLine {
         strings.push(TString::new("", ": "));
         if let Some((module, function)) = key.rsplit_once("::") {
             strings.push(TString {
-                csi: "".to_string(),
+                csi: String::new(),
                 raw: format!("{module}::"),
             });
             strings.push(TString::new(CSI_BOLD_GREEN, function));
@@ -145,7 +145,7 @@ impl TLine {
     ) {
         self.strings.push(badge);
         self.strings.push(TString {
-            csi: "".to_string(),
+            csi: String::new(),
             raw: " ".to_string(),
         });
     }
@@ -168,7 +168,7 @@ impl TLine {
         }
         Ok(())
     }
-    /// draw the line but without taking more than cols_max cols.
+    /// draw the line but without taking more than `cols_max` cols.
     /// Return the number of cols written
     pub fn draw_in(
         &self,

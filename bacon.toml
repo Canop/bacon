@@ -82,6 +82,30 @@ command = [
 ]
 need_stdout = false
 
+# Pedantic job refined for bacon's source code.
+# 
+# The goal of the Allow here isn't to have a warning free code
+# (a pedantic session can still dismiss items) but to exclude
+# the lints which are, for this project, considered as bad.
+[jobs.pedantic]
+command = [
+	"cargo", "clippy",
+	"--",
+	"-W", "clippy::pedantic",
+	"-A", "clippy::struct_excessive_bools",
+	"-A", "clippy::default_trait_access",
+	"-A", "clippy::must_use_candidate",
+	"-A", "clippy::return_self_not_must_use",
+	"-A", "clippy::get_first",
+	"-A", "clippy::len_without_is_empty",
+	"-A", "clippy::collapsible_else_if",
+	"-A", "clippy::collapsible_if",
+	"-A", "clippy::new_without_default",
+	"-A", "clippy::if_not_else",
+]
+need_stdout = false
+
+
 [keybindings]
 c = "job:clippy-all"
 ctrl-c = "copy-unstyled-output"

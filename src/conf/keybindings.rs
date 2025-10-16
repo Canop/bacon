@@ -96,7 +96,7 @@ impl KeyBindings {
     ) -> Option<&Action> {
         self.map.get(&key)
     }
-    /// return the shortest key.to_string for the action, if any
+    /// return the shortest `key.to_string` for the action, if any
     pub fn shortest_key_for(
         &self,
         action: &Action,

@@ -22,7 +22,7 @@ impl GitIgnorer {
     /// surrounding git repository will be found (if there's one)
     /// and its gitignore rules used.
     ///
-    /// root_path is assumed to exist and be a directory
+    /// `root_path` is assumed to exist and be a directory
     pub(crate) fn new(root_path: &Path) -> Result<Self> {
         let repo = git::discover(root_path)?;
         Ok(Self { repo })
@@ -65,7 +65,7 @@ impl GitIgnorer {
             // we must check that
             if relative_path.as_os_str().is_empty() {
                 return Ok(true);
-            };
+            }
 
             if path.is_dir() {
                 // we're not interested in directories (we should not receive them anyway)

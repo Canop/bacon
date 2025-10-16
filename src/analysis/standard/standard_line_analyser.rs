@@ -167,9 +167,9 @@ fn is_build_failed(ts: Option<&TString>) -> bool {
     ts.is_some_and(|ts| regex_is_match!(r#"^\s*build failed"#, &ts.raw))
 }
 
-/// similar to as_test_result but without the FAILED|ok part
+/// similar to `as_test_result` but without the FAILED|ok part
 /// This is used in case of styled output (because the FAILED|ok
-/// part is in another TString)
+/// part is in another `TString`)
 fn as_test_name(s: &str) -> Option<&str> {
     regex_captures!(
         r#"^(?:test\s+)?(.+?)(?: - should panic\s*)?(?: - compile\s*)?\s+...\s*$"#,

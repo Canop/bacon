@@ -31,7 +31,7 @@ impl Watcher {
         paths_to_watch: &[PathBuf],
         mut ignorer: IgnorerSet,
     ) -> Result<Self> {
-        info!("watcher on {:#?}", paths_to_watch);
+        info!("watcher on {paths_to_watch:#?}");
         let (sender, receiver) = bounded(0);
         let mut notify_watcher =
             notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
@@ -69,21 +69,21 @@ impl Watcher {
                         }
                     }
                     if let Err(e) = sender.send(()) {
-                        debug!("error when notifying on notify event: {}", e);
+                        debug!("error when notifying on notify event: {e}");
                     }
                 }
-                Err(e) => warn!("watch error: {:?}", e),
+                Err(e) => warn!("watch error: {e:?}"),
             })?;
         for path in paths_to_watch {
             if !path.exists() {
-                warn!("watch path doesn't exist: {:?}", path);
+                warn!("watch path doesn't exist: {path:?}");
                 continue;
             }
             if path.is_dir() {
-                debug!("add watch dir {:?}", path);
+                debug!("add watch dir {path:?}");
                 notify_watcher.watch(path, RecursiveMode::Recursive)?;
             } else if path.is_file() {
-                debug!("add watch file {:?}", path);
+                debug!("add watch file {path:?}");
                 notify_watcher.watch(path, RecursiveMode::NonRecursive)?;
             }
         }

@@ -4,7 +4,7 @@ use {
     termimad::crossterm::style::Color,
 };
 
-/// Define a BaconSkin struct with fields being u8 with default values.
+/// Define a `BaconSkin` struct with fields being u8 with default values.
 macro_rules! BaconSkin {
     (
         $( $name:ident: $default:literal, )*

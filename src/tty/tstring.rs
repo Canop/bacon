@@ -86,7 +86,7 @@ impl TString {
     ) -> Result<()> {
         draw(w, &self.csi, &self.raw)
     }
-    /// draw the string but without taking more than cols_max cols.
+    /// draw the string but without taking more than `cols_max` cols.
     /// Return the number of cols written
     pub fn draw_in(
         &self,
