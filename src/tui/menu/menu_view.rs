@@ -139,7 +139,7 @@ impl MenuView {
                 )?;
                 let key_desc = item
                     .key
-                    .map_or("".to_string(), |key| key_format.to_string(key));
+                    .map_or(String::new(), |key| key_format.to_string(key));
                 skin.write_composite_fill(
                     w,
                     mad_inline!("*$0", &key_desc),

@@ -55,9 +55,9 @@ impl ExportsSettings {
     /// We apply different parts of the config, matching
     /// different generations of the config format:
     ///
-    /// - the exports map (current)
-    /// - the export object (recently deprecated since 2.22.0)
-    /// - the export_locations field (deprecated since 2.9.0)
+    /// - the `exports map` (current)
+    /// - the `export object` (deprecated since 2.22.0)
+    /// - the `export_locations` field (deprecated since 2.9.0)
     ///
     /// FIXME Should we prevent having two exporters with the
     /// same path ?
@@ -178,7 +178,7 @@ fn default_analysis_export_settings() -> ExportSettings {
         exporter: Exporter::Analysis,
         auto: true,
         path: default_analysis_path(),
-        line_format: "".to_string(), // not used
+        line_format: String::new(), // not used
     }
 }
 fn default_json_report_export_settings() -> ExportSettings {
@@ -186,7 +186,7 @@ fn default_json_report_export_settings() -> ExportSettings {
         exporter: Exporter::JsonReport,
         auto: true,
         path: default_json_report_path(),
-        line_format: "".to_string(), // not used
+        line_format: String::new(), // not used
     }
 }
 fn default_locations_export_settings() -> ExportSettings {

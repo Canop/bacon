@@ -1,6 +1,6 @@
 use super::*;
 
-/// A builder consuming a string assumed to contain TTY sequences and building a TLine.
+/// A builder consuming a string assumed to contain TTY sequences and building a `TLine`.
 #[derive(Debug, Default)]
 pub struct TLineBuilder {
     cur: Option<TString>,

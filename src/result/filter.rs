@@ -17,9 +17,9 @@ pub enum Dismissal {
 
 impl Dismissal {
     /// Return true if the item must be dismissed
-    pub fn applies_to<'l>(
+    pub fn applies_to(
         &self,
-        item: Item<'l>,
+        item: Item<'_>,
     ) -> bool {
         match self {
             Self::Location(v) => item.location().is_some_and(|loc| loc == v),
@@ -107,8 +107,8 @@ impl fmt::Display for Dismissal {
         f: &mut fmt::Formatter<'_>,
     ) -> fmt::Result {
         match self {
-            Self::Location(v) => write!(f, "location: {}", v),
-            Self::DiagType(v) => write!(f, "diag_type: {}", v),
+            Self::Location(v) => write!(f, "location: {v}"),
+            Self::DiagType(v) => write!(f, "diag_type: {v}"),
         }
     }
 }

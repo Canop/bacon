@@ -147,7 +147,7 @@ impl Context {
             // with the right path which may depend on the
             let mut watches = Vec::new();
             if let Some(v) = &job.watch {
-                for watch in v.iter() {
+                for watch in v {
                     watches.push(watch.as_str());
                 }
             }

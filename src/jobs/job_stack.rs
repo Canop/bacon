@@ -72,7 +72,7 @@ impl JobStack {
             NameOrAlias::Name(name) => settings
                 .jobs
                 .get(name)
-                .ok_or_else(|| anyhow!("job not found: {:?}", name))?
+                .ok_or_else(|| anyhow!("job not found: {name:?}"))?
                 .clone(),
         };
         if self.entries.last() != Some(&concrete) {

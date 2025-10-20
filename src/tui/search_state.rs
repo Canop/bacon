@@ -12,7 +12,7 @@ pub struct SearchState {
     input: InputField,
     /// whether the app state is up to date with the search
     up_to_date: bool,
-    /// Locations matching the search_input content
+    /// Locations matching the `search_input` content
     founds: Vec<Found>,
     /// The selection to show (index among the founds)
     selected_found: usize,

@@ -44,7 +44,7 @@ pub fn run(
     w: &mut W,
     mut settings: Settings,
     args: &Args,
-    context: Context,
+    context: &Context,
     headless: bool,
 ) -> Result<()> {
     let mut app_state = AppState {
@@ -70,7 +70,7 @@ pub fn run(
     let (action_tx, action_rx) = termimad::crossbeam::channel::unbounded();
     #[cfg(unix)]
     let _server = if settings.listen {
-        Some(Server::new(&context, action_tx.clone())?)
+        Some(Server::new(context, action_tx.clone())?)
     } else {
         None
     };
@@ -94,7 +94,7 @@ pub fn run(
             DoAfterMission::NextJob(job_ref) => {
                 next_job = job_ref;
             }
-            DoAfterMission::ReloadConfig => match Settings::read(args, &context) {
+            DoAfterMission::ReloadConfig => match Settings::read(args, context) {
                 Ok(new_settings) => {
                     settings = new_settings;
                     message = Some(Message::short("Config reloaded"));
@@ -206,7 +206,7 @@ fn run_mission(
                         }
                         CommandExecInfo::End { status } => {
                             // computation finished
-                            info!("execution finished with status: {:?}", status);
+                            info!("execution finished with status: {status:?}");
                             mission_state.finish_task(status)?;
                             if headless {
                                 for badge in mission_state.job_badges() {
@@ -228,7 +228,7 @@ fn run_mission(
                             if mission_state.changes_since_last_job_start > 0 && mission_state.auto_refresh.is_enabled() {
                                 // will be ignored if a on_success or on_failures ends the mission
                                 // or does a rerun already
-                                actions.push(Action::ReRun)
+                                actions.push(Action::ReRun);
                             }
                         }
                         CommandExecInfo::Error(e) => {
@@ -248,17 +248,11 @@ fn run_mission(
                     }
                     Event::Key(key_event) => {
                         let key_combination = KeyCombination::from(key_event);
-                        debug!("key combination pressed: {}", key_combination);
-                        match mission_state.on_key(key_combination) {
-                            Some(action) => {
-                                actions.push(action);
-                            }
-                            None => {
-                                let action = keybindings.get(key_combination);
-                                if let Some(action) = action {
-                                    actions.push(action.clone());
-                                }
-                            }
+                        debug!("key combination pressed: {key_combination}");
+                        if let Some(action) =  mission_state.on_key(key_combination) {
+                            actions.push(action);
+                        } else if let Some(action) = keybindings.get(key_combination) {
+                            actions.push(action.clone());
                         }
                     }
                     #[cfg(windows)]

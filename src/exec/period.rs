@@ -12,7 +12,7 @@ use {
     },
 };
 
-/// A small wrapper over time::Duration, to allow reading from a string in
+/// A small wrapper over `time::Duration`, to allow reading from a string in
 /// config. There's no symmetric serialization and the input format is
 /// quite crude (eg "25ms" or "254ns" or "none")
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -44,7 +44,7 @@ impl FromStr for Period {
             r"^(?<n>\d+)\s*s$" => Duration::from_secs(n.parse()?),
             r"^[^1-9]*$" => Duration::new(0, 0), // eg "none", "0", "off"
         )
-        .ok_or_else(|| anyhow!("Invalid period: {}", s))?;
+        .ok_or_else(|| anyhow!("Invalid period: {s}"))?;
         Ok(Self { duration })
     }
 }

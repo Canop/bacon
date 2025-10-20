@@ -73,15 +73,15 @@ impl CommandResult {
         match self {
             Self::Report(report) => report.suggest_backtrace,
             Self::Failure(failure) => failure.suggest_backtrace,
-            _ => false,
+            Self::None => false,
         }
     }
 
     /// return true when the report has been computed and there's been no
     /// error, warning, or test failures
     ///
-    /// This is different from the is_success that a mission can compute
-    /// from a report using its own settings (eg allow_warnings)
+    /// This is different from the `is_success` that a mission can compute
+    /// from a report using its own settings (eg `allow_warnings`)
     pub fn is_success(&self) -> bool {
         match self {
             Self::Report(report) => {

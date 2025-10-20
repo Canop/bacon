@@ -90,7 +90,7 @@ pub struct Job {
 
     /// The optional action to run when there's no
     /// error, warning or test failures
-    /// (depending on whether allow_warnings is true or false)
+    /// (depending on whether `allow_warnings` is `true` or `false`)
     ///
     /// Could be made a vec in the future but that would involve
     /// explaining subtleties like the fact that those actions stop
@@ -128,11 +128,11 @@ impl Job {
         let mut command = vec!["cargo".to_string(), alias_name.to_string()];
         if let Some(additional_args) = settings.additional_alias_args.as_ref() {
             for arg in additional_args {
-                command.push(arg.to_string())
+                command.push(arg.to_string());
             }
         } else {
             for arg in DEFAULT_ARGS {
-                command.push(arg.to_string())
+                command.push(arg.to_string());
             }
         }
         Self {

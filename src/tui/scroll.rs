@@ -36,7 +36,7 @@ impl ScrollCommand {
             Self::Bottom => content_height as i32,
             Self::Lines(n) => n,
             Self::MilliPages(n) => {
-                let lines = n as f64 * page_height as f64 / 1000.0;
+                let lines = f64::from(n) * page_height as f64 / 1000.0;
                 let lines = if lines < 0.0 {
                     lines.floor()
                 } else {
@@ -75,7 +75,7 @@ impl ScrollCommand {
                         txt(-pages, "page", "up")
                     }
                 } else {
-                    let pages: f64 = *n as f64 / 1000.0;
+                    let pages: f64 = f64::from(*n) / 1000.0;
                     let s = format!("{pages:.3}");
                     let s = s.trim_matches('0');
                     format!("scroll {s} pages")
@@ -114,7 +114,7 @@ impl fmt::Display for ScrollCommand {
                     let n = n / 1000;
                     write!(f, "scroll-pages({n})")
                 } else {
-                    let n: f64 = *n as f64 / 1000.0;
+                    let n: f64 = f64::from(*n) / 1000.0;
                     let s = format!("{n:.3}");
                     let s = s.trim_matches('0');
                     write!(f, "scroll-pages({s})")

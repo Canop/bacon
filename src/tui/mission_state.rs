@@ -49,7 +49,7 @@ pub struct MissionState<'a, 'm> {
     computing: bool,
     /// whether the user wants wrapped lines
     pub wrap: bool,
-    /// the optional RUST_BACKTRACE env var to set
+    /// the optional `RUST_BACKTRACE` env var to set
     pub backtrace: Option<&'static str>,
     /// whether we should display only titles and locations
     summary: bool,
@@ -59,7 +59,7 @@ pub struct MissionState<'a, 'm> {
     status_skin: MadSkin,
     /// number of lines hidden on top due to scroll
     scroll: usize,
-    /// item_idx of the item which was on top on last draw
+    /// `item_idx` of the item which was on top on last draw
     top_item_idx: usize,
     /// the tool building the help line
     help_line: Option<HelpLine>,
@@ -405,7 +405,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
     pub fn can_be_scoped(&self) -> bool {
         self.cmd_result
             .report()
-            .is_some_and(|report| report.can_scope_tests())
+            .is_some_and(Report::can_scope_tests)
     }
     pub fn failures_scope(&self) -> Option<Scope> {
         if !self.can_be_scoped() {
@@ -917,7 +917,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         }
     }
     /// draw the report or the lines of the current computation, between
-    /// y and self.page_height()
+    /// `y` and `self.page_height()`
     pub fn draw_content(
         &mut self,
         w: &mut W,

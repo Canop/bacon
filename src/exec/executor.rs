@@ -41,7 +41,7 @@ pub struct TaskExecutor {
     grace_period: Period,
 }
 
-/// A message sent to the child_thread on end
+/// A message sent to the `child_thread` on end
 #[derive(Clone, Copy)]
 enum StopMessage {
     SendStatus, // process already finished, just get status

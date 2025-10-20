@@ -1,6 +1,6 @@
 use crate::*;
 
-/// A wrapped cmd_output, only valid for the cmd_output it was computed for,
+/// A wrapped cmd_output, only valid for the `cmd_output` it was computed for,
 /// contains references to the start and end of lines wrapped for a
 /// given width
 pub struct WrappedCommandOutput {
@@ -13,7 +13,7 @@ pub struct WrappedCommandOutput {
 }
 
 impl WrappedCommandOutput {
-    /// compute a new wrapped cmd_output for a width and cmd_output.
+    /// compute a new wrapped `cmd_output` for a `width` and `cmd_output`.
     ///
     /// width is the total area width, including the scrollbar.
     pub fn new(

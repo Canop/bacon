@@ -51,7 +51,7 @@ pub enum CommandExecInfo {
 
 impl CommandOutput {
     pub fn reverse(&mut self) {
-        self.lines.reverse()
+        self.lines.reverse();
     }
     pub fn push<L: Into<Line>>(
         &mut self,

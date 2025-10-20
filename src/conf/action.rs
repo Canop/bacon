@@ -14,11 +14,8 @@ use {
     },
 };
 
-/// An action that can be executed in the system, eg mapped to a key.
-///
-/// While it's not really specified, export names, just like
-/// job names, must be gentle enough so as to be correctly parsed
-/// (if not, they won't go very far in the system).
+/// An action that can be executed in the system, eg mapped to a key
+///  or sent from another program.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Action {
     Back,       // leave help, clear search, go to previous job, leave, etc.

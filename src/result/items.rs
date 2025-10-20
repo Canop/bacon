@@ -2,13 +2,13 @@ use crate::*;
 
 #[derive(Clone, Copy)]
 pub struct Item<'l> {
-    /// non empty slice of lines with the same item_idx
+    /// non empty slice of lines with the same `item_idx`
     lines: &'l [Line],
 }
 
 impl<'l> Item<'l> {
     /// return a vector of slices of lines, each slice pointing to the
-    /// consecutive lines having the same item_idx
+    /// consecutive lines having the same `item_idx`
     pub fn items_of(lines: &'l [Line]) -> Vec<Self> {
         let mut items: Vec<Self> = Vec::new();
         let mut start = 0;

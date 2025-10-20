@@ -64,5 +64,5 @@ pub fn csi(
     fg: u8,
     bg: u8,
 ) -> String {
-    format!("\u{1b}[1m\u{1b}[38;5;{}m\u{1b}[48;5;{}m", fg, bg)
+    format!("\u{1b}[1m\u{1b}[38;5;{fg}m\u{1b}[48;5;{bg}m")
 }

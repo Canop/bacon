@@ -22,7 +22,7 @@ pub fn print_jobs(settings: &Settings) {
     ";
     let mut expander = OwningTemplateExpander::new();
     let mut jobs: Vec<_> = settings.jobs.iter().collect();
-    jobs.sort_by_key(|(name, _)| name.to_string());
+    jobs.sort_by_key(|(name, _)| (*name).to_string());
     for (name, job) in &jobs {
         expander
             .sub("jobs")

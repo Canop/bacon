@@ -191,7 +191,7 @@ impl Args {
                 self.project = Some(a);
             }
             (Some(a), None, false, false) => {
-                bail!("Unexpected argument {:?}", a);
+                bail!("Unexpected argument {a:?}");
             }
             _ => {}
         }

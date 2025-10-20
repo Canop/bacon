@@ -16,7 +16,7 @@ pub enum SearchMode {
     ItemIdx,
 }
 
-/// position in a [TLine] of a found pattern
+/// position in a `[TLine]` of a found pattern
 #[derive(Debug, PartialEq, Eq)]
 pub struct Found {
     /// The index of the first line containing the pattern

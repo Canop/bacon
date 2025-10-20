@@ -46,7 +46,7 @@ impl Volume {
     }
     /// Return the volume in [0, 1]
     pub fn as_part(self) -> f32 {
-        self.percent as f32 / 100f32
+        f32::from(self.percent) / 100f32
     }
 }
 #[derive(Debug, Clone, PartialEq)]
