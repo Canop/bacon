@@ -1,21 +1,22 @@
 use crate::*;
 
 pub struct HelpLine {
-    quit: String,
-    toggle_summary: Option<String>,
-    wrap: Option<String>,
-    not_wrap: Option<String>,
-    toggle_backtrace: Option<String>,
-    help: Option<String>,
+    clear_search: Option<String>,
     close_help: Option<String>,
+    help: Option<String>,
+    next_match: Option<String>,
+    not_wrap: Option<String>,
     pause: Option<String>,
-    unpause: Option<String>,
+    previous_match: Option<String>,
+    quit: String,
     scope: Option<String>,
     search: Option<String>,
-    next_match: Option<String>,
-    previous_match: Option<String>,
-    clear_search: Option<String>,
+    toggle_backtrace: Option<String>,
+    toggle_summary: Option<String>,
+    undismiss: Option<String>,
+    unpause: Option<String>,
     validate_search: Option<String>,
+    wrap: Option<String>,
 }
 
 impl HelpLine {
@@ -70,22 +71,26 @@ impl HelpLine {
         let validate_search = kb
             .shortest_key_for(&Action::Validate)
             .map(|k| format!("*{k}* to validate"));
+        let undismiss = kb
+            .shortest_key_for(&Action::OpenUndismissMenu)
+            .map(|k| format!("*{k}* to undismiss"));
         Self {
-            quit,
-            toggle_summary,
-            wrap,
-            not_wrap,
-            toggle_backtrace,
-            help,
+            clear_search,
             close_help,
+            help,
+            next_match,
+            not_wrap,
             pause,
-            unpause,
+            previous_match,
+            quit,
             scope,
             search,
-            next_match,
-            previous_match,
-            clear_search,
+            toggle_backtrace,
+            toggle_summary,
+            undismiss,
+            unpause,
             validate_search,
+            wrap,
         }
     }
     fn applicable_parts(
@@ -99,6 +104,11 @@ impl HelpLine {
                 parts.push(s);
             }
             return parts;
+        }
+        if state.has_dismissed_items() {
+            if let Some(s) = &self.undismiss {
+                parts.push(s);
+            }
         }
         if state.has_search() {
             if let Some(s) = &self.next_match {

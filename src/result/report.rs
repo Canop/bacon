@@ -78,6 +78,10 @@ impl Report {
         self.lines.retain(|line| line.item_idx != item_idx);
     }
 
+    pub fn has_dismissed_items(&self) -> bool {
+        self.dismissed_items > 0
+    }
+
     pub fn focus_file(
         &mut self,
         ffc: &FocusFileCommand,

@@ -397,6 +397,11 @@ impl<'a, 'm> MissionState<'a, 'm> {
     pub fn has_report(&self) -> bool {
         matches!(self.cmd_result, CommandResult::Report(_))
     }
+    pub fn has_dismissed_items(&self) -> bool {
+        self.cmd_result
+            .report()
+            .is_some_and(|report| report.has_dismissed_items())
+    }
     pub fn can_be_scoped(&self) -> bool {
         self.cmd_result
             .report()
