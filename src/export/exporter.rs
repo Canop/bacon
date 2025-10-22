@@ -1,6 +1,9 @@
-use serde::Deserialize;
+use {
+    schemars::JsonSchema,
+    serde::Deserialize,
+};
 
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum Exporter {
     /// The analyzer is tasked with doing an export while analyzing the

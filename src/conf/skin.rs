@@ -1,5 +1,6 @@
 use {
     paste::paste,
+    schemars::JsonSchema,
     serde::Deserialize,
     termimad::crossterm::style::Color,
 };
@@ -11,7 +12,7 @@ macro_rules! BaconSkin {
     ) => {
         paste! {
             $(
-                #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq)]
+                #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq, JsonSchema)]
                 #[serde(untagged)]
                 pub enum [<Defaulting$name:camel>] {
                     Set(u8),
@@ -35,7 +36,7 @@ macro_rules! BaconSkin {
                     }
                 }
             )*
-            #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq)]
+            #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq, JsonSchema)]
             pub struct BaconSkin {
                 $(
                     #[serde(default)]

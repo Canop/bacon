@@ -1,6 +1,12 @@
 use {
     crate::*,
     lazy_regex::*,
+    schemars::{
+        JsonSchema,
+        Schema,
+        SchemaGenerator,
+        json_schema,
+    },
     serde::{
         Deserialize,
         Deserializer,
@@ -9,6 +15,7 @@ use {
         de,
     },
     std::{
+        borrow::Cow,
         fmt,
         str::FromStr,
     },
@@ -332,6 +339,23 @@ impl<'de> Deserialize<'de> for Action {
     {
         let s = String::deserialize(deserializer)?;
         FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}
+
+impl JsonSchema for Action {
+    fn schema_name() -> Cow<'static, str> {
+        "Action".into()
+    }
+    fn schema_id() -> Cow<'static, str> {
+        concat!(module_path!(), "::Action").into()
+    }
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "string",
+        })
+    }
+    fn inline_schema() -> bool {
+        true
     }
 }
 

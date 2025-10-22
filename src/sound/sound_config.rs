@@ -1,9 +1,10 @@
 use {
     crate::*,
+    schemars::JsonSchema,
     serde::Deserialize,
 };
 
-#[derive(Debug, Clone, Default, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Deserialize, PartialEq, JsonSchema)]
 pub struct SoundConfig {
     pub enabled: Option<bool>,
     pub base_volume: Option<Volume>,

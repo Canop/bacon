@@ -10,6 +10,7 @@ use {
         swift,
     },
     crate::*,
+    schemars::JsonSchema,
     serde::{
         Deserialize,
         Serialize,
@@ -19,7 +20,7 @@ use {
 /// A stateless operator building a report from a list of command output lines.
 ///
 /// Implementation routing will probably change at some point
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum AnalyzerRef {
     #[default]

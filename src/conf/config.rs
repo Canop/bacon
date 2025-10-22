@@ -2,6 +2,7 @@ use {
     crate::*,
     anyhow::*,
     lazy_regex::regex_is_match,
+    schemars::JsonSchema,
     serde::Deserialize,
     std::{
         collections::HashMap,
@@ -15,7 +16,7 @@ use {
 ///
 /// Leaf values are options (and not Default) so that they don't
 /// override previously set values when applied to settings.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct Config {
     pub additional_alias_args: Option<Vec<String>>,
 

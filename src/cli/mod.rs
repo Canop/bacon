@@ -10,6 +10,7 @@ use {
         CommandFactory,
         Parser,
     },
+    schemars::schema_for,
     std::{
         fs,
         io::Write,
@@ -55,6 +56,13 @@ pub fn run() -> anyhow::Result<()> {
 
     if args.version {
         println!("bacon {}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+
+    if args.generate_config_schema {
+        let schema = schema_for!(Config);
+        let json = serde_json::to_string_pretty(&schema)?;
+        println!("{json}");
         return Ok(());
     }
 
