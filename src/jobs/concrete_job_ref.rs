@@ -1,6 +1,12 @@
 use {
     crate::*,
     lazy_regex::*,
+    schemars::{
+        JsonSchema,
+        Schema,
+        SchemaGenerator,
+        json_schema,
+    },
     serde::{
         Deserialize,
         Deserializer,
@@ -9,6 +15,7 @@ use {
         de,
     },
     std::{
+        borrow::Cow,
         fmt,
         str::FromStr,
     },
@@ -132,5 +139,22 @@ impl From<&str> for ConcreteJobRef {
             name_or_alias,
             scope,
         }
+    }
+}
+
+impl JsonSchema for ConcreteJobRef {
+    fn schema_name() -> Cow<'static, str> {
+        "ConcreteJobRef".into()
+    }
+    fn schema_id() -> Cow<'static, str> {
+        concat!(module_path!(), "::ConcreteJobRef").into()
+    }
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "string",
+        })
+    }
+    fn inline_schema() -> bool {
+        true
     }
 }

@@ -1,11 +1,20 @@
 use {
     lazy_regex::regex::Regex,
+    schemars::{
+        JsonSchema,
+        Schema,
+        SchemaGenerator,
+        json_schema,
+    },
     serde::{
         Deserialize,
         Deserializer,
         de,
     },
-    std::str::FromStr,
+    std::{
+        borrow::Cow,
+        str::FromStr,
+    },
 };
 
 /// A pattern dedicated to line matching.
@@ -49,5 +58,21 @@ impl PartialEq for LinePattern {
         other: &Self,
     ) -> bool {
         self.regex.as_str() == other.regex.as_str()
+    }
+}
+impl JsonSchema for LinePattern {
+    fn schema_name() -> Cow<'static, str> {
+        "LinePattern".into()
+    }
+    fn schema_id() -> Cow<'static, str> {
+        concat!(module_path!(), "::LinePattern").into()
+    }
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "string",
+        })
+    }
+    fn inline_schema() -> bool {
+        true
     }
 }

@@ -1,5 +1,6 @@
 use {
     crate::*,
+    schemars::JsonSchema,
     serde::Deserialize,
     std::{
         collections::HashMap,
@@ -8,7 +9,7 @@ use {
 };
 
 /// One of the possible jobs that bacon can run
-#[derive(Debug, Default, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Default, Clone, Deserialize, PartialEq, JsonSchema)]
 pub struct Job {
     /// Whether to consider that we can have a success
     /// when we have test failures
