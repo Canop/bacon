@@ -222,4 +222,4 @@ Try the headless mode: `bacon --headless`
 When your personal settings or jobs are specific to a project, the best place to store them is the `.config/bacon.toml` file of the project.
 Bacon here follows [https://dot-config.github.io/](https://dot-config.github.io/).
 
-When your personal settings are or jobs are global, store them in your global `prefs.toml` file.
+When your personal settings or jobs are global, store them in your global `prefs.toml` file.
