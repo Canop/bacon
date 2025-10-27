@@ -217,4 +217,9 @@ Sometimes, you may want to run bacon without a TUI, for example in a container, 
 
 Try the headless mode: `bacon --headless`
 
+# Personal settings & jobs
 
+When your personal settings or jobs are specific to a project, the best place to store them is the `.config/bacon.toml` file of the project.
+Bacon here follows [https://dot-config.github.io/](https://dot-config.github.io/).
+
+When your personal settings are or jobs are global, store them in your global `prefs.toml` file.
