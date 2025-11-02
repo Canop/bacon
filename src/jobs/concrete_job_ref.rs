@@ -152,6 +152,7 @@ impl JsonSchema for ConcreteJobRef {
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         json_schema!({
             "type": "string",
+            "description": "Reference to a job by name or alias, optionally including scope (e.g. \"test\" or \"alias:lint\").",
         })
     }
     fn inline_schema() -> bool {

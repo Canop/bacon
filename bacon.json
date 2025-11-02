@@ -5,6 +5,7 @@
   "type": "object",
   "properties": {
     "additional_alias_args": {
+      "description": "Extra arguments appended when a job runs a cargo alias.",
       "type": [
         "array",
         "null"
@@ -61,6 +62,7 @@
       }
     },
     "default_job": {
+      "description": "Name of the job to run when no job was requested explicitly.",
       "type": [
         "string",
         "null"
@@ -89,7 +91,7 @@
       ]
     },
     "export": {
-      "description": "locations export",
+      "description": "Deprecated single export configuration; use `exports.locations` instead.",
       "anyOf": [
         {
           "$ref": "#/$defs/ExportConfig"
@@ -101,6 +103,7 @@
       "deprecated": true
     },
     "export_locations": {
+      "description": "Deprecated toggle for the legacy locations export; use `exports.locations.auto`.",
       "type": [
         "boolean",
         "null"
@@ -108,6 +111,7 @@
       "deprecated": true
     },
     "exports": {
+      "description": "Export configurations keyed by their name.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/ExportConfig"
@@ -121,12 +125,14 @@
       ]
     },
     "grace_period": {
+      "description": "Minimum delay to wait before restarting the job after a change is detected.",
       "type": [
         "string",
         "null"
       ]
     },
     "help_line": {
+      "description": "Whether to display the contextual help line in the UI.",
       "type": [
         "boolean",
         "null"
@@ -158,12 +164,14 @@
       }
     },
     "jobs": {
+      "description": "Job definitions keyed by their identifier.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/Job"
       }
     },
     "keybindings": {
+      "description": "Custom keybindings layered on top of the defaults.",
       "anyOf": [
         {
           "$ref": "#/$defs/KeyBindings"
@@ -225,30 +233,36 @@
       "default": null
     },
     "reverse": {
+      "description": "Whether to display the mission output in reverse order.",
       "type": [
         "boolean",
         "null"
       ]
     },
     "show_changes_count": {
+      "description": "Whether to display how many files triggered the current run.",
       "type": [
         "boolean",
         "null"
       ]
     },
     "skin": {
+      "description": "Color overrides applied to the UI while the job runs.",
       "$ref": "#/$defs/BaconSkin"
     },
     "sound": {
+      "description": "Per-job sound settings that override the global configuration.",
       "$ref": "#/$defs/SoundConfig"
     },
     "summary": {
+      "description": "Whether to show the condensed summary area by default.",
       "type": [
         "boolean",
         "null"
       ]
     },
     "vim_keys": {
+      "description": "Deprecated toggle that enables a built-in set of Vim-style keybindings. Use `keybindings` instead.",
       "type": [
         "boolean",
         "null"
@@ -273,6 +287,7 @@
       ]
     },
     "wrap": {
+      "description": "Whether to wrap long lines in the UI.",
       "type": [
         "boolean",
         "null"
@@ -299,113 +314,149 @@
       ]
     },
     "BaconSkin": {
+      "description": "Collection of optional color overrides for the Bacon UI.",
       "type": "object",
       "properties": {
         "change_badge_bg": {
+          "description": "Background color of the change badge (default: 6).",
           "$ref": "#/$defs/DefaultingChangeBadgeBg"
         },
         "change_badge_fg": {
+          "description": "Foreground color of the change badge (default: 235).",
           "$ref": "#/$defs/DefaultingChangeBadgeFg"
         },
         "command_error_badge_bg": {
+          "description": "Background color of the command-error badge (default: 9).",
           "$ref": "#/$defs/DefaultingCommandErrorBadgeBg"
         },
         "command_error_badge_fg": {
+          "description": "Foreground color of the command-error badge (default: 235).",
           "$ref": "#/$defs/DefaultingCommandErrorBadgeFg"
         },
         "computing_bg": {
+          "description": "Background color of the \"computing...\" indicator (default: 204).",
           "$ref": "#/$defs/DefaultingComputingBg"
         },
         "computing_fg": {
+          "description": "Foreground color of the \"computing...\" indicator (default: 235).",
           "$ref": "#/$defs/DefaultingComputingFg"
         },
         "dismissed_badge_bg": {
+          "description": "Background color of the dismissed badge (default: 6).",
           "$ref": "#/$defs/DefaultingDismissedBadgeBg"
         },
         "dismissed_badge_fg": {
+          "description": "Foreground color of the dismissed badge (default: 235).",
           "$ref": "#/$defs/DefaultingDismissedBadgeFg"
         },
         "errors_badge_bg": {
+          "description": "Background color of the errors badge (default: 9).",
           "$ref": "#/$defs/DefaultingErrorsBadgeBg"
         },
         "errors_badge_fg": {
+          "description": "Foreground color of the errors badge (default: 235).",
           "$ref": "#/$defs/DefaultingErrorsBadgeFg"
         },
         "found_fg": {
+          "description": "Foreground color of search matches (default: 208).",
           "$ref": "#/$defs/DefaultingFoundFg"
         },
         "found_selected_bg": {
+          "description": "Background color of the selected search match (default: 208).",
           "$ref": "#/$defs/DefaultingFoundSelectedBg"
         },
         "job_label_badge_bg": {
+          "description": "Background color of the job label badge (default: 204).",
           "$ref": "#/$defs/DefaultingJobLabelBadgeBg"
         },
         "job_label_badge_fg": {
+          "description": "Foreground color of the job label badge (default: 235).",
           "$ref": "#/$defs/DefaultingJobLabelBadgeFg"
         },
         "key_fg": {
+          "description": "Foreground color used for key shortcuts in the UI (default: 204).",
           "$ref": "#/$defs/DefaultingKeyFg"
         },
         "menu_bg": {
+          "description": "Background color used for menus (default: 235).",
           "$ref": "#/$defs/DefaultingMenuBg"
         },
         "menu_border": {
+          "description": "Border color used for menus (default: 234).",
           "$ref": "#/$defs/DefaultingMenuBorder"
         },
         "menu_item_bg": {
+          "description": "Background color of individual menu items (default: 235).",
           "$ref": "#/$defs/DefaultingMenuItemBg"
         },
         "menu_item_fg": {
+          "description": "Foreground color of menu items (default: 250).",
           "$ref": "#/$defs/DefaultingMenuItemFg"
         },
         "menu_item_selected_bg": {
+          "description": "Background color of the selected menu item (default: 239).",
           "$ref": "#/$defs/DefaultingMenuItemSelectedBg"
         },
         "menu_item_selected_fg": {
+          "description": "Foreground color of the selected menu item (default: 255).",
           "$ref": "#/$defs/DefaultingMenuItemSelectedFg"
         },
         "project_name_badge_bg": {
+          "description": "Background color of the project name badge (default: 240).",
           "$ref": "#/$defs/DefaultingProjectNameBadgeBg"
         },
         "project_name_badge_fg": {
+          "description": "Foreground color of the project name badge (default: 255).",
           "$ref": "#/$defs/DefaultingProjectNameBadgeFg"
         },
         "search_input_prefix_fg": {
+          "description": "Foreground color of the '/' search prefix (default: 208).",
           "$ref": "#/$defs/DefaultingSearchInputPrefixFg"
         },
         "search_summary_fg": {
+          "description": "Foreground color of the search summary (default: 208).",
           "$ref": "#/$defs/DefaultingSearchSummaryFg"
         },
         "status_bg": {
+          "description": "Background color of the status line (default: 239).",
           "$ref": "#/$defs/DefaultingStatusBg"
         },
         "status_fg": {
+          "description": "Foreground color of the status line (default: 252).",
           "$ref": "#/$defs/DefaultingStatusFg"
         },
         "status_key_fg": {
+          "description": "Foreground color for key shortcuts displayed in the status line (default: 204).",
           "$ref": "#/$defs/DefaultingStatusKeyFg"
         },
         "test_fails_badge_bg": {
+          "description": "Background color of the failing-tests badge (default: 208).",
           "$ref": "#/$defs/DefaultingTestFailsBadgeBg"
         },
         "test_fails_badge_fg": {
+          "description": "Foreground color of the failing-tests badge (default: 235).",
           "$ref": "#/$defs/DefaultingTestFailsBadgeFg"
         },
         "test_pass_badge_bg": {
+          "description": "Background color of the passing-tests badge (default: 2).",
           "$ref": "#/$defs/DefaultingTestPassBadgeBg"
         },
         "test_pass_badge_fg": {
+          "description": "Foreground color of the passing-tests badge (default: 254).",
           "$ref": "#/$defs/DefaultingTestPassBadgeFg"
         },
         "warnings_badge_bg": {
+          "description": "Background color of the warnings badge (default: 11).",
           "$ref": "#/$defs/DefaultingWarningsBadgeBg"
         },
         "warnings_badge_fg": {
+          "description": "Foreground color of the warnings badge (default: 235).",
           "$ref": "#/$defs/DefaultingWarningsBadgeFg"
         }
       }
     },
     "DefaultingChangeBadgeBg": {
+      "description": "Background color of the change badge (default: 6).",
       "anyOf": [
         {
           "type": "integer",
@@ -419,6 +470,7 @@
       ]
     },
     "DefaultingChangeBadgeFg": {
+      "description": "Foreground color of the change badge (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -432,6 +484,7 @@
       ]
     },
     "DefaultingCommandErrorBadgeBg": {
+      "description": "Background color of the command-error badge (default: 9).",
       "anyOf": [
         {
           "type": "integer",
@@ -445,6 +498,7 @@
       ]
     },
     "DefaultingCommandErrorBadgeFg": {
+      "description": "Foreground color of the command-error badge (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -458,6 +512,7 @@
       ]
     },
     "DefaultingComputingBg": {
+      "description": "Background color of the \"computing...\" indicator (default: 204).",
       "anyOf": [
         {
           "type": "integer",
@@ -471,6 +526,7 @@
       ]
     },
     "DefaultingComputingFg": {
+      "description": "Foreground color of the \"computing...\" indicator (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -484,6 +540,7 @@
       ]
     },
     "DefaultingDismissedBadgeBg": {
+      "description": "Background color of the dismissed badge (default: 6).",
       "anyOf": [
         {
           "type": "integer",
@@ -497,6 +554,7 @@
       ]
     },
     "DefaultingDismissedBadgeFg": {
+      "description": "Foreground color of the dismissed badge (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -510,6 +568,7 @@
       ]
     },
     "DefaultingErrorsBadgeBg": {
+      "description": "Background color of the errors badge (default: 9).",
       "anyOf": [
         {
           "type": "integer",
@@ -523,6 +582,7 @@
       ]
     },
     "DefaultingErrorsBadgeFg": {
+      "description": "Foreground color of the errors badge (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -536,6 +596,7 @@
       ]
     },
     "DefaultingFoundFg": {
+      "description": "Foreground color of search matches (default: 208).",
       "anyOf": [
         {
           "type": "integer",
@@ -549,6 +610,7 @@
       ]
     },
     "DefaultingFoundSelectedBg": {
+      "description": "Background color of the selected search match (default: 208).",
       "anyOf": [
         {
           "type": "integer",
@@ -562,6 +624,7 @@
       ]
     },
     "DefaultingJobLabelBadgeBg": {
+      "description": "Background color of the job label badge (default: 204).",
       "anyOf": [
         {
           "type": "integer",
@@ -575,6 +638,7 @@
       ]
     },
     "DefaultingJobLabelBadgeFg": {
+      "description": "Foreground color of the job label badge (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -588,6 +652,7 @@
       ]
     },
     "DefaultingKeyFg": {
+      "description": "Foreground color used for key shortcuts in the UI (default: 204).",
       "anyOf": [
         {
           "type": "integer",
@@ -601,6 +666,7 @@
       ]
     },
     "DefaultingMenuBg": {
+      "description": "Background color used for menus (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -614,6 +680,7 @@
       ]
     },
     "DefaultingMenuBorder": {
+      "description": "Border color used for menus (default: 234).",
       "anyOf": [
         {
           "type": "integer",
@@ -627,6 +694,7 @@
       ]
     },
     "DefaultingMenuItemBg": {
+      "description": "Background color of individual menu items (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -640,6 +708,7 @@
       ]
     },
     "DefaultingMenuItemFg": {
+      "description": "Foreground color of menu items (default: 250).",
       "anyOf": [
         {
           "type": "integer",
@@ -653,6 +722,7 @@
       ]
     },
     "DefaultingMenuItemSelectedBg": {
+      "description": "Background color of the selected menu item (default: 239).",
       "anyOf": [
         {
           "type": "integer",
@@ -666,6 +736,7 @@
       ]
     },
     "DefaultingMenuItemSelectedFg": {
+      "description": "Foreground color of the selected menu item (default: 255).",
       "anyOf": [
         {
           "type": "integer",
@@ -679,6 +750,7 @@
       ]
     },
     "DefaultingProjectNameBadgeBg": {
+      "description": "Background color of the project name badge (default: 240).",
       "anyOf": [
         {
           "type": "integer",
@@ -692,6 +764,7 @@
       ]
     },
     "DefaultingProjectNameBadgeFg": {
+      "description": "Foreground color of the project name badge (default: 255).",
       "anyOf": [
         {
           "type": "integer",
@@ -705,6 +778,7 @@
       ]
     },
     "DefaultingSearchInputPrefixFg": {
+      "description": "Foreground color of the '/' search prefix (default: 208).",
       "anyOf": [
         {
           "type": "integer",
@@ -718,6 +792,7 @@
       ]
     },
     "DefaultingSearchSummaryFg": {
+      "description": "Foreground color of the search summary (default: 208).",
       "anyOf": [
         {
           "type": "integer",
@@ -731,6 +806,7 @@
       ]
     },
     "DefaultingStatusBg": {
+      "description": "Background color of the status line (default: 239).",
       "anyOf": [
         {
           "type": "integer",
@@ -744,6 +820,7 @@
       ]
     },
     "DefaultingStatusFg": {
+      "description": "Foreground color of the status line (default: 252).",
       "anyOf": [
         {
           "type": "integer",
@@ -757,6 +834,7 @@
       ]
     },
     "DefaultingStatusKeyFg": {
+      "description": "Foreground color for key shortcuts displayed in the status line (default: 204).",
       "anyOf": [
         {
           "type": "integer",
@@ -770,6 +848,7 @@
       ]
     },
     "DefaultingTestFailsBadgeBg": {
+      "description": "Background color of the failing-tests badge (default: 208).",
       "anyOf": [
         {
           "type": "integer",
@@ -783,6 +862,7 @@
       ]
     },
     "DefaultingTestFailsBadgeFg": {
+      "description": "Foreground color of the failing-tests badge (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -796,6 +876,7 @@
       ]
     },
     "DefaultingTestPassBadgeBg": {
+      "description": "Background color of the passing-tests badge (default: 2).",
       "anyOf": [
         {
           "type": "integer",
@@ -809,6 +890,7 @@
       ]
     },
     "DefaultingTestPassBadgeFg": {
+      "description": "Foreground color of the passing-tests badge (default: 254).",
       "anyOf": [
         {
           "type": "integer",
@@ -822,6 +904,7 @@
       ]
     },
     "DefaultingWarningsBadgeBg": {
+      "description": "Background color of the warnings badge (default: 11).",
       "anyOf": [
         {
           "type": "integer",
@@ -835,6 +918,7 @@
       ]
     },
     "DefaultingWarningsBadgeFg": {
+      "description": "Foreground color of the warnings badge (default: 235).",
       "anyOf": [
         {
           "type": "integer",
@@ -852,12 +936,14 @@
       "type": "object",
       "properties": {
         "auto": {
+          "description": "Whether the export should run automatically after each mission.",
           "type": [
             "boolean",
             "null"
           ]
         },
         "exporter": {
+          "description": "Exporter backend that should produce the output.",
           "anyOf": [
             {
               "$ref": "#/$defs/Exporter"
@@ -868,12 +954,14 @@
           ]
         },
         "line_format": {
+          "description": "Optional format string used by exporters that write line-based data.",
           "type": [
             "string",
             "null"
           ]
         },
         "path": {
+          "description": "Destination path where the exporter writes its output.",
           "type": [
             "string",
             "null"
@@ -882,14 +970,8 @@
       }
     },
     "Exporter": {
+      "description": "Export backend available for Bacon exports.",
       "oneOf": [
-        {
-          "type": "string",
-          "enum": [
-            "json_report",
-            "locations"
-          ]
-        },
         {
           "description": "The analyzer is tasked with doing an export while analyzing the\ncommand output",
           "type": "string",
@@ -899,6 +981,16 @@
           "description": "This exporter doesn't exist at the moment",
           "type": "string",
           "const": "analysis"
+        },
+        {
+          "description": "Emit a machine-readable JSON report for the mission.",
+          "type": "string",
+          "const": "json_report"
+        },
+        {
+          "description": "Produce a list of file locations for editors or other tools.",
+          "type": "string",
+          "const": "locations"
         }
       ]
     },
@@ -983,6 +1075,7 @@
           ]
         },
         "grace_period": {
+          "description": "Minimum delay to wait before restarting the job after a change is detected.",
           "type": [
             "string",
             "null"
@@ -1058,15 +1151,18 @@
           "default": null
         },
         "show_changes_count": {
+          "description": "Whether to display how many files triggered the current run.",
           "type": [
             "boolean",
             "null"
           ]
         },
         "skin": {
+          "description": "Color overrides applied to the UI while the job runs.",
           "$ref": "#/$defs/BaconSkin"
         },
         "sound": {
+          "description": "Per-job sound settings that override the global configuration.",
           "$ref": "#/$defs/SoundConfig"
         },
         "watch": {
@@ -1089,25 +1185,37 @@
       }
     },
     "KeyBindings": {
+      "description": "Mapping from key combinations to actions.",
       "type": "object"
     },
     "OnChangeStrategy": {
-      "type": "string",
-      "enum": [
-        "kill_then_restart",
-        "wait_then_restart"
+      "description": "Strategy to apply when changes are detected while a job is running.",
+      "oneOf": [
+        {
+          "description": "Stop the running job immediately before starting a new one.",
+          "type": "string",
+          "const": "kill_then_restart"
+        },
+        {
+          "description": "Let the running job finish before starting again.",
+          "type": "string",
+          "const": "wait_then_restart"
+        }
       ]
     },
     "SoundConfig": {
+      "description": "Configuration for mission sound notifications.",
       "type": "object",
       "properties": {
         "base_volume": {
+          "description": "Base volume used when playing configured sounds.",
           "type": [
             "string",
             "null"
           ]
         },
         "enabled": {
+          "description": "Whether sound notifications should be played.",
           "type": [
             "boolean",
             "null"

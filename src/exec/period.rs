@@ -75,6 +75,7 @@ impl JsonSchema for Period {
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         json_schema!({
             "type": "string",
+            "description": "Duration expressed as a human-readable string such as \"15ms\" or \"2s\".",
         })
     }
     fn inline_schema() -> bool {

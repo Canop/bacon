@@ -4,9 +4,13 @@ use {
     serde::Deserialize,
 };
 
+/// Configuration for mission sound notifications.
 #[derive(Debug, Clone, Default, Deserialize, PartialEq, JsonSchema)]
 pub struct SoundConfig {
+    /// Whether sound notifications should be played.
     pub enabled: Option<bool>,
+
+    /// Base volume used when playing configured sounds.
     pub base_volume: Option<Volume>,
 }
 

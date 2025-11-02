@@ -60,6 +60,7 @@ pub struct Job {
     /// Eg: --all-features or anything after -- in bacon incantation
     pub extraneous_args: Option<bool>,
 
+    /// Minimum delay to wait before restarting the job after a change is detected.
     pub grace_period: Option<Period>,
 
     /// Whether to hide the scrollbar
@@ -99,11 +100,14 @@ pub struct Job {
     #[serde(default)]
     pub on_success: Option<Action>,
 
+    /// Whether to display how many files triggered the current run.
     pub show_changes_count: Option<bool>,
 
+    /// Color overrides applied to the UI while the job runs.
     #[serde(default)]
     pub skin: BaconSkin,
 
+    /// Per-job sound settings that override the global configuration.
     #[serde(default)]
     pub sound: SoundConfig,
 
