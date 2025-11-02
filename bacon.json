@@ -1,0 +1,1119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Config",
+  "description": "A configuration item which may be stored in various places, eg as `bacon.toml`\nalong a `Cargo.toml` file or as `prefs.toml` in the xdg config directory.\n\nLeaf values are options (and not Default) so that they don't\noverride previously set values when applied to settings.",
+  "type": "object",
+  "properties": {
+    "additional_alias_args": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "allow_failures": {
+      "description": "Whether to consider that we can have a success\nwhen we have test failures",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "allow_warnings": {
+      "description": "Whether to consider that we can have a success\nwhen we have warnings. This is especially useful\nfor \"cargo run\" jobs",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "analyzer": {
+      "description": "The analyzer interpreting the output of the command, the\nstandard cargo dedicated one if not provided",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AnalyzerRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "apply_gitignore": {
+      "description": "Whether gitignore rules must be applied",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "background": {
+      "description": "Whether to wait for the computation to finish before\nto display it on screen\n\nThis is true by default. Set it to false if you want\nthe previous computation result to be replaced with\nthe new one as soon as it starts.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "command": {
+      "description": "The tokens making the command to execute (first one\nis the executable).",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "default_job": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "default_watch": {
+      "description": "Whether to apply the default watch list, which is\n`[\"src\", \"tests\", \"benches\", \"examples\", \"build.rs\"]`\n\nThis is true by default. Set it to false if you want\nto watch nothing, or only the directories you set in\n`watch`.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "env": {
+      "description": "Env vars to set for this job execution",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {}
+    },
+    "expand_env_vars": {
+      "description": "Whether to expand environment variables in the command",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "export": {
+      "description": "locations export",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExportConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "deprecated": true
+    },
+    "export_locations": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "deprecated": true
+    },
+    "exports": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/ExportConfig"
+      }
+    },
+    "extraneous_args": {
+      "description": "Whether to insert extraneous arguments provided by bacon or end users\n\nEg: --all-features or anything after -- in bacon incantation",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "grace_period": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "help_line": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "hide_scrollbar": {
+      "description": "Whether to hide the scrollbar",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "ignore": {
+      "description": "A list of glob patterns to ignore",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "ignored_lines": {
+      "description": "Patterns of lines which should be ignored. Patterns of\nthe prefs or bacon.toml can be overridden at the job",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "jobs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/Job"
+      }
+    },
+    "keybindings": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/KeyBindings"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "kill": {
+      "description": "A kill command. If not provided, SIGKILL is used.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "listen": {
+      "description": "Whether to listen for actions on a unix socket (if on unix)",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "need_stdout": {
+      "description": "Whether we need to capture stdout too (stderr is\nalways captured)",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "on_change_strategy": {
+      "description": "How to handle changes: either immediately kill the current job\nthen restart it, or wait for the current job to finish before\nrestarting it.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OnChangeStrategy"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "on_failure": {
+      "description": "The optional action to run when it's not a success",
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null
+    },
+    "on_success": {
+      "description": "The optional action to run when there's no\nerror, warning or test failures\n(depending on whether `allow_warnings` is `true` or `false`)\n\nCould be made a vec in the future but that would involve\nexplaining subtleties like the fact that those actions stop\nafter the first one ending the mission or doing a refresh",
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null
+    },
+    "reverse": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "show_changes_count": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "skin": {
+      "$ref": "#/$defs/BaconSkin"
+    },
+    "sound": {
+      "$ref": "#/$defs/SoundConfig"
+    },
+    "summary": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "vim_keys": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "deprecated": true
+    },
+    "watch": {
+      "description": "A list of directories that will be watched if the job\nis run on a package.\nsrc, examples, tests, and benches are implicitly included\nunless you `set default_watch` to false.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "workdir": {
+      "description": "An optional working directory for the job command, which\nwould override the package directory.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "wrap": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "AnalyzerRef": {
+      "description": "A stateless operator building a report from a list of command output lines.\n\nImplementation routing will probably change at some point",
+      "type": "string",
+      "enum": [
+        "standard",
+        "cargo_json",
+        "nextest",
+        "eslint",
+        "biome",
+        "python_pytest",
+        "python_ruff",
+        "python_unittest",
+        "cpp",
+        "cpp_doctest",
+        "swift_build",
+        "swift_lint"
+      ]
+    },
+    "BaconSkin": {
+      "type": "object",
+      "properties": {
+        "change_badge_bg": {
+          "$ref": "#/$defs/DefaultingChangeBadgeBg"
+        },
+        "change_badge_fg": {
+          "$ref": "#/$defs/DefaultingChangeBadgeFg"
+        },
+        "command_error_badge_bg": {
+          "$ref": "#/$defs/DefaultingCommandErrorBadgeBg"
+        },
+        "command_error_badge_fg": {
+          "$ref": "#/$defs/DefaultingCommandErrorBadgeFg"
+        },
+        "computing_bg": {
+          "$ref": "#/$defs/DefaultingComputingBg"
+        },
+        "computing_fg": {
+          "$ref": "#/$defs/DefaultingComputingFg"
+        },
+        "dismissed_badge_bg": {
+          "$ref": "#/$defs/DefaultingDismissedBadgeBg"
+        },
+        "dismissed_badge_fg": {
+          "$ref": "#/$defs/DefaultingDismissedBadgeFg"
+        },
+        "errors_badge_bg": {
+          "$ref": "#/$defs/DefaultingErrorsBadgeBg"
+        },
+        "errors_badge_fg": {
+          "$ref": "#/$defs/DefaultingErrorsBadgeFg"
+        },
+        "found_fg": {
+          "$ref": "#/$defs/DefaultingFoundFg"
+        },
+        "found_selected_bg": {
+          "$ref": "#/$defs/DefaultingFoundSelectedBg"
+        },
+        "job_label_badge_bg": {
+          "$ref": "#/$defs/DefaultingJobLabelBadgeBg"
+        },
+        "job_label_badge_fg": {
+          "$ref": "#/$defs/DefaultingJobLabelBadgeFg"
+        },
+        "key_fg": {
+          "$ref": "#/$defs/DefaultingKeyFg"
+        },
+        "menu_bg": {
+          "$ref": "#/$defs/DefaultingMenuBg"
+        },
+        "menu_border": {
+          "$ref": "#/$defs/DefaultingMenuBorder"
+        },
+        "menu_item_bg": {
+          "$ref": "#/$defs/DefaultingMenuItemBg"
+        },
+        "menu_item_fg": {
+          "$ref": "#/$defs/DefaultingMenuItemFg"
+        },
+        "menu_item_selected_bg": {
+          "$ref": "#/$defs/DefaultingMenuItemSelectedBg"
+        },
+        "menu_item_selected_fg": {
+          "$ref": "#/$defs/DefaultingMenuItemSelectedFg"
+        },
+        "project_name_badge_bg": {
+          "$ref": "#/$defs/DefaultingProjectNameBadgeBg"
+        },
+        "project_name_badge_fg": {
+          "$ref": "#/$defs/DefaultingProjectNameBadgeFg"
+        },
+        "search_input_prefix_fg": {
+          "$ref": "#/$defs/DefaultingSearchInputPrefixFg"
+        },
+        "search_summary_fg": {
+          "$ref": "#/$defs/DefaultingSearchSummaryFg"
+        },
+        "status_bg": {
+          "$ref": "#/$defs/DefaultingStatusBg"
+        },
+        "status_fg": {
+          "$ref": "#/$defs/DefaultingStatusFg"
+        },
+        "status_key_fg": {
+          "$ref": "#/$defs/DefaultingStatusKeyFg"
+        },
+        "test_fails_badge_bg": {
+          "$ref": "#/$defs/DefaultingTestFailsBadgeBg"
+        },
+        "test_fails_badge_fg": {
+          "$ref": "#/$defs/DefaultingTestFailsBadgeFg"
+        },
+        "test_pass_badge_bg": {
+          "$ref": "#/$defs/DefaultingTestPassBadgeBg"
+        },
+        "test_pass_badge_fg": {
+          "$ref": "#/$defs/DefaultingTestPassBadgeFg"
+        },
+        "warnings_badge_bg": {
+          "$ref": "#/$defs/DefaultingWarningsBadgeBg"
+        },
+        "warnings_badge_fg": {
+          "$ref": "#/$defs/DefaultingWarningsBadgeFg"
+        }
+      }
+    },
+    "DefaultingChangeBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingChangeBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingCommandErrorBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingCommandErrorBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingComputingBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingComputingFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingDismissedBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingDismissedBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingErrorsBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingErrorsBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingFoundFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingFoundSelectedBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingJobLabelBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingJobLabelBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingKeyFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuBorder": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuItemBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuItemFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuItemSelectedBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuItemSelectedFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingProjectNameBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingProjectNameBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingSearchInputPrefixFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingSearchSummaryFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingStatusBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingStatusFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingStatusKeyFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingTestFailsBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingTestFailsBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingTestPassBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingTestPassBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingWarningsBadgeBg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingWarningsBadgeFg": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ExportConfig": {
+      "description": "A generic configuration for all exports, whatever the exporter.",
+      "type": "object",
+      "properties": {
+        "auto": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exporter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Exporter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "line_format": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "Exporter": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "json_report",
+            "locations"
+          ]
+        },
+        {
+          "description": "The analyzer is tasked with doing an export while analyzing the\ncommand output",
+          "type": "string",
+          "const": "analyser"
+        },
+        {
+          "description": "This exporter doesn't exist at the moment",
+          "type": "string",
+          "const": "analysis"
+        }
+      ]
+    },
+    "Job": {
+      "description": "One of the possible jobs that bacon can run",
+      "type": "object",
+      "properties": {
+        "allow_failures": {
+          "description": "Whether to consider that we can have a success\nwhen we have test failures",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "allow_warnings": {
+          "description": "Whether to consider that we can have a success\nwhen we have warnings. This is especially useful\nfor \"cargo run\" jobs",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "analyzer": {
+          "description": "The analyzer interpreting the output of the command, the\nstandard cargo dedicated one if not provided",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnalyzerRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "apply_gitignore": {
+          "description": "Whether gitignore rules must be applied",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "background": {
+          "description": "Whether to wait for the computation to finish before\nto display it on screen\n\nThis is true by default. Set it to false if you want\nthe previous computation result to be replaced with\nthe new one as soon as it starts.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "command": {
+          "description": "The tokens making the command to execute (first one\nis the executable).",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "default_watch": {
+          "description": "Whether to apply the default watch list, which is\n`[\"src\", \"tests\", \"benches\", \"examples\", \"build.rs\"]`\n\nThis is true by default. Set it to false if you want\nto watch nothing, or only the directories you set in\n`watch`.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "env": {
+          "description": "Env vars to set for this job execution",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "expand_env_vars": {
+          "description": "Whether to expand environment variables in the command",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "extraneous_args": {
+          "description": "Whether to insert extraneous arguments provided by bacon or end users\n\nEg: --all-features or anything after -- in bacon incantation",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "grace_period": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hide_scrollbar": {
+          "description": "Whether to hide the scrollbar",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "ignore": {
+          "description": "A list of glob patterns to ignore",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "ignored_lines": {
+          "description": "Patterns of lines which should be ignored. Patterns of\nthe prefs or bacon.toml can be overridden at the job",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "kill": {
+          "description": "A kill command. If not provided, SIGKILL is used.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "need_stdout": {
+          "description": "Whether we need to capture stdout too (stderr is\nalways captured)",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "on_change_strategy": {
+          "description": "How to handle changes: either immediately kill the current job\nthen restart it, or wait for the current job to finish before\nrestarting it.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OnChangeStrategy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "on_failure": {
+          "description": "The optional action to run when it's not a success",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "on_success": {
+          "description": "The optional action to run when there's no\nerror, warning or test failures\n(depending on whether `allow_warnings` is `true` or `false`)\n\nCould be made a vec in the future but that would involve\nexplaining subtleties like the fact that those actions stop\nafter the first one ending the mission or doing a refresh",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "show_changes_count": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "skin": {
+          "$ref": "#/$defs/BaconSkin"
+        },
+        "sound": {
+          "$ref": "#/$defs/SoundConfig"
+        },
+        "watch": {
+          "description": "A list of directories that will be watched if the job\nis run on a package.\nsrc, examples, tests, and benches are implicitly included\nunless you `set default_watch` to false.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "workdir": {
+          "description": "An optional working directory for the job command, which\nwould override the package directory.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "KeyBindings": {
+      "type": "object"
+    },
+    "OnChangeStrategy": {
+      "type": "string",
+      "enum": [
+        "kill_then_restart",
+        "wait_then_restart"
+      ]
+    },
+    "SoundConfig": {
+      "type": "object",
+      "properties": {
+        "base_volume": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "enabled": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}
