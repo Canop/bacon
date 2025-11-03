@@ -107,7 +107,7 @@ pub struct Job {
     #[serde(default)]
     pub skin: BaconSkin,
 
-    /// Per-job sound settings that override the global configuration.
+    /// Notification sounds
     #[serde(default)]
     pub sound: SoundConfig,
 
