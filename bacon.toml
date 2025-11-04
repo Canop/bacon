@@ -1,5 +1,9 @@
-#:schema ./bacon.json
-# a bacon.toml file dedicated to the bacon tool
+#:schema https://dystroy.org/bacon/.bacon.schema.json
+
+# A bacon.toml file dedicated to the bacon tool
+# (if you're looking for the current default bacon.toml file,
+#  generate it with `bacon --init` or download it from
+#  https://github.com/Canop/bacon/tree/main/defaults)
 
 default_job = "check-all"
 env.CARGO_TERM_COLOR = "always"
@@ -106,6 +110,9 @@ command = [
 ]
 need_stdout = false
 
+[skin]
+menu_bg = 3
+change_badge_bg = 5
 
 [keybindings]
 c = "job:clippy-all"

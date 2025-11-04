@@ -32,7 +32,7 @@ pub struct Config {
     #[deprecated(since = "2.22.0", note = "use exports.locations")]
     pub export: Option<ExportConfig>,
 
-    /// Deprecated toggle for the legacy locations export; use `exports.locations.auto`.
+    /// Deprecated toggle for the legacy locations export; use `exports.locations.auto`
     #[deprecated(since = "2.9.0", note = "use exports.locations.auto")]
     pub export_locations: Option<bool>,
 
@@ -40,30 +40,30 @@ pub struct Config {
     #[serde(default)]
     pub exports: HashMap<String, ExportConfig>,
 
-    /// Whether to display the contextual help line in the UI.
+    /// Whether to display the contextual help line
     pub help_line: Option<bool>,
 
-    /// Job definitions keyed by their identifier.
+    /// Job definitions keyed by their identifier
     #[serde(default)]
     pub jobs: HashMap<String, Job>,
 
-    /// Custom keybindings layered on top of the defaults.
+    /// Custom keybindings layered on top of the defaults
     pub keybindings: Option<KeyBindings>,
 
     /// Whether to display the mission output in reverse order.
     pub reverse: Option<bool>,
 
-    /// Whether to show the condensed summary area by default.
+    /// Whether to show diagnostics summarized instead of full
     pub summary: Option<bool>,
 
-    /// Deprecated toggle that enables a built-in set of Vim-style keybindings. Use `keybindings` instead.
+    /// Deprecated toggle that enables a built-in set of Vim-style keybindings. Use `keybindings` instead
     #[deprecated(since = "2.0.0", note = "use keybindings")]
     pub vim_keys: Option<bool>,
 
     /// Whether to listen for actions on a unix socket (if on unix)
     pub listen: Option<bool>,
 
-    /// Whether to wrap long lines in the UI.
+    /// Whether to wrap long lines
     pub wrap: Option<bool>,
 }
 

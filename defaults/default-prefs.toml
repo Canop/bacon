@@ -1,3 +1,5 @@
+#:schema https://dystroy.org/bacon/.bacon.schema.json
+
 # This is a preferences file for the bacon tool
 # More info at https://github.com/Canop/bacon
 
