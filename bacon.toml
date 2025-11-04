@@ -1,3 +1,4 @@
+#:schema ./bacon.json
 # a bacon.toml file dedicated to the bacon tool
 
 default_job = "check-all"

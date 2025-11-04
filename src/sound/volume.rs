@@ -125,6 +125,7 @@ impl JsonSchema for Volume {
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         json_schema!({
             "type": "string",
+            "description": "Volume percentage written as an integer between 0 and 100, optionally suffixed with '%'.",
         })
     }
     fn inline_schema() -> bool {

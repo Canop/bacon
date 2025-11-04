@@ -173,6 +173,7 @@ impl JsonSchema for KeyBindings {
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         json_schema!({
             "type": "object",
+            "description": "Mapping from key combinations to actions.",
         })
     }
     fn inline_schema() -> bool {
