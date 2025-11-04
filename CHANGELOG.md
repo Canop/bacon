@@ -1,3 +1,6 @@
+### next
+- `--generate-config-schema` generates a schema for bacon configuration files, with . Bacon users don't have to call it as the schema is web hosted and should be automatically picked by TOML editors (if necessary, you can help the editor by starting bacon.toml files with `#:schema https://dystroy.org/bacon/.bacon.schema.json`)
+
 <a name="v3.19.0"></a>
 ### v3.19.0 - 2025/10/13
 - update notify to fix a crash on BSD - Thanks @omarandlorraine
