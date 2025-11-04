@@ -150,7 +150,7 @@ pub struct Args {
     pub config_toml: Option<String>,
 
     /// Generate the JSON Schema for bacon configuration files
-    #[clap(long)]
+    #[clap(long, hide = true)]
     pub generate_config_schema: bool,
 
     #[clap(add = ArgValueCandidates::new(crate::cli::completions::list_jobs))]
