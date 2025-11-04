@@ -1,5 +1,6 @@
 use {
     paste::paste,
+    schemars::JsonSchema,
     serde::Deserialize,
     termimad::crossterm::style::Color,
 };
@@ -7,11 +8,13 @@ use {
 /// Define a `BaconSkin` struct with fields being u8 with default values.
 macro_rules! BaconSkin {
     (
-        $( $name:ident: $default:literal, )*
+        $( $(#[$meta:meta])* $name:ident: $default:literal, )*
     ) => {
         paste! {
             $(
-                #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq)]
+                $(#[$meta])*
+                #[doc=concat!(" - default value: ", stringify!($default))]
+                #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq, JsonSchema)]
                 #[serde(untagged)]
                 pub enum [<Defaulting$name:camel>] {
                     Set(u8),
@@ -35,9 +38,11 @@ macro_rules! BaconSkin {
                     }
                 }
             )*
-            #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq)]
+            /// Collection of optional color overrides for the Bacon UI.
+            #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq, JsonSchema)]
             pub struct BaconSkin {
                 $(
+                    $(#[$meta])*
                     #[serde(default)]
                     pub $name: [<Defaulting$name:camel>],
                 )*
@@ -61,39 +66,73 @@ macro_rules! BaconSkin {
 
 // The colors of Bacon, with default values (ANSI color codes, in 0-255)
 BaconSkin! {
-    status_fg: 252, // foreground color of the status line
-    status_bg: 239, // background color of the status line
-    key_fg: 204, // generally used for key shortcuts
-    status_key_fg: 204, // key shortcuts when displayed in the status line
-    project_name_badge_fg: 255, // foreground color of the project name badge
-    project_name_badge_bg: 240, // background color of the project name badge
-    job_label_badge_fg: 235, // foreground color of the job label badge
-    job_label_badge_bg: 204, // background color of the job label badge
-    errors_badge_fg: 235, // foreground color of the errors badge
-    errors_badge_bg: 9, // background color of the errors badge
-    test_fails_badge_fg: 235, // foreground color of the test fails badge
-    test_fails_badge_bg: 208, // background color of the test fails badge
-    test_pass_badge_fg: 254, // foreground color of the pass! badge
-    test_pass_badge_bg: 2, // background color of the pass! badge
-    warnings_badge_fg: 235, // foreground color of the warnings badge
-    warnings_badge_bg: 11, // background color of the warnings badge
-    command_error_badge_fg: 235, // foreground color of the command error badge
-    command_error_badge_bg: 9, // background color of the command error badge
-    dismissed_badge_fg: 235, // foreground color of the dismissed badge
-    dismissed_badge_bg: 6, // background color of the dismissed badge
-    change_badge_fg: 235, // foreground color of the change badge
-    change_badge_bg: 6, // background color of the change badge
-    computing_fg: 235, // foreground color of the "computing..." stripe
-    computing_bg: 204, // background color of the "computing..." stripe
-    found_fg: 208, // foreground color of search matches
-    found_selected_bg: 208, // background color of a selected search match
-    search_input_prefix_fg: 208, // foreground color of the '/' search prefix
-    search_summary_fg: 208, // foreground color of the search summary
+    /// Foreground color of the status line
+    status_fg: 252,
+    /// Background color of the status line
+    status_bg: 239,
+    /// Foreground color used for key shortcuts in the UI
+    key_fg: 204,
+    /// Foreground color for key shortcuts displayed in the status line
+    status_key_fg: 204,
+    /// Foreground color of the project name badge
+    project_name_badge_fg: 255,
+    /// Background color of the project name badge
+    project_name_badge_bg: 240,
+    /// Foreground color of the job label badge
+    job_label_badge_fg: 235,
+    /// Background color of the job label badge
+    job_label_badge_bg: 204,
+    /// Foreground color of the errors badge
+    errors_badge_fg: 235,
+    /// Background color of the errors badge
+    errors_badge_bg: 9,
+    /// Foreground color of the failing-tests badge
+    test_fails_badge_fg: 235,
+    /// Background color of the failing-tests badge
+    test_fails_badge_bg: 208,
+    /// Foreground color of the passing-tests badge
+    test_pass_badge_fg: 254,
+    /// Background color of the passing-tests badge
+    test_pass_badge_bg: 2,
+    /// Foreground color of the warnings badge
+    warnings_badge_fg: 235,
+    /// Background color of the warnings badge
+    warnings_badge_bg: 11,
+    /// Foreground color of the command-error badge
+    command_error_badge_fg: 235,
+    /// Background color of the command-error badge
+    command_error_badge_bg: 9,
+    /// Foreground color of the dismissed badge
+    dismissed_badge_fg: 235,
+    /// Background color of the dismissed badge
+    dismissed_badge_bg: 6,
+    /// Foreground color of the change badge
+    change_badge_fg: 235,
+    /// Background color of the change badge
+    change_badge_bg: 6,
+    /// Foreground color of the "computing..." indicator
+    computing_fg: 235,
+    /// Background color of the "computing..." indicator
+    computing_bg: 204,
+    /// Foreground color of search matches
+    found_fg: 208,
+    /// Background color of the selected search match
+    found_selected_bg: 208,
+    /// Foreground color of the '/' search prefix
+    search_input_prefix_fg: 208,
+    /// Foreground color of the search summary
+    search_summary_fg: 208,
+    /// Border color used for menus
     menu_border: 234,
+    /// Background color used for menus
     menu_bg: 235,
+    /// Background color of individual menu items
     menu_item_bg: 235,
+    /// Background color of the selected menu item
     menu_item_selected_bg: 239,
+    /// Foreground color of menu items
     menu_item_fg: 250,
+    /// Foreground color of the selected menu item
     menu_item_selected_fg: 255,
 }
 

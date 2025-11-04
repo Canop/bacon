@@ -149,6 +149,10 @@ pub struct Args {
     #[clap(long)]
     pub config_toml: Option<String>,
 
+    /// Generate the JSON Schema for bacon configuration files
+    #[clap(long, hide = true)]
+    pub generate_config_schema: bool,
+
     #[clap(add = ArgValueCandidates::new(crate::cli::completions::list_jobs))]
     /// What to do: either a job, or a path, or both
     pub args: Vec<String>,

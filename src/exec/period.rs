@@ -1,12 +1,19 @@
 use {
     anyhow::anyhow,
     lazy_regex::*,
+    schemars::{
+        JsonSchema,
+        Schema,
+        SchemaGenerator,
+        json_schema,
+    },
     serde::{
         Deserialize,
         Deserializer,
         de,
     },
     std::{
+        borrow::Cow,
         str::FromStr,
         time::Duration,
     },
@@ -56,5 +63,22 @@ impl<'de> Deserialize<'de> for Period {
     {
         let s = String::deserialize(deserializer)?;
         FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}
+impl JsonSchema for Period {
+    fn schema_name() -> Cow<'static, str> {
+        "Period".into()
+    }
+    fn schema_id() -> Cow<'static, str> {
+        concat!(module_path!(), "::Period").into()
+    }
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "string",
+            "description": "Duration expressed as a human-readable string such as \"15ms\" or \"2s\".",
+        })
+    }
+    fn inline_schema() -> bool {
+        true
     }
 }

@@ -1,4 +1,10 @@
 use {
+    schemars::{
+        JsonSchema,
+        Schema,
+        SchemaGenerator,
+        json_schema,
+    },
     serde::{
         Deserialize,
         Deserializer,
@@ -7,6 +13,7 @@ use {
         de,
     },
     std::{
+        borrow::Cow,
         fmt,
         ops::Mul,
         str::FromStr,
@@ -106,5 +113,22 @@ impl<'de> Deserialize<'de> for Volume {
     {
         let s = String::deserialize(deserializer)?;
         Self::from_str(&s).map_err(de::Error::custom)
+    }
+}
+impl JsonSchema for Volume {
+    fn schema_name() -> Cow<'static, str> {
+        "Volume".into()
+    }
+    fn schema_id() -> Cow<'static, str> {
+        concat!(module_path!(), "::Volume").into()
+    }
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "string",
+            "description": "Volume percentage written as an integer between 0 and 100, optionally suffixed with '%'.",
+        })
+    }
+    fn inline_schema() -> bool {
+        true
     }
 }

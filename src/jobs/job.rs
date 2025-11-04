@@ -1,5 +1,6 @@
 use {
     crate::*,
+    schemars::JsonSchema,
     serde::Deserialize,
     std::{
         collections::HashMap,
@@ -8,7 +9,7 @@ use {
 };
 
 /// One of the possible jobs that bacon can run
-#[derive(Debug, Default, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Default, Clone, Deserialize, PartialEq, JsonSchema)]
 pub struct Job {
     /// Whether to consider that we can have a success
     /// when we have test failures
@@ -59,6 +60,7 @@ pub struct Job {
     /// Eg: --all-features or anything after -- in bacon incantation
     pub extraneous_args: Option<bool>,
 
+    /// Minimum delay to wait before restarting the job after a change is detected.
     pub grace_period: Option<Period>,
 
     /// Whether to hide the scrollbar
@@ -98,11 +100,14 @@ pub struct Job {
     #[serde(default)]
     pub on_success: Option<Action>,
 
+    /// Whether to display how many files triggered the current run.
     pub show_changes_count: Option<bool>,
 
+    /// Color overrides applied to the UI while the job runs.
     #[serde(default)]
     pub skin: BaconSkin,
 
+    /// Notification sounds
     #[serde(default)]
     pub sound: SoundConfig,
 

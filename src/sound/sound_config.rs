@@ -1,11 +1,16 @@
 use {
     crate::*,
+    schemars::JsonSchema,
     serde::Deserialize,
 };
 
-#[derive(Debug, Clone, Default, Deserialize, PartialEq)]
+/// Sound configuration.
+#[derive(Debug, Clone, Default, Deserialize, PartialEq, JsonSchema)]
 pub struct SoundConfig {
+    /// Whether sound notifications should be played.
     pub enabled: Option<bool>,
+
+    /// Base volume, acting as a multiplier for the volume of specific sounds.
     pub base_volume: Option<Volume>,
 }
 

@@ -1,8 +1,15 @@
 use {
     crate::*,
     crokey::*,
+    schemars::{
+        JsonSchema,
+        Schema,
+        SchemaGenerator,
+        json_schema,
+    },
     serde::Deserialize,
     std::{
+        borrow::Cow,
         collections::{
             HashMap,
             hash_map,
@@ -154,6 +161,23 @@ impl fmt::Debug for KeyBindings {
             ds.field(&kc.to_string(), &action.to_string());
         }
         ds.finish()
+    }
+}
+impl JsonSchema for KeyBindings {
+    fn schema_name() -> Cow<'static, str> {
+        "KeyBindings".into()
+    }
+    fn schema_id() -> Cow<'static, str> {
+        concat!(module_path!(), "::KeyBindings").into()
+    }
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+            "type": "object",
+            "description": "Mapping from key combinations to actions.",
+        })
+    }
+    fn inline_schema() -> bool {
+        false
     }
 }
 

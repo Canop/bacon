@@ -1,0 +1,1227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Config",
+  "description": "A configuration item which may be stored in various places, eg as `bacon.toml`\nalong a `Cargo.toml` file or as `prefs.toml` in the xdg config directory.\n\nLeaf values are options (and not Default) so that they don't\noverride previously set values when applied to settings.",
+  "type": "object",
+  "properties": {
+    "additional_alias_args": {
+      "description": "Extra arguments appended when a job runs a cargo alias.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "allow_failures": {
+      "description": "Whether to consider that we can have a success\nwhen we have test failures",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "allow_warnings": {
+      "description": "Whether to consider that we can have a success\nwhen we have warnings. This is especially useful\nfor \"cargo run\" jobs",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "analyzer": {
+      "description": "The analyzer interpreting the output of the command, the\nstandard cargo dedicated one if not provided",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AnalyzerRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "apply_gitignore": {
+      "description": "Whether gitignore rules must be applied",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "background": {
+      "description": "Whether to wait for the computation to finish before\nto display it on screen\n\nThis is true by default. Set it to false if you want\nthe previous computation result to be replaced with\nthe new one as soon as it starts.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "command": {
+      "description": "The tokens making the command to execute (first one\nis the executable).",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "default_job": {
+      "description": "Name of the job to run when no job was requested explicitly.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "default_watch": {
+      "description": "Whether to apply the default watch list, which is\n`[\"src\", \"tests\", \"benches\", \"examples\", \"build.rs\"]`\n\nThis is true by default. Set it to false if you want\nto watch nothing, or only the directories you set in\n`watch`.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "env": {
+      "description": "Env vars to set for this job execution",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {}
+    },
+    "expand_env_vars": {
+      "description": "Whether to expand environment variables in the command",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "export": {
+      "description": "Deprecated single export configuration; use `exports.locations` instead.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExportConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "deprecated": true
+    },
+    "export_locations": {
+      "description": "Deprecated toggle for the legacy locations export; use `exports.locations.auto`.",
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "deprecated": true
+    },
+    "exports": {
+      "description": "Export configurations keyed by their name.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/ExportConfig"
+      }
+    },
+    "extraneous_args": {
+      "description": "Whether to insert extraneous arguments provided by bacon or end users\n\nEg: --all-features or anything after -- in bacon incantation",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "grace_period": {
+      "description": "Minimum delay to wait before restarting the job after a change is detected.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "help_line": {
+      "description": "Whether to display the contextual help line in the UI.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "hide_scrollbar": {
+      "description": "Whether to hide the scrollbar",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "ignore": {
+      "description": "A list of glob patterns to ignore",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "ignored_lines": {
+      "description": "Patterns of lines which should be ignored. Patterns of\nthe prefs or bacon.toml can be overridden at the job",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "jobs": {
+      "description": "Job definitions keyed by their identifier.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/Job"
+      }
+    },
+    "keybindings": {
+      "description": "Custom keybindings layered on top of the defaults.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/KeyBindings"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "kill": {
+      "description": "A kill command. If not provided, SIGKILL is used.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "listen": {
+      "description": "Whether to listen for actions on a unix socket (if on unix)",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "need_stdout": {
+      "description": "Whether we need to capture stdout too (stderr is\nalways captured)",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "on_change_strategy": {
+      "description": "How to handle changes: either immediately kill the current job\nthen restart it, or wait for the current job to finish before\nrestarting it.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OnChangeStrategy"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "on_failure": {
+      "description": "The optional action to run when it's not a success",
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null
+    },
+    "on_success": {
+      "description": "The optional action to run when there's no\nerror, warning or test failures\n(depending on whether `allow_warnings` is `true` or `false`)\n\nCould be made a vec in the future but that would involve\nexplaining subtleties like the fact that those actions stop\nafter the first one ending the mission or doing a refresh",
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null
+    },
+    "reverse": {
+      "description": "Whether to display the mission output in reverse order.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "show_changes_count": {
+      "description": "Whether to display how many files triggered the current run.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "skin": {
+      "description": "Color overrides applied to the UI while the job runs.",
+      "$ref": "#/$defs/BaconSkin"
+    },
+    "sound": {
+      "description": "Notification sounds",
+      "$ref": "#/$defs/SoundConfig"
+    },
+    "summary": {
+      "description": "Whether to show the condensed summary area by default.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "vim_keys": {
+      "description": "Deprecated toggle that enables a built-in set of Vim-style keybindings. Use `keybindings` instead.",
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "deprecated": true
+    },
+    "watch": {
+      "description": "A list of directories that will be watched if the job\nis run on a package.\nsrc, examples, tests, and benches are implicitly included\nunless you `set default_watch` to false.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "workdir": {
+      "description": "An optional working directory for the job command, which\nwould override the package directory.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "wrap": {
+      "description": "Whether to wrap long lines in the UI.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "AnalyzerRef": {
+      "description": "A stateless operator building a report from a list of command output lines.\n\nImplementation routing will probably change at some point",
+      "type": "string",
+      "enum": [
+        "standard",
+        "cargo_json",
+        "nextest",
+        "eslint",
+        "biome",
+        "python_pytest",
+        "python_ruff",
+        "python_unittest",
+        "cpp",
+        "cpp_doctest",
+        "swift_build",
+        "swift_lint"
+      ]
+    },
+    "BaconSkin": {
+      "description": "Collection of optional color overrides for the Bacon UI.",
+      "type": "object",
+      "properties": {
+        "change_badge_bg": {
+          "description": "Background color of the change badge (default: 6).",
+          "$ref": "#/$defs/DefaultingChangeBadgeBg"
+        },
+        "change_badge_fg": {
+          "description": "Foreground color of the change badge (default: 235).",
+          "$ref": "#/$defs/DefaultingChangeBadgeFg"
+        },
+        "command_error_badge_bg": {
+          "description": "Background color of the command-error badge (default: 9).",
+          "$ref": "#/$defs/DefaultingCommandErrorBadgeBg"
+        },
+        "command_error_badge_fg": {
+          "description": "Foreground color of the command-error badge (default: 235).",
+          "$ref": "#/$defs/DefaultingCommandErrorBadgeFg"
+        },
+        "computing_bg": {
+          "description": "Background color of the \"computing...\" indicator (default: 204).",
+          "$ref": "#/$defs/DefaultingComputingBg"
+        },
+        "computing_fg": {
+          "description": "Foreground color of the \"computing...\" indicator (default: 235).",
+          "$ref": "#/$defs/DefaultingComputingFg"
+        },
+        "dismissed_badge_bg": {
+          "description": "Background color of the dismissed badge (default: 6).",
+          "$ref": "#/$defs/DefaultingDismissedBadgeBg"
+        },
+        "dismissed_badge_fg": {
+          "description": "Foreground color of the dismissed badge (default: 235).",
+          "$ref": "#/$defs/DefaultingDismissedBadgeFg"
+        },
+        "errors_badge_bg": {
+          "description": "Background color of the errors badge (default: 9).",
+          "$ref": "#/$defs/DefaultingErrorsBadgeBg"
+        },
+        "errors_badge_fg": {
+          "description": "Foreground color of the errors badge (default: 235).",
+          "$ref": "#/$defs/DefaultingErrorsBadgeFg"
+        },
+        "found_fg": {
+          "description": "Foreground color of search matches (default: 208).",
+          "$ref": "#/$defs/DefaultingFoundFg"
+        },
+        "found_selected_bg": {
+          "description": "Background color of the selected search match (default: 208).",
+          "$ref": "#/$defs/DefaultingFoundSelectedBg"
+        },
+        "job_label_badge_bg": {
+          "description": "Background color of the job label badge (default: 204).",
+          "$ref": "#/$defs/DefaultingJobLabelBadgeBg"
+        },
+        "job_label_badge_fg": {
+          "description": "Foreground color of the job label badge (default: 235).",
+          "$ref": "#/$defs/DefaultingJobLabelBadgeFg"
+        },
+        "key_fg": {
+          "description": "Foreground color used for key shortcuts in the UI (default: 204).",
+          "$ref": "#/$defs/DefaultingKeyFg"
+        },
+        "menu_bg": {
+          "description": "Background color used for menus (default: 235).",
+          "$ref": "#/$defs/DefaultingMenuBg"
+        },
+        "menu_border": {
+          "description": "Border color used for menus (default: 234).",
+          "$ref": "#/$defs/DefaultingMenuBorder"
+        },
+        "menu_item_bg": {
+          "description": "Background color of individual menu items (default: 235).",
+          "$ref": "#/$defs/DefaultingMenuItemBg"
+        },
+        "menu_item_fg": {
+          "description": "Foreground color of menu items (default: 250).",
+          "$ref": "#/$defs/DefaultingMenuItemFg"
+        },
+        "menu_item_selected_bg": {
+          "description": "Background color of the selected menu item (default: 239).",
+          "$ref": "#/$defs/DefaultingMenuItemSelectedBg"
+        },
+        "menu_item_selected_fg": {
+          "description": "Foreground color of the selected menu item (default: 255).",
+          "$ref": "#/$defs/DefaultingMenuItemSelectedFg"
+        },
+        "project_name_badge_bg": {
+          "description": "Background color of the project name badge (default: 240).",
+          "$ref": "#/$defs/DefaultingProjectNameBadgeBg"
+        },
+        "project_name_badge_fg": {
+          "description": "Foreground color of the project name badge (default: 255).",
+          "$ref": "#/$defs/DefaultingProjectNameBadgeFg"
+        },
+        "search_input_prefix_fg": {
+          "description": "Foreground color of the '/' search prefix (default: 208).",
+          "$ref": "#/$defs/DefaultingSearchInputPrefixFg"
+        },
+        "search_summary_fg": {
+          "description": "Foreground color of the search summary (default: 208).",
+          "$ref": "#/$defs/DefaultingSearchSummaryFg"
+        },
+        "status_bg": {
+          "description": "Background color of the status line (default: 239).",
+          "$ref": "#/$defs/DefaultingStatusBg"
+        },
+        "status_fg": {
+          "description": "Foreground color of the status line (default: 252).",
+          "$ref": "#/$defs/DefaultingStatusFg"
+        },
+        "status_key_fg": {
+          "description": "Foreground color for key shortcuts displayed in the status line (default: 204).",
+          "$ref": "#/$defs/DefaultingStatusKeyFg"
+        },
+        "test_fails_badge_bg": {
+          "description": "Background color of the failing-tests badge (default: 208).",
+          "$ref": "#/$defs/DefaultingTestFailsBadgeBg"
+        },
+        "test_fails_badge_fg": {
+          "description": "Foreground color of the failing-tests badge (default: 235).",
+          "$ref": "#/$defs/DefaultingTestFailsBadgeFg"
+        },
+        "test_pass_badge_bg": {
+          "description": "Background color of the passing-tests badge (default: 2).",
+          "$ref": "#/$defs/DefaultingTestPassBadgeBg"
+        },
+        "test_pass_badge_fg": {
+          "description": "Foreground color of the passing-tests badge (default: 254).",
+          "$ref": "#/$defs/DefaultingTestPassBadgeFg"
+        },
+        "warnings_badge_bg": {
+          "description": "Background color of the warnings badge (default: 11).",
+          "$ref": "#/$defs/DefaultingWarningsBadgeBg"
+        },
+        "warnings_badge_fg": {
+          "description": "Foreground color of the warnings badge (default: 235).",
+          "$ref": "#/$defs/DefaultingWarningsBadgeFg"
+        }
+      }
+    },
+    "DefaultingChangeBadgeBg": {
+      "description": "Background color of the change badge (default: 6).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingChangeBadgeFg": {
+      "description": "Foreground color of the change badge (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingCommandErrorBadgeBg": {
+      "description": "Background color of the command-error badge (default: 9).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingCommandErrorBadgeFg": {
+      "description": "Foreground color of the command-error badge (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingComputingBg": {
+      "description": "Background color of the \"computing...\" indicator (default: 204).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingComputingFg": {
+      "description": "Foreground color of the \"computing...\" indicator (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingDismissedBadgeBg": {
+      "description": "Background color of the dismissed badge (default: 6).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingDismissedBadgeFg": {
+      "description": "Foreground color of the dismissed badge (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingErrorsBadgeBg": {
+      "description": "Background color of the errors badge (default: 9).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingErrorsBadgeFg": {
+      "description": "Foreground color of the errors badge (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingFoundFg": {
+      "description": "Foreground color of search matches (default: 208).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingFoundSelectedBg": {
+      "description": "Background color of the selected search match (default: 208).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingJobLabelBadgeBg": {
+      "description": "Background color of the job label badge (default: 204).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingJobLabelBadgeFg": {
+      "description": "Foreground color of the job label badge (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingKeyFg": {
+      "description": "Foreground color used for key shortcuts in the UI (default: 204).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuBg": {
+      "description": "Background color used for menus (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuBorder": {
+      "description": "Border color used for menus (default: 234).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuItemBg": {
+      "description": "Background color of individual menu items (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuItemFg": {
+      "description": "Foreground color of menu items (default: 250).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuItemSelectedBg": {
+      "description": "Background color of the selected menu item (default: 239).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingMenuItemSelectedFg": {
+      "description": "Foreground color of the selected menu item (default: 255).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingProjectNameBadgeBg": {
+      "description": "Background color of the project name badge (default: 240).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingProjectNameBadgeFg": {
+      "description": "Foreground color of the project name badge (default: 255).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingSearchInputPrefixFg": {
+      "description": "Foreground color of the '/' search prefix (default: 208).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingSearchSummaryFg": {
+      "description": "Foreground color of the search summary (default: 208).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingStatusBg": {
+      "description": "Background color of the status line (default: 239).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingStatusFg": {
+      "description": "Foreground color of the status line (default: 252).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingStatusKeyFg": {
+      "description": "Foreground color for key shortcuts displayed in the status line (default: 204).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingTestFailsBadgeBg": {
+      "description": "Background color of the failing-tests badge (default: 208).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingTestFailsBadgeFg": {
+      "description": "Foreground color of the failing-tests badge (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingTestPassBadgeBg": {
+      "description": "Background color of the passing-tests badge (default: 2).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingTestPassBadgeFg": {
+      "description": "Foreground color of the passing-tests badge (default: 254).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingWarningsBadgeBg": {
+      "description": "Background color of the warnings badge (default: 11).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "DefaultingWarningsBadgeFg": {
+      "description": "Foreground color of the warnings badge (default: 235).",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ExportConfig": {
+      "description": "A generic configuration for all exports, whatever the exporter.",
+      "type": "object",
+      "properties": {
+        "auto": {
+          "description": "Whether the export should run automatically after each mission.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exporter": {
+          "description": "Exporter backend that should produce the output.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Exporter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "line_format": {
+          "description": "Optional format string used by exporters that write line-based data.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "description": "Destination path where the exporter writes its output.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "Exporter": {
+      "description": "Export backend.",
+      "oneOf": [
+        {
+          "description": "The analyzer is tasked with doing an export while analyzing the\ncommand output",
+          "type": "string",
+          "const": "analyser"
+        },
+        {
+          "description": "This exporter doesn't exist at the moment",
+          "type": "string",
+          "const": "analysis"
+        },
+        {
+          "description": "Emit a machine-readable JSON report for the mission.",
+          "type": "string",
+          "const": "json_report"
+        },
+        {
+          "description": "Produce a list of file locations for editors or other tools.",
+          "type": "string",
+          "const": "locations"
+        }
+      ]
+    },
+    "Job": {
+      "description": "One of the possible jobs that bacon can run",
+      "type": "object",
+      "properties": {
+        "allow_failures": {
+          "description": "Whether to consider that we can have a success\nwhen we have test failures",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "allow_warnings": {
+          "description": "Whether to consider that we can have a success\nwhen we have warnings. This is especially useful\nfor \"cargo run\" jobs",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "analyzer": {
+          "description": "The analyzer interpreting the output of the command, the\nstandard cargo dedicated one if not provided",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnalyzerRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "apply_gitignore": {
+          "description": "Whether gitignore rules must be applied",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "background": {
+          "description": "Whether to wait for the computation to finish before\nto display it on screen\n\nThis is true by default. Set it to false if you want\nthe previous computation result to be replaced with\nthe new one as soon as it starts.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "command": {
+          "description": "The tokens making the command to execute (first one\nis the executable).",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "default_watch": {
+          "description": "Whether to apply the default watch list, which is\n`[\"src\", \"tests\", \"benches\", \"examples\", \"build.rs\"]`\n\nThis is true by default. Set it to false if you want\nto watch nothing, or only the directories you set in\n`watch`.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "env": {
+          "description": "Env vars to set for this job execution",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "expand_env_vars": {
+          "description": "Whether to expand environment variables in the command",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "extraneous_args": {
+          "description": "Whether to insert extraneous arguments provided by bacon or end users\n\nEg: --all-features or anything after -- in bacon incantation",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "grace_period": {
+          "description": "Minimum delay to wait before restarting the job after a change is detected.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hide_scrollbar": {
+          "description": "Whether to hide the scrollbar",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "ignore": {
+          "description": "A list of glob patterns to ignore",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "ignored_lines": {
+          "description": "Patterns of lines which should be ignored. Patterns of\nthe prefs or bacon.toml can be overridden at the job",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "kill": {
+          "description": "A kill command. If not provided, SIGKILL is used.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "need_stdout": {
+          "description": "Whether we need to capture stdout too (stderr is\nalways captured)",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "on_change_strategy": {
+          "description": "How to handle changes: either immediately kill the current job\nthen restart it, or wait for the current job to finish before\nrestarting it.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OnChangeStrategy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "on_failure": {
+          "description": "The optional action to run when it's not a success",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "on_success": {
+          "description": "The optional action to run when there's no\nerror, warning or test failures\n(depending on whether `allow_warnings` is `true` or `false`)\n\nCould be made a vec in the future but that would involve\nexplaining subtleties like the fact that those actions stop\nafter the first one ending the mission or doing a refresh",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "show_changes_count": {
+          "description": "Whether to display how many files triggered the current run.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "skin": {
+          "description": "Color overrides applied to the UI while the job runs.",
+          "$ref": "#/$defs/BaconSkin"
+        },
+        "sound": {
+          "description": "Notification sounds",
+          "$ref": "#/$defs/SoundConfig"
+        },
+        "watch": {
+          "description": "A list of directories that will be watched if the job\nis run on a package.\nsrc, examples, tests, and benches are implicitly included\nunless you `set default_watch` to false.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "workdir": {
+          "description": "An optional working directory for the job command, which\nwould override the package directory.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "KeyBindings": {
+      "description": "Mapping from key combinations to actions.",
+      "type": "object"
+    },
+    "OnChangeStrategy": {
+      "description": "Strategy to apply when changes are detected while a job is running.",
+      "oneOf": [
+        {
+          "description": "Stop the running job immediately before starting a new one.",
+          "type": "string",
+          "const": "kill_then_restart"
+        },
+        {
+          "description": "Let the running job finish before starting again.",
+          "type": "string",
+          "const": "wait_then_restart"
+        }
+      ]
+    },
+    "SoundConfig": {
+      "description": "Sound configuration.",
+      "type": "object",
+      "properties": {
+        "base_volume": {
+          "description": "Base volume, acting as a multiplier for the volume of specific sounds.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "enabled": {
+          "description": "Whether sound notifications should be played.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}
