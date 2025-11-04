@@ -251,7 +251,7 @@
       "$ref": "#/$defs/BaconSkin"
     },
     "sound": {
-      "description": "Per-job sound settings that override the global configuration.",
+      "description": "Notification sounds",
       "$ref": "#/$defs/SoundConfig"
     },
     "summary": {
@@ -970,7 +970,7 @@
       }
     },
     "Exporter": {
-      "description": "Export backend available for Bacon exports.",
+      "description": "Export backend.",
       "oneOf": [
         {
           "description": "The analyzer is tasked with doing an export while analyzing the\ncommand output",
@@ -1162,7 +1162,7 @@
           "$ref": "#/$defs/BaconSkin"
         },
         "sound": {
-          "description": "Per-job sound settings that override the global configuration.",
+          "description": "Notification sounds",
           "$ref": "#/$defs/SoundConfig"
         },
         "watch": {
@@ -1204,11 +1204,11 @@
       ]
     },
     "SoundConfig": {
-      "description": "Configuration for mission sound notifications.",
+      "description": "Sound configuration.",
       "type": "object",
       "properties": {
         "base_volume": {
-          "description": "Base volume used when playing configured sounds.",
+          "description": "Base volume, acting as a multiplier for the volume of specific sounds.",
           "type": [
             "string",
             "null"
