@@ -3,7 +3,7 @@ use {
     serde::Deserialize,
 };
 
-/// Export backend available for Bacon exports.
+/// Export backend.
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum Exporter {
