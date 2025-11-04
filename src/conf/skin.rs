@@ -13,6 +13,7 @@ macro_rules! BaconSkin {
         paste! {
             $(
                 $(#[$meta])*
+                #[doc=concat!(" - default value: ", stringify!($default))]
                 #[derive(Debug, Clone, Copy, Default, Deserialize, PartialEq, JsonSchema)]
                 #[serde(untagged)]
                 pub enum [<Defaulting$name:camel>] {
@@ -65,73 +66,73 @@ macro_rules! BaconSkin {
 
 // The colors of Bacon, with default values (ANSI color codes, in 0-255)
 BaconSkin! {
-    /// Foreground color of the status line (default: 252).
+    /// Foreground color of the status line
     status_fg: 252,
-    /// Background color of the status line (default: 239).
+    /// Background color of the status line
     status_bg: 239,
-    /// Foreground color used for key shortcuts in the UI (default: 204).
+    /// Foreground color used for key shortcuts in the UI
     key_fg: 204,
-    /// Foreground color for key shortcuts displayed in the status line (default: 204).
+    /// Foreground color for key shortcuts displayed in the status line
     status_key_fg: 204,
-    /// Foreground color of the project name badge (default: 255).
+    /// Foreground color of the project name badge
     project_name_badge_fg: 255,
-    /// Background color of the project name badge (default: 240).
+    /// Background color of the project name badge
     project_name_badge_bg: 240,
-    /// Foreground color of the job label badge (default: 235).
+    /// Foreground color of the job label badge
     job_label_badge_fg: 235,
-    /// Background color of the job label badge (default: 204).
+    /// Background color of the job label badge
     job_label_badge_bg: 204,
-    /// Foreground color of the errors badge (default: 235).
+    /// Foreground color of the errors badge
     errors_badge_fg: 235,
-    /// Background color of the errors badge (default: 9).
+    /// Background color of the errors badge
     errors_badge_bg: 9,
-    /// Foreground color of the failing-tests badge (default: 235).
+    /// Foreground color of the failing-tests badge
     test_fails_badge_fg: 235,
-    /// Background color of the failing-tests badge (default: 208).
+    /// Background color of the failing-tests badge
     test_fails_badge_bg: 208,
-    /// Foreground color of the passing-tests badge (default: 254).
+    /// Foreground color of the passing-tests badge
     test_pass_badge_fg: 254,
-    /// Background color of the passing-tests badge (default: 2).
+    /// Background color of the passing-tests badge
     test_pass_badge_bg: 2,
-    /// Foreground color of the warnings badge (default: 235).
+    /// Foreground color of the warnings badge
     warnings_badge_fg: 235,
-    /// Background color of the warnings badge (default: 11).
+    /// Background color of the warnings badge
     warnings_badge_bg: 11,
-    /// Foreground color of the command-error badge (default: 235).
+    /// Foreground color of the command-error badge
     command_error_badge_fg: 235,
-    /// Background color of the command-error badge (default: 9).
+    /// Background color of the command-error badge
     command_error_badge_bg: 9,
-    /// Foreground color of the dismissed badge (default: 235).
+    /// Foreground color of the dismissed badge
     dismissed_badge_fg: 235,
-    /// Background color of the dismissed badge (default: 6).
+    /// Background color of the dismissed badge
     dismissed_badge_bg: 6,
-    /// Foreground color of the change badge (default: 235).
+    /// Foreground color of the change badge
     change_badge_fg: 235,
-    /// Background color of the change badge (default: 6).
+    /// Background color of the change badge
     change_badge_bg: 6,
-    /// Foreground color of the "computing..." indicator (default: 235).
+    /// Foreground color of the "computing..." indicator
     computing_fg: 235,
-    /// Background color of the "computing..." indicator (default: 204).
+    /// Background color of the "computing..." indicator
     computing_bg: 204,
-    /// Foreground color of search matches (default: 208).
+    /// Foreground color of search matches
     found_fg: 208,
-    /// Background color of the selected search match (default: 208).
+    /// Background color of the selected search match
     found_selected_bg: 208,
-    /// Foreground color of the '/' search prefix (default: 208).
+    /// Foreground color of the '/' search prefix
     search_input_prefix_fg: 208,
-    /// Foreground color of the search summary (default: 208).
+    /// Foreground color of the search summary
     search_summary_fg: 208,
-    /// Border color used for menus (default: 234).
+    /// Border color used for menus
     menu_border: 234,
-    /// Background color used for menus (default: 235).
+    /// Background color used for menus
     menu_bg: 235,
-    /// Background color of individual menu items (default: 235).
+    /// Background color of individual menu items
     menu_item_bg: 235,
-    /// Background color of the selected menu item (default: 239).
+    /// Background color of the selected menu item
     menu_item_selected_bg: 239,
-    /// Foreground color of menu items (default: 250).
+    /// Foreground color of menu items
     menu_item_fg: 250,
-    /// Foreground color of the selected menu item (default: 255).
+    /// Foreground color of the selected menu item
     menu_item_selected_fg: 255,
 }
 
