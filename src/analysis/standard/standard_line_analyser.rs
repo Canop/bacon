@@ -77,12 +77,12 @@ fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
                     body.csi.as_ref(),
                     body.raw.as_ref(),
                 ) {
-                    (CSI_BOLD_RED, "error", CSI_ERROR_BODY, body_raw)
+                    (CSI_BOLD_RED | CSI_BOLD_4BIT_RED, "error", CSI_ERROR_BODY, body_raw)
                         if body_raw.starts_with(": aborting due to") =>
                     {
                         LineType::Title(Kind::Sum)
                     }
-                    (CSI_BOLD_RED, title_raw, CSI_ERROR_BODY, _)
+                    (CSI_BOLD_RED | CSI_BOLD_4BIT_RED, title_raw, CSI_ERROR_BODY, _)
                         if title_raw.starts_with("error") =>
                     {
                         LineType::Title(Kind::Error)
@@ -95,10 +95,14 @@ fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
                     (CSI_BOLD_YELLOW | CSI_BOLD_4BIT_YELLOW, "warning", _, body_raw) => {
                         determine_warning_type(body_raw, content)
                     }
-                    ("", title_raw, CSI_BOLD_BLUE, "--> ") if is_spaces(title_raw) => {
+                    ("", title_raw, CSI_BOLD_BLUE | CSI_BOLD_4BIT_BLUE, "--> ")
+                        if is_spaces(title_raw) =>
+                    {
                         LineType::Location
                     }
-                    ("", title_raw, CSI_BOLD_BLUE, "::: ") if is_spaces(title_raw) => {
+                    ("", title_raw, CSI_BOLD_BLUE | CSI_BOLD_4BIT_BLUE, "::: ")
+                        if is_spaces(title_raw) =>
+                    {
                         LineType::Location
                     }
                     ("", k, CSI_BOLD_RED | CSI_RED, "FAILED") if content.strings.len() == 2 => {
