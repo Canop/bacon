@@ -1,5 +1,5 @@
-<a name="v3.20.0"></a>
-### v3.20.0 - 2025/11/12
+<a name="v3.20.1"></a>
+### v3.20.1 - 2025/11/12
 - `--generate-config-schema` generates a schema for bacon configuration files, with . Bacon users don't have to call it as the schema is web hosted and should be automatically picked by TOML editors (if necessary, you can help the editor by starting bacon.toml files with `#:schema https://dystroy.org/bacon/.bacon.schema.json`)
 - fix rustc analyzer for changes in cargo nightly output related to error and panic messages - Thanks @narpfel
 
