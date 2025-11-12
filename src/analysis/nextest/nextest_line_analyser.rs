@@ -187,7 +187,7 @@ fn is_location_v3(content: &TLine) -> bool {
         return false;
     }
     regex_is_match!(
-        r#"^\s*thread '.+' panicked at [^:\s'"]+:\d+:\d+:$"#,
+        r#"^\s*thread '.+'( \(\d+\))? panicked at [^:\s'"]+:\d+:\d+:$"#,
         &ts.raw
     )
 }
