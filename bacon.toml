@@ -28,6 +28,14 @@ analyzer = "cargo_json"
 command = ["cargo", "check"]
 need_stdout = false
 
+[jobs.check-nightly]
+command = [
+	"cargo", "+nightly",
+	"check",
+	"--all-targets",
+]
+need_stdout = false
+
 [jobs.check-all]
 command = [
 	"cargo", "check",
