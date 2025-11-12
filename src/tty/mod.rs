@@ -27,7 +27,6 @@ pub const CSI_BOLD_YELLOW: &str = "\u{1b}[1m\u{1b}[33m";
 pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;14m";
 #[cfg(not(windows))]
 pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;12m";
-#[cfg(not(windows))]
 pub const CSI_BOLD_4BIT_BLUE: &str = "\u{1b}[1m\u{1b}[94m";
 
 #[cfg(windows)]
