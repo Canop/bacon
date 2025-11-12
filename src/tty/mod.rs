@@ -11,6 +11,7 @@ pub const CSI_GREEN: &str = "\u{1b}[32m";
 
 pub const CSI_RED: &str = "\u{1b}[31m";
 pub const CSI_BOLD_RED: &str = "\u{1b}[1m\u{1b}[38;5;9m";
+pub const CSI_BOLD_4BIT_RED: &str = "\u{1b}[1m\u{1b}[91m";
 pub const CSI_BOLD_ORANGE: &str = "\u{1b}[1m\u{1b}[38;5;208m";
 pub const CSI_BOLD_GREEN: &str = "\u{1b}[1m\u{1b}[38;5;34m";
 
@@ -26,6 +27,8 @@ pub const CSI_BOLD_YELLOW: &str = "\u{1b}[1m\u{1b}[33m";
 pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;14m";
 #[cfg(not(windows))]
 pub const CSI_BOLD_BLUE: &str = "\u{1b}[1m\u{1b}[38;5;12m";
+#[cfg(not(windows))]
+pub const CSI_BOLD_4BIT_BLUE: &str = "\u{1b}[1m\u{1b}[94m";
 
 #[cfg(windows)]
 pub const CSI_BOLD_4BIT_YELLOW: &str = "\u{1b}[1m\u{1b}[33m";
