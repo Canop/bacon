@@ -4,7 +4,7 @@ use {
         cargo_json,
         cpp,
         eslint,
-        nextest,
+        nextest_json,
         python,
         standard,
         swift,
@@ -42,7 +42,8 @@ impl AnalyzerRef {
     pub fn create_analyzer(self) -> Box<dyn Analyzer> {
         match self {
             Self::Standard => Box::new(standard::StandardAnalyzer::default()),
-            Self::Nextest => Box::new(nextest::NextestAnalyzer::default()),
+            //Self::Nextest => Box::new(nextest::NextestAnalyzer::default()),
+            Self::Nextest => Box::new(nextest_json::NextestJSONAnalyzer::default()),
             Self::Eslint => Box::new(eslint::EslintAnalyzer::default()),
             Self::Biome => Box::new(biome::BiomeAnalyzer::default()),
             Self::PythonUnittest => Box::new(python::unittest::UnittestAnalyzer::default()),
