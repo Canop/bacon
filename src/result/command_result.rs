@@ -22,10 +22,10 @@ pub enum CommandResult {
 impl CommandResult {
     pub fn build(
         output: CommandOutput,
-        exit_status: Option<ExitStatus>,
+        exit_status: ExitStatus,
         mut report: Report,
     ) -> Result<Self> {
-        let error_code = exit_status.and_then(|s| s.code()).filter(|&c| c != 0);
+        let error_code = exit_status.code().filter(|&c| c != 0);
         debug!("report stats: {:?}", &report.stats);
         if let Some(error_code) = error_code {
             let stats = &report.stats;

@@ -427,7 +427,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
     }
     pub fn finish_task(
         &mut self,
-        exit_status: Option<ExitStatus>,
+        exit_status: ExitStatus,
     ) -> Result<()> {
         let output = self.take_output().unwrap_or_default();
         let result = self.report_maker.build_result(output, exit_status)?;
