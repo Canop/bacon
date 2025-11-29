@@ -1,0 +1,50 @@
+title: Bacon
+description: "Bacon, a background compiler"
+favicon: img/favicon.ico
+
+// All pages must be listed here
+// One of them must be index.md
+pages: {
+    Overview: index.md
+    Config: config.md
+    Analyzers: analyzers.md
+    Cookbook: cookbook.md
+    Community: {
+        "Bacon Dev": community/bacon-dev.md
+        FAQ: community/FAQ.md
+        bacon-ls: community/bacon-ls.md
+        nvim-bacon: community/nvim-bacon.md
+    }
+}
+
+nav_links: {
+    // Nav links can have { img, url, class, label}, all optional
+    // URL starting with '/' are relative to the site's root
+    before_menu: [
+        {
+            img: img/dystroy-rust-white.svg
+            url: https://dystroy.org
+            alt: dystroy.org homepage
+            class: external-nav-link
+        }
+        {
+            img: img/logo-white.svg
+            url: /index.md
+            alt: Bacon homepage
+            class: bacon-nav-logo
+        }
+    ]
+    after_menu: [
+        {
+            img: img/github-mark-white.svg
+            class: external-nav-link
+            alt: GitHub
+            url: https://github.com/Canop/bacon
+        }
+    ]
+}
+
+// UI options
+ui: {
+    hamburger_checkbox: true
+}

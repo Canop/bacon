@@ -61,11 +61,11 @@ You can configure and launch the jobs of your choice: tests, specific target com
 
 Hit <kbd>ctrl</kbd><kbd>j</kbd> to see all jobs.
 
-Run `bacon --help` to see all launch arguments, and read the [cookbook](cookbook).
+Run `bacon --help` to see all launch arguments, and read the [cookbook](cookbook.md).
 
 # Configuration
 
-See [config](config) for details, but here's the crust:
+See [config](config.md) for details, but here's the crust:
 
 ## Global Preferences
 

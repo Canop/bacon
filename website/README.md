@@ -1,13 +1,14 @@
 
 Bacon's website is live at https://dystroy.org/bacon
 
-It's built using [mkdocs](https://www.mkdocs.org/) (minimal version: 1.0.4).
+It's built using ddoc
 
 To test it locally, cd to the website directory then
 
-	mkdocs serve
+	ddoc --serve
 
 To build it, do
 
-	mkdocs build
+	ddoc
+
 

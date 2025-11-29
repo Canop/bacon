@@ -1,7 +1,7 @@
 
 **Bacon** is developed by **Denys Séguret**, also known as [Canop](https://github.com/Canop) or [dystroy](https://dystroy.org).
 
-Major updates are announced on my Mastodon account: [@dystroy@mastodon.dystroy.org](https://mastodon.dystroy.org/@dystroy).
+Major updates are announced on Mastodon : [@dystroy@mastodon.dystroy.org](https://mastodon.dystroy.org/@dystroy) and BlueSky: [@dystroy.bsky.social](https://bsky.app/profile/dystroy.bsky.social)
 
 The logo has been designed by [Peter Varo](https://petervaro.com).
 
