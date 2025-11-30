@@ -12,7 +12,7 @@
 	--link-fg: #000;
 	--code-fg: #111;
 	--code-bg: #ffc8c8aa;
-	--inline-code-border: solid 1px #999;
+	--inline-code-border: solid 1px #9443;
 	--hovered-menu-bg: linear-gradient(#444, var(--accent));
 }
 
@@ -408,7 +408,7 @@ pre {
 	overflow-x: auto;
 }
 
-code ul.nav-menu {
+code {
     padding: 2px 5px;
     background: #fff;
     white-space: pre-wrap;
