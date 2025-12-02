@@ -1,19 +1,22 @@
+### next
+- fix dependencies not compatible with rust MSRV - Fix #407 - Thanks @alerque
+
 <a name="v3.20.1"></a>
 ### v3.20.1 - 2025/11/12
-- `--generate-config-schema` generates a schema for bacon configuration files, with . Bacon users don't have to call it as the schema is web hosted and should be automatically picked by TOML editors (if necessary, you can help the editor by starting bacon.toml files with `#:schema https://dystroy.org/bacon/.bacon.schema.json`)
+- `--generate-config-schema` generates a schema for bacon configuration files. Bacon users don't have to call it as the schema is web hosted and should be automatically picked by TOML editors (if necessary, you can help the editor by starting bacon.toml files with `#:schema https://dystroy.org/bacon/.bacon.schema.json`)
 - fix rustc analyzer for changes in cargo nightly output related to error and panic messages - Thanks @narpfel
 
 <a name="v3.19.0"></a>
 ### v3.19.0 - 2025/10/13
 - update notify to fix a crash on BSD - Thanks @omarandlorraine
-- order list of jobs visible eg on shell completion - Fix #390
+- order list of jobs (visible eg on shell completion) - Fix #390
 #### Major feature: commands to dismiss and undismiss items or types of items
 This makes it practical and efficient to do occasional "pedantic" reviews of your code - Fix #304
 I wrote a blog post about it: https://dystroy.org/blog/practical-pedantism/
 
 <a name="v3.18.0"></a>
 ### v3.18.0 - 2025/08/29
-- key bindings can use the `cmd` modifier (called "Command", "Super", "Windows", depending on the system)
+- key bindings can use the `cmd` modifier key (called "Command", "Super", "Windows", depending on the system)
 - with `hide_scrollbar = true`, you can make copy-pasting easier - Thanks @JeanMertz
 - when project dir isn't specified explicitly (with `--project`) bacon looks for an enclosing dir having a bacon.toml or Cargo.toml file - Fix #385
 
