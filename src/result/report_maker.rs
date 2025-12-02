@@ -51,7 +51,7 @@ impl ReportMaker {
     pub fn build_result(
         &mut self,
         output: CommandOutput,
-        exit_status: Option<ExitStatus>,
+        exit_status: ExitStatus,
     ) -> Result<CommandResult> {
         let report = self.analyzer.build_report()?;
         let result = CommandResult::build(output, exit_status, report)?;

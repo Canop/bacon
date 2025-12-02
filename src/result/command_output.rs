@@ -37,7 +37,7 @@ pub struct CommandOutput {
 #[derive(Debug)]
 pub enum CommandExecInfo {
     /// Command ended
-    End { status: Option<ExitStatus> },
+    End { status: ExitStatus },
 
     /// Bacon killed the command
     Interruption,

@@ -199,7 +199,7 @@ impl MissionExecutor {
             match stop_receiver.recv() {
                 Ok(stop) => match stop {
                     StopMessage::SendStatus => {
-                        let status = child.try_wait();
+                        let status = child.wait();
                         if let Ok(status) = status {
                             let _ = line_sender.send(CommandExecInfo::End { status });
                         }
