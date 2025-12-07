@@ -2,8 +2,6 @@ title: Bacon
 description: "Bacon, a background compiler"
 favicon: img/favicon.ico
 
-// All pages must be listed here
-// One of them must be index.md
 pages: {
     Overview: index.md
     Config: config.md
@@ -17,9 +15,8 @@ pages: {
     }
 }
 
+// Nav links can have { img, href, class, label}, all fields optional.
 nav_links: {
-    // Nav links can have { img, url, class, label}, all optional
-    // URL starting with '/' are relative to the site's root
     before_menu: [
         {
             img: img/dystroy-rust-white.svg
@@ -36,15 +33,24 @@ nav_links: {
     ]
     after_menu: [
         {
+            img: img/ddoc-search.svg
+            href: --search
+            class: search-opener
+            alt: Search
+        }
+        {
             img: img/github-mark-white.svg
             class: external-nav-link
             alt: GitHub
-            url: https://github.com/Canop/bacon
+            href: https://github.com/Canop/bacon
         }
     ]
 }
 
 // UI options
 ui: {
+    // if true, the generated HTML includes a checkbox which
+    // can be styled into a hamburger menu for small screens
     hamburger_checkbox: true
 }
+

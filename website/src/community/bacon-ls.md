@@ -16,7 +16,7 @@
 * Replacement code actions as suggested by `clippy`.
 * Automatic validation of `bacon` preferences to ensure `bacon-ls` can work with them.
 * Start `bacon` in background based on user preferences (requires `bacon` 3.8.0).
-* Synchronize diagnostics for all open files. 
+* Synchronize diagnostics for all open files.
 
 # Installation
 
@@ -173,7 +173,7 @@ Enable debug logging in the extension options.
 # How does it work?
 
 Bacon-ls reads the diagnostics location list generated
-by [Bacon's export-locations](../../config/#exports)
+by [Bacon's export-locations](/config/#exports)
 and exposes them on STDIO over the LSP protocol to be consumed
 by the client diagnostics.
 
