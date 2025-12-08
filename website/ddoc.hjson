@@ -1,3 +1,5 @@
+# A configuration file for ddoc, see https://dystroy.org/ddoc
+
 title: Bacon
 description: "Bacon, a background compiler"
 favicon: img/favicon.ico
@@ -15,9 +17,9 @@ pages: {
     }
 }
 
-// Nav links can have { img, href, class, label}, all fields optional.
-nav_links: {
-    before_menu: [
+// Nav links can have { img, href, class, label, alt }, all fields optional.
+header: {
+    before-menu: [
         {
             img: img/dystroy-rust-white.svg
             url: https://dystroy.org
@@ -31,7 +33,8 @@ nav_links: {
             class: bacon-nav-logo
         }
     ]
-    after_menu: [
+    middle: menu
+    after-menu: [
         {
             img: img/ddoc-search.svg
             href: --search
