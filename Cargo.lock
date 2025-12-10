@@ -147,7 +147,7 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "bacon"
-version = "3.20.2"
+version = "3.20.3"
 dependencies = [
  "anyhow",
  "arboard",

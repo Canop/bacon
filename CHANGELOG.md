@@ -1,3 +1,7 @@
+<a name="v3.20.3"></a>
+### v3.20.3 - 2025/12/10
+- fix a compilation problem of the "sound" feature - Fix #412 - Thanks @orhun
+
 <a name="v3.20.2"></a>
 ### v3.20.2 - 2025/12/10
 - fix dependencies not compatible with rust MSRV - Fix #407 - Thanks @alerque
