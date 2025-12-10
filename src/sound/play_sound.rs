@@ -1,6 +1,6 @@
 use {
     super::*,
-    rodio::OutputStream,
+    rodio::OutputStreamBuilder,
     std::{
         fmt,
         io::Cursor,
@@ -130,9 +130,9 @@ pub fn play_sound(
 ) -> Result<(), SoundError> {
     debug!("play sound: {:#?}", psc);
     let Sound { bytes, duration } = get_sound(psc.name.as_deref())?;
-    let (_stream, stream_handle) = OutputStream::try_default()?;
+    let stream = OutputStreamBuilder::open_default_stream()?;
     let sound = Cursor::new(bytes);
-    let sink = stream_handle.play_once(sound)?;
+    let sink = rodio::play(stream.mixer(), sound)?;
     sink.set_volume(psc.volume.as_part());
     if interrupt.recv_timeout(duration).is_ok() {
         info!("sound interrupted");
