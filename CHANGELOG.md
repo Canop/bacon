@@ -1,5 +1,7 @@
-### next
+<a name="v3.20.2"></a>
+### v3.20.2 - 2025/12/10
 - fix dependencies not compatible with rust MSRV - Fix #407 - Thanks @alerque
+- display message on sound when not enabled - Fix #410
 
 <a name="v3.20.1"></a>
 ### v3.20.1 - 2025/11/12
