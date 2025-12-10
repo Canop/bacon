@@ -60,7 +60,10 @@ fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
         } else if regex_is_match!(r#"^\s+--> [^:\s'"]+:\d+:\d+$"#, content) {
             // this comes up in test failures to compile
             LineType::Location
-        } else if regex_is_match!(r#"^thread '.+'( \(\d+\))? panicked at [^:\s'"]+:\d+:\d+:$"#, content) {
+        } else if regex_is_match!(
+            r#"^thread '.+'( \(\d+\))? panicked at [^:\s'"]+:\d+:\d+:$"#,
+            content
+        ) {
             // this comes up in test failures
             LineType::Location
         } else {

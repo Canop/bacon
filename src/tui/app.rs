@@ -125,6 +125,7 @@ fn run_mission(
     let grace_period = mission.job.grace_period();
 
     let sound_player = mission.sound_player_if_needed();
+    let mut sound_not_enabled_message_already_displayed = false;
 
     // build the watcher detecting and transmitting mission file changes
     let ignorer = time!(Info, mission.ignorer());
@@ -363,8 +364,20 @@ fn run_mission(
                 Action::PlaySound(play_sound_command) => {
                     if let Some(sound_player) = &sound_player {
                         sound_player.play(play_sound_command.clone());
-                    } else {
-                        debug!("sound not enabled");
+                    } else if !sound_not_enabled_message_already_displayed {
+                        let message = {
+                            #[cfg(not(feature = "sound"))]
+                            {
+                                "Sound requested but not enabled in this build"
+                            }
+                            #[cfg(feature = "sound")]
+                            {
+                                "Sound requested but not enabled in config"
+                            }
+                        };
+                        debug!("{}", message);
+                        sound_not_enabled_message_already_displayed = true;
+                        mission_state.messages.push(Message::short(message));
                     }
                 }
                 Action::PreviousMatch => {
