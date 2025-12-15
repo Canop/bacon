@@ -47,8 +47,6 @@ This file usually contains project specific jobs and shortcuts and should be sav
 
 It's a good idea to put here the triggers for specific jobs.
 
-The [default bacon.toml](https://raw.githubusercontent.com/Canop/bacon/main/defaults/default-bacon.toml) is used when you don't create a file.
-
 
 # Jobs
 
