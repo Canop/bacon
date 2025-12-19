@@ -125,7 +125,6 @@ command = [
 need_stdout = false
 
 [skin]
-menu_bg = 3
 change_badge_bg = 5
 
 [keybindings]
