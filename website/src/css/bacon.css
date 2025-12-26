@@ -19,6 +19,7 @@
 	--search-result-border: none;
 	--search-results-bg: linear-gradient(#ddd,#ccc);
 	--search-result-link-fg: #000c;
+	--selected-search-result-bg: #3335;
 	--hovered-search-result-link-fg: #000;
 }
 
@@ -590,18 +591,24 @@ table > thead > tr > th {
 	flex-direction: column;
 	overflow-y: auto;
 	background: var(--search-results-bg);
-	padding: 10px;
+	padding: 0 0 20px 0;
 	border-radius: 0 0 10px 10px;
+}
+.ddoc-search-no-result {
+	padding: 10px;
 }
 .ddoc-search-result + .ddoc-search-result {
 	border-top: var(--search-result-border);
 }
 .ddoc-search-result {
 	flex: 0 0 auto;
-	padding: 5px;
+	padding: 10px;
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
+}
+.ddoc-search-result-selected {
+	background: var(--selected-search-result-bg);
 }
 .ddoc-search-result-path {
 	flex: 0 0 auto;

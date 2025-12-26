@@ -63,6 +63,7 @@ impl HelpPage {
             .keybindings
             .build_reverse_map()
             .into_iter()
+            .filter(|(action, _)| **action != Action::NoOp)
             .map(|(action, cks)| {
                 let cks: Vec<String> = cks.iter().map(|ck| format!("*{ck}*")).collect();
                 let cks = cks.join(" or ");
