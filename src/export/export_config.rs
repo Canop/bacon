@@ -21,4 +21,3 @@ pub struct ExportConfig {
     /// Optional format string used by exporters that write line-based data.
     pub line_format: Option<String>,
 }
-

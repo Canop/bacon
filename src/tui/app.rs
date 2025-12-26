@@ -281,6 +281,7 @@ fn run_mission(
             }
         }
         for action in actions.drain(..) {
+            let mut rerun = false;
             debug!("requested action: {action:?}");
             match action {
                 Action::Back => {
@@ -311,12 +312,15 @@ fn run_mission(
                 }
                 Action::UndismissAll => {
                     mission_state.undismiss_all();
+                    rerun = true;
                 }
                 Action::UndismissLocation(location) => {
                     mission_state.remove_dismissal(&Dismissal::Location(location));
+                    rerun = true;
                 }
                 Action::UndismissDiagType(diag_type) => {
                     mission_state.remove_dismissal(&Dismissal::DiagType(diag_type));
+                    rerun = true;
                 }
                 Action::OpenUndismissMenu => {
                     mission_state.open_undismiss_menu();
@@ -388,15 +392,11 @@ fn run_mission(
                     break;
                 }
                 Action::ReRun => {
-                    task_executor.die();
-                    task_executor = mission_state.start_computation(&mut executor)?;
-                    break; // drop following actions
+                    rerun = true;
                 }
                 Action::Refresh => {
                     mission_state.clear();
-                    task_executor.die();
-                    task_executor = mission_state.start_computation(&mut executor)?;
-                    break; // drop following actions
+                    rerun = true;
                 }
                 Action::ReloadConfig => {
                     mission_end = Some(DoAfterMission::ReloadConfig);
@@ -415,9 +415,7 @@ fn run_mission(
                 }
                 Action::ToggleBacktrace(level) => {
                     mission_state.toggle_backtrace(level);
-                    task_executor.die();
-                    task_executor = mission_state.start_computation(&mut executor)?;
-                    break; // drop following actions
+                    rerun = true;
                 }
                 Action::TogglePause => match mission_state.auto_refresh {
                     AutoRefresh::Enabled => {
@@ -426,10 +424,7 @@ fn run_mission(
                     AutoRefresh::Paused => {
                         mission_state.auto_refresh = AutoRefresh::Enabled;
                         if mission_state.changes_since_last_job_start > 0 {
-                            mission_state.clear();
-                            task_executor.die();
-                            task_executor = mission_state.start_computation(&mut executor)?;
-                            break; // drop following actions
+                            rerun = true;
                         }
                     }
                 },
@@ -444,16 +439,19 @@ fn run_mission(
                 }
                 Action::Unpause => {
                     if mission_state.changes_since_last_job_start > 0 {
-                        mission_state.clear();
-                        task_executor.die();
-                        task_executor = mission_state.start_computation(&mut executor)?;
-                        break; // drop following actions
+                        rerun = true;
+                    } else {
+                        mission_state.auto_refresh = AutoRefresh::Enabled;
                     }
-                    mission_state.auto_refresh = AutoRefresh::Enabled;
                 }
                 Action::Validate => {
                     mission_state.validate();
                 }
+            }
+            if rerun {
+                task_executor.die();
+                task_executor = mission_state.start_computation(&mut executor)?;
+                break; // drop following actions
             }
         }
         if !headless {
