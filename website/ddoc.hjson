@@ -1,10 +1,10 @@
-# A configuration file for ddoc, see https://dystroy.org/ddoc
+# A configuration file for ddoc - see https://dystroy.org/ddoc
 
 title: Bacon
 description: "Bacon, a background compiler"
 favicon: img/favicon.ico
 
-pages: {
+site-map: {
     Overview: index.md
     Config: config.md
     Analyzers: analyzers.md
@@ -17,43 +17,41 @@ pages: {
     }
 }
 
-// Nav links can have { img, href, class, label, alt }, all fields optional.
-header: {
-    before-menu: [
-        {
-            img: img/dystroy-rust-white.svg
-            url: https://dystroy.org
-            alt: dystroy.org homepage
-            class: external-nav-link
+body: {
+    header: {
+        nav.before-menu: {
+            ddoc-link.external-nav-link: {
+                img: img/dystroy-rust-white.svg
+                href: https://dystroy.org
+                alt: dystroy.org homepage
+            }
+            ddoc-link.bacon-nav-logo: {
+                img: img/logo-white.svg
+                href: /index.md
+                alt: Bacon homepage
+            }
         }
-        {
-            img: img/logo-white.svg
-            url: /index.md
-            alt: Bacon homepage
-            class: bacon-nav-logo
+        ddoc-menu: {
+            hamburger-checkbox: true
         }
-    ]
-    middle: menu
-    after-menu: [
-        {
-            img: img/ddoc-search.svg
-            href: --search
-            class: search-opener
-            alt: Search
+        nav.after-menu: {
+            ddoc-link.search-opener: {
+                img: img/ddoc-search.svg
+                href: --search
+                alt: Search
+            }
+            ddoc-link.external-nav-link: {
+                img: img/github-mark-white.svg
+                alt: GitHub
+                href: https://github.com/Canop/bacon
+            }
         }
-        {
-            img: img/github-mark-white.svg
-            class: external-nav-link
-            alt: GitHub
-            href: https://github.com/Canop/bacon
+    }
+    article: {
+        aside.page-nav: {
+            ddoc-toc: {}
         }
-    ]
-}
-
-// UI options
-ui: {
-    // if true, the generated HTML includes a checkbox which
-    // can be styled into a hamburger menu for small screens
-    hamburger_checkbox: true
+        ddoc-main: {}
+    }
 }
 

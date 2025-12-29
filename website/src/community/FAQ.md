@@ -21,7 +21,7 @@ Bacon is efficient and doesn't work when there's no notification.
 
 # Supported platforms
 
-It works on all decent terminals on Linux, Max OSX and Windows.
+It works on all decent terminals on Linux, Mac, and Windows.
 
 # Vim & Neovim support
 
