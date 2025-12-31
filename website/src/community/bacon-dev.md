@@ -43,3 +43,11 @@ If you think you might help, as a tester or coder, you're welcome, but please re
 
 
 **Don't open a PR without discussing the design before**, either in the chat or in an issue, unless you're just fixing a typo. Coding is the easy part. Determining the exact requirement and how we want it to be done is the hard part. This is especially important if you plan to add a dependency or to change the visible parts, eg the launch arguments.
+
+# This documentation...
+
+... needs your help too.
+
+Tell me what seems to be unclear or missing.
+
+Or for simple corrections, head to [the source](https://github.com/Canop/bacon/tree/main/website)

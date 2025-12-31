@@ -3,7 +3,6 @@
 :root {
 	--text: #222;
 	--accent: #ff8080;
-	--dark-accent: #22790a88;
 	--bg: #fff;
 	--nav-bg: linear-gradient(#444,#222);
 	--hovered-menu-bg: linear-gradient(#444, var(--accent));
@@ -21,6 +20,8 @@
 	--search-result-link-fg: #000c;
 	--selected-search-result-bg: #3335;
 	--hovered-search-result-link-fg: #000;
+	--thead-border: thin solid #555a;
+	--tr-border: thin solid #ffc8c877;
 }
 
 html, body, div, nav, header {
@@ -49,12 +50,13 @@ nav li {
 
 kbd {
 	padding: 2px 4px;
-	color: var(--accent);
+    color: #fff;
 	background: var(--nav-bg);
-	border-radius: 2px;
 	box-shadow: none;
 	font-weight: bold;
 	margin: 1px;
+    font-size: 85%;
+    border-radius: 3px;
 }
 
 kbd.b {
@@ -440,11 +442,10 @@ main p.logo img {
 
 main h1 {
 	font-size: 22px;
-	font-weight: 400;
 	border-bottom: solid 1px;
 	padding-bottom: 8px;
-	margin: 40px 0 25px 0;
-	border-image-source: linear-gradient(to right, var(--accent), #888);
+	margin: 50px 0 30px 0;
+	border-image-source: linear-gradient(to right, var(--accent), #fffa);
 	border-image-slice: 1;
 	color: #111;
 }
@@ -487,14 +488,6 @@ pre code {
     font-size: 12px;
 }
 
-kbd {
-    padding: 2px 4px;
-    font-size: 90%;
-    color: #fff;
-    background-color: #333;
-    border-radius: 3px;
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,.25);
-}
 pre {
 	padding: 0;
 	border-radius: 5px;
@@ -533,15 +526,16 @@ main a:hover {
 
 table {
 	margin: 10px 0 30px 0;
+	border-collapse: collapse;
 }
 th, td {
-	padding: 8px 4px;
+	padding: 10px 4px;
 }
-table > thead > tr > th, table > tbody > tr > th, table > tfoot > tr > th, table > thead > tr > td, table > tbody > tr > td, table > tfoot > tr > td {
-    border-top: 1px solid var(--dark-accent);
+table > thead tr {
+	border-bottom: var(--thead-border);
 }
-table > thead > tr > th {
-    border-bottom: 2px solid var(--dark-accent);
+table tr td {
+	border-bottom: var(--tr-border);
 }
 
 /* search */
