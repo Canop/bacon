@@ -51,6 +51,7 @@ pub enum Action {
     ReloadConfig,
     ScopeToFailures,
     Scroll(ScrollCommand),
+    SelectItem(SelectItemCommand),
     ToggleBacktrace(&'static str),
     TogglePause, // either pause or unpause
     ToggleRawOutput,
@@ -94,6 +95,7 @@ impl Md for Action {
             Self::ReloadConfig => "reload configuration files".to_string(),
             Self::ScopeToFailures => "scope to failures".to_string(),
             Self::Scroll(scroll_command) => scroll_command.doc(),
+            Self::SelectItem(sic) => sic.doc(),
             Self::ToggleBacktrace(level) => format!("toggle backtrace ({level})"),
             Self::TogglePause => "toggle pause".to_string(),
             Self::ToggleRawOutput => "toggle raw output".to_string(),
@@ -210,6 +212,9 @@ impl fmt::Display for Action {
             Self::ReloadConfig => write!(f, "reload-config"),
             Self::ScopeToFailures => write!(f, "scope-to-failures"),
             Self::Scroll(scroll_command) => scroll_command.fmt(f),
+            Self::SelectItem(SelectItemCommand { item_idx }) => {
+                write!(f, "select-item({item_idx})")
+            }
             Self::ToggleBacktrace(level) => write!(f, "toggle-backtrace({level})"),
             Self::TogglePause => write!(f, "toggle-pause"),
             Self::ToggleRawOutput => write!(f, "toggle-raw-output"),
@@ -306,6 +311,12 @@ impl FromStr for Action {
                 Self::PlaySound(PlaySoundCommand { name, volume })
             }
             r"^(?:internal:)?focus[_-]file\((?<file>.*)\)$" => Self::FocusFile(FocusFileCommand::new(file)),
+            r"^(?:internal:)?select[_-]item\((?<item_idx>\d+)\)$" => {
+                let item_idx = item_idx.parse::<usize>().map_err(|_| {
+                    ParseActionError::UnknownAction(format!("invalid item_idx: {item_idx}"))
+                })?;
+                Self::SelectItem(SelectItemCommand { item_idx })
+            }
             r"^(?:internal:)?(?<cmd>scroll.+)$" => {
                 let cmd = ScrollCommand::from_str(cmd)
                     .map_err(|_| ParseActionError::InvalidScrollCommand(cmd.to_string()))?;
@@ -451,6 +462,10 @@ fn test_action_string_round_trip() {
             name: None,
             volume: Volume::new(0),
         }),
+        Action::SelectItem(SelectItemCommand { item_idx: 0 }),
+        Action::SelectItem(SelectItemCommand { item_idx: 1 }),
+        Action::SelectItem(SelectItemCommand { item_idx: 42 }),
+        Action::FocusFile(FocusFileCommand::new("src/main.rs")),
     ];
     for action in actions {
         println!("action: {}", action.to_string());
@@ -480,4 +495,40 @@ fn test_play_sound_parsing_with_space() {
         let action: Action = string.parse().unwrap();
         assert_eq!(action, Action::PlaySound(psc.clone()));
     }
+}
+
+/// Check that select-item action can be parsed with different formats
+#[test]
+fn test_select_item_parsing() {
+    use {
+        crate::Action,
+        pretty_assertions::assert_eq,
+    };
+    // Test basic parsing
+    let action: Action = "select-item(5)".parse().unwrap();
+    assert_eq!(
+        action,
+        Action::SelectItem(SelectItemCommand { item_idx: 5 })
+    );
+
+    // Test with underscore
+    let action: Action = "select_item(10)".parse().unwrap();
+    assert_eq!(
+        action,
+        Action::SelectItem(SelectItemCommand { item_idx: 10 })
+    );
+
+    // Test with internal: prefix
+    let action: Action = "internal:select-item(0)".parse().unwrap();
+    assert_eq!(
+        action,
+        Action::SelectItem(SelectItemCommand { item_idx: 0 })
+    );
+
+    // Test large number
+    let action: Action = "select-item(999)".parse().unwrap();
+    assert_eq!(
+        action,
+        Action::SelectItem(SelectItemCommand { item_idx: 999 })
+    );
 }

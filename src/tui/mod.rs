@@ -9,6 +9,7 @@ mod messages;
 mod mission_state;
 mod scroll;
 mod search_state;
+mod select_item;
 mod wrap;
 
 pub use {
@@ -22,5 +23,6 @@ pub use {
     mission_state::*,
     scroll::*,
     search_state::*,
+    select_item::*,
     wrap::*,
 };

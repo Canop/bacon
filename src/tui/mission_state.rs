@@ -163,6 +163,23 @@ impl<'a, 'm> MissionState<'a, 'm> {
             self.reset_scroll();
         }
     }
+    /// Select a specific diagnostic item by index and scroll to show it
+    pub fn select_item(
+        &mut self,
+        sic: &SelectItemCommand,
+    ) {
+        // Find the first line index with the matching item_idx
+        let target_line_idx = self
+            .lines_to_draw()
+            .enumerate()
+            .find(|(_, line)| line.item_idx == sic.item_idx)
+            .map(|(idx, _)| idx);
+        if let Some(line_idx) = target_line_idx {
+            // Scroll to put this line at/near the top
+            self.scroll = line_idx;
+            self.fix_scroll();
+        }
+    }
     pub fn focus_search(&mut self) {
         self.search.focus_with_mode(SearchMode::Pattern);
         self.show_selected_found();
