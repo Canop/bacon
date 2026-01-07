@@ -170,19 +170,23 @@ impl Report {
         let mut last_kind = "???";
         let mut message = None;
         let format_has_context = line_format.contains("{context}");
+        let mut current_item_idx = 0usize;
         for line in &self.lines {
             match line.line_type {
                 LineType::Title(Kind::Warning) => {
                     last_kind = "warning";
                     message = line.title_message();
+                    current_item_idx = line.item_idx;
                 }
                 LineType::Title(Kind::Error) => {
                     last_kind = "error";
                     message = line.title_message();
+                    current_item_idx = line.item_idx;
                 }
                 LineType::Title(Kind::TestFail) => {
                     last_kind = "test";
                     message = line.title_message();
+                    current_item_idx = line.item_idx;
                 }
                 _ => {}
             }
@@ -206,10 +210,14 @@ impl Report {
             if file_column.is_empty() {
                 file_column = "1"; // by default, first column in file
             }
+            let item_idx_str = current_item_idx.to_string();
+            let job_name = mission.concrete_job_ref.badge_label();
             let exported = regex_replace_all!(r#"\{([^\s}]+)\}"#, line_format, |_, key| {
                 match key {
                     "column" => file_column,
                     "context" => context,
+                    "item_idx" => &item_idx_str,
+                    "job" =>  &job_name,
                     "kind" => last_kind,
                     "line" => file_line,
                     "message" => message.unwrap_or(""),
