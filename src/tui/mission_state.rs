@@ -163,10 +163,10 @@ impl<'a, 'm> MissionState<'a, 'm> {
             self.reset_scroll();
         }
     }
-    /// Select a specific diagnostic item by index and scroll to show it
-    pub fn select_item(
+    /// Show a specific diagnostic item by index and scroll to show it
+    pub fn show_item(
         &mut self,
-        sic: &SelectItemCommand,
+        sic: &ShowItemCommand,
     ) {
         // Find the first line index with the matching item_idx
         let target_line_idx = self

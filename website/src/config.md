@@ -197,7 +197,7 @@ scroll-pages(-1) | <kbd>PageUp</kbd> | move one page up
 scroll-pages(1) | <kbd>PageDown</kbd> | move one page down
 scroll-to-bottom | <kbd>End</kbd> | scroll to bottom
 scroll-to-top | <kbd>Home</kbd> | scroll to top
-select-item(n) | | scroll to display the diagnostic item with index n at the top
+show-item(n) | | scroll to display the diagnostic item with index n at the top
 toggle pause | <kbd>p</kbd> | toggle pause
 toggle-backtrace(level) | <kbd>b</kbd> | enable rust backtrace, level is either `0`, `1`, `2`, or `full`
 toggle-raw-output |  | display the untransformed command output
