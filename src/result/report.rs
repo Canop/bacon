@@ -216,7 +216,7 @@ impl Report {
                 match key {
                     "column" => file_column,
                     "context" => context,
-                    "item_idx" => &item_idx_str,
+                    "item-idx" => &item_idx_str,
                     "job" =>  &job_name,
                     "kind" => last_kind,
                     "line" => file_line,

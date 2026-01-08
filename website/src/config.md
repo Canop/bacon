@@ -262,7 +262,7 @@ variable | meaning
 :-|:-
 `{kind}` | the diagnostic kind: `error`, `warning`, or `test`
 `{job}` | the job name (e.g., `check`, `clippy`, `test`)
-`{item_idx}` | the diagnostic item index (1, 2, ...)
+`{item-idx}` | the diagnostic item index (1, 2, ...)
 `{path}` | absolute file path
 `{line}` | line number
 `{column}` | column number (defaults to 1 if not available)
@@ -275,7 +275,7 @@ Example with all variables:
 [exports.locations]
 auto = true
 path = ".bacon-locations"
-line_format = "{kind}@{job}[{item_idx}] {path}:{line}:{column} {message}"
+line_format = "{kind}@{job}[{item-idx}] {path}:{line}:{column} {message}"
 ```
 
 This would produce output like:
