@@ -1,4 +1,6 @@
 ### next
+- add new line format template variables - Fix #423 - Thanks @cehteh
+- add the `show-item` action, which scrolls the output to an item to reveal it - Thanks @cehteh
 - rerun job on undismiss
 
 <a name="v3.20.3"></a>
