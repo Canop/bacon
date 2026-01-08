@@ -66,7 +66,9 @@ pub struct Job {
     /// Whether to hide the scrollbar
     pub hide_scrollbar: Option<bool>,
 
-    /// A list of glob patterns to ignore
+    /// A list of glob patterns to ignore.
+    /// Patterns starting with `!` are negations that force-include
+    /// matching paths, overriding other ignore rules (including .gitignore).
     #[serde(default)]
     pub ignore: Vec<String>,
 
@@ -275,7 +277,7 @@ fn test_job_apply() {
         expand_env_vars: Some(false),
         extraneous_args: Some(false),
         hide_scrollbar: Some(true),
-        ignore: vec!["special-target".to_string(), "generated".to_string()],
+        ignore: vec!["special-target".to_string(), "generated".to_string(), "!myfile.txt".to_string()],
         ignored_lines: Some(vec![LinePattern::from_str("half-error.*").unwrap()]),
         kill: Some(vec!["die".to_string()]),
         need_stdout: Some(true),

@@ -84,7 +84,7 @@ default_watch | whether to watch default files (`src`, `tests`, `examples`, `bui
 env | a map of environment vars, for example `env.LOG_LEVEL="die"` |
 hide_scrollbar | whether to hide the scrollbar (for easier select & copy) | `false`
 kill | a command replacing the default job interruption (platform dependant, `SIGKILL` on unix). For example `kill = ["kill", "-s", "INT"]` |
-ignore | list of glob patterns for files to ignore |
+ignore | list of glob patterns for files to ignore. Patterns starting with `!` are negations that force-include matching paths, overriding other ignore rules (including `.gitignore`) |
 ignored_lines | regular expressions for lines to ignore |
 extraneous_args | if `false`, the action is run "as is" from `bacon.toml`, eg: no `--all-features` or `--features` inclusion | `true`
 need_stdout |whether we need to capture stdout too (stderr is always captured) | `false`
