@@ -62,6 +62,8 @@
 #
 # Possible line_format parts:
 #  - kind: warning|error|test
+#  - job: name of the job
+#  - item-idx: index of the item
 #  - path: complete absolute path to the file
 #  - line: 1-based line number
 #  - column: 1-based column
@@ -71,7 +73,7 @@
 auto = false
 exporter = "locations"
 path = ".bacon-locations"
-line_format = "{kind} {path}:{line}:{column} {message}"
+line_format = "{item-idx}: {kind} {path}:{line}:{column} {message}"
 
 
 # If you want some job to emit a beep on success or on failure,
