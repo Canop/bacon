@@ -28,7 +28,7 @@ pub struct CommandOutputLine {
 }
 
 /// some output lines
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct CommandOutput {
     pub lines: Vec<Line>,
 }

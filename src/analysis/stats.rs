@@ -7,7 +7,7 @@ use {
 };
 
 /// number of lines per type in a report
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Stats {
     pub warnings: usize,
     pub errors: usize,

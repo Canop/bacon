@@ -34,45 +34,47 @@ impl Watcher {
         info!("watcher on {paths_to_watch:#?}");
         let (sender, receiver) = bounded(0);
         let mut notify_watcher =
-            notify::recommended_watcher(move |res: notify::Result<notify::Event>| match res {
-                Ok(we) => {
-                    match we.kind {
-                        EventKind::Modify(ModifyKind::Metadata(_)) => {
-                            //debug!("ignoring metadata change");
-                            return; // useless event
+            notify::recommended_watcher(move |res: notify::Result<notify::Event>| {
+                match res {
+                    Ok(we) => {
+                        match we.kind {
+                            EventKind::Modify(ModifyKind::Metadata(_)) => {
+                                //debug!("ignoring metadata change");
+                                return; // useless event
+                            }
+                            EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
+                                //debug!("ignoring 'any' data change");
+                                return; // probably useless event with no real change
+                            }
+                            EventKind::Access(AccessKind::Close(AccessMode::Write)) => {
+                                debug!("close write event: {we:?}");
+                            }
+                            EventKind::Access(_) => {
+                                //debug!("ignoring access event: {we:?}");
+                                return; // probably useless event
+                            }
+                            _ => {
+                                info!("notify event: {we:?}");
+                            }
                         }
-                        EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
-                            //debug!("ignoring 'any' data change");
-                            return; // probably useless event with no real change
+                        match time!(Info, ignorer.excludes_all_pathbufs(&we.paths)) {
+                            Ok(true) => {
+                                debug!("all excluded");
+                                return;
+                            }
+                            Ok(false) => {
+                                debug!("at least one is included");
+                            }
+                            Err(e) => {
+                                warn!("exclusion check failed: {e}");
+                            }
                         }
-                        EventKind::Access(AccessKind::Close(AccessMode::Write)) => {
-                            debug!("close write event: {we:?}");
-                        }
-                        EventKind::Access(_) => {
-                            //debug!("ignoring access event: {we:?}");
-                            return; // probably useless event
-                        }
-                        _ => {
-                            info!("notify event: {we:?}");
+                        if let Err(e) = sender.send(()) {
+                            debug!("error when notifying on notify event: {e}");
                         }
                     }
-                    match time!(Info, ignorer.excludes_all_pathbufs(&we.paths)) {
-                        Ok(true) => {
-                            debug!("all excluded");
-                            return;
-                        }
-                        Ok(false) => {
-                            debug!("at least one is included");
-                        }
-                        Err(e) => {
-                            warn!("exclusion check failed: {e}");
-                        }
-                    }
-                    if let Err(e) = sender.send(()) {
-                        debug!("error when notifying on notify event: {e}");
-                    }
+                    Err(e) => warn!("watch error: {e:?}"),
                 }
-                Err(e) => warn!("watch error: {e:?}"),
             })?;
         for path in paths_to_watch {
             if !path.exists() {

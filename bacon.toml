@@ -135,6 +135,6 @@ ctrl-c = "copy-unstyled-output"
 #h = "play-sound(name=car-horn)"
 #b = "play-sound(name=beep-6)"
 f = "job:fmt"
-w = "job:win"
+alt-w = "job:win"
 alt-b = "toggle-backtrace(0)" # disable backtrace when set with env var
 cmd-e = "play-sound"

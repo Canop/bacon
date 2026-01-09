@@ -9,7 +9,7 @@ use {
 };
 
 /// what we get from the execution of a command
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum CommandResult {
     /// a trustable report with errors and warnings computed
     Report(Report),

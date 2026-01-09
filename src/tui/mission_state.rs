@@ -164,21 +164,30 @@ impl<'a, 'm> MissionState<'a, 'm> {
         }
     }
     /// Show a specific diagnostic item by index and scroll to show it
+    ///
+    /// Do nothing if there's no such item
     pub fn show_item(
         &mut self,
-        sic: &ShowItemCommand,
+        item_idx: usize,
     ) {
         // Find the first line index with the matching item_idx
         let target_line_idx = self
             .lines_to_draw()
             .enumerate()
-            .find(|(_, line)| line.item_idx == sic.item_idx)
+            .find(|(_, line)| line.item_idx == item_idx)
             .map(|(idx, _)| idx);
         if let Some(line_idx) = target_line_idx {
             // Scroll to put this line at/near the top
             self.scroll = line_idx;
             self.fix_scroll();
+            self.top_item_idx = item_idx;
         }
+    }
+    pub fn top_item_idx(&self) -> Option<usize> {
+        self.lines_to_draw()
+            .skip(self.scroll)
+            .next()
+            .map(|line| line.item_idx)
     }
     pub fn focus_search(&mut self) {
         self.search.focus_with_mode(SearchMode::Pattern);
@@ -190,7 +199,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
     }
     pub fn dismiss_top_item(&mut self) -> bool {
         if let Some(report) = self.cmd_result.report() {
-            if let Some(item_idx) = report.top_item_idx() {
+            if let Some(item_idx) = self.top_item_idx() {
                 if let Some(location) = report.item_location(item_idx) {
                     let location = location.to_string();
                     self.app_state.filter.add(Dismissal::Location(location));
@@ -203,7 +212,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
     }
     pub fn dismiss_top_item_type(&mut self) -> bool {
         if let Some(report) = self.cmd_result.report() {
-            if let Some(item_idx) = report.top_item_idx() {
+            if let Some(item_idx) = self.top_item_idx() {
                 if let Some(diag_type) = report.item_diag_type(item_idx) {
                     let diag_type = diag_type.to_string();
                     self.app_state.filter.add(Dismissal::DiagType(diag_type));
@@ -501,6 +510,8 @@ impl<'a, 'm> MissionState<'a, 'm> {
             self.update_wrap();
         }
 
+        self.try_scroll_to_last_top_item();
+
         // we do all exports which are set to auto
         self.mission.settings.exports.do_auto_exports(self);
     }
@@ -561,22 +572,12 @@ impl<'a, 'm> MissionState<'a, 'm> {
     fn fix_scroll(&mut self) {
         self.scroll = fix_scroll(self.scroll, self.content_height(), self.page_height());
     }
-    /// get the scroll value needed to go to the last item (if any)
-    fn get_last_item_scroll(&self) -> usize {
-        let lines = self.lines_to_draw();
-        for (row_idx, line) in lines.enumerate() {
-            if line.item_idx == self.top_item_idx {
-                return row_idx;
-            }
-        }
-        0
-    }
     pub fn keybindings(&self) -> &KeyBindings {
         &self.mission.settings.keybindings
     }
     fn try_scroll_to_last_top_item(&mut self) {
-        self.scroll = self.get_last_item_scroll();
-        self.fix_scroll();
+        info!("try_scroll_to_last_top_item: {}", self.top_item_idx);
+        self.show_item(self.top_item_idx);
     }
     fn show_line(
         &mut self,
@@ -637,9 +638,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         if self.wrap {
             self.update_wrap();
         }
-        if self.wrapped_report.is_some() {
-            self.try_scroll_to_last_top_item();
-        }
+        self.try_scroll_to_last_top_item();
         self.search.touch();
     }
     fn content_height(&self) -> usize {
@@ -919,13 +918,17 @@ impl<'a, 'm> MissionState<'a, 'm> {
         if let Some(report) = self.report_to_draw() {
             if self.wrapped_report.is_none() {
                 self.wrapped_report = Some(WrappedReport::new(report, width));
-                self.scroll = self.get_last_item_scroll();
             }
         } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
             match self.wrapped_output.as_mut() {
                 None => {
-                    self.wrapped_output = Some(WrappedCommandOutput::new(output, width));
-                    self.reset_scroll();
+                    let old_len = self.wrapped_output.as_ref().map(|wo| wo.sub_lines.len());
+                    let new_wrapped_output = WrappedCommandOutput::new(output, width);
+                    let new_len = new_wrapped_output.sub_lines.len();
+                    self.wrapped_output = Some(new_wrapped_output);
+                    if Some(new_len) != old_len {
+                        self.reset_scroll();
+                    }
                 }
                 Some(wo) => {
                     wo.update(output, width);
@@ -1039,6 +1042,12 @@ impl<'a, 'm> MissionState<'a, 'm> {
             clear_line(w)?;
             if is_thumb(y.into(), scrollbar) {
                 execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+            }
+        }
+        drop(lines);
+        if !self.computing {
+            if let Some(idx) = top_item_idx {
+                self.top_item_idx = idx;
             }
         }
         Ok(())
