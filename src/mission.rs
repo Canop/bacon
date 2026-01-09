@@ -40,7 +40,13 @@ impl Mission<'_> {
         if !self.job.ignore.is_empty() {
             let mut glob_ignorer = GlobIgnorer::default();
             for pattern in &self.job.ignore {
-                if let Err(e) = glob_ignorer.add(pattern, &self.package_directory) {
+                if let Some(override_pattern) = pattern.strip_prefix('!') {
+                    // Negative pattern: force-include matching paths, overriding
+                    // any ignore rules (including .gitignore)
+                    if let Err(e) = set.add_override(override_pattern, &self.package_directory) {
+                        warn!("Failed to add override pattern {pattern}: {e}");
+                    }
+                } else if let Err(e) = glob_ignorer.add(pattern, &self.package_directory) {
                     warn!("Failed to add ignore pattern {pattern}: {e}");
                 }
             }
