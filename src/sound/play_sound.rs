@@ -114,7 +114,9 @@ impl fmt::Display for SoundError {
     ) -> fmt::Result {
         match self {
             SoundError::Interrupted => write!(f, "sound interrupted"),
-            SoundError::UnknownSoundName(name) => write!(f, "unknown sound name: {}", name),
+            SoundError::UnknownSoundName(name) => {
+                write!(f, "unknown sound name: {}", name)
+            }
             SoundError::RodioStream(e) => write!(f, "rodio stream error: {}", e),
             SoundError::RodioPlay(e) => write!(f, "rodio play error: {}", e),
         }

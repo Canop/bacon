@@ -506,29 +506,17 @@ fn test_show_item_parsing() {
     };
     // Test basic parsing
     let action: Action = "show-item(5)".parse().unwrap();
-    assert_eq!(
-        action,
-        Action::ShowItem(ShowItemCommand { item_idx: 5 })
-    );
+    assert_eq!(action, Action::ShowItem(ShowItemCommand { item_idx: 5 }));
 
     // Test with underscore
     let action: Action = "show_item(10)".parse().unwrap();
-    assert_eq!(
-        action,
-        Action::ShowItem(ShowItemCommand { item_idx: 10 })
-    );
+    assert_eq!(action, Action::ShowItem(ShowItemCommand { item_idx: 10 }));
 
     // Test with internal: prefix
     let action: Action = "internal:show-item(0)".parse().unwrap();
-    assert_eq!(
-        action,
-        Action::ShowItem(ShowItemCommand { item_idx: 0 })
-    );
+    assert_eq!(action, Action::ShowItem(ShowItemCommand { item_idx: 0 }));
 
     // Test large number
     let action: Action = "show-item(999)".parse().unwrap();
-    assert_eq!(
-        action,
-        Action::ShowItem(ShowItemCommand { item_idx: 999 })
-    );
+    assert_eq!(action, Action::ShowItem(ShowItemCommand { item_idx: 999 }));
 }

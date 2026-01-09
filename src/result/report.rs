@@ -16,7 +16,7 @@ use {
 
 /// the usable content of cargo watch's output,
 /// lightly analyzed
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Report {
     pub output: CommandOutput,
     pub lines: Vec<Line>,
@@ -217,7 +217,7 @@ impl Report {
                     "column" => file_column,
                     "context" => context,
                     "item-idx" => &item_idx_str,
-                    "job" =>  &job_name,
+                    "job" => &job_name,
                     "kind" => last_kind,
                     "line" => file_line,
                     "message" => message.unwrap_or(""),
