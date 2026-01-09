@@ -10,6 +10,8 @@ At every job end, bacon writes a `.bacon-locations` file with all items (errors,
 
 In nvim, on predefined shortcuts, the nvim-bacon plugin may jump to the next item's position, or display all items to let you choose one. The plugin reads the `.bacon-locations` file every time you hit one of its shortcuts.
 
+When jumping to a location, nvim also sends a command to bacon to scroll to the focused item.
+
 Nothing in this design is Rust related.
 This plugin can thus be used whatever the ecosystem(s) you program in.
 
@@ -22,6 +24,12 @@ The configuration instructing bacon to export the locations at every job should 
 auto = true
 path = ".bacon-locations"
 line_format = "{kind} {path}:{line}:{column} {message}"
+```
+
+In order for nvim-bacon to send commands to bacon, you should also ask it to listen, with
+
+```toml
+listen = true
 ```
 
 # Installation & Usage

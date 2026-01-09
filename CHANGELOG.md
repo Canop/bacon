@@ -2,6 +2,7 @@
 - add new line format template variables - Fix #423 - Thanks @cehteh
 - add the `show-item` action, which scrolls the output to an item to reveal it - Thanks @cehteh
 - rerun job on undismiss
+Users of nvim-bacon should update it and modify the export format to the new suggested format to have bacon show the item focused in nvim.
 
 <a name="v3.20.3"></a>
 ### v3.20.3 - 2025/12/10
