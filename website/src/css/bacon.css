@@ -5,7 +5,7 @@
 	--accent: #ff8080;
 	--bg: #fff;
 	--nav-bg: linear-gradient(#444,#222);
-	--hovered-menu-bg: linear-gradient(#444, var(--accent));
+	--hovered-menu-bg: #ff808033;
 	--toc-bg: linear-gradient(#444,#222);
 	--nav-fg: #fff;
 	--link-fg: #000;
