@@ -185,8 +185,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
     }
     pub fn top_item_idx(&self) -> Option<usize> {
         self.lines_to_draw()
-            .skip(self.scroll)
-            .next()
+            .nth(self.scroll)
             .map(|line| line.item_idx)
     }
     pub fn focus_search(&mut self) {
