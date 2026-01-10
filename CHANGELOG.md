@@ -1,7 +1,10 @@
 ### next
-- add new line format template variables - Fix #423 - Thanks @cehteh
+- add new line format template variables: `{job}` and `{item-idx}`  - Fix #423 - Thanks @cehteh
 - add the `show-item` action, which scrolls the output to an item to reveal it - Thanks @cehteh
 - rerun job on undismiss
+- `!pattern` syntax in the ignore config field to override gitignore rules - Thanks @ishad0w
+- when it seems a good idea, bacon keeps the same item on top
+
 Users of nvim-bacon should update it and modify the export format to the new suggested format to have bacon show the item focused in nvim.
 
 <a name="v3.20.3"></a>
