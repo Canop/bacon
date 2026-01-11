@@ -8,6 +8,7 @@ use {
         python,
         standard,
         swift,
+        typescript,
     },
     crate::*,
     schemars::JsonSchema,
@@ -36,6 +37,7 @@ pub enum AnalyzerRef {
     CppDoctest,
     SwiftBuild,
     SwiftLint,
+    Typescript,
 }
 
 impl AnalyzerRef {
@@ -53,6 +55,7 @@ impl AnalyzerRef {
             Self::CppDoctest => Box::new(cpp::CppDoctestAnalyzer::default()),
             Self::SwiftBuild => Box::new(swift::build::SwiftBuildAnalyzer::default()),
             Self::SwiftLint => Box::new(swift::lint::SwiftLintAnalyzer::default()),
+            Self::Typescript => Box::new(typescript::TypescriptAnalyzer::default()),
         }
     }
 }
