@@ -12,6 +12,7 @@ mod python;
 mod standard;
 mod stats;
 mod swift;
+mod typescript;
 
 pub use {
     analyzer::*,
