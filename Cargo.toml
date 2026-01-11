@@ -1,6 +1,6 @@
 [package]
 name = "bacon"
-version = "3.20.3"
+version = "3.21.0"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/bacon"
 description = "background rust compiler"
