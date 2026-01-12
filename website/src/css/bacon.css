@@ -7,6 +7,8 @@
 	--nav-bg: linear-gradient(#444,#222);
 	--hovered-menu-bg: #ff808033;
 	--toc-bg: linear-gradient(#444,#222);
+	--toc-inactive-border: 4px solid transparent;
+	--toc-active-border: 4px solid var(--accent);
 	--nav-fg: #fff;
 	--link-fg: #000;
 	--code-fg: #111;
@@ -388,6 +390,12 @@ nav.page-toc .toc-content {
 	align-items: stretch;
 }
 
+nav.page-toc .toc-item {
+	border-right: var(--toc-inactive-border);
+}
+nav.page-toc .toc-item.active {
+	border-right: var(--toc-active-border);
+}
 nav.page-toc .toc-item:hover {
 	background: var(--hovered-toc-item-bg);
 }
