@@ -8,6 +8,7 @@ mod line_analysis;
 mod line_analyzer;
 mod line_type;
 mod nextest;
+mod nextest_json;
 mod python;
 mod standard;
 mod stats;
