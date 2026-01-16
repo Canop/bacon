@@ -14,6 +14,7 @@ site-map: {
         FAQ: community/FAQ.md
         bacon-ls: community/bacon-ls.md
         nvim-bacon: community/nvim-bacon.md
+        emacs-bacon: community/emacs-bacon.md
     }
 }
 
