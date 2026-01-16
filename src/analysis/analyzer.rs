@@ -1,21 +1,8 @@
 use {
-    super::{
-        biome,
-        cargo_json,
-        cpp,
-        eslint,
-        nextest,
-        python,
-        standard,
-        swift,
-        typescript,
-    },
+    super::{biome, cargo_json, cpp, eslint, go, nextest, python, standard, swift, typescript},
     crate::*,
     schemars::JsonSchema,
-    serde::{
-        Deserialize,
-        Serialize,
-    },
+    serde::{Deserialize, Serialize},
 };
 
 /// A stateless operator building a report from a list of command output lines.
@@ -26,15 +13,16 @@ use {
 pub enum AnalyzerRef {
     #[default]
     Standard,
-    CargoJson,
-    Nextest,
-    Eslint,
     Biome,
+    CargoJson,
+    Cpp,
+    CppDoctest,
+    Eslint,
+    Go,
+    Nextest,
     PythonPytest,
     PythonRuff,
     PythonUnittest,
-    Cpp,
-    CppDoctest,
     SwiftBuild,
     SwiftLint,
     Typescript,
@@ -44,15 +32,16 @@ impl AnalyzerRef {
     pub fn create_analyzer(self) -> Box<dyn Analyzer> {
         match self {
             Self::Standard => Box::new(standard::StandardAnalyzer::default()),
-            Self::Nextest => Box::new(nextest::NextestAnalyzer::default()),
-            Self::Eslint => Box::new(eslint::EslintAnalyzer::default()),
             Self::Biome => Box::new(biome::BiomeAnalyzer::default()),
-            Self::PythonUnittest => Box::new(python::unittest::UnittestAnalyzer::default()),
-            Self::PythonPytest => Box::new(python::pytest::PytestAnalyzer::default()),
-            Self::PythonRuff => Box::new(python::ruff::RuffAnalyzer::default()),
             Self::CargoJson => Box::new(cargo_json::CargoJsonAnalyzer::default()),
             Self::Cpp => Box::new(cpp::CppAnalyzer::default()),
             Self::CppDoctest => Box::new(cpp::CppDoctestAnalyzer::default()),
+            Self::Eslint => Box::new(eslint::EslintAnalyzer::default()),
+            Self::Go => Box::new(go::GoAnalyzer::default()),
+            Self::Nextest => Box::new(nextest::NextestAnalyzer::default()),
+            Self::PythonPytest => Box::new(python::pytest::PytestAnalyzer::default()),
+            Self::PythonRuff => Box::new(python::ruff::RuffAnalyzer::default()),
+            Self::PythonUnittest => Box::new(python::unittest::UnittestAnalyzer::default()),
             Self::SwiftBuild => Box::new(swift::build::SwiftBuildAnalyzer::default()),
             Self::SwiftLint => Box::new(swift::lint::SwiftLintAnalyzer::default()),
             Self::Typescript => Box::new(typescript::TypescriptAnalyzer::default()),
