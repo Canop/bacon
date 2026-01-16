@@ -40,7 +40,7 @@ impl Analyzer for PytestAnalyzer {
     }
 
     fn build_report(&mut self) -> Result<Report> {
-        build_report(&self.lines)
+        Ok(build_report(&self.lines))
     }
 }
 
@@ -58,7 +58,7 @@ fn recognize_format(content: &str) -> PytLineFormat<'_> {
 ///
 /// The main special thing here is transforming the location line in
 /// a BURP location line.
-pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
+pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
     let mut current_section = Section::Other;
     let mut items = ItemAccumulator::default();
     let mut last_location_in_item = None; // to deduplicate locations
@@ -104,5 +104,5 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             }
         }
     }
-    Ok(items.report())
+    items.report()
 }

@@ -31,7 +31,7 @@ impl Analyzer for EslintAnalyzer {
     }
 
     fn build_report(&mut self) -> Result<Report> {
-        build_report(&self.lines)
+        Ok(build_report(&self.lines))
     }
 }
 
@@ -40,7 +40,7 @@ impl Analyzer for EslintAnalyzer {
 /// The main specificity of eslint is that the path of a file with error is given
 /// before the errors of the file, each error coming with the line and column
 /// in the file.
-pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
+pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
     let mut line_analyzer = EslintLineAnalyzer {};
     let mut items = ItemAccumulator::default();
     let mut last_location_path = None;
@@ -85,5 +85,5 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             );
         }
     }
-    Ok(items.report())
+    items.report()
 }

@@ -30,7 +30,7 @@ impl Analyzer for CppAnalyzer {
     }
 
     fn build_report(&mut self) -> Result<Report> {
-        build_report(&self.lines)
+        Ok(build_report(&self.lines))
     }
 }
 
@@ -42,7 +42,7 @@ struct Diagnostic<'l> {
     message: Cow<'l, [TString]>,
 }
 
-fn build_report(lines: &[CommandOutputLine]) -> Result<Report> {
+fn build_report(lines: &[CommandOutputLine]) -> Report {
     let mut items = ItemAccumulator::default();
 
     for line in lines {
@@ -71,7 +71,7 @@ fn build_report(lines: &[CommandOutputLine]) -> Result<Report> {
             items.push_line(LineType::Normal, line.content.clone());
         }
     }
-    Ok(items.report())
+    items.report()
 }
 
 /// Expect that diagnostics look like the following:
@@ -150,11 +150,11 @@ impl Analyzer for CppDoctestAnalyzer {
     }
 
     fn build_report(&mut self) -> Result<Report> {
-        build_doctest_report(&self.lines)
+        Ok(build_doctest_report(&self.lines))
     }
 }
 
-fn build_doctest_report(lines: &[CommandOutputLine]) -> Result<Report> {
+fn build_doctest_report(lines: &[CommandOutputLine]) -> Report {
     let mut items = ItemAccumulator::default();
     let mut current_test_case = String::from("(unknown test)");
     let mut empty_count = 0;
@@ -188,7 +188,7 @@ fn build_doctest_report(lines: &[CommandOutputLine]) -> Result<Report> {
             }
         }
     }
-    Ok(items.report())
+    items.report()
 }
 
 enum DoctestDiagnostic<'a> {

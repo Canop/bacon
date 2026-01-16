@@ -97,8 +97,9 @@ command = [
 	"-A", "clippy::if_same_then_else",
 	"-A", "clippy::len_without_is_empty",
 	"-A", "clippy::map_entry",
-	"-A", "clippy::while_let_on_iterator",
 	"-A", "clippy::new_without_default",
+	"-A", "clippy::too_many_lines",
+	"-A", "clippy::while_let_on_iterator",
 ]
 need_stdout = false
 
@@ -112,16 +113,17 @@ command = [
 	"cargo", "clippy",
 	"--",
 	"-W", "clippy::pedantic",
-	"-A", "clippy::struct_excessive_bools",
-	"-A", "clippy::default_trait_access",
-	"-A", "clippy::must_use_candidate",
-	"-A", "clippy::return_self_not_must_use",
-	"-A", "clippy::get_first",
-	"-A", "clippy::len_without_is_empty",
 	"-A", "clippy::collapsible_else_if",
 	"-A", "clippy::collapsible_if",
-	"-A", "clippy::new_without_default",
+	"-A", "clippy::default_trait_access",
+	"-A", "clippy::get_first",
 	"-A", "clippy::if_not_else",
+	"-A", "clippy::len_without_is_empty",
+	"-A", "clippy::must_use_candidate",
+	"-A", "clippy::new_without_default",
+	"-A", "clippy::return_self_not_must_use",
+	"-A", "clippy::struct_excessive_bools",
+	"-A", "clippy::too_many_lines",
 ]
 need_stdout = false
 

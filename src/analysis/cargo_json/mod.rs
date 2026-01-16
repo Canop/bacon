@@ -70,7 +70,7 @@ impl Analyzer for CargoJsonAnalyzer {
 
     fn build_report(&mut self) -> Result<Report> {
         let line_analyzer = standard::StandardLineAnalyzer {};
-        let mut report = standard::build_report(&self.lines, line_analyzer)?;
+        let mut report = standard::build_report(&self.lines, line_analyzer);
         for export in self.exports.drain(..) {
             report.analyzer_exports.insert(export.name, export.export);
         }

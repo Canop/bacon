@@ -135,10 +135,10 @@ impl Job {
         let mut command = vec!["cargo".to_string(), alias_name.to_string()];
         if let Some(additional_args) = settings.additional_alias_args.as_ref() {
             for arg in additional_args {
-                command.push(arg.to_string());
+                command.push(arg.clone());
             }
         } else {
-            for arg in DEFAULT_ARGS {
+            for &arg in DEFAULT_ARGS {
                 command.push(arg.to_string());
             }
         }

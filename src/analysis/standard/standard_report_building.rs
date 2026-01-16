@@ -6,7 +6,7 @@ use {
 pub fn build_report<L: LineAnalyzer>(
     cmd_lines: &[CommandOutputLine],
     mut line_analyzer: L,
-) -> anyhow::Result<Report> {
+) -> Report {
     #[derive(Debug, Default)]
     struct Test {
         passed: bool,
@@ -154,5 +154,5 @@ pub fn build_report<L: LineAnalyzer>(
         .drain()
         .filter_map(|(key, test)| if !test.passed { Some(key) } else { None })
         .collect::<Vec<_>>();
-    Ok(report)
+    report
 }

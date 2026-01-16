@@ -43,7 +43,7 @@ impl Analyzer for RuffAnalyzer {
     }
 
     fn build_report(&mut self) -> Result<Report> {
-        build_report(&self.lines)
+        Ok(build_report(&self.lines))
     }
 }
 
@@ -78,7 +78,7 @@ fn recognize_location_message(tline: &TLine) -> Option<LocationTitle<'_>> {
 }
 
 /// Build a report from the output of biome
-pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
+pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
     let mut items = ItemAccumulator::default();
     let mut last_is_blank = true;
     let mut i = 0;
@@ -109,5 +109,5 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             last_is_blank = is_blank;
         }
     }
-    Ok(items.report())
+    items.report()
 }

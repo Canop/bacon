@@ -40,7 +40,9 @@ impl JobStack {
                     {
                         // rather than quitting, we assume the user wants to "unscope"
                         ConcreteJobRef {
-                            name_or_alias: current.unwrap().name_or_alias,
+                            name_or_alias: current
+                                .unwrap() // SAFETY checked in the match guard
+                                .name_or_alias,
                             scope: Scope::default(),
                         }
                     }

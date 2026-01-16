@@ -326,7 +326,7 @@ fn run_mission(
                     mission_state.open_undismiss_menu();
                 }
                 Action::Export(export_name) => {
-                    let export_name = export_name.to_string();
+                    let export_name = export_name.clone();
                     mission_state
                         .mission
                         .settings
@@ -379,7 +379,7 @@ fn run_mission(
                                 "Sound requested but not enabled in config"
                             }
                         };
-                        debug!("{}", message);
+                        debug!("{message}");
                         sound_not_enabled_message_already_displayed = true;
                         mission_state.messages.push(Message::short(message));
                     }

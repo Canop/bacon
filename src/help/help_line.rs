@@ -20,6 +20,11 @@ pub struct HelpLine {
 }
 
 impl HelpLine {
+    /// Create a new HelpLine based on the provided settings.
+    ///
+    /// # Panics
+    /// Panics if there is no keybinding for quitting the application.
+    /// But that's good: it's better to die if the user can't kill the app...
     pub fn new(settings: &Settings) -> Self {
         let kb = &settings.keybindings;
         let quit = kb

@@ -98,9 +98,11 @@ impl Config {
         }
         Ok(conf)
     }
+    #[allow(clippy::missing_panics_doc)] // unit test ensure this passes
     pub fn default_package_config() -> Self {
         toml::from_str(DEFAULT_PACKAGE_CONFIG).unwrap()
     }
+    #[allow(clippy::missing_panics_doc)] // unit test ensure this passes
     pub fn default_prefs() -> Self {
         toml::from_str(DEFAULT_PREFS).unwrap()
     }

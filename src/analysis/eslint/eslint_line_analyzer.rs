@@ -116,7 +116,7 @@ pub fn get_location_path(content: &TLine) -> Option<String> {
     if !regex_is_match!(r"^\s*/\S+\.\w+\s*$", &first.raw) {
         return None;
     }
-    Some(first.raw.to_string())
+    Some(first.raw.clone())
 }
 
 pub fn cleaned_tline(content: &TLine) -> TLine {

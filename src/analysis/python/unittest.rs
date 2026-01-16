@@ -28,7 +28,7 @@ impl Analyzer for UnittestAnalyzer {
     }
 
     fn build_report(&mut self) -> Result<Report> {
-        build_report(&self.lines)
+        Ok(build_report(&self.lines))
     }
 }
 
@@ -52,7 +52,7 @@ pub fn analyze_line(cmd_line: &CommandOutputLine) -> LineAnalysis {
 ///
 /// The main special thing here is transforming the location line in
 /// a BURP location line.
-pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
+pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
     let mut items = ItemAccumulator::default();
     let mut item_location_written = false;
     for cmd_line in cmd_lines {
@@ -90,5 +90,5 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
         }
         items.push_line(line_type, cmd_line.content.clone());
     }
-    Ok(items.report())
+    items.report()
 }

@@ -10,7 +10,7 @@ pub fn wrap(
 ) -> Vec<Line> {
     let cols = width as usize - 1; // -1 for the probable scrollbar
     let mut sub_lines = Vec::new();
-    for line in lines.iter() {
+    for line in lines {
         let summary = line.line_type.is_summary();
         sub_lines.push(Line {
             item_idx: line.item_idx,

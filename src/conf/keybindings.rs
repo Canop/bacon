@@ -141,6 +141,9 @@ impl KeyBindings {
         }
         reverse_map
     }
+    pub fn iter(&self) -> hash_map::Iter<'_, KeyCombination, Action> {
+        self.map.iter()
+    }
 }
 
 impl<'a> IntoIterator for &'a KeyBindings {

@@ -169,10 +169,9 @@ impl Context {
                 for item in &location.packages {
                     // if it's a local package
                     if item.source.is_none() {
-                        let item_path = item
-                            .manifest_path
-                            .parent()
-                            .expect("parent of a target folder is a root folder");
+                        let Some(item_path) = item.manifest_path.parent() else {
+                            continue;
+                        };
                         add_to_paths_to_watch(
                             &watches,
                             item_path.as_std_path(),

@@ -42,7 +42,7 @@ impl Analyzer for GoAnalyzer {
     }
 
     fn build_report(&mut self) -> Result<Report> {
-        build_report(&self.lines)
+        Ok(build_report(&self.lines))
     }
 }
 
@@ -65,7 +65,7 @@ fn recognize_location_code(tline: &TLine) -> Option<LocationCode> {
 }
 
 /// Build a report from the output of `go build`
-pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
+pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
     let mut items = ItemAccumulator::default();
     let mut last_is_blank = true;
     for cmd_line in cmd_lines {
@@ -73,10 +73,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
         if let GoLine::LocationCode(lc) = bline {
             let error_line = burp::error_line(&lc.code);
             items.push_error_title(error_line);
-            items.push_line(
-                LineType::Location,
-                burp::location_line(lc.location.to_string()),
-            );
+            items.push_line(LineType::Location, burp::location_line(lc.location.clone()));
             last_is_blank = false;
         } else {
             let is_blank = cmd_line.content.is_blank();
@@ -86,5 +83,5 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
             last_is_blank = is_blank;
         }
     }
-    Ok(items.report())
+    items.report()
 }

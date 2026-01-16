@@ -185,8 +185,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
     }
     pub fn top_item_idx(&self) -> Option<usize> {
         self.lines_to_draw()
-            .skip(self.scroll)
-            .next()
+            .nth(self.scroll)
             .map(|line| line.item_idx)
     }
     pub fn focus_search(&mut self) {
@@ -1020,7 +1019,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
                             } else {
                                 &csi_found
                             };
-                            modified.change_range_style(found.trange, style.to_string());
+                            modified.change_range_style(found.trange, style.clone());
                             if let Some(continued) = &found.continued {
                                 pending_continuation = Some(PendingContinuation {
                                     trange: *continued,

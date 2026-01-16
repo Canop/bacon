@@ -70,7 +70,12 @@ pub fn run() -> anyhow::Result<()> {
         let prefs_path =
             bacon_prefs_path().ok_or(anyhow!("No preferences location known for this system."))?;
         if !prefs_path.exists() {
-            fs::create_dir_all(prefs_path.parent().unwrap())?;
+            let Some(prefs_parent) = prefs_path.parent() else {
+                anyhow::bail!(
+                    "Could not determine parent directory of {prefs_path:?} preferences path"
+                );
+            };
+            fs::create_dir_all(prefs_parent)?;
             fs::write(&prefs_path, DEFAULT_PREFS.trim_start())?;
             // written to stderr to allow initialization with commands like
             //  $EDITOR "$(bacon --prefs)"

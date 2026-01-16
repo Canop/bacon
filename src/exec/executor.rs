@@ -166,7 +166,7 @@ impl MissionExecutor {
             // starting a thread to handle stderr lines until program
             // ends (then ask the child_thread to send status)
             let err_line_sender = line_sender.clone();
-            let stderr = child.stderr.take().expect("child missing stderr");
+            let stderr = child.stderr.take().expect("child missing stderr"); // can this happen?
             let mut buf_reader = BufReader::new(stderr);
             thread::spawn(move || {
                 let mut line = String::new();

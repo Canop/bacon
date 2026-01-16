@@ -121,7 +121,7 @@ impl Mission<'_> {
                 &scope.tests
             };
             for test in tests {
-                command.push(test.to_string());
+                command.push(test.clone());
             }
         }
 

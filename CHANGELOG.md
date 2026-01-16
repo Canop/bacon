@@ -1,3 +1,6 @@
+### next
+- new analyzers for Go and tsc (TypeScript) - thanks @faultymajority
+
 <a name="v3.21.0"></a>
 ### v3.21.0 - 2026/01/11
 - add new line format template variables: `{job}` and `{item-idx}`  - Fix #423 - Thanks @cehteh

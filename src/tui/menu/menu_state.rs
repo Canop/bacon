@@ -55,7 +55,7 @@ impl<I: Md + Clone> MenuState<I> {
         });
     }
     pub fn clear_item_areas(&mut self) {
-        for item in self.items.iter_mut() {
+        for item in &mut self.items {
             item.area = None;
         }
     }
