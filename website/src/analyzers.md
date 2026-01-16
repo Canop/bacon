@@ -9,17 +9,19 @@ This page is an overview of the supported tools and how bacon can be configured 
 Analyzer | Languages | Tool
 -|-|-
 [standard](#rust) (*default*) | Rust | [cargo](https://doc.rust-lang.org/cargo/) `check`, `build`, `test`, `clippy`, `doc`, `run`, `miri`
-[nextest](#nextest)| Rust |  [cargo-nextest](https://nexte.st/)
 [cargo_json](#cargojson)| Rust |  cargo with `--message-format json-diagnostic-rendered-ansi`
-[python_unittest](#unittest) | Python |  [Unittest](https://docs.python.org/3/library/unittest.html)
+[nextest](#nextest)| Rust |  [cargo-nextest](https://nexte.st/)
+[cpp](#gcc-clang)| C++ |  Clang and GCC
+cpp_doctest| C++ |  [doctest](https://github.com/doctest/doctest).
+[biome](#biome)| JS/TS/CSS |  [Biome](https://biomejs.dev/)
+[eslint](#eslint)| JS/TS/CSS |  [ESLint](https://eslint.org/)
+[go](#go-build) | Go | [go](https://go.dev/)
 [python_pytest](#pytest)| Python |  [pytest](https://docs.pytest.org/)
 [python_ruff](#ruff)| Python |  [ruff](https://docs.astral.sh/ruff/)
-[eslint](#eslint)| JS/TS/CSS |  [ESLint](https://eslint.org/)
-[biome](#biome)| JS/TS/CSS |  [Biome](https://biomejs.dev/)
-[cpp](#gcc-clang)| C++ |  Clang and GCC
+[python_unittest](#unittest) | Python |  [Unittest](https://docs.python.org/3/library/unittest.html)
 [swift_build](#swift-build)| Swift |  swift build
 [swift_lint](#swift-lint)| Swift |  swift lint
-cpp_doctest| C++ |  [doctest](https://github.com/doctest/doctest).
+[typescript](#typescript)| TS | [tsc](https://www.typescriptlang.org/docs/handbook/compiler-options.html)
 
 # Rust
 
@@ -86,27 +88,44 @@ need_stdout = true
 It doesn't use the standard analyzer but bacon comes preconfigured with a nextest job so that you can launch `bacon nextest` or simply hit <kbd>n</kbd> while in bacon.
 
 
-# Python
+# C++
 
-Support of Python is just starting, and Python developers should raise their hand if they want to see progress here.
-
-## Unittest
+## GCC / Clang
 
 **Status: <span style="background-color:orange;color:white;padding:3px">young</span>**
 
-Support for the [Unittest](https://docs.python.org/3/library/unittest.html) framework seems to work, but lacks testers and users.
+```TOML
+[jobs.gcc]
+command = [
+    "g++", "-Wall", "src/main.cpp",
+]
+watch = ["src"]
+need_stdout = true
+analyzer = "cpp"
+```
+
+# Go
+
+## Go build
+
+**Status: <span style="background-color:orange;color:white;padding:3px">young</span>**
 
 Example configuration:
 
 ```TOML
-[jobs.unittest]
 command = [
-    "python3", "unitest_runner.py",
+    "go", "build",
+    "-v",
+    "./...",
 ]
 need_stdout = true
-analyzer = "python_unittest"
+analyzer = "go"
 watch = ["."]
 ```
+
+# Python
+
+Support of Python is just starting, and Python developers should raise their hand if they want to see progress here.
 
 ## Pytest
 
@@ -145,21 +164,25 @@ analyzer = "python_ruff"
 watch = ["."]
 ```
 
-# JavaScript / TypeScript
-
-## Eslint
+## Unittest
 
 **Status: <span style="background-color:orange;color:white;padding:3px">young</span>**
 
-[ESLint](https://eslint.org/)
+Support for the [Unittest](https://docs.python.org/3/library/unittest.html) framework seems to work, but lacks testers and users.
+
+Example configuration:
 
 ```TOML
-[jobs.lint]
-command = ["npx", "eslint", "--color", "libs/*"]
+[jobs.unittest]
+command = [
+    "python3", "unitest_runner.py",
+]
 need_stdout = true
-analyzer = "eslint"
-watch = ["libs"]
+analyzer = "python_unittest"
+watch = ["."]
 ```
+
+# JavaScript / TypeScript
 
 ## Biome
 
@@ -184,20 +207,34 @@ analyzer = "biome"
 watch = ["libs"]
 ```
 
-# C++
-
-## GCC / Clang
+## Eslint
 
 **Status: <span style="background-color:orange;color:white;padding:3px">young</span>**
 
+[ESLint](https://eslint.org/)
+
 ```TOML
-[jobs.gcc]
-command = [
-    "g++", "-Wall", "src/main.cpp",
-]
-watch = ["src"]
+[jobs.lint]
+command = ["npx", "eslint", "--color", "libs/*"]
 need_stdout = true
-analyzer = "cpp"
+analyzer = "eslint"
+watch = ["libs"]
+```
+
+## TypeScript
+
+**Status: <span style="background-color:orange;color:white;padding:3px">young</span>**
+
+Example configuration:
+
+```TOML
+command = [
+    "tsc",
+    "--noEmit", "--pretty",
+]
+analyzer = "typescript"
+need_stdout = true
+watch = ["src"]
 ```
 
 # Swift
@@ -229,8 +266,6 @@ need_stdout = true
 analyzer = "swift_lint"
 ```
 
-
 # Other tools
 
 What's not here, you should probably ask for it, either on [GitHub](https://github.com/Canop/bacon) or on [the Miaou chat](https://miaou.dystroy.org/4683).
-
