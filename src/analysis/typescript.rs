@@ -1,6 +1,11 @@
 //! An analyzer for the Typescript compiler `tsc`
 
-use {super::*, crate::*, anyhow::Result, lazy_regex::*};
+use {
+    super::*,
+    crate::*,
+    anyhow::Result,
+    lazy_regex::*,
+};
 
 #[derive(Debug, Default)]
 pub struct TypescriptAnalyzer {

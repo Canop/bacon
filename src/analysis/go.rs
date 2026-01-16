@@ -1,6 +1,11 @@
 //! An analyzer for the Go compiler `go`
 
-use {super::*, crate::*, anyhow::Result, lazy_regex::*};
+use {
+    super::*,
+    crate::*,
+    anyhow::Result,
+    lazy_regex::*,
+};
 
 #[derive(Debug, Default)]
 pub struct GoAnalyzer {

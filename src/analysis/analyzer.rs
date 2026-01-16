@@ -1,8 +1,22 @@
 use {
-    super::{biome, cargo_json, cpp, eslint, go, nextest, python, standard, swift, typescript},
+    super::{
+        biome,
+        cargo_json,
+        cpp,
+        eslint,
+        go,
+        nextest,
+        python,
+        standard,
+        swift,
+        typescript,
+    },
     crate::*,
     schemars::JsonSchema,
-    serde::{Deserialize, Serialize},
+    serde::{
+        Deserialize,
+        Serialize,
+    },
 };
 
 /// A stateless operator building a report from a list of command output lines.
