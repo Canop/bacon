@@ -3,6 +3,7 @@ mod biome;
 mod cargo_json;
 mod cpp;
 mod eslint;
+mod go;
 mod item_accumulator;
 mod line_analysis;
 mod line_analyzer;
