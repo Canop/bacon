@@ -71,7 +71,7 @@ fn recognize_location_code(tline: &TLine) -> Option<LocationCode> {
     None
 }
 
-/// Build a report from the output of biome
+/// Build a report from the output of `tsc`
 pub fn build_report(cmd_lines: &[CommandOutputLine]) -> anyhow::Result<Report> {
     let mut items = ItemAccumulator::default();
     let mut last_is_blank = true;
