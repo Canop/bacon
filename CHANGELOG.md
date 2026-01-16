@@ -1,4 +1,5 @@
-### next
+<a name="v3.22.0"></a>
+### v3.22.0 - 2026/01/16
 - new analyzers for Go and tsc (TypeScript) - thanks @faultymajority
 
 <a name="v3.21.0"></a>
