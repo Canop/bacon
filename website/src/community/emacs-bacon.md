@@ -3,16 +3,17 @@
 # Purpose
 
 [emacs-bacon](https://seed.pipapo.org/nodes/seed.pipapo.org/rad:zKbD2Y9kERBYScgczMaJBTRfjBhh)
-is a emacs minor-mode, which, combined with bacon, lets you navigate between errors and
+is an emacs minor-mode, which, combined with bacon, lets you navigate between errors and
 warnings without leaving your editor, just hitting a key. It also syncronizes bacon to show
 the current navigated item.
 
 # Development
 
-emacs-bacon is maintained [radicle](https://radicle.xyz/). Issues and PR's are maintained in
-[radicle](https://radicle.xyz/guides/user#2-collaborating-the-radicle-way) as well.
+emacs-bacon is maintained on [radicle](https://radicle.xyz/).
+It's radicle id is `rad:zKbD2Y9kERBYScgczMaJBTRfjBhh`.
+Issues and PR's are maintained in [radicle](https://radicle.xyz/guides/user#2-collaborating-the-radicle-way) as well.
 
-Discussions and feedback are welcome on mastodon. Send to `@cehteh@social.tchncs.de` with the
+Discussions and feedback are welcome on mastodon. Write to `@cehteh@social.tchncs.de` with the
 `#scrollpanel` tag.
 
 

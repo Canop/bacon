@@ -243,8 +243,8 @@ Following are 3 typical configurations.
 
 This is the best way to ensure you can list warnings/errors/failures and navigate between them
 in your IDE, for example with a plugin such as
-[nvim-bacon](https://github.com/Canop/nvim-bacon) or
-[emacs-bacon](https://seed.pipapo.org/nodes/seed.pipapo.org/rad:zKbD2Y9kERBYScgczMaJBTRfjBhh).
+[nvim-bacon](/community/nvim-bacon) or
+[emacs-bacon](/community/emacs-bacon).
 
 With the following configuration, locations are exported on each job execution.
 
