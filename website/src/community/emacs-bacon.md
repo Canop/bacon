@@ -9,7 +9,8 @@ the current navigated item.
 
 # Development
 
-emacs-bacon is maintained [radicle](https://radicle.xyz/). Issues and PR's are maintained in
+emacs-bacon is maintained with [radicle](https://radicle.xyz/). It's radicle id is
+`rad:zKbD2Y9kERBYScgczMaJBTRfjBhh`. Issues and PR's are maintained in
 [radicle](https://radicle.xyz/guides/user#2-collaborating-the-radicle-way) as well.
 
 Discussions and feedback are welcome on mastodon. Send to `@cehteh@social.tchncs.de` with the
