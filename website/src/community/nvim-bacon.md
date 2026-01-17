@@ -2,7 +2,13 @@
 
 # Purpose
 
-[nvim-bacon](https://github.com/Canop/nvim-bacon) is a neovim plugin, which, combined with bacon, lets you navigate between errors and warnings without leaving your editor, just hitting a key.
+nvim-bacon is a neovim plugin, which, combined with bacon, lets you navigate between errors and warnings without leaving your editor, just hitting a key.
+
+# Development
+
+nvim-bacon is maintained in [its own repository](https://github.com/Canop/nvim-bacon).
+
+Discussions and feedback are welcome on [bacon's chat room](https://miaou.dystroy.org/4683).
 
 # How it works
 

@@ -4,6 +4,8 @@ For most of them, a dedicated `analyzer` must be specified in the [job settings]
 
 This page is an overview of the supported tools and how bacon can be configured for them.
 
+Some analyzers are flagged as **<span style="background-color:orange;color:white;padding:3px">young</span>**: it means some feedback would be welcome, either in the [chat](https://miaou.dystroy.org/4683) (if positive) or as GitHub issue (if negative).
+
 # Summary
 
 Analyzer | Languages | Tool

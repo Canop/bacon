@@ -1,11 +1,14 @@
+
+# Purpose
+
 [Bacon-ls](https://github.com/crisidev/bacon-ls) is a [language server](https://en.wikipedia.org/wiki/Language_Server_Protocol) implementation specifically designed to work with Bacon projects,
  exposing [textDocument/diagnostic](https://microsoft.github.io/language-server-protocol/specification#textDocument_diagnostic) and [workspace/diagnostic](https://microsoft.github.io/language-server-protocol/specification#workspace_diagnostic) capabilities to editors.
 
 ![bacon-ls](../img/bacon-ls.png)
 
-**NOTE: Bacon-ls requires Bacon 3.8+ to work properly.**
+# Development
 
-**NOTE: Bacon-ls is not part of Bacon, it's a third-party tool developed to work WITH Bacon.**
+Bacon-ls is maintained in [its own repository](https://github.com/crisidev) by [@crisidev](https://github.com/crisidev).
 
 # Features
 
@@ -182,6 +185,3 @@ to ensure regular updates of the export locations.
 
 The LSP client reads them as response to `textDocument/diagnostic` and `workspace/diagnostic`.
 
-# More info
-
-Please visit [https://github.com/crisidev/bacon-ls](https://github.com/crisidev/bacon-ls) for more information.
