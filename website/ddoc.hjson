@@ -3,6 +3,7 @@
 title: Bacon
 description: "Bacon, a background compiler"
 favicon: img/favicon.ico
+ddoc-version: 0.16
 
 site-map: {
     Overview: index.md
@@ -54,7 +55,34 @@ body: {
                 activate-visible-item: true
             }
         }
-        ddoc-main: {}
+        div.main-content: {
+            ddoc-main: {}
+            nav.prev-next: {
+                ddoc-link.previous-page-link: {
+                    inline: img/ddoc-left-arrow.svg
+                    href: --previous
+                    alt: Previous Page
+                    label: --previous-page-title
+                }
+                ddoc-link.next-page-link: {
+                    label: --next-page-title
+                    inline: img/ddoc-right-arrow.svg
+                    href: --next
+                    alt: Next Page
+                }
+            }
+            footer: {
+                div.made-with-ddoc: {
+                    ddoc-link: {
+                        label: made with
+                    }
+                    ddoc-link.link-to-ddoc: {
+                        label: ddoc
+                        href: https://dystroy.org/ddoc
+                    }
+                }
+            }
+        }
     }
 }
 

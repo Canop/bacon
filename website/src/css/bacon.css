@@ -16,6 +16,10 @@
 	--code-bg: #ffc8c8aa;
 	--inline-code-border: solid 1px #9443;
 	--hovered-toc-item-bg: #222;
+	--prev-next-separator: none;
+	--prev-next-border: thin solid #bbb3;
+	--prev-next-bg: var(--toc-bg);
+	--hovered-prev-next-bg: var(--hovered-toc-item-bg);
 	--search-panel-wrapper-bg: #fffe;
 	--search-result-border: none;
 	--search-results-bg: linear-gradient(#ddd,#ccc);
@@ -659,4 +663,92 @@ table tr td {
 	.ddoc-search-results {
 		max-height: calc(100vh - 240px);
 	}
+}
+
+/* prev - next page links */
+
+.prev-next {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	margin: 50px 0 10px 0;
+	padding: 20px 0;
+	font-size: 87%;
+	border-top: var(--prev-next-separator);
+}
+body .prev-next .nav-link.unexpanded {
+	opacity: 0;
+}
+.prev-next .nav-link.previous-page-link svg, .prev-next .nav-link.next-page-link svg {
+	max-width: 20px;
+	max-height: 20px;
+	margin: 0 0 0 10px;
+}
+.prev-next .nav-link.previous-page-link:hover svg path, .prev-next .nav-link.next-page-link:hover svg path {
+	fill: var(--accent);
+	stroke: var(--accent);
+}
+.prev-next .nav-link {
+	flex: 1 1 30%;
+	padding: 10px 15px;
+	border: var(--prev-next-border);
+	border-radius: 5px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	background: var(--prev-next-bg);
+}
+.prev-next .nav-link:hover {
+	background: var(--hovered-prev-next-bg);
+}
+.prev-next .previous-page-link {
+	justify-content: flex-start;
+}
+.prev-next .next-page-link {
+	justify-content: flex-end;
+}
+@media (max-width: 768px) { /* mobile */
+	.prev-next .nav-link {
+		padding: 10px 2px;
+	}
+	.prev-next .nav-link.previous-page-link {
+		margin-right: 2px;
+	}
+	.prev-next .nav-link.next-page-link {
+		margin-left: 2px;
+	}
+}
+@media (min-width: 768px) { /* wide screens */
+	.prev-next .nav-link {
+		padding: 10px 15px;
+	}
+	.prev-next .nav-link.previous-page-link {
+		margin-right: 5px;
+	}
+	.prev-next .nav-link.next-page-link {
+		margin-left: 5px;
+	}
+}
+
+body.page-index .made-with-ddoc {
+	display: none; /* hide "made with ddoc" on index page */
+}
+
+footer .made-with-ddoc {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	padding: 10px 0 20px 0;
+	font-size: 82%;
+}
+footer .made-with-ddoc a.nav-link, footer .made-with-ddoc a.nav-link:hover {
+	color: var(--text);
+	opacity: 0.4;
+}
+footer .made-with-ddoc a.nav-link.link-to-ddoc {
+	font-weight: bold;
+}
+footer .made-with-ddoc a.nav-link.link-to-ddoc:hover {
+	opacity: 0.8;
+	text-decoration: underline;
 }
