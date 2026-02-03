@@ -14,7 +14,7 @@ It's radicle id is `rad:zKbD2Y9kERBYScgczMaJBTRfjBhh`.
 Issues and PR's are maintained in [radicle](https://radicle.xyz/guides/user#2-collaborating-the-radicle-way) as well.
 
 Discussions and feedback are welcome on mastodon. Write to `@cehteh@social.tchncs.de` with the
-`#scrollpanel` tag.
+`#emacs-bacon` tag.
 
 
 # How it works
