@@ -27,6 +27,40 @@ And the key binding:
 d = "job:doc-open"
 ```
 
+# Variable arguments
+
+Launch arguments after the `--` aren't interpreted by bacon but sent unchanged to the job commands.
+
+This may be useful to add an argument only for one run without changing the `bacon.toml` file.
+
+For example
+
+```bash
+bacon -- --target x86_64-pc-windows-gnu
+```
+
+Be careful that some programs already require `--` so you may have to double it.
+For example, to run `cargo test` with a single thread, you'll need
+
+```bash
+bacon test -- -- --test-threads=1
+```
+
+Another use case, a job which needs a complementary argument:
+
+
+```toml
+[jobs.ex]
+command = ["cargo", "run", "--example"]
+need_stdout = true
+```
+
+You would call it with
+
+```bash
+bacon ex -- example4578
+```
+
 # Configure Clippy lints
 
 Jobs in the `bacon.toml` file are specific to your projects, there's no reason not to adapt them for its specificities.
@@ -49,7 +83,7 @@ need_stdout = false
 You may also add some modifiers on spot sessions, eg
 
 ```bash
-bacon clippy -- -W clippy::pedantic
+bacon clippy -- -- -W clippy::pedantic
 ```
 
 Note that bacon doesn't need to be killed and relaunched when you change the job config.
@@ -122,40 +156,6 @@ kill = ["kill", "-s", "INT"]
 ```
 
 Of course you don't have to take them all, depending on your precise case.
-
-# Variable arguments
-
-Launch arguments after the `--` aren't interpreted by bacon but sent unchanged to the job commands.
-
-This may be useful to add an argument only for one run without changing the `bacon.toml` file.
-
-For example
-
-```bash
-bacon -- --target x86_64-pc-windows-gnu
-```
-
-Be careful that some programs already require `--` so you may have to double it.
-For example, to run `cargo test` with a single thread, you'll need
-
-```bash
-bacon test -- -- --test-threads=1
-```
-
-Another use case, a job which needs a complementary argument:
-
-
-```toml
-[jobs.ex]
-command = ["cargo", "run", "--example"]
-need_stdout = true
-```
-
-You would call it with
-
-```bash
-bacon ex -- example4578
-```
 
 # Remote control
 
