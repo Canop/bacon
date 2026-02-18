@@ -105,6 +105,12 @@ pub struct Job {
     /// Whether to display how many files triggered the current run.
     pub show_changes_count: Option<bool>,
 
+    /// Whether to show the error code of commands.
+    /// This is normally automatic, depending on warnings and errors found by the analyzers, but
+    /// some commands may want to force it on (eg `cargo run` to show the error code of the binary
+    /// being run even when there are rustc warnings).
+    pub show_command_error_code: Option<bool>,
+
     /// Color overrides applied to the UI while the job runs.
     #[serde(default)]
     pub skin: BaconSkin,
@@ -251,6 +257,9 @@ impl Job {
         if let Some(b) = job.show_changes_count {
             self.show_changes_count = Some(b);
         }
+        if let Some(b) = job.show_command_error_code {
+            self.show_command_error_code = Some(b);
+        }
         self.sound.apply(&job.sound);
         if let Some(p) = job.workdir.as_ref() {
             self.workdir = Some(p.clone());
@@ -291,6 +300,7 @@ fn test_job_apply() {
         on_failure: Some(Action::from_str("play-sound(name=car-horn)").unwrap()),
         watch: Some(vec!["src".to_string(), "tests".to_string()]),
         show_changes_count: Some(true),
+        show_command_error_code: Some(true),
         sound: SoundConfig {
             enabled: Some(true),
             base_volume: Some(Volume::from_str("50").unwrap()),

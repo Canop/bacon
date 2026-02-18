@@ -18,6 +18,7 @@ use {
 /// lightly analyzed
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Report {
+    pub error_code: Option<i32>,
     pub output: CommandOutput,
     pub lines: Vec<Line>,
     pub stats: Stats,
@@ -36,6 +37,7 @@ impl Report {
     pub fn new(lines: Vec<Line>) -> Self {
         let stats = Stats::from(&lines);
         Self {
+            error_code: None,
             output: Default::default(),
             lines,
             suggest_backtrace: false,
@@ -69,6 +71,10 @@ impl Report {
         !(self.stats.errors != 0
             || (!allow_failures && self.stats.test_fails != 0)
             || (!allow_warnings && self.stats.warnings != 0))
+    }
+
+    pub fn error_code(&self) -> Option<i32> {
+        self.error_code.filter(|code| *code != 0)
     }
 
     pub fn remove_item(

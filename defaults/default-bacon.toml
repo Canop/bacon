@@ -86,6 +86,7 @@ command = [
 need_stdout = true
 allow_warnings = true
 background = true
+show_command_error_code = true
 
 # Run your long-running application (eg server) and have the result displayed in bacon.
 # For programs that never stop (eg a server), `background` is set to false

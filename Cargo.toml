@@ -30,7 +30,7 @@ directories-next = "2.0.0"
 gix = { version = "0.73", default-features = false, features = [ "index", "excludes", "parallel" ] }
 glob = "0.3"
 iq = { version = "0.4", features = ["template"] }
-lazy-regex = "3.4.1"
+lazy-regex = "3.6"
 notify = "8.2.0"
 paste = "1.0"
 pretty_assertions = "1.4"
@@ -56,4 +56,4 @@ codegen-units = 1
 # crokey = { path = "../crokey" }
 # coolor = { path = "../coolor" }
 # iq = { path = "../iq" }
-# lazy-regex = { path = "../lazy-regex" }
+# lazy-regex = { path = "../lazy-regex" }

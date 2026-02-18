@@ -43,6 +43,7 @@ impl CommandResult {
             }
         }
         report.output = output;
+        report.error_code = error_code;
         // report looks valid
         Ok(Self::Report(report))
     }
