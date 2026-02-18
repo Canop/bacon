@@ -758,6 +758,15 @@ impl<'a, 'm> MissionState<'a, 'm> {
                     skin.warnings_badge_bg(),
                 ));
             }
+            if let Some(error_code) = report.error_code() {
+                if self.mission.job.show_command_error_code == Some(true) {
+                    badges.push(TString::badge(
+                        &format!("Command error code: {}", error_code),
+                        skin.command_error_badge_fg(),
+                        skin.command_error_badge_bg(),
+                    ));
+                }
+            }
         } else if let CommandResult::Failure(failure) = &self.cmd_result {
             badges.push(TString::badge(
                 &format!("Command error code: {}", failure.error_code),
