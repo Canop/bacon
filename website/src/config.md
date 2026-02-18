@@ -90,6 +90,7 @@ extraneous_args | if `false`, the action is run "as is" from `bacon.toml`, eg: n
 need_stdout |whether we need to capture stdout too (stderr is always captured) | `false`
 on_change_strategy | `wait_then_restart` or `kill_then_restart` |
 on_success | the action to run when there's no error, warning or test failures |
+show_command_error_code | if true, show any non zero status as badge (makes sense for eg `bacon run`) |
 skin | bacon application colors, [see below](#skin) |
 watch | a list of files and directories that will be watched if the job is run on a package. Usual source directories are implicitly included unless `default_watch` is set to false |
 workdir | overrides the execution directory |
