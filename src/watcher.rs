@@ -22,7 +22,7 @@ use {
 
 /// A file watcher, providing a channel to receive notifications
 pub struct Watcher {
-    pub receiver: Receiver<()>,
+    pub receiver: Receiver<PathBuf>,
     _notify_watcher: RecommendedWatcher,
 }
 
@@ -32,11 +32,11 @@ impl Watcher {
         mut ignorer: IgnorerSet,
     ) -> Result<Self> {
         info!("watcher on {paths_to_watch:#?}");
-        let (sender, receiver) = bounded(0);
+        let (sender, receiver) = bounded::<PathBuf>(0);
         let mut notify_watcher =
             notify::recommended_watcher(move |res: notify::Result<notify::Event>| {
                 match res {
-                    Ok(we) => {
+                    Ok(mut we) => {
                         match we.kind {
                             EventKind::Modify(ModifyKind::Metadata(_)) => {
                                 //debug!("ignoring metadata change");
@@ -69,7 +69,7 @@ impl Watcher {
                                 warn!("exclusion check failed: {e}");
                             }
                         }
-                        if let Err(e) = sender.send(()) {
+                        if let Err(e) = sender.send(we.paths.swap_remove(0)) {
                             debug!("error when notifying on notify event: {e}");
                         }
                     }

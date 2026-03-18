@@ -1,6 +1,9 @@
 use {
     crate::*,
-    anyhow::Result,
+    anyhow::{
+        Result,
+        anyhow,
+    },
     crokey::*,
     std::{
         io::Write,
@@ -172,13 +175,17 @@ fn run_mission(
             recv(ticker.tick_receiver) -> _ => {
                 // just redraw
             }
-            recv(mission_watcher.receiver) -> _ => {
+            recv(mission_watcher.receiver) -> trigger_path => {
+                let Ok(trigger_path) = trigger_path else {
+                    return Err(anyhow!("watcher channel was closed"));
+                };
+
                 debug!("watch event received");
                 if task_executor.is_in_grace_period() {
                     debug!("ignoring notify event in grace period");
                     continue;
                 }
-                mission_state.receive_watch_event();
+                mission_state.receive_watch_event(trigger_path);
                 if mission_state.auto_refresh.is_enabled() {
                     if !mission_state.is_computing() || on_change_strategy == OnChangeStrategy::KillThenRestart {
                         actions.push(Action::ReRun);

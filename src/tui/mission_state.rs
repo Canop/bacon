@@ -4,6 +4,7 @@ use {
     crokey::KeyCombination,
     std::{
         io::Write,
+        path::PathBuf,
         process::ExitStatus,
         time::Instant,
     },
@@ -79,6 +80,8 @@ pub struct MissionState<'a, 'm> {
     pub search: SearchState,
     /// The dialog that may be displayed over the rest of the UI
     pub dialog: Dialog,
+    /// The last seen path that triggered a re-run.
+    pub last_trigger_path: Option<PathBuf>,
 }
 
 impl<'a, 'm> MissionState<'a, 'm> {
@@ -134,6 +137,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             dialog: Dialog::None,
             app_state,
             mission,
+            last_trigger_path: None,
         })
     }
     pub fn open_jobs_menu(&mut self) {
@@ -545,8 +549,12 @@ impl<'a, 'm> MissionState<'a, 'm> {
     pub fn computation_stops(&mut self) {
         self.computing = false;
     }
-    pub fn receive_watch_event(&mut self) {
+    pub fn receive_watch_event(
+        &mut self,
+        trigger_path: PathBuf,
+    ) {
         self.changes_since_last_job_start += 1;
+        self.last_trigger_path = Some(trigger_path);
     }
     fn scroll_to_top(&mut self) {
         self.scroll = 0;
@@ -826,12 +834,33 @@ impl<'a, 'm> MissionState<'a, 'm> {
         let skin = self.mission.job.skin;
         let width = self.width as usize;
         if self.computing {
+            let text = if let Some(last_trigger_path) = &self.last_trigger_path {
+                let path_display = last_trigger_path.display().to_string();
+
+                let prefix_len = "watch trigger: ".len();
+                let padding_len = 2;
+
+                let should_be_shortened =
+                    last_trigger_path.as_os_str().len() + prefix_len + padding_len > width;
+                if should_be_shortened {
+                    let start_index = path_display.ceil_char_boundary(
+                        (path_display.len() + "...".len() + prefix_len + padding_len)
+                            .saturating_sub(width),
+                    );
+                    "watch trigger: ...".to_string() + &path_display[start_index..]
+                } else {
+                    format!("watch trigger: {path_display}")
+                }
+            } else {
+                "computing...".to_string()
+            };
+
             write!(
                 w,
                 "\u{1b}[38;5;{}m\u{1b}[48;5;{}m{:^w$}\u{1b}[0m",
                 skin.computing_fg(),
                 skin.computing_bg(),
-                "computing...",
+                text,
                 w = width
             )?;
         } else {
