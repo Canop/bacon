@@ -33,9 +33,18 @@ We use [GitHub's issue manager](https://github.com/Canop/bacon/issues).
 
 Before posting a new issue, check your problem hasn't already been raised and in case of doubt **please come first discuss it on the chat**.
 
-Looking into an issue may require bacon to be launched with log enabled (eg `BACON_LOG=DEBUG bacon`) which produces a `bacon.log` file.
+If bacon didn't understand correctly the output of a cargo tool, it may also be useful to have a look at the log (see [below](#log)) and at the analysis export, which you normally find in a `bacon-analysis.json` file on hitting `ctrl-e`.
 
-If bacon didn't understand correctly the output of a cargo tool, it may also be useful to have a look at the analysis export, which you normally find in a `bacon-analysis.json` file on hitting `ctrl-e`.
+# Log
+
+When something looks like a bug, I need both to know the exact configuration (OS, terminal program, mainly) and to have the log.
+
+The log can be obtained this way:
+
+1. start bacon with `BACON_LOG=debug bacon`
+2. do the action which seems not to properly work, and nothing else
+3. quit bacon
+4. go to the [chat](https://miaou.dystroy.org/4683) (or the GitHub issue if you already made one) and paste the content of the `bacon.log` file
 
 # Contribute
 
