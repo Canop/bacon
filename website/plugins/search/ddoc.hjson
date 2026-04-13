@@ -1,0 +1,9 @@
+title: "search"
+description: When enabled, this plugin allows searching the site
+
+vars: {
+    # You can use the `--search` value in URL fields to be
+    # expanded into a function opening th search dialog
+    search: "javascript:ddoc_search.open();"
+}
+

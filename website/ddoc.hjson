@@ -3,7 +3,18 @@
 title: Bacon
 description: "Bacon, a background compiler"
 favicon: img/favicon.ico
-ddoc-version: 0.16
+ddoc-version: 0.17
+vars: {
+    github-url: https://github.com/Canop/bacon
+    home-icon: /img/logo-white.svg
+}
+
+active-plugins: [
+    "dystroy-foss"
+    "theme-top-menu"
+    "search"
+    "toc-activate"
+]
 
 site-map: {
     Overview: index.md
@@ -19,70 +30,4 @@ site-map: {
     }
 }
 
-body: {
-    header: {
-        nav.before-menu: {
-            ddoc-link.external-nav-link: {
-                img: img/dystroy-rust-white.svg
-                href: https://dystroy.org
-                alt: dystroy.org homepage
-            }
-            ddoc-link.bacon-nav-logo: {
-                img: img/logo-white.svg
-                href: /index.md
-                alt: Bacon homepage
-            }
-        }
-        ddoc-menu: {
-            hamburger-checkbox: true
-        }
-        nav.after-menu: {
-            ddoc-link.search-opener: {
-                img: img/ddoc-search.svg
-                href: --search
-                alt: Search
-            }
-            ddoc-link.external-nav-link: {
-                img: img/github-mark-white.svg
-                alt: GitHub
-                href: https://github.com/Canop/bacon
-            }
-        }
-    }
-    article: {
-        aside.page-nav: {
-            ddoc-toc: {
-                activate-visible-item: true
-            }
-        }
-        div.main-content: {
-            ddoc-main: {}
-            nav.prev-next: {
-                ddoc-link.previous-page-link: {
-                    inline: img/ddoc-left-arrow.svg
-                    href: --previous
-                    alt: Previous Page
-                    label: --previous-page-title
-                }
-                ddoc-link.next-page-link: {
-                    label: --next-page-title
-                    inline: img/ddoc-right-arrow.svg
-                    href: --next
-                    alt: Next Page
-                }
-            }
-            footer: {
-                div.made-with-ddoc: {
-                    ddoc-link: {
-                        label: made with
-                    }
-                    ddoc-link.link-to-ddoc: {
-                        label: ddoc
-                        href: https://dystroy.org/ddoc
-                    }
-                }
-            }
-        }
-    }
-}
 

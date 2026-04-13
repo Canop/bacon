@@ -1,0 +1,15 @@
+title: dystroy FOSS
+description: links & styling common to all FOSS docs of the dystroy.org site
+
+
+body: {
+    header: {
+        nav.before-menu: {
+            ddoc-link.external-nav-link: {
+                inline: img/dystroy-rust-white.svg
+                href: https://dystroy.org
+                alt: dystroy.org homepage
+            }
+        }
+    }
+}

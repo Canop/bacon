@@ -1,0 +1,66 @@
+title: "top-menu theme"
+description: A theme featuring the menu on top and page's TOC on left
+
+# This plugin reads some optional vars:
+# - github-url: if defined, a link will be added on the right of the top bar
+# - home-title: if defined, a link to home will be added left of the menu with this text
+# - home-icon: if defined, a link to home will be added left of the menu with this logo
+# If needed, they can be defined in the `vars` map of the main ddoc.hjson
+
+body: {
+    header: {
+        nav.before-menu: {
+            ddoc-link.home-nav-logo: {
+                img: --home-icon
+                href: /index.md
+                alt: homepage
+            }
+            ddoc-link.home-link: {
+                href: /index.md
+                alt: ddoc homepage
+                label: --home-title
+            }
+        }
+        ddoc-menu: {
+            hamburger-checkbox: true
+        }
+        nav.after-menu: {
+            ddoc-link.search-opener: {
+                inline: img/ddoc-search.svg
+                href: --search
+                alt: Search
+            }
+            ddoc-link.external-nav-link.github: {
+                inline: img/github-mark.svg
+                alt: GitHub
+                href: --github-url
+            }
+        }
+    }
+    article: {
+        aside.page-nav: {
+            ddoc-toc: {
+                activate-visible-item: true
+            }
+        }
+        div.main-content: {
+            ddoc-main: {}
+            nav.prev-next: {
+                ddoc-link.previous-page-link: {
+                    inline: img/ddoc-left-arrow.svg
+                    href: --previous
+                    alt: Previous Page
+                    label: --previous-page-title
+                }
+                ddoc-link.next-page-link: {
+                    label: --next-page-title
+                    inline: img/ddoc-right-arrow.svg
+                    href: --next
+                    alt: Next Page
+                }
+            }
+            footer: {
+            }
+        }
+    }
+}
