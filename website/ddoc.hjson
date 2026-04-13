@@ -6,7 +6,7 @@ favicon: img/favicon.ico
 ddoc-version: 0.17
 vars: {
     github-url: https://github.com/Canop/bacon
-    home-icon: /img/logo-white.svg
+    home-icon: img/logo-white.svg
 }
 
 active-plugins: [
