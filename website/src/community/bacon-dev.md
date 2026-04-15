@@ -59,4 +59,4 @@ If you think you might help, as a tester or coder, you're welcome, but please re
 
 Tell me what seems to be unclear or missing.
 
-Or for simple corrections, head to [the source](https://github.com/Canop/bacon/tree/main/website)
+Or for simple corrections, direcly edit the markdonw files at [the source](https://github.com/Canop/bacon/tree/main/website). The site is built with [ddoc](https://dystroy.org/ddoc).

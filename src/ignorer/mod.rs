@@ -15,21 +15,54 @@ pub use {
     glob_ignorer::GlobIgnorer,
 };
 
-/// Build glob patterns from a pattern string, handling both absolute
-/// (starting with `/`) and relative patterns.
+/// Build glob patterns from a pattern string, generating a little more patterns
+/// than might be expected, to cover intended use cases.
+///
+/// For example, for a pattern like `foo/bar`, we want to
+/// match both `foo/bar` and `foo/bar/**` (i.e. the directory and all its contents).
+/// Patterns starting with a slash are either relative to the root, or really absolute
+/// and relative to the filesystems root.
+///
+/// See `test_expand_patterns` for examples of the generated patterns.
 pub(crate) fn build_glob_patterns(
     pattern: &str,
     root: &Path,
 ) -> Result<Vec<Pattern>> {
-    let mut patterns = Vec::new();
-    if pattern.starts_with('/') {
-        patterns.push(Pattern::new(pattern)?);
-        let abs_pattern = root.join(pattern);
-        patterns.push(Pattern::new(&abs_pattern.to_string_lossy())?);
-    } else {
-        patterns.push(Pattern::new(&format!("/**/{pattern}"))?);
+    let patterns = expand_patterns(pattern, root);
+    let mut glob_patterns = Vec::with_capacity(patterns.len());
+    for p in patterns {
+        glob_patterns.push(Pattern::new(&p)?);
     }
-    Ok(patterns)
+    Ok(glob_patterns)
+}
+
+fn expand_patterns(
+    pattern: &str,
+    root: &Path,
+) -> Vec<String> {
+    let mut patterns_over_start = Vec::new();
+    let starts_with_slash = pattern.starts_with('/');
+    let ends_in_slash = pattern.ends_with('/');
+    if starts_with_slash {
+        let without_slash = pattern.trim_start_matches('/');
+        patterns_over_start.push(root.join(without_slash).to_string_lossy().to_string());
+        patterns_over_start.push(pattern.to_string());
+    } else if pattern.starts_with("**/") {
+        patterns_over_start.push(pattern.to_string());
+    } else {
+        patterns_over_start.push(format!("**/{pattern}"));
+    }
+    let mut patterns = Vec::new();
+    for p in patterns_over_start {
+        if !pattern.ends_with('*') {
+            let complement = if ends_in_slash { "**" } else { "/**" };
+            patterns.push(format!("{p}{complement}"));
+        }
+        if !ends_in_slash {
+            patterns.push(p);
+        }
+    }
+    patterns
 }
 
 pub trait Ignorer {
@@ -109,4 +142,41 @@ impl IgnorerSet {
         }
         Ok(true)
     }
+}
+
+#[test]
+fn test_expand_patterns() {
+    assert_eq!(
+        expand_patterns("foo/bar", Path::new("/root")),
+        vec!["**/foo/bar/**".to_string(), "**/foo/bar".to_string(),]
+    );
+    assert_eq!(
+        expand_patterns("foo/bar/", Path::new("/root")),
+        vec!["**/foo/bar/**".to_string(),]
+    );
+    assert_eq!(
+        expand_patterns("/foo", Path::new("/root")),
+        vec![
+            "/root/foo/**".to_string(),
+            "/root/foo".to_string(),
+            "/foo/**".to_string(),
+            "/foo".to_string(),
+        ]
+    );
+    assert_eq!(
+        expand_patterns("**/toto", Path::new("/root")),
+        vec!["**/toto/**".to_string(), "**/toto".to_string(),]
+    );
+    assert_eq!(
+        expand_patterns("toto/**", Path::new("/root")),
+        vec!["**/toto/**".to_string(),]
+    );
+    assert_eq!(
+        expand_patterns("/foo/bar/*", Path::new("/root")),
+        vec!["/root/foo/bar/*".to_string(), "/foo/bar/*".to_string(),]
+    );
+    assert_eq!(
+        expand_patterns("foo/**/bar/*", Path::new("/root")),
+        vec!["**/foo/**/bar/*".to_string(),]
+    );
 }
