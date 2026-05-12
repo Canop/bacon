@@ -115,8 +115,6 @@ impl<'a, 'm> MissionState<'a, 'm> {
             .then(|| HelpLine::new(mission.settings));
         let show_changes_count = mission.job.show_changes_count();
         let scroll_anchor = mission.job.scroll_anchor();
-        warn!("mission settings: {:#?}", &mission.job);
-        warn!("MissionState::new - scroll_anchor: {:?}", scroll_anchor);
         Ok(Self {
             report_maker,
             output: None,
