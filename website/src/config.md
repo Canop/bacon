@@ -91,6 +91,7 @@ need_stdout |whether we need to capture stdout too (stderr is always captured) |
 on_change_strategy | `wait_then_restart` or `kill_then_restart` |
 on_success | the action to run when there's no error, warning or test failures |
 show_command_error_code | if true, show any non zero status as badge (makes sense for eg `bacon run`) |
+scroll_anchor | `first`, `last`, or `auto` : see [below](#scroll-anchor) | `first`
 skin | bacon application colors, [see below](#skin) |
 watch | a list of files and directories that will be watched if the job is run on a package. Usual source directories are implicitly included unless `default_watch` is set to false |
 workdir | overrides the execution directory |
@@ -323,6 +324,24 @@ ctrl-e = "export:json-report"
 
 Have a look, at least once, at the default configuration files.
 They contain many other properties, commented out, that you may find useful.
+
+## Scroll Anchor
+
+By default, bacon sorts items, with errors first, followed by warnings.
+
+The first items (on top if you don't have the *reverse* setting) are usually the most interesting ones.
+
+But not always. For example, with the `run` job, when there's no error and the compiled binary is effectively executed, you may want to focus on the output of the program.
+And if it's a `long run`, you probably want to have the scroll follow the new lines unless you decided to scroll away.
+
+This is achieved with the `scroll_anchor` setting, whose value can be undefined, `auto`, `first`, or `last`.
+
+When not defined, the applied default is `first`.
+
+In the default `bacon.toml`, the `run` and `run-long` jobs have `scroll_anchor = "auto"` which means that:
+
+* if errors were recorded, the default sticky position is the first item
+* if there was no error, the default stiky item is the last one (bacon then acting as `tail` to follow new lines)
 
 ## listen
 
