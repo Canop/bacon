@@ -60,7 +60,8 @@ pub struct Config {
     /// Whether to show diagnostics summarized instead of full
     pub summary: Option<bool>,
 
-    /// Deprecated toggle that enables a built-in set of Vim-style keybindings. Use `keybindings` instead
+    /// Deprecated toggle that enables a built-in set of Vim-style keybindings.
+    /// Use `keybindings` instead
     #[deprecated(since = "2.0.0", note = "use keybindings")]
     pub vim_keys: Option<bool>,
 

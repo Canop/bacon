@@ -60,7 +60,11 @@ pub struct MissionState<'a, 'm> {
     /// number of lines hidden on top due to scroll
     scroll: usize,
     /// `item_idx` of the item which was on top on last draw
+    /// (but not necessarily due to volontary scroll)
     top_item_idx: usize,
+    /// `item_idx` of the item the user scrolled to, if any, which we will try to keep on top when
+    /// possible
+    scrolled_to_top_item_idx: Option<usize>,
     /// the tool building the help line
     help_line: Option<HelpLine>,
     /// the help page displayed over the rest, if any
@@ -79,6 +83,9 @@ pub struct MissionState<'a, 'm> {
     pub search: SearchState,
     /// The dialog that may be displayed over the rest of the UI
     pub dialog: Dialog,
+    /// the prefered scroll anchor, which we try to stick to when the user didn't volontarily
+    /// scroll to another item
+    pub scroll_anchor: ScrollAnchor,
 }
 
 impl<'a, 'm> MissionState<'a, 'm> {
@@ -107,6 +114,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             .help_line
             .then(|| HelpLine::new(mission.settings));
         let show_changes_count = mission.job.show_changes_count();
+        let scroll_anchor = mission.job.scroll_anchor();
         Ok(Self {
             report_maker,
             output: None,
@@ -123,6 +131,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             show_changes_count,
             status_skin,
             scroll: 0,
+            scrolled_to_top_item_idx: None,
             top_item_idx: 0,
             help_line,
             help_page: None,
@@ -134,6 +143,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             dialog: Dialog::None,
             app_state,
             mission,
+            scroll_anchor,
         })
     }
     pub fn open_jobs_menu(&mut self) {
@@ -382,7 +392,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         &mut self,
         line: CommandOutputLine,
     ) {
-        let auto_scroll = self.is_scroll_at_bottom();
+        let auto_scroll = self.is_scroll_at_prefered_end();
         let line_count_before = self.lines_to_draw_unfiltered().len();
         if let Some(output) = self.output.as_mut() {
             self.report_maker.receive_line(line, output);
@@ -390,8 +400,8 @@ impl<'a, 'm> MissionState<'a, 'm> {
                 self.update_wrap();
             }
             if auto_scroll {
-                // if the user never scrolled, we'll stick to the bottom
-                self.scroll_to_bottom();
+                // if the user never scrolled, we'll stick to the prefered anchor
+                self.scroll_to_prefered_end();
             }
         } else {
             self.wrapped_output = None;
@@ -491,7 +501,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         }
 
         // we keep the scroll when the number of lines didn't change
-        let reset_scroll = self.cmd_result.lines_len() != cmd_result.lines_len();
+        let fix_scroll = self.cmd_result.lines_len() != cmd_result.lines_len();
 
         self.wrapped_report = None;
         self.wrapped_output = None;
@@ -501,15 +511,18 @@ impl<'a, 'm> MissionState<'a, 'm> {
         self.apply_filter();
 
         self.computing = false;
-        if reset_scroll {
-            self.reset_scroll();
-        }
         self.raw_output = false;
         if self.wrap {
             self.update_wrap();
         }
-
-        self.try_scroll_to_last_top_item();
+        if fix_scroll {
+            if self.scrolled_to_top_item_idx == Some(self.top_item_idx) {
+                self.show_item(self.top_item_idx);
+            } else {
+                self.scrolled_to_top_item_idx = None;
+                self.reset_scroll();
+            }
+        }
 
         // we do all exports which are set to auto
         self.mission.settings.exports.do_auto_exports(self);
@@ -556,27 +569,54 @@ impl<'a, 'm> MissionState<'a, 'm> {
         let ch = self.content_height();
         let ph = self.page_height();
         self.scroll = ch.saturating_sub(ph);
-        // we don't set top_item_idx - does it matter?
+        self.top_item_idx = self.top_item_idx().unwrap_or(0);
+    }
+    fn scroll_to_end(
+        &mut self,
+        end: ScrollEnd,
+    ) {
+        match (end, self.reverse) {
+            (ScrollEnd::First, false) => self.scroll_to_top(),
+            (ScrollEnd::First, true) => self.scroll_to_bottom(),
+            (ScrollEnd::Last, false) => self.scroll_to_bottom(),
+            (ScrollEnd::Last, true) => self.scroll_to_top(),
+        }
+    }
+    fn scroll_to_prefered_end(&mut self) {
+        let end = self.prefered_scroll_end();
+        self.scroll_to_end(end);
+    }
+    fn current_scroll_end(&self) -> Option<ScrollEnd> {
+        if self.is_scroll_at_top() {
+            Some(ScrollEnd::First)
+        } else if self.is_scroll_at_bottom() {
+            Some(ScrollEnd::Last)
+        } else {
+            None
+        }
+    }
+    fn is_scroll_at_top(&self) -> bool {
+        self.scroll == 0
     }
     fn is_scroll_at_bottom(&self) -> bool {
         self.scroll + self.page_height() + 1 >= self.content_height()
     }
-    fn reset_scroll(&mut self) {
-        if self.reverse {
-            self.scroll_to_bottom();
-        } else {
-            self.scroll_to_top();
+    fn is_scroll_at_prefered_end(&self) -> bool {
+        match (self.prefered_scroll_end(), self.reverse) {
+            (ScrollEnd::First, false) => self.is_scroll_at_top(),
+            (ScrollEnd::First, true) => self.is_scroll_at_bottom(),
+            (ScrollEnd::Last, false) => self.is_scroll_at_bottom(),
+            (ScrollEnd::Last, true) => self.is_scroll_at_top(),
         }
+    }
+    fn reset_scroll(&mut self) {
+        self.scroll_to_prefered_end();
     }
     fn fix_scroll(&mut self) {
         self.scroll = fix_scroll(self.scroll, self.content_height(), self.page_height());
     }
     pub fn keybindings(&self) -> &KeyBindings {
         &self.mission.settings.keybindings
-    }
-    fn try_scroll_to_last_top_item(&mut self) {
-        info!("try_scroll_to_last_top_item: {}", self.top_item_idx);
-        self.show_item(self.top_item_idx);
     }
     fn show_line(
         &mut self,
@@ -613,10 +653,11 @@ impl<'a, 'm> MissionState<'a, 'm> {
         };
     }
     pub fn toggle_summary_mode(&mut self) {
+        let visible_state = self.visible_scroll_state();
         self.summary ^= true;
-        self.try_scroll_to_last_top_item();
         self.search.touch();
         self.update_search();
+        self.restore_visible_scroll_state(visible_state);
         self.show_selected_found();
     }
     pub fn toggle_backtrace(
@@ -630,6 +671,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         };
     }
     pub fn toggle_wrap_mode(&mut self) {
+        let visible_state = self.visible_scroll_state();
         self.wrap ^= true;
         if self.wrapped_output.is_some() {
             self.wrapped_output = None;
@@ -637,8 +679,8 @@ impl<'a, 'm> MissionState<'a, 'm> {
         if self.wrap {
             self.update_wrap();
         }
-        self.try_scroll_to_last_top_item();
         self.search.touch();
+        self.restore_visible_scroll_state(visible_state);
     }
     fn content_height(&self) -> usize {
         let lines = self.lines_to_draw();
@@ -652,6 +694,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         width: u16,
         height: u16,
     ) {
+        let visible_state = self.visible_scroll_state();
         if self.width != width {
             self.wrapped_report = None;
             self.wrapped_output = None;
@@ -661,8 +704,24 @@ impl<'a, 'm> MissionState<'a, 'm> {
         if self.wrap {
             self.update_wrap();
         }
-        self.try_scroll_to_last_top_item();
         self.search.touch();
+        self.restore_visible_scroll_state(visible_state);
+    }
+    pub fn visible_scroll_state(&self) -> VisibleScrollState {
+        if let Some(scroll_end) = self.current_scroll_end() {
+            VisibleScrollState::ScrollEnd(scroll_end)
+        } else {
+            VisibleScrollState::TopItemIdx(self.top_item_idx)
+        }
+    }
+    pub fn restore_visible_scroll_state(
+        &mut self,
+        state: VisibleScrollState,
+    ) {
+        match state {
+            VisibleScrollState::ScrollEnd(end) => self.scroll_to_end(end),
+            VisibleScrollState::TopItemIdx(idx) => self.show_item(idx),
+        }
     }
     pub fn apply_scroll_command(
         &mut self,
@@ -671,9 +730,8 @@ impl<'a, 'm> MissionState<'a, 'm> {
         if let Some(help_page) = self.help_page.as_mut() {
             help_page.apply_scroll_command(cmd);
         } else {
-            debug!("content_height: {}", self.content_height());
-            debug!("page_height: {}", self.page_height());
             self.scroll = cmd.apply(self.scroll, self.content_height(), self.page_height());
+            self.scrolled_to_top_item_idx = self.top_item_idx();
         }
     }
     /// draw the grey line containing the keybindings indications
@@ -877,6 +935,19 @@ impl<'a, 'm> MissionState<'a, 'm> {
             CommandResult::Report(report) => !self.mission.is_success(report),
             CommandResult::Failure(_) => true,
             CommandResult::None => false,
+        }
+    }
+    pub fn prefered_scroll_end(&self) -> ScrollEnd {
+        match self.scroll_anchor {
+            ScrollAnchor::Auto => {
+                if self.is_failure() {
+                    ScrollEnd::First
+                } else {
+                    ScrollEnd::Last
+                }
+            }
+            ScrollAnchor::First => ScrollEnd::First,
+            ScrollAnchor::Last => ScrollEnd::Last,
         }
     }
     /// Return the (unfiltered) set of lines to draw, depending on whether we wrap or not

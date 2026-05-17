@@ -67,23 +67,21 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
                 item_location_written = false;
             }
             LineType::Normal => {}
-            LineType::Location => {
-                if !item_location_written {
-                    if let Some(content) = cmd_line.content.if_unstyled() {
-                        // we rewrite the location as a BURP location
-                        if let Some((_, path, line)) =
-                            regex_captures!(r#"\s+File "(.+)", line (\d+)"#, content,)
-                        {
-                            items.push_line(
-                                LineType::Location,
-                                burp::location_line(format!("{path}:{line}")),
-                            );
-                            item_location_written = true;
-                        } else {
-                            warn!("inconsistent line parsing");
-                        }
-                        continue;
+            LineType::Location if !item_location_written => {
+                if let Some(content) = cmd_line.content.if_unstyled() {
+                    // we rewrite the location as a BURP location
+                    if let Some((_, path, line)) =
+                        regex_captures!(r#"\s+File "(.+)", line (\d+)"#, content,)
+                    {
+                        items.push_line(
+                            LineType::Location,
+                            burp::location_line(format!("{path}:{line}")),
+                        );
+                        item_location_written = true;
+                    } else {
+                        warn!("inconsistent line parsing");
                     }
+                    continue;
                 }
             }
             _ => {}
