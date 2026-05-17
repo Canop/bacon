@@ -1,4 +1,5 @@
 ### next
+- `scroll_anchor` decides whether the scroll initially sticks with the `first` item (most common setting), with the `last` one, or (by default in `run` jobs with `auto`) to show most recent output lines unless there are errors in which case it show first items - Fix #384
 - `show_command_error_code` job parameter, which is `true` in default `cargo run` job - Fix #435
 When calling a lint or compilation tool, the exit status is usually not interesting: many tools report an error (i.e. a non zero code) as soon as there's an error, or even a warning (eg miri). That's why the error code isn't shown in bacon when there are also warnings, errors or test failures. But sometimes you do want to see such error, eg when running not just the compiler/linter but the program you're writing as in bacon run. In such case, you should set `show_command_error_code=true`.
 - fix a log message from the rodio library leaking to the interface - Fix #437 - Thanks @c-git
