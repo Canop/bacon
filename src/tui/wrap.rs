@@ -19,6 +19,7 @@ pub fn wrap(
         });
         let mut sub_cols = line.line_type.cols();
         let mut wrap_idx = 0; // 1 for first continuation, etc.
+        #[allow(clippy::missing_panics_doc)] // sublines are alaways non-empty
         for string in &line.content.strings {
             sub_lines
                 .last_mut()

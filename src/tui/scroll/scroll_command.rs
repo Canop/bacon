@@ -26,11 +26,17 @@ impl ScrollCommand {
     pub fn pages(n: i32) -> Self {
         Self::MilliPages(n * 1000)
     }
+    /// Convert the command to a signed number of lines to scroll, given the content and page heights
     fn to_lines(
         self,
         content_height: usize,
         page_height: usize,
     ) -> i32 {
+        #[allow(
+            clippy::cast_possible_truncation,
+            clippy::cast_possible_wrap,
+            clippy::cast_precision_loss
+        )]
         match self {
             Self::Top => -(content_height as i32),
             Self::Bottom => content_height as i32,
@@ -91,9 +97,10 @@ impl ScrollCommand {
         page_height: usize,
     ) -> usize {
         if content_height > page_height {
-            (scroll as i32 + self.to_lines(content_height, page_height))
-                .min((content_height - page_height) as i32)
-                .max(0) as usize
+            #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
+            let n = (scroll as i32 + self.to_lines(content_height, page_height))
+                .min((content_height - page_height) as i32);
+            usize::try_from(n).unwrap_or_default() // clamp to zero
         } else {
             0
         }
@@ -137,6 +144,7 @@ impl std::str::FromStr for ScrollCommand {
             ),
             r#"^scroll[-_]?pages?\((?<n>[+-]?\d*\.\d{1,3})\)$"#i => {
                 let n: f64 = n.parse().unwrap(); // can't fail
+                #[allow(clippy::cast_possible_truncation)]
                 let n: i32 = (n * 1000.0).round() as i32;
                 Self::MilliPages(n)
             }

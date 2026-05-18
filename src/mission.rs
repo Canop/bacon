@@ -127,7 +127,11 @@ impl Mission<'_> {
 
         let mut tokens = command.iter();
         let mut command = CommandBuilder::new(
-            tokens.next().unwrap(), // implies a check in the job
+            #[expect(
+                clippy::missing_panics_doc,
+                reason = "command.is_empty() is checked just above"
+            )]
+            tokens.next().unwrap(),
         );
         command.with_stdout(self.job.need_stdout());
         let envs: HashMap<&String, &String> = self

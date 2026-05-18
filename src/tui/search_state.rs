@@ -190,7 +190,7 @@ impl SearchState {
         } else {
             t_line.add_tstring(
                 style,
-                format!("{}/{}", self.selected_found + 1, self.founds.len(),),
+                format!("{}/{}", self.selected_found + 1, self.founds.len()),
             );
         }
     }

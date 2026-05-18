@@ -435,7 +435,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
     pub fn has_dismissed_items(&self) -> bool {
         self.cmd_result
             .report()
-            .is_some_and(|report| report.has_dismissed_items())
+            .is_some_and(Report::has_dismissed_items)
     }
     pub fn can_be_scoped(&self) -> bool {
         self.cmd_result
@@ -575,11 +575,10 @@ impl<'a, 'm> MissionState<'a, 'm> {
         &mut self,
         end: ScrollEnd,
     ) {
-        match (end, self.reverse) {
-            (ScrollEnd::First, false) => self.scroll_to_top(),
-            (ScrollEnd::First, true) => self.scroll_to_bottom(),
-            (ScrollEnd::Last, false) => self.scroll_to_bottom(),
-            (ScrollEnd::Last, true) => self.scroll_to_top(),
+        if end.is_top(self.reverse) {
+            self.scroll_to_top();
+        } else {
+            self.scroll_to_bottom();
         }
     }
     fn scroll_to_prefered_end(&mut self) {
@@ -602,11 +601,10 @@ impl<'a, 'm> MissionState<'a, 'm> {
         self.scroll + self.page_height() + 1 >= self.content_height()
     }
     fn is_scroll_at_prefered_end(&self) -> bool {
-        match (self.prefered_scroll_end(), self.reverse) {
-            (ScrollEnd::First, false) => self.is_scroll_at_top(),
-            (ScrollEnd::First, true) => self.is_scroll_at_bottom(),
-            (ScrollEnd::Last, false) => self.is_scroll_at_bottom(),
-            (ScrollEnd::Last, true) => self.is_scroll_at_top(),
+        if self.prefered_scroll_end().is_top(self.reverse) {
+            self.is_scroll_at_top()
+        } else {
+            self.is_scroll_at_bottom()
         }
     }
     fn reset_scroll(&mut self) {
@@ -819,7 +817,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             if let Some(error_code) = report.error_code() {
                 if self.mission.job.show_command_error_code == Some(true) {
                     badges.push(TString::badge(
-                        &format!("Command error code: {}", error_code),
+                        &format!("Command error code: {error_code}"),
                         skin.command_error_badge_fg(),
                         skin.command_error_badge_bg(),
                     ));
@@ -1031,6 +1029,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             "\u{1b}[1m\u{1b}[30m\u{1b}[48;5;{}m",
             skin.found_selected_bg()
         ); // bold, colored background
+        #[allow(clippy::cast_possible_truncation)]
         let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
         let content_height = self.content_height();
         let scrollbar = if self.mission.job.hide_scrollbar() {
@@ -1044,6 +1043,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         } else {
             0
         };
+        #[allow(clippy::cast_possible_truncation)]
         let top = area.top + top as u16;
         for y in area.top..top {
             goto_line(w, y)?;

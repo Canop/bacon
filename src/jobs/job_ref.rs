@@ -65,7 +65,7 @@ impl From<&str> for JobRef {
                 tests: tests
                     .split(',')
                     .filter(|t| !t.trim().is_empty())
-                    .map(|s| s.to_string())
+                    .map(ToString::to_string)
                     .collect(),
             }),
         )

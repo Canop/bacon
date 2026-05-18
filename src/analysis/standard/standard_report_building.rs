@@ -30,7 +30,6 @@ pub fn build_report<L: LineAnalyzer>(
             content: cmd_line.content.clone(),
         };
         match (line_type, line_analysis.key) {
-            (LineType::Garbage, _) => {}
             (LineType::TestResult(r), Some(key)) => {
                 if r {
                     passed_tests += 1;

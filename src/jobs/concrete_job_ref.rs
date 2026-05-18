@@ -132,7 +132,7 @@ impl From<&str> for ConcreteJobRef {
             tests: scope
                 .split(',')
                 .filter(|t| !t.trim().is_empty())
-                .map(|s| s.to_string())
+                .map(ToString::to_string)
                 .collect(),
         };
         Self {

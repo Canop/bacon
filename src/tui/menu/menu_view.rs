@@ -36,6 +36,7 @@ impl MenuView {
         area_width: u16,
     ) -> Area {
         let screen = &self.available_area;
+        #[allow(clippy::cast_possible_truncation)]
         let ideal_height = content_height as u16 + 2; // margin of 1
         let left = (screen.width - area_width) / 2;
         let h = screen.height.min(ideal_height);

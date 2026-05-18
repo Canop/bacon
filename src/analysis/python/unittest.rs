@@ -66,7 +66,6 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
                 items.start_item(kind);
                 item_location_written = false;
             }
-            LineType::Normal => {}
             LineType::Location if !item_location_written => {
                 if let Some(content) = cmd_line.content.if_unstyled() {
                     // we rewrite the location as a BURP location

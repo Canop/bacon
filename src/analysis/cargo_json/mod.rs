@@ -86,13 +86,9 @@ impl CargoJsonAnalyzer {
         command_output: &mut CommandOutput,
     ) {
         match message {
-            Message::CompilerArtifact(_) => {}
             Message::CompilerMessage(compiler_message) => {
                 self.receive_diagnostic(compiler_message.message, origin, command_output);
             }
-            Message::BuildScriptExecuted(_) => {}
-            Message::BuildFinished(_) => {}
-            Message::TextLine(_) => {}
             _ => {
                 // non exhaustive enum
             }

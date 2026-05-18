@@ -6,13 +6,13 @@ pub use {
     scroll_command::ScrollCommand,
 };
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ScrollEnd {
     First,
     Last,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VisibleScrollState {
     ScrollEnd(ScrollEnd),
     TopItemIdx(usize),
@@ -25,6 +25,15 @@ impl ScrollEnd {
             ScrollEnd::Last => ScrollEnd::First,
         }
     }
+    pub fn is_top(
+        self,
+        reversed: bool,
+    ) -> bool {
+        matches!(
+            (self, reversed),
+            (ScrollEnd::First, false) | (ScrollEnd::Last, true)
+        )
+    }
 }
 
 pub fn is_thumb(
@@ -32,6 +41,7 @@ pub fn is_thumb(
     scrollbar: Option<(u16, u16)>,
 ) -> bool {
     scrollbar.is_some_and(|(sctop, scbottom)| {
+        #[allow(clippy::cast_possible_truncation)]
         let y = y as u16;
         sctop <= y && y <= scbottom
     })

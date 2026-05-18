@@ -124,6 +124,12 @@ command = [
 	"-A", "clippy::return_self_not_must_use",
 	"-A", "clippy::struct_excessive_bools",
 	"-A", "clippy::too_many_lines",
+	"-A", "clippy::wildcard_imports",
+	"-A", "clippy::missing_errors_doc",
+	"-A", "clippy::single_match_else",
+	"-A", "clippy::map_entry",
+	"-A", "clippy::unnecessary_debug_formatting",
+	"-A", "clippy::items_after_statements",
 ]
 need_stdout = false
 

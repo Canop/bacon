@@ -63,6 +63,7 @@ impl NextestLineAnalyzer {
             .or_else(|| self.stdx_section_key_v3(content))
     }
     /// Return the key when the line is like "--- STD(OUT|ERR): somekey ---"
+    #[allow(clippy::unused_self)]
     fn stdx_section_key_v1(
         &self,
         content: &TLine,
@@ -75,6 +76,7 @@ impl NextestLineAnalyzer {
         extract_key_after_crate_name_v1(strings)
     }
     /// Return the key when the line is like "──── STD(OUT|ERR): cratename some::key"
+    #[allow(clippy::unused_self)]
     fn stdx_section_key_v2(
         &self,
         content: &TLine,

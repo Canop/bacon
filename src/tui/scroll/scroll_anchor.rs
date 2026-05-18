@@ -46,7 +46,7 @@ impl FromStr for ScrollAnchor {
             "auto" => Ok(ScrollAnchor::Auto),
             "first" => Ok(ScrollAnchor::First),
             "last" => Ok(ScrollAnchor::Last),
-            _ => Err(format!("invalid scroll anchor: {}", s)),
+            _ => Err(format!("invalid scroll anchor: {s}")),
         }
     }
 }

@@ -54,7 +54,6 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
             LineType::Title(kind) => {
                 items.start_item(kind);
             }
-            LineType::Normal => {}
             LineType::Location => {
                 let path = get_location_path(&cmd_line.content);
                 if let Some(path) = path {

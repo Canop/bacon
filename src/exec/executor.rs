@@ -88,6 +88,10 @@ impl MissionExecutor {
     }
 
     /// Start the job's command, once, with the given settings
+    ///
+    /// # Panics
+    ///
+    /// Will panic if the MissionBuilder doesn't pipe stderr
     pub fn start(
         &mut self,
         task: Task,
@@ -166,7 +170,12 @@ impl MissionExecutor {
             // starting a thread to handle stderr lines until program
             // ends (then ask the child_thread to send status)
             let err_line_sender = line_sender.clone();
-            let stderr = child.stderr.take().expect("child missing stderr"); // can this happen?
+            // stderr is piped in CommandBuilder, so the following statement can't fail
+            // unless you break the CommandBuilder
+            let stderr = child
+                .stderr
+                .take()
+                .expect("MissionExecutor requires piped stderr");
             let mut buf_reader = BufReader::new(stderr);
             thread::spawn(move || {
                 let mut line = String::new();
