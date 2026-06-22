@@ -7,6 +7,14 @@ pub fn build_report<L: LineAnalyzer>(
     cmd_lines: &[CommandOutputLine],
     mut line_analyzer: L,
 ) -> Report {
+    build_report_from_analysis(
+        cmd_lines
+            .iter()
+            .map(|line| (line_analyzer.analyze_line(line), line.content.clone())),
+    )
+}
+
+pub fn build_report_from_analysis(lines: impl Iterator<Item = (LineAnalysis, TLine)>) -> Report {
     #[derive(Debug, Default)]
     struct Test {
         passed: bool,
@@ -21,13 +29,12 @@ pub fn build_report<L: LineAnalyzer>(
     let mut cur_err_kind = None; // the current kind among stderr lines
     let mut is_in_out_fail = false;
     let mut suggest_backtrace = false;
-    for cmd_line in cmd_lines {
-        let line_analysis = line_analyzer.analyze_line(cmd_line);
+    for (line_analysis, content) in lines {
         let line_type = line_analysis.line_type;
         let mut line = Line {
             item_idx: 0, // will be filled later
             line_type,
-            content: cmd_line.content.clone(),
+            content,
         };
         match (line_type, line_analysis.key) {
             (LineType::TestResult(r), Some(key)) => {

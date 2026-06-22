@@ -3,14 +3,18 @@ mod cargo_json_export;
 use {
     super::*,
     crate::{
-        analysis::standard,
+        analysis::standard::build_report_from_analysis,
         *,
     },
     anyhow::Result,
+    lazy_regex::*,
     cargo_json_export::*,
     cargo_metadata::{
         Message,
-        diagnostic::Diagnostic,
+        diagnostic::{
+            Diagnostic,
+            DiagnosticLevel,
+        },
     },
 };
 
@@ -26,7 +30,7 @@ use {
 /// not sure this is worth it.
 #[derive(Default)]
 pub struct CargoJsonAnalyzer {
-    lines: Vec<CommandOutputLine>,
+    analysis: Vec<(LineAnalysis, TLine)>,
     exports: Vec<CargoJsonExport>,
 }
 
@@ -35,7 +39,7 @@ impl Analyzer for CargoJsonAnalyzer {
         &mut self,
         mission: &Mission,
     ) {
-        self.lines.clear();
+        self.analysis.clear();
         self.exports.clear();
         for (name, export_settings) in &mission.settings.exports.exports {
             if export_settings.exporter == Exporter::Analyser {
@@ -69,8 +73,7 @@ impl Analyzer for CargoJsonAnalyzer {
     }
 
     fn build_report(&mut self) -> Result<Report> {
-        let line_analyzer = standard::StandardLineAnalyzer {};
-        let mut report = standard::build_report(&self.lines, line_analyzer);
+        let mut report = build_report_from_analysis(self.analysis.drain(..));
         for export in self.exports.drain(..) {
             report.analyzer_exports.insert(export.name, export.export);
         }
@@ -106,7 +109,7 @@ impl CargoJsonAnalyzer {
         let Diagnostic {
             //message,
             //code,
-            //level,
+            level,
             //spans,
             children,
             //suggestion,
@@ -114,11 +117,23 @@ impl CargoJsonAnalyzer {
             ..
         } = diagnostic;
         if let Some(rendered) = rendered {
+            let mut line_type = match level {
+                DiagnosticLevel::Error | DiagnosticLevel::Ice => LineType::Title(Kind::Error),
+                DiagnosticLevel::Warning => LineType::Title(Kind::Warning),
+                _ => LineType::Normal,
+            };
             for line in rendered.trim().lines() {
                 let content = TLine::from_tty(line);
-                let cmd_line = CommandOutputLine { content, origin };
-                command_output.push(cmd_line.clone());
-                self.lines.push(cmd_line);
+                command_output.push(CommandOutputLine { content: content.clone(), origin });
+                if line_type == LineType::Normal {
+                    let raw = content.to_raw();
+                    if regex_is_match!(r":\d+:\d+", &raw)
+                    {
+                        line_type = LineType::Location;
+                    }
+                }
+                self.analysis.push((LineAnalysis::of_type(line_type), content));
+                line_type = LineType::Normal;
             }
         }
         for child in children {
