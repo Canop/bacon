@@ -7,7 +7,6 @@ use {
         *,
     },
     anyhow::Result,
-    lazy_regex::*,
     cargo_json_export::*,
     cargo_metadata::{
         Message,
@@ -16,6 +15,7 @@ use {
             DiagnosticLevel,
         },
     },
+    lazy_regex::*,
 };
 
 /// An analyzer able to read the output
@@ -124,15 +124,18 @@ impl CargoJsonAnalyzer {
             };
             for line in rendered.trim().lines() {
                 let content = TLine::from_tty(line);
-                command_output.push(CommandOutputLine { content: content.clone(), origin });
+                command_output.push(CommandOutputLine {
+                    content: content.clone(),
+                    origin,
+                });
                 if line_type == LineType::Normal {
                     let raw = content.to_raw();
-                    if regex_is_match!(r":\d+:\d+", &raw)
-                    {
+                    if regex_is_match!(r":\d+:\d+", &raw) {
                         line_type = LineType::Location;
                     }
                 }
-                self.analysis.push((LineAnalysis::of_type(line_type), content));
+                self.analysis
+                    .push((LineAnalysis::of_type(line_type), content));
                 line_type = LineType::Normal;
             }
         }

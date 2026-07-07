@@ -296,8 +296,9 @@ fn run_mission(
                         mission_end = Some(DoAfterMission::NextJob(JobRef::PreviousOrQuit));
                     }
                 }
-                Action::Clear => {
-                    // FIXME
+                Action::ClearOutput => {
+                    info!("clearing output");
+                    mission_state.clear_output();
                 }
                 Action::CopyUnstyledOutput => {
                     mission_state.copy_unstyled_output();

@@ -173,6 +173,18 @@ impl<'a, 'm> MissionState<'a, 'm> {
             self.reset_scroll();
         }
     }
+    pub fn clear_output(&mut self) {
+        if let Some(output) = self.output.as_mut() {
+            output.clear();
+        }
+        self.cmd_result.clear();
+        self.wrapped_report = None;
+        self.wrapped_output = None;
+        if self.wrap {
+            self.update_wrap();
+        }
+        self.reset_scroll();
+    }
     /// Show a specific diagnostic item by index and scroll to show it
     ///
     /// Do nothing if there's no such item
@@ -993,10 +1005,12 @@ impl<'a, 'm> MissionState<'a, 'm> {
     fn update_wrap(&mut self) {
         let width = self.width - 1;
         if let Some(report) = self.report_to_draw() {
+            info!("wrap source: report");
             if self.wrapped_report.is_none() {
                 self.wrapped_report = Some(WrappedReport::new(report, width));
             }
         } else if let Some(output) = self.cmd_result.output().or(self.output.as_ref()) {
+            info!("wrap source: output");
             match self.wrapped_output.as_mut() {
                 None => {
                     let old_len = self.wrapped_output.as_ref().map(|wo| wo.sub_lines.len());

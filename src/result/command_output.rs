@@ -62,6 +62,9 @@ impl CommandOutput {
     pub fn len(&self) -> usize {
         self.lines.len()
     }
+    pub fn clear(&mut self) {
+        self.lines.clear();
+    }
 }
 
 impl From<RawCommandOutputLine> for CommandOutputLine {

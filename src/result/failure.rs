@@ -13,3 +13,9 @@ pub struct Failure {
     pub output: CommandOutput,
     pub suggest_backtrace: bool,
 }
+
+impl Failure {
+    pub fn clear_output(&mut self) {
+        self.output.clear();
+    }
+}

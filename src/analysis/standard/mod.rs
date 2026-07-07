@@ -3,8 +3,10 @@ mod standard_report_building;
 
 pub use {
     standard_line_analyser::StandardLineAnalyzer,
-    standard_report_building::build_report,
-    standard_report_building::build_report_from_analysis,
+    standard_report_building::{
+        build_report,
+        build_report_from_analysis,
+    },
 };
 
 use {

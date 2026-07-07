@@ -27,7 +27,7 @@ use {
 pub enum Action {
     Back,       // leave help, clear search, go to previous job, leave, etc.
     BackOrQuit, // same as Back but quits if there is nothing to go back to
-    Clear,
+    ClearOutput,
     CopyUnstyledOutput,
     DismissTop,
     DismissTopItem,
@@ -73,7 +73,7 @@ impl Md for Action {
             Self::BackOrQuit => {
                 "back to previous page or job, quitting if there is none".to_string()
             }
-            Self::Clear => "clear output".to_string(),
+            Self::ClearOutput => "clear output".to_string(),
             Self::CopyUnstyledOutput => "copy unstyled output".to_string(),
             Self::DismissTop => "dismiss top".to_string(),
             Self::DismissTopItem => "dismiss top item".to_string(),
@@ -169,7 +169,7 @@ impl fmt::Display for Action {
         match self {
             Self::Back => write!(f, "back"),
             Self::BackOrQuit => write!(f, "back-or-quit"),
-            Self::Clear => write!(f, "clear"),
+            Self::ClearOutput => write!(f, "clear output"),
             Self::CopyUnstyledOutput => write!(f, "copy-unstyled-output"),
             Self::DismissTop => write!(f, "dismiss-top"),
             Self::DismissTopItem => write!(f, "dismiss-top-item"),
@@ -239,7 +239,7 @@ impl FromStr for Action {
             r"^job:(?<job_ref>.+)$" => Self::Job(job_ref.into()),
             r"^(?:internal:)?back$" => Self::Back,
             r"^(?:internal:)?back-or-quit$" => Self::BackOrQuit,
-            r"^(?:internal:)?clear$" => Self::Clear,
+            r"^(?:internal:)?clear-output$" => Self::ClearOutput,
             r"^(?:internal:)?dismiss-top$" => Self::DismissTop,
             r"^(?:internal:)?dismiss-top-item$" => Self::DismissTopItem,
             r"^(?:internal:)?dismiss-top-item-type$" => Self::DismissTopItemType,
@@ -414,7 +414,7 @@ fn test_action_string_round_trip() {
         Action::Export("my export".to_string()),
         Action::Back,
         Action::BackOrQuit,
-        Action::Clear,
+        Action::ClearOutput,
         Action::DismissTop,
         Action::DismissTopItem,
         Action::DismissTopItemType,

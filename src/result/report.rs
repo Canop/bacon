@@ -19,16 +19,16 @@ use {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Report {
     pub error_code: Option<i32>,
+    /// The output of the command, as received, and available for display of raw output
     pub output: CommandOutput,
+    /// The analyzed lines, not necessarily the whole output
     pub lines: Vec<Line>,
     pub stats: Stats,
     pub suggest_backtrace: bool,
     pub failure_keys: Vec<String>,
     /// the exports that the analyzers have done, by name
     pub analyzer_exports: HashMap<String, String>,
-
     pub has_passed_tests: bool,
-
     pub dismissed_items: usize,
     pub dismissed_lines: Vec<Line>,
 }
@@ -48,6 +48,13 @@ impl Report {
             dismissed_items: 0,
             dismissed_lines: Vec::new(),
         }
+    }
+
+    pub fn clear_output(&mut self) {
+        self.output.clear();
+        self.lines.clear();
+        self.dismissed_items = 0;
+        self.dismissed_lines.clear();
     }
 
     pub fn lines_changed(&mut self) {
