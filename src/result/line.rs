@@ -24,7 +24,7 @@ pub struct Line {
 impl Line {
     /// If the line is a title, get its message
     pub fn title_message(&self) -> Option<&str> {
-        let title = match self.line_type {
+        match self.line_type {
             LineType::Title(_) => {
                 if let Some(content) = self.content.if_unstyled() {
                     Some(content)
@@ -37,8 +37,7 @@ impl Line {
                 }
             }
             _ => None,
-        };
-        title
+        }
     }
 
     pub fn matches(

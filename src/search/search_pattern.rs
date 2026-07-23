@@ -82,6 +82,14 @@ fn find_cut_pattern(
     a: &str,
     b: &str,
 ) -> Option<usize> {
+    let pattern = pattern.as_bytes();
+    let a = a.as_bytes();
+    let b = b.as_bytes();
     let len = pattern.len();
-    (1..len).find(|&i| a.ends_with(&pattern[..i]) && b.starts_with(&pattern[i..]))
+    (1..len)
+        .find(|&i| a.ends_with(&pattern[..i]) && b.starts_with(&pattern[i..]))
+        .filter(|&i| {
+            // this check is probably overkill, but let's be safe
+            std::str::from_utf8(&pattern[..i]).is_ok() && std::str::from_utf8(&pattern[i..]).is_ok()
+        })
 }
