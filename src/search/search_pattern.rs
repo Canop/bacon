@@ -7,9 +7,19 @@ pub struct Pattern {
 impl Pattern {
     // Current limitations:
     // - a match can't span over more than 2 lines. This is probably fine.
+    /// Search for the pattern in the lines, starting at line `start`.
+    ///
+    /// The `line_idx` of the returned founds is the absolute index of the line
+    /// in the whole `lines` iterator, so passing a `start > 0` yields founds
+    /// with indices consistent with a full search.
+    ///
+    /// A match which would start in a line before `start` (i.e. a match broken
+    /// by wrapping over the `start` boundary) is ignored: we only report matches
+    /// starting at or after `start`.
     pub fn search_lines<'i, I>(
         &self,
         lines: I,
+        start: usize,
     ) -> Vec<Found>
     where
         I: IntoIterator<Item = &'i Line>,
@@ -19,7 +29,7 @@ impl Pattern {
         let len = pattern.len();
         let mut founds = Vec::new();
         let mut previous_line: Option<&Line> = None;
-        for (line_idx, line) in lines.enumerate() {
+        for (line_idx, line) in lines.enumerate().skip(start) {
             if line.is_continuation() {
                 if let Some(previous_line) = previous_line {
                     // we check for a match broken by wrapping

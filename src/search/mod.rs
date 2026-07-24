@@ -33,16 +33,19 @@ pub enum Search {
 }
 
 impl Search {
+    /// Search in the lines, starting at line `start`. Returned founds carry
+    /// their absolute `line_idx` in the whole `lines` iterator.
     pub fn search_lines<'i, I>(
         &self,
         lines: I,
+        start: usize,
     ) -> Vec<Found>
     where
         I: IntoIterator<Item = &'i Line>,
     {
         match self {
-            Self::Pattern(pattern) => pattern.search_lines(lines),
-            Self::ItemIdx(idx) => search_item_idx(*idx, lines),
+            Self::Pattern(pattern) => pattern.search_lines(lines, start),
+            Self::ItemIdx(idx) => search_item_idx(*idx, lines, start),
         }
     }
 }

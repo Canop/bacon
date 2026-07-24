@@ -374,7 +374,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         let founds = if self.search.input_has_content() {
             let search = self.search.search();
             let lines = self.lines_to_draw();
-            search.search_lines(lines)
+            search.search_lines(lines, 0)
         } else {
             Vec::new()
         };
@@ -397,7 +397,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             warn!("inconsistent line_count_before");
             return;
         }
-        let new_founds = search.search_lines(&lines[line_count_before..]);
+        let new_founds = search.search_lines(lines, line_count_before);
         self.search.extend_founds(new_founds);
     }
     pub fn add_line(

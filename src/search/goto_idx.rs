@@ -3,11 +3,12 @@ use crate::*;
 pub fn search_item_idx<'i, I>(
     idx: usize,
     lines: I,
+    start: usize,
 ) -> Vec<Found>
 where
     I: IntoIterator<Item = &'i Line>,
 {
-    for (line_idx, line) in lines.into_iter().enumerate() {
+    for (line_idx, line) in lines.into_iter().enumerate().skip(start) {
         if line.item_idx == idx && !line.content.strings.is_empty() {
             let end_byte_in_string = line.content.strings[0].raw.len();
             return vec![Found {
