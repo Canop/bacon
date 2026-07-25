@@ -179,12 +179,14 @@ fn build_doctest_report(lines: &[CommandOutputLine]) -> Report {
             }
             Some(DoctestDiagnostic::StartOrEnd) => current_test_case = "(unknown test)".into(),
             None => {
-                if empty_count < 1 {
+                let is_blank = line.content.strings.iter().all(|l| l.raw.is_empty());
+                // Keep every non-blank line, but collapse runs of blank lines to
+                // a single one. `empty_count` must be reset on any non-blank line,
+                // otherwise the first blank would suppress all following content.
+                if !is_blank || empty_count < 1 {
                     items.push_line(LineType::Normal, line.content.clone());
                 }
-                if line.content.strings.iter().all(|l| l.raw.is_empty()) {
-                    empty_count += 1;
-                }
+                empty_count = if is_blank { empty_count + 1 } else { 0 };
             }
         }
     }
