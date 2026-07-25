@@ -8,6 +8,12 @@ pub fn wrap(
     lines: &[Line],
     width: u16,
 ) -> Vec<Line> {
+    // Below 4 columns there's not enough room to wrap into anything usable
+    // (and the `width - 1` scrollbar adjustment would underflow), so we just
+    // return the lines unwrapped.
+    if width < 4 {
+        return lines.to_vec();
+    }
     let cols = width as usize - 1; // -1 for the probable scrollbar
     let mut sub_lines = Vec::new();
     for line in lines {
