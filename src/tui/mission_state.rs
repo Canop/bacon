@@ -171,6 +171,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
                 self.update_wrap();
             }
             self.reset_scroll();
+            self.search.touch(); // lines were reordered, founds are now stale
         }
     }
     pub fn clear_output(&mut self) {
@@ -184,6 +185,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             self.update_wrap();
         }
         self.reset_scroll();
+        self.search.touch(); // output was cleared, founds are now stale
     }
     /// Show a specific diagnostic item by index and scroll to show it
     ///
@@ -277,6 +279,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             self.mission.settings.exports.do_auto_exports(self);
             self.wrapped_report = None;
             self.update_wrap();
+            self.search.touch(); // lines were removed, founds are now stale
         }
     }
 
