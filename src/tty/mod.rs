@@ -37,18 +37,12 @@ pub const CSI_BOLD_WHITE: &str = "\u{1b}[1m\u{1b}[38;5;15m";
 
 static TAB_REPLACEMENT: &str = "    ";
 
-use {
-    crate::W,
-    anyhow::Result,
-    std::io::Write,
-};
+use crate::ConfigColor;
+use crate::DisplayColor;
 
-pub use {
-    tline::*,
-    tline_builder::*,
-    trange::*,
-    tstring::*,
-};
+use {crate::W, anyhow::Result, std::io::Write};
+
+pub use {tline::*, tline_builder::*, trange::*, tstring::*};
 
 pub fn draw(
     w: &mut W,
@@ -63,8 +57,8 @@ pub fn draw(
     Ok(())
 }
 pub fn csi(
-    fg: u8,
-    bg: u8,
+    fg: ConfigColor,
+    bg: ConfigColor,
 ) -> String {
-    format!("\u{1b}[1m\u{1b}[38;5;{fg}m\u{1b}[48;5;{bg}m")
+    format!("\u{1b}[1m{}{}", fg.display_fg(), bg.display_bg())
 }
