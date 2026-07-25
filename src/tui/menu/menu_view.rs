@@ -27,7 +27,11 @@ impl MenuView {
     ) -> u16 {
         let screen = &self.available_area;
         let sw2 = screen.width / 2;
-        let w2 = 24.max(content_width / 2 + 1).min(sw2 - 3); // menu half width
+        // Cap the half-width to the screen, but keep it >= 1 so that even on a
+        // very thin terminal a (barely usable) menu is still drawn as feedback.
+        let w2 = 24
+            .max(content_width / 2 + 1)
+            .min(sw2.saturating_sub(3).max(1)); // menu half width
         w2 * 2
     }
     fn compute_area(
@@ -38,9 +42,9 @@ impl MenuView {
         let screen = &self.available_area;
         #[allow(clippy::cast_possible_truncation)]
         let ideal_height = content_height as u16 + 2; // margin of 1
-        let left = (screen.width - area_width) / 2;
+        let left = screen.width.saturating_sub(area_width) / 2;
         let h = screen.height.min(ideal_height);
-        let top = ((screen.height - h) * 3 / 5).max(1);
+        let top = (screen.height.saturating_sub(h) * 3 / 5).max(1);
         Area::new(left, top, area_width, h)
     }
     pub fn set_available_area(
@@ -86,7 +90,7 @@ impl MenuView {
         sel_md_skin.italic.set_fg(skin.key_fg.color());
         let area_width = self.compute_area_width(Self::estimate_content_optimal_width(state));
         let mut intro_lines = Vec::new();
-        let text_width = area_width - 2;
+        let text_width = area_width.saturating_sub(2);
         let intro = state.intro.clone();
         let mut content_height = state.items.len();
         if let Some(intro) = &intro {
@@ -95,7 +99,7 @@ impl MenuView {
             content_height += intro_lines.len() + 1; // 1 for margin
         }
         let area = self.compute_area(content_height, area_width);
-        let h = area.height as usize - 2; // internal height
+        let h = (area.height as usize).saturating_sub(2); // internal height
         let scrollbar = compute_scrollbar(state.scroll, content_height, h, area.top + 1);
         state.fix_scroll(h);
         let mut rect = Rect::new(
@@ -105,10 +109,15 @@ impl MenuView {
         rect.set_border_style(BORDER_STYLE_HALF_WIDTH_OUTSIDE);
         rect.set_fill(true);
         rect.draw(w)?;
-        let key_width = 8;
-        let mut label_width = area.width as usize - key_width - 2;
+        // The inner width (inside the borders) is shared between the label and
+        // the key column. Clamp the key column too, otherwise on a very thin
+        // menu its fixed fill would overflow the box (and the terminal, wrapping
+        // the row onto a second line) instead of being truncated.
+        let inner_width = (area.width as usize).saturating_sub(2);
+        let key_width = 8.min(inner_width);
+        let mut label_width = inner_width.saturating_sub(key_width);
         if scrollbar.is_some() {
-            label_width -= 1;
+            label_width = label_width.saturating_sub(1);
         }
         let mut y = area.top;
         let mut items = state.items.iter_mut().enumerate().skip(state.scroll);
@@ -125,7 +134,7 @@ impl MenuView {
                 continue;
             }
             if let Some((idx, item)) = items.next() {
-                let item_area = Area::new(area.left + 1, y, area.width - 2, 1);
+                let item_area = Area::new(area.left + 1, y, area.width.saturating_sub(2), 1);
                 let skin = if state.selection == idx {
                     &sel_md_skin
                 } else {
@@ -152,7 +161,7 @@ impl MenuView {
                 break;
             }
             if let Some((stop, sbottom)) = scrollbar {
-                goto(w, area.right() - 2, y)?;
+                goto(w, area.right().saturating_sub(2), y)?;
                 if stop <= y && y <= sbottom {
                     md_skin.scrollbar.thumb.queue(w)?;
                 } else {

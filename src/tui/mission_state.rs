@@ -754,21 +754,24 @@ impl<'a, 'm> MissionState<'a, 'm> {
         y: u16,
     ) -> Result<()> {
         let mut help_start = 0;
-        // Search input
+        // Search input, never wider than the terminal
         if self.search.must_be_drawn() {
-            let search_width = (self.width / 4).clamp(9, 27);
-            let skin = self.mission.job.skin;
-            let csi = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.search_input_prefix_fg());
-            self.search
-                .draw_prefixed_input(w, 0, y, &csi, search_width)?;
-            help_start += search_width;
+            let search_width = (self.width / 4).clamp(9, 27).min(self.width);
+            if search_width > 1 {
+                // draw_prefixed_input requires a width > 1
+                let skin = self.mission.job.skin;
+                let csi = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.search_input_prefix_fg());
+                self.search
+                    .draw_prefixed_input(w, 0, y, &csi, search_width)?;
+                help_start += search_width;
+            }
         }
         goto(w, help_start, y)?;
-        // Help line
+        // Help line, in whatever width is left
+        let help_width = self.width.saturating_sub(help_start);
         if let Some(help_line) = &self.help_line {
-            let markdown = help_line.markdown(self);
-            if self.height > 1 {
-                let help_width = self.width - help_start;
+            if self.height > 1 && help_width > 0 {
+                let markdown = help_line.markdown(self);
                 self.status_skin.write_composite_fill(
                     w,
                     Composite::from_inline(&markdown),
@@ -1006,7 +1009,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             .filter(|report| !self.mission.is_success(report))
     }
     fn update_wrap(&mut self) {
-        let width = self.width - 1;
+        let width = self.width.saturating_sub(1);
         if let Some(report) = self.report_to_draw() {
             info!("wrap source: report");
             if self.wrapped_report.is_none() {
@@ -1047,7 +1050,12 @@ impl<'a, 'm> MissionState<'a, 'm> {
             skin.found_selected_bg()
         ); // bold, colored background
         #[allow(clippy::cast_possible_truncation)]
-        let area = Area::new(0, y, self.width - 1, self.page_height() as u16);
+        let area = Area::new(
+            0,
+            y,
+            self.width.saturating_sub(1),
+            self.page_height() as u16,
+        );
         let content_height = self.content_height();
         let scrollbar = if self.mission.job.hide_scrollbar() {
             None
