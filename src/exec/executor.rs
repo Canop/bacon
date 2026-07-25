@@ -235,25 +235,23 @@ impl MissionExecutor {
             });
 
             // now waiting for the stop event
-            let mut end_status = None;
-            match stop_receiver.recv() {
-                Ok(stop) => match stop {
-                    StopMessage::SendStatus => {
-                        // capture the status now, but don't announce End yet: we
-                        // want all output lines flushed (readers joined) first
-                        end_status = child.wait().ok();
-                    }
-                    StopMessage::Kill => {
-                        debug!("explicit interrupt received");
-                        kill(kill_command.as_deref(), &mut child);
-                    }
-                },
+            let natural_end = match stop_receiver.recv() {
+                Ok(StopMessage::SendStatus) => true, // the process finished on its own
+                Ok(StopMessage::Kill) => {
+                    debug!("explicit interrupt received");
+                    kill(kill_command.as_deref(), &mut child);
+                    false
+                }
                 Err(e) => {
                     debug!("recv error: {e}"); // probably just the executor dropped
                     kill(kill_command.as_deref(), &mut child);
+                    false
                 }
-            }
-            if let Err(e) = child.wait() {
+            };
+            // reap the child exactly once (also required after the SIGKILL in
+            // kill(), which doesn't wait itself) and keep its status
+            let status = child.wait();
+            if let Err(ref e) = status {
                 warn!("waiting for child failed: {e}");
             }
             // Wait for the reader threads to drain and send all their lines
@@ -265,9 +263,12 @@ impl MissionExecutor {
                 let _ = stdout_thread.join();
             }
             let _ = stderr_thread.join();
-            // now that all output has been sent, announce completion
-            if let Some(status) = end_status {
-                let _ = line_sender.send(CommandExecInfo::End { status });
+            // now that all output has been sent, announce completion (only for a
+            // natural end; a killed task doesn't report a status)
+            if natural_end {
+                if let Ok(status) = status {
+                    let _ = line_sender.send(CommandExecInfo::End { status });
+                }
             }
         });
         Ok(TaskExecutor {
