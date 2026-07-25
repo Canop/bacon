@@ -256,7 +256,7 @@ impl FromStr for Action {
                     actions,
                 }))
             }
-            r"^?open-jobs?-menu$" => Self::OpenJobsMenu,
+            r"^open-jobs?-menu$" => Self::OpenJobsMenu,
             r"^(?:internal:)?refresh$" => Self::Refresh,
             r"^(?:internal:)?reload-config$" => Self::ReloadConfig,
             r"^(?:internal:)?rerun$" => Self::ReRun,
