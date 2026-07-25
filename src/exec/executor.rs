@@ -97,6 +97,11 @@ impl MissionExecutor {
         task: Task,
     ) -> anyhow::Result<TaskExecutor> {
         info!("start task {task:?}");
+        // Discard any output still queued from the previous task. Its reader
+        // threads were joined by die() before we got here, so nothing new can
+        // arrive during this drain. Without it, lines buffered by the previous
+        // (killed) execution would leak into this one's output and report.
+        while self.line_receiver.try_recv().is_ok() {}
         let grace_period = task.grace_period;
         let grace_period_start = if grace_period.is_zero() {
             None
@@ -134,38 +139,53 @@ impl MissionExecutor {
             };
 
             // thread piping the stdout lines
-            if with_stdout {
-                let sender = line_sender.clone();
-                let Some(stdout) = child.stdout.take() else {
-                    warn!("process has no stdout"); // unlikely
-                    return;
-                };
-                let mut buf_reader = BufReader::new(stdout);
-                thread::spawn(move || {
-                    let mut line = String::new();
-                    loop {
-                        match buf_reader.read_line(&mut line) {
-                            Err(e) => {
-                                warn!("error : {e}");
-                            }
-                            Ok(0) => {
-                                // there won't be anything more, quitting
-                                break;
-                            }
-                            Ok(_) => {
-                                let response = CommandExecInfo::Line(RawCommandOutputLine {
-                                    content: line.clone(),
-                                    origin: CommandStream::StdOut,
-                                });
-                                if sender.send(response).is_err() {
-                                    break; // channel closed
+            let stdout_thread = if with_stdout {
+                match child.stdout.take() {
+                    Some(stdout) => {
+                        let sender = line_sender.clone();
+                        let mut buf_reader = BufReader::new(stdout);
+                        Some(thread::spawn(move || {
+                            let mut line = String::new();
+                            loop {
+                                match buf_reader.read_line(&mut line) {
+                                    Ok(0) => {
+                                        // there won't be anything more, quitting
+                                        break;
+                                    }
+                                    Ok(_) => {
+                                        let response =
+                                            CommandExecInfo::Line(RawCommandOutputLine {
+                                                content: line.clone(),
+                                                origin: CommandStream::StdOut,
+                                            });
+                                        if sender.send(response).is_err() {
+                                            break; // channel closed
+                                        }
+                                    }
+                                    Err(e) => {
+                                        warn!("error reading stdout: {e}");
+                                        if e.kind() != io::ErrorKind::InvalidData {
+                                            // a genuine I/O error (not just a
+                                            // non-UTF-8 line, whose bytes were
+                                            // already consumed): stop, so we don't
+                                            // spin and the join can complete
+                                            break;
+                                        }
+                                        // InvalidData: skip this line, keep reading
+                                    }
                                 }
+                                line.clear();
                             }
-                        }
-                        line.clear();
+                        }))
                     }
-                });
-            }
+                    None => {
+                        warn!("process has no stdout"); // unlikely
+                        None
+                    }
+                }
+            } else {
+                None
+            };
 
             // starting a thread to handle stderr lines until program
             // ends (then ask the child_thread to send status)
@@ -177,13 +197,10 @@ impl MissionExecutor {
                 .take()
                 .expect("MissionExecutor requires piped stderr");
             let mut buf_reader = BufReader::new(stderr);
-            thread::spawn(move || {
+            let stderr_thread = thread::spawn(move || {
                 let mut line = String::new();
                 loop {
                     match buf_reader.read_line(&mut line) {
-                        Err(e) => {
-                            warn!("error : {e}");
-                        }
                         Ok(0) => {
                             if let Err(e) = err_stop_sender.send(StopMessage::SendStatus) {
                                 warn!("sending stop message failed: {e}");
@@ -199,19 +216,32 @@ impl MissionExecutor {
                                 break; // channel closed
                             }
                         }
+                        Err(e) => {
+                            warn!("error reading stderr: {e}");
+                            if e.kind() != io::ErrorKind::InvalidData {
+                                // a genuine I/O error (not just a non-UTF-8 line):
+                                // treat it as end-of-stream so child_thread doesn't
+                                // wait for the status message forever, and stop
+                                if let Err(e) = err_stop_sender.send(StopMessage::SendStatus) {
+                                    warn!("sending stop message failed: {e}");
+                                }
+                                break;
+                            }
+                            // InvalidData: skip this line, keep reading
+                        }
                     }
                     line.clear();
                 }
             });
 
             // now waiting for the stop event
+            let mut end_status = None;
             match stop_receiver.recv() {
                 Ok(stop) => match stop {
                     StopMessage::SendStatus => {
-                        let status = child.wait();
-                        if let Ok(status) = status {
-                            let _ = line_sender.send(CommandExecInfo::End { status });
-                        }
+                        // capture the status now, but don't announce End yet: we
+                        // want all output lines flushed (readers joined) first
+                        end_status = child.wait().ok();
                     }
                     StopMessage::Kill => {
                         debug!("explicit interrupt received");
@@ -225,6 +255,19 @@ impl MissionExecutor {
             }
             if let Err(e) = child.wait() {
                 warn!("waiting for child failed: {e}");
+            }
+            // Wait for the reader threads to drain and send all their lines
+            // before this task ends. Otherwise a line buffered by a killed
+            // process could still be sent on the (mission-wide) channel after
+            // die() returns, and leak into the next task's output. It also
+            // guarantees every output line precedes the End message below.
+            if let Some(stdout_thread) = stdout_thread {
+                let _ = stdout_thread.join();
+            }
+            let _ = stderr_thread.join();
+            // now that all output has been sent, announce completion
+            if let Some(status) = end_status {
+                let _ = line_sender.send(CommandExecInfo::End { status });
             }
         });
         Ok(TaskExecutor {
@@ -250,7 +293,11 @@ fn kill(
         };
         warn!("specific kill command failed: {e}");
     }
-    child.kill().expect("command couldn't be killed");
+    if let Err(e) = child.kill() {
+        // e.g. the process already exited; nothing more we can do, and panicking
+        // here would skip the child.wait() of the caller and orphan the process
+        warn!("failed to kill child process: {e}");
+    }
 }
 
 fn run_kill_command(
