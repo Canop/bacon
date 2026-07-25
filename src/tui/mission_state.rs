@@ -1162,26 +1162,51 @@ impl<'a, 'm> MissionState<'a, 'm> {
         w: &mut W,
     ) -> Result<()> {
         self.update_search();
+        // On a very short terminal we keep, in decreasing priority: the badges
+        // (as soon as there's 1 line), then "computing", then the status line,
+        // then the rest (content). The help page, when open, replaces the
+        // content and keeps the status line.
+        let h = self.height;
+        let has_help = self.help_page.is_some();
+        // status line shows whenever the help page is up (h >= 1), otherwise
+        // only once the badges and "computing" line are already in.
+        let status_min_height = if has_help { 1 } else { 3 };
         if self.reverse {
-            self.draw_status_line(w, 0)?;
+            if h >= status_min_height {
+                self.draw_status_line(w, 0)?;
+            }
             if let Some(help_page) = self.help_page.as_mut() {
-                help_page.draw(w, Area::new(0, 1, self.width, self.height - 1))?;
+                help_page.draw(w, Area::new(0, 1, self.width, h.saturating_sub(1)))?;
             } else {
-                self.draw_content(w, 1)?;
-                self.draw_computing(w, self.height - 2)?;
-                self.draw_message(w, self.height - 2)?;
-                self.draw_badges(w, self.height - 1)?;
+                if h >= 4 {
+                    self.draw_content(w, 1)?;
+                }
+                if h >= 2 {
+                    self.draw_computing(w, h - 2)?;
+                    self.draw_message(w, h - 2)?;
+                }
+                if h >= 1 {
+                    self.draw_badges(w, h - 1)?;
+                }
             }
         } else {
             if let Some(help_page) = self.help_page.as_mut() {
-                help_page.draw(w, Area::new(0, 0, self.width, self.height - 1))?;
+                help_page.draw(w, Area::new(0, 0, self.width, h.saturating_sub(1)))?;
             } else {
-                self.draw_badges(w, 0)?;
-                self.draw_computing(w, 1)?;
-                self.draw_message(w, 1)?; // drawn over the "computing..." line
-                self.draw_content(w, 2)?;
+                if h >= 1 {
+                    self.draw_badges(w, 0)?;
+                }
+                if h >= 2 {
+                    self.draw_computing(w, 1)?;
+                    self.draw_message(w, 1)?; // drawn over the "computing..." line
+                }
+                if h >= 4 {
+                    self.draw_content(w, 2)?;
+                }
             }
-            self.draw_status_line(w, self.height - 1)?;
+            if h >= status_min_height {
+                self.draw_status_line(w, h - 1)?;
+            }
         }
         match &mut self.dialog {
             Dialog::None => {}
