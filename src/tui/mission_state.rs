@@ -2,27 +2,14 @@ use {
     crate::*,
     anyhow::Result,
     crokey::KeyCombination,
-    std::{
-        io::Write,
-        process::ExitStatus,
-        time::Instant,
-    },
+    std::{io::Write, process::ExitStatus, time::Instant},
     termimad::{
-        Area,
-        CompoundStyle,
-        MadSkin,
+        Area, CompoundStyle, MadSkin,
         crossterm::{
-            cursor,
-            execute,
-            style::{
-                Attribute,
-                Print,
-            },
+            cursor, execute,
+            style::{Attribute, Print},
         },
-        minimad::{
-            Alignment,
-            Composite,
-        },
+        minimad::{Alignment, Composite},
     },
 };
 
@@ -760,7 +747,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             if search_width > 1 {
                 // draw_prefixed_input requires a width > 1
                 let skin = self.mission.job.skin;
-                let csi = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.search_input_prefix_fg());
+                let csi = format!("\u{1b}[1m{}", skin.search_input_prefix_fg().display_fg());
                 self.search
                     .draw_prefixed_input(w, 0, y, &csi, search_width)?;
                 help_start += search_width;
@@ -882,7 +869,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         }
         if self.search.input_has_content() {
             // bold, colored foreground
-            let csi_found = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.found_fg());
+            let csi_found = format!("\u{1b}[1m{}", skin.found_fg().display_fg());
             self.search.add_summary_tstring(&mut t_line, &csi_found);
         }
         let width = self.width as usize;
@@ -902,9 +889,9 @@ impl<'a, 'm> MissionState<'a, 'm> {
         if self.computing {
             write!(
                 w,
-                "\u{1b}[38;5;{}m\u{1b}[48;5;{}m{:^w$}\u{1b}[0m",
-                skin.computing_fg(),
-                skin.computing_bg(),
+                "{}{}{:^w$}\u{1b}[0m",
+                skin.computing_fg().display_fg(),
+                skin.computing_bg().display_bg(),
                 "computing...",
                 w = width
             )?;
@@ -1044,10 +1031,10 @@ impl<'a, 'm> MissionState<'a, 'm> {
             return Ok(());
         }
         let skin = self.mission.job.skin;
-        let csi_found = format!("\u{1b}[1m\u{1b}[38;5;{}m", skin.found_fg()); // bold, colored foreground
+        let csi_found = format!("\u{1b}[1m{}", skin.found_fg().display_fg()); // bold, colored foreground
         let csi_found_selected = format!(
-            "\u{1b}[1m\u{1b}[30m\u{1b}[48;5;{}m",
-            skin.found_selected_bg()
+            "\u{1b}[1m\u{1b}[30m{}",
+            skin.found_selected_bg().display_bg()
         ); // bold, colored background
         #[allow(clippy::cast_possible_truncation)]
         let area = Area::new(
