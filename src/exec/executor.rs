@@ -31,10 +31,6 @@ pub struct MissionExecutor {
 
 /// Dedicated to one execution of the job (so there's usually
 /// several task executors during the lifetime of a mission executor).
-///
-/// It owns the channel carrying this execution's output lines: when the
-/// `TaskExecutor` is dropped (e.g. replaced by the next run) the channel goes
-/// with it, so nothing from a previous execution can leak into the next one.
 pub struct TaskExecutor {
     /// the thread running the current task
     child_thread: thread::JoinHandle<()>,
