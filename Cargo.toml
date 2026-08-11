@@ -27,7 +27,7 @@ cli-log = "2.1"
 crokey = "1.5"
 ctrlc = "3.4"
 directories-next = "2.0.0"
-gix = { version = "0.73", default-features = false, features = [ "index", "excludes", "parallel" ] }
+gix = { version = "0.86", default-features = false, features = [ "sha1", "index", "excludes", "parallel" ] }
 glob = "0.3"
 iq = { version = "0.4", features = ["template"] }
 lazy-regex = "3.6"
