@@ -65,7 +65,19 @@ bacon ex -- example4578
 
 Jobs in the `bacon.toml` file are specific to your projects, there's no reason not to adapt them for its specificities.
 
-You may for example want to tune the clippy rules:
+In a spot session, you may add some modifiers, eg
+
+```bash
+bacon clippy -- -- -W clippy::pedantic
+```
+
+But most often you want to keep these settings between sessions.
+
+Best way depends on the MSRV. In both cases bacon doesn't need to be killed and relaunched when you change the job config.
+
+## Before rust 1.74
+
+Lint settings can be kept in the bacon job:
 
 ```TOML
 [jobs.clippy]
@@ -80,13 +92,18 @@ command = [
 need_stdout = false
 ```
 
-You may also add some modifiers on spot sessions, eg
+## From rust 1.74
 
-```bash
-bacon clippy -- -- -W clippy::pedantic
+`Cargo.toml` files can now hold those settings, which enables sharing them with non bacon users, eg the CI:
+
+```TOML
+[lints.clippy]
+collapsible_else_if = "allow"
+collapsible_if = "allow"
+field_reassign_with_default = "allow"
+match_like_matches_macro = "allow"
 ```
 
-Note that bacon doesn't need to be killed and relaunched when you change the job config.
 
 # Deal with pedantic
 
