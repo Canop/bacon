@@ -2,14 +2,8 @@ use {
     super::*,
     crate::*,
     anyhow::*,
-    serde::{
-        Deserialize,
-        Serialize,
-    },
-    std::{
-        fmt::Write as _,
-        io::Write,
-    },
+    serde::{Deserialize, Serialize},
+    std::{fmt::Write as _, io::Write},
     termimad::StrFit,
 };
 
@@ -42,8 +36,8 @@ impl TString {
     /// colors are 8bits ansi values
     pub fn badge(
         con: &str,
-        fg: u8,
-        bg: u8,
+        fg: ConfigColor,
+        bg: ConfigColor,
     ) -> Self {
         Self {
             csi: csi(fg, bg),
@@ -53,8 +47,8 @@ impl TString {
     pub fn num_badge(
         num: usize,
         cat: &str,
-        fg: u8,
-        bg: u8,
+        fg: ConfigColor,
+        bg: ConfigColor,
     ) -> Self {
         let raw = if num < 2 {
             format!(" {num} {cat} ")
