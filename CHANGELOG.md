@@ -1,4 +1,5 @@
-### next
+<a name="v3.25.0"></a>
+### v3.25.0 - 2026/08/23
 - fix crash in search on multibyte char in pattern and wrapped output - Fix #446
 - fix crash of search when output grows - Fix #447
 - fix unability to remove backtab binding - Fix #450
