@@ -1,3 +1,6 @@
+### next
+- smaller crate package: the website, CI and nix files are no longer published - Fix #460
+
 <a name="v3.25.0"></a>
 ### v3.25.0 - 2026/08/23
 - fix crash in search on multibyte char in pattern and wrapped output - Fix #446

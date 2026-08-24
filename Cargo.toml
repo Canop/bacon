@@ -10,6 +10,19 @@ license = "AGPL-3.0"
 categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
 rust-version = "1.85"
+exclude = [
+    "/.github/",
+    "/bacon.json",
+    "/bacon.toml",
+    "/deny.toml",
+    "/flake.lock",
+    "/flake.nix",
+    "/fmt.sh",
+    "/img/",
+    "/install.sh",
+    "/rustfmt.toml",
+    "/website/",
+]
 
 [features]
 default = []
