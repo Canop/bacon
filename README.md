@@ -38,6 +38,8 @@ Some features are disabled by default. You may enable them with
 
     cargo install --locked bacon --features "clipboard sound"
 
+Precompiled binaries are also available at https://dystroy.org/bacon/download/
+
 ## check the current project
 
     bacon
