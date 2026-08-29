@@ -60,7 +60,7 @@ pub struct MissionState<'a, 'm> {
     /// number of lines hidden on top due to scroll
     scroll: usize,
     /// `item_idx` of the item which was on top on last draw
-    /// (but not necessarily due to volontary scroll)
+    /// (but not necessarily due to voluntary scroll)
     top_item_idx: usize,
     /// `item_idx` of the item the user scrolled to, if any, which we will try to keep on top when
     /// possible

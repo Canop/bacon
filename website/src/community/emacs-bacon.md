@@ -4,7 +4,7 @@
 
 [emacs-bacon](https://seed.pipapo.org/nodes/seed.pipapo.org/rad:zKbD2Y9kERBYScgczMaJBTRfjBhh)
 is an emacs minor-mode, which, combined with bacon, lets you navigate between errors and
-warnings without leaving your editor, just hitting a key. It also syncronizes bacon to show
+warnings without leaving your editor, just hitting a key. It also synchronizes bacon to show
 the current navigated item.
 
 # Development
@@ -23,7 +23,7 @@ At every job end, bacon writes a `.bacon-locations` file with all items (errors,
 test failures, etc.) and for each of them its label, file path, line and column.
 
 It read the `bacon/prefs.toml` and local `bacon.toml`. You can remote-control bacon from emacs
-with the `C-c b` prefix (customizeable) followed by whatever keybindings the bacon preferences
+with the `C-c b` prefix (customizable) followed by whatever keybindings the bacon preferences
 define to send a command to bacon.
 
 You can bind `bacon-next` and other commands to jump to next|prev|first
