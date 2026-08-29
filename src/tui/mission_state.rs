@@ -13,7 +13,7 @@ use {
         MadSkin,
         crossterm::{
             cursor,
-            execute,
+            queue,
             style::{
                 Attribute,
                 Print,
@@ -1145,7 +1145,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             }
             clear_line(w)?;
             if is_thumb(y.into(), scrollbar) {
-                execute!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
+                queue!(w, cursor::MoveTo(area.width, y), Print('▐'.to_string()))?;
             }
         }
         drop(lines);
