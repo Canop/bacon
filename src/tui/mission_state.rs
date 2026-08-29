@@ -83,7 +83,7 @@ pub struct MissionState<'a, 'm> {
     pub search: SearchState,
     /// The dialog that may be displayed over the rest of the UI
     pub dialog: Dialog,
-    /// the prefered scroll anchor, which we try to stick to when the user didn't volontarily
+    /// the preferred scroll anchor, which we try to stick to when the user didn't voluntarily
     /// scroll to another item
     pub scroll_anchor: ScrollAnchor,
 }
@@ -407,7 +407,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
         &mut self,
         line: CommandOutputLine,
     ) {
-        let auto_scroll = self.is_scroll_at_prefered_end();
+        let auto_scroll = self.is_scroll_at_preferred_end();
         let line_count_before = self.lines_to_draw_unfiltered().len();
         if let Some(output) = self.output.as_mut() {
             self.report_maker.receive_line(line, output);
@@ -415,8 +415,8 @@ impl<'a, 'm> MissionState<'a, 'm> {
                 self.update_wrap();
             }
             if auto_scroll {
-                // if the user never scrolled, we'll stick to the prefered anchor
-                self.scroll_to_prefered_end();
+                // if the user never scrolled, we'll stick to the preferred anchor
+                self.scroll_to_preferred_end();
             }
         } else {
             self.wrapped_output = None;
@@ -596,8 +596,8 @@ impl<'a, 'm> MissionState<'a, 'm> {
             self.scroll_to_bottom();
         }
     }
-    fn scroll_to_prefered_end(&mut self) {
-        let end = self.prefered_scroll_end();
+    fn scroll_to_preferred_end(&mut self) {
+        let end = self.preferred_scroll_end();
         self.scroll_to_end(end);
     }
     fn current_scroll_end(&self) -> Option<ScrollEnd> {
@@ -615,15 +615,15 @@ impl<'a, 'm> MissionState<'a, 'm> {
     fn is_scroll_at_bottom(&self) -> bool {
         self.scroll + self.page_height() + 1 >= self.content_height()
     }
-    fn is_scroll_at_prefered_end(&self) -> bool {
-        if self.prefered_scroll_end().is_top(self.reverse) {
+    fn is_scroll_at_preferred_end(&self) -> bool {
+        if self.preferred_scroll_end().is_top(self.reverse) {
             self.is_scroll_at_top()
         } else {
             self.is_scroll_at_bottom()
         }
     }
     fn reset_scroll(&mut self) {
-        self.scroll_to_prefered_end();
+        self.scroll_to_preferred_end();
     }
     fn fix_scroll(&mut self) {
         self.scroll = fix_scroll(self.scroll, self.content_height(), self.page_height());
@@ -953,7 +953,7 @@ impl<'a, 'm> MissionState<'a, 'm> {
             CommandResult::None => false,
         }
     }
-    pub fn prefered_scroll_end(&self) -> ScrollEnd {
+    pub fn preferred_scroll_end(&self) -> ScrollEnd {
         match self.scroll_anchor {
             ScrollAnchor::Auto => {
                 if self.is_failure() {

@@ -96,7 +96,7 @@ impl ExportsSettings {
             };
             let auto = ec.auto.unwrap_or(true);
             let path = ec.path.clone().unwrap_or_else(|| match exporter {
-                Exporter::Analyser => default_analyser_path(),
+                Exporter::Analyzer => default_analyzer_path(),
                 Exporter::Analysis => default_analysis_path(),
                 Exporter::Locations => default_locations_path(),
                 Exporter::JsonReport => default_json_report_path(),
@@ -202,7 +202,7 @@ pub fn default_locations_line_format() -> &'static str {
     "{kind} {path}:{line}:{column} {message}"
 }
 
-pub fn default_analyser_path() -> PathBuf {
+pub fn default_analyzer_path() -> PathBuf {
     PathBuf::from("bacon-analyser.json")
 }
 pub fn default_analysis_path() -> PathBuf {

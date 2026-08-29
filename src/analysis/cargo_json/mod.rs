@@ -42,7 +42,7 @@ impl Analyzer for CargoJsonAnalyzer {
         self.analysis.clear();
         self.exports.clear();
         for (name, export_settings) in &mission.settings.exports.exports {
-            if export_settings.exporter == Exporter::Analyser {
+            if export_settings.exporter == Exporter::Analyzer {
                 let export = CargoJsonExport::new(name.clone(), export_settings);
                 self.exports.push(export);
             }

@@ -9,8 +9,8 @@ use {
 pub enum Exporter {
     /// The analyzer is tasked with doing an export while analyzing the
     /// command output
-    #[serde(alias = "analyzer")]
-    Analyser,
+    #[serde(alias = "analyser")]
+    Analyzer,
     /// This exporter doesn't exist at the moment
     #[serde(alias = "analyzis")]
     Analysis,

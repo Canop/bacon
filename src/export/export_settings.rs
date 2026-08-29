@@ -31,7 +31,7 @@ impl ExportSettings {
             return Ok(());
         };
         match self.exporter {
-            Exporter::Analyser => {
+            Exporter::Analyzer => {
                 if let Some(export) = report.analyzer_exports.get(name) {
                     std::fs::write(&path, export)?;
                 } else {
@@ -39,7 +39,7 @@ impl ExportSettings {
                 }
             }
             Exporter::Analysis => {
-                error!("Aanlysis export not currently implemented");
+                error!("Analysis export not currently implemented");
             }
             Exporter::JsonReport => {
                 let json = serde_json::to_string_pretty(&report)?;
