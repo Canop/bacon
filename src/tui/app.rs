@@ -113,6 +113,72 @@ pub fn run(
     Ok(())
 }
 
+/// Max number of output lines consumed from the executor between two redraws
+const MAX_LINES_PER_DRAW: usize = 1000;
+
+/// Apply to the mission state an information received from the executor
+/// (an output line, the end of the command, an error).
+///
+/// Actions to execute in response are pushed to `actions`.
+fn handle_exec_info(
+    w: &mut W,
+    mission_state: &mut MissionState,
+    headless: bool,
+    actions: &mut Vec<Action>,
+    info: CommandExecInfo,
+) -> Result<()> {
+    match info {
+        CommandExecInfo::Line(line) => {
+            if headless {
+                match line.origin {
+                    CommandStream::StdOut => print!("{}", line.content),
+                    CommandStream::StdErr => eprint!("{}", line.content),
+                }
+            }
+            let line = line.into();
+            mission_state.add_line(line);
+        }
+        CommandExecInfo::End { status } => {
+            // computation finished
+            info!("execution finished with status: {status:?}");
+            mission_state.finish_task(status)?;
+            if headless {
+                for badge in mission_state.job_badges() {
+                    badge.draw(w)?;
+                }
+                writeln!(w)?;
+                w.flush()?;
+            }
+            if mission_state.is_success() {
+                if let Some(action) = &mission_state.mission.job.on_success {
+                    actions.push(action.clone());
+                }
+            }
+            if mission_state.is_failure() {
+                if let Some(action) = &mission_state.mission.job.on_failure {
+                    actions.push(action.clone());
+                }
+            }
+            if mission_state.changes_since_last_job_start > 0 && mission_state.auto_refresh.is_enabled() {
+                // will be ignored if a on_success or on_failures ends the mission
+                // or does a rerun already
+                actions.push(Action::ReRun);
+            }
+        }
+        CommandExecInfo::Error(e) => {
+            mission_state.computation_stops();
+            return Err(e.context(format!(
+                "error in computation for job '{}'",
+                mission_state.mission.concrete_job_ref.badge_label()
+            )));
+        }
+        CommandExecInfo::Interruption => {
+            debug!("command was interrupted (by us)");
+        }
+    }
+    Ok(())
+}
+
 /// Run the mission and return what to do afterwards
 fn run_mission(
     w: &mut W,
@@ -195,51 +261,19 @@ fn run_mission(
                 }
             }
             recv(task_executor.line_receiver) -> info => {
-                if let Ok(info) = info {
-                    match info {
-                        CommandExecInfo::Line(line) => {
-                            if headless {
-                                match line.origin {
-                                    CommandStream::StdOut => print!("{}", line.content),
-                                    CommandStream::StdErr => eprint!("{}", line.content),
-                                }
-                            }
-                            let line = line.into();
-                            mission_state.add_line(line);
+                // drain lines to avoid redrawing per line in case of a command bursting its output.
+                if let Ok(mut info) = info {
+                    let mut drained = 0;
+                    loop {
+                        let is_line = matches!(info, CommandExecInfo::Line(_));
+                        handle_exec_info(w, &mut mission_state, headless, &mut actions, info)?;
+                        drained += 1;
+                        if !is_line || drained >= MAX_LINES_PER_DRAW {
+                            break;
                         }
-                        CommandExecInfo::End { status } => {
-                            // computation finished
-                            info!("execution finished with status: {status:?}");
-                            mission_state.finish_task(status)?;
-                            if headless {
-                                for badge in mission_state.job_badges() {
-                                    badge.draw(w)?;
-                                }
-                                writeln!(w)?;
-                                w.flush()?;
-                            }
-                            if mission_state.is_success() {
-                                if let Some(action) = &mission_state.mission.job.on_success {
-                                    actions.push(action.clone());
-                                }
-                            }
-                            if mission_state.is_failure() {
-                                if let Some(action) = &mission_state.mission.job.on_failure {
-                                    actions.push(action.clone());
-                                }
-                            }
-                            if mission_state.changes_since_last_job_start > 0 && mission_state.auto_refresh.is_enabled() {
-                                // will be ignored if a on_success or on_failures ends the mission
-                                // or does a rerun already
-                                actions.push(Action::ReRun);
-                            }
-                        }
-                        CommandExecInfo::Error(e) => {
-                            mission_state.computation_stops();
-                            return Err(e.context(format!("error in computation for job '{}'", mission_state.mission.concrete_job_ref.badge_label())));
-                        }
-                        CommandExecInfo::Interruption => {
-                            debug!("command was interrupted (by us)");
+                        match task_executor.line_receiver.try_recv() {
+                            Ok(next) => info = next,
+                            Err(_) => break,
                         }
                     }
                 }

@@ -62,6 +62,7 @@ pretty_assertions = "1.4"
 
 [lints.clippy]
 bool_to_int_with_if = "allow"
+bool_assert_comparison = "allow"
 collapsible_else_if = "allow"
 collapsible_if = "allow"
 default_trait_access = "allow"
