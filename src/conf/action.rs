@@ -473,7 +473,7 @@ fn test_action_string_round_trip() {
         Action::FocusFile(FocusFileCommand::new("src/main.rs")),
     ];
     for action in actions {
-        println!("action: {}", action.to_string());
+        println!("action: {}", action);
         assert_eq!(action.to_string().parse(), Ok(action));
     }
 }

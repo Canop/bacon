@@ -1,4 +1,5 @@
 ### next
+- fewer redraws when the command outputs many lines
 - smaller crate package: the website, CI and nix files are no longer published - Fix #460
 
 <a name="v3.25.0"></a>
