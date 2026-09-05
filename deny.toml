@@ -1,0 +1,33 @@
+# Configuration for cargo-deny: https://embarkstudios.github.io/cargo-deny/
+
+[advisories]
+version = 2
+ignore = [
+    # "paste is no longer maintained". It's a dependency-free proc-macro, so it
+    # runs at compile time and contributes no code to the binary: there's no
+    # runtime attack surface. Its author archived it as complete rather than
+    # abandoning it mid-problem. Forks are younger and less reviewed, so moving
+    # to one would trade a cosmetic advisory for actual risk in the macro that
+    # generates the skin types. Revisit only if a rustc release breaks it.
+    { id = "RUSTSEC-2024-0436", reason = "paste is complete, not broken: compile-time only, no dependencies" },
+]
+
+# Without an explicit list cargo-deny rejects every license, so these are the
+# ones actually present in the tree. For an `A OR B` crate, allowing one branch
+# is enough.
+[licenses]
+version = 2
+allow = [
+    "AGPL-3.0",       # bacon itself
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "CC0-1.0",
+    "ISC",
+    "MIT",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unlicense",
+    "Zlib",
+]

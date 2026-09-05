@@ -26,20 +26,20 @@ pub fn load_config_from_cargo_toml(cargo_file_path: &Path) -> Result<Vec<Config>
     let cargo_toml = std::fs::read_to_string(cargo_file_path)?;
     let mut cargo: CargoWrappedConfig = toml::from_str(&cargo_toml)?;
     let mut configs = Vec::new();
-    let worskpace_config = cargo
+    let workspace_config = cargo
         .workspace
         .take()
         .and_then(|workspace| workspace.metadata)
         .and_then(|metadata| metadata.bacon);
-    if let Some(config) = worskpace_config {
+    if let Some(config) = workspace_config {
         configs.push(config);
     }
-    let worskpace_config = cargo
+    let package_config = cargo
         .package
         .take()
         .and_then(|package| package.metadata)
         .and_then(|metadata| metadata.bacon);
-    if let Some(config) = worskpace_config {
+    if let Some(config) = package_config {
         configs.push(config);
     }
     Ok(configs)

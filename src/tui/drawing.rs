@@ -3,7 +3,7 @@ use {
     anyhow::Result,
     termimad::crossterm::{
         cursor,
-        execute,
+        queue,
         terminal,
     },
 };
@@ -14,7 +14,7 @@ pub fn goto(
     x: u16,
     y: u16,
 ) -> Result<()> {
-    execute!(w, cursor::MoveTo(x, y))?;
+    queue!(w, cursor::MoveTo(x, y))?;
     Ok(())
 }
 
@@ -23,12 +23,12 @@ pub fn goto_line(
     w: &mut W,
     y: u16,
 ) -> Result<()> {
-    execute!(w, cursor::MoveTo(0, y))?;
+    queue!(w, cursor::MoveTo(0, y))?;
     Ok(())
 }
 
 /// Clear from the current position to the end of the line
 pub fn clear_line(w: &mut W) -> Result<()> {
-    execute!(w, terminal::Clear(terminal::ClearType::UntilNewLine))?;
+    queue!(w, terminal::Clear(terminal::ClearType::UntilNewLine))?;
     Ok(())
 }

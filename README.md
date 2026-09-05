@@ -36,7 +36,9 @@ Run this command too if you want to update bacon. Configuration has always been 
 
 Some features are disabled by default. You may enable them with
 
-    cargo install --features "clipboard sound"
+    cargo install --locked bacon --features "clipboard sound"
+
+Precompiled binaries are also available at https://dystroy.org/bacon/download/
 
 ## check the current project
 

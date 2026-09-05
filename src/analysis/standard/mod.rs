@@ -1,8 +1,8 @@
-mod standard_line_analyser;
+mod standard_line_analyzer;
 mod standard_report_building;
 
 pub use {
-    standard_line_analyser::StandardLineAnalyzer,
+    standard_line_analyzer::StandardLineAnalyzer,
     standard_report_building::{
         build_report,
         build_report_from_analysis,

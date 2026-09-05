@@ -1,9 +1,9 @@
-mod nextest_line_analyser;
+mod nextest_line_analyzer;
 
 use {
     crate::*,
     anyhow::Result,
-    nextest_line_analyser::NextestLineAnalyzer,
+    nextest_line_analyzer::NextestLineAnalyzer,
 };
 
 #[derive(Debug, Default)]

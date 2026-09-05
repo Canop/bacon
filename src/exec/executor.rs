@@ -27,18 +27,22 @@ use {
 pub struct MissionExecutor {
     command_builder: CommandBuilder,
     kill_command: Option<Vec<String>>,
-    line_sender: Sender<CommandExecInfo>,
-    pub line_receiver: Receiver<CommandExecInfo>,
 }
 
 /// Dedicated to one execution of the job (so there's usually
-/// several task executors during the lifetime of a mission executor)
+/// several task executors during the lifetime of a mission executor).
 pub struct TaskExecutor {
     /// the thread running the current task
     child_thread: thread::JoinHandle<()>,
     stop_sender: Sender<StopMessage>,
     grace_period_start: Option<Instant>, // forgotten at end of grace period
     grace_period: Period,
+    /// Kept to hold the line channel open: once the task's own threads are
+    /// gone, this keeps the channel *connected* so the main loop's `select!`
+    /// blocks on `line_receiver` instead of busy-looping on a disconnected one.
+    _line_sender: Sender<CommandExecInfo>,
+    /// receiver for this task's output lines
+    pub line_receiver: Receiver<CommandExecInfo>,
 }
 
 /// A message sent to the `child_thread` on end
@@ -78,12 +82,9 @@ impl MissionExecutor {
     pub fn new(mission: &Mission) -> anyhow::Result<Self> {
         let command_builder = mission.get_command()?;
         let kill_command = mission.kill_command();
-        let (line_sender, line_receiver) = channel::unbounded();
         Ok(Self {
             command_builder,
             kill_command,
-            line_sender,
-            line_receiver,
         })
     }
 
@@ -109,7 +110,8 @@ impl MissionExecutor {
         }
         let kill_command = self.kill_command.clone();
         let with_stdout = command_builder.is_with_stdout();
-        let line_sender = self.line_sender.clone();
+        let (line_sender, line_receiver) = channel::unbounded();
+        let keepalive_sender = line_sender.clone();
         let (stop_sender, stop_receiver) = channel::bounded(1);
         let err_stop_sender = stop_sender.clone();
 
@@ -205,26 +207,34 @@ impl MissionExecutor {
             });
 
             // now waiting for the stop event
-            match stop_receiver.recv() {
-                Ok(stop) => match stop {
-                    StopMessage::SendStatus => {
-                        let status = child.wait();
-                        if let Ok(status) = status {
-                            let _ = line_sender.send(CommandExecInfo::End { status });
-                        }
-                    }
-                    StopMessage::Kill => {
-                        debug!("explicit interrupt received");
-                        kill(kill_command.as_deref(), &mut child);
-                    }
-                },
+            let natural_end = match stop_receiver.recv() {
+                Ok(StopMessage::SendStatus) => true, // the process finished on its own
+                Ok(StopMessage::Kill) => {
+                    debug!("explicit interrupt received");
+                    kill(kill_command.as_deref(), &mut child);
+                    false
+                }
                 Err(e) => {
                     debug!("recv error: {e}"); // probably just the executor dropped
                     kill(kill_command.as_deref(), &mut child);
+                    false
                 }
-            }
-            if let Err(e) = child.wait() {
+            };
+            // reap the child exactly once (also required after the SIGKILL in
+            // kill(), which doesn't wait itself) and keep its status
+            let status = child.wait();
+            if let Err(ref e) = status {
                 warn!("waiting for child failed: {e}");
+            }
+            // announce completion only for a natural end (a killed task reports
+            // no status). The reader threads are intentionally left detached: a
+            // surviving grandchild could hold the pipe open, so joining them
+            // could block forever — and their output goes to this task's channel,
+            // which is dropped when the next task starts.
+            if natural_end {
+                if let Ok(status) = status {
+                    let _ = line_sender.send(CommandExecInfo::End { status });
+                }
             }
         });
         Ok(TaskExecutor {
@@ -232,6 +242,8 @@ impl MissionExecutor {
             stop_sender,
             grace_period_start,
             grace_period,
+            _line_sender: keepalive_sender,
+            line_receiver,
         })
     }
 }
@@ -250,7 +262,11 @@ fn kill(
         };
         warn!("specific kill command failed: {e}");
     }
-    child.kill().expect("command couldn't be killed");
+    if let Err(e) = child.kill() {
+        // e.g. the process already exited; nothing more we can do, and panicking
+        // here would skip the caller's child.wait() and orphan the process
+        warn!("failed to kill child process: {e}");
+    }
 }
 
 fn run_kill_command(

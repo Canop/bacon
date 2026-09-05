@@ -1,7 +1,10 @@
 /target
 bacon.log
-/*deploy.sh
 /website/site
 .bacon-locations
 bacon-analysis.json
 /result
+/build
+/.build-cache
+/build-scripts/_local.sh
+/bacon_*.zip

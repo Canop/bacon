@@ -182,6 +182,17 @@ impl Context {
                         } else {
                             warn!("missing manifest file: {:?}", item.manifest_path);
                         }
+                        // The default watches include `build.rs`, but a package
+                        // may relocate its build script with the `package.build`
+                        // manifest key. Ask cargo metadata where it really is so
+                        // it gets watched too.
+                        if add_default {
+                            for script in build_script_paths(&item.targets) {
+                                if script.exists() && !paths_to_watch.contains(&script) {
+                                    paths_to_watch.push(script);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -249,6 +260,21 @@ fn add_to_paths_to_watch(
     }
 }
 
+/// Return the source paths of the `custom-build` targets (build scripts) found
+/// among the given targets.
+///
+/// The default watches assume the build script sits at the conventional
+/// `build.rs` path, but Cargo lets a package point elsewhere with the
+/// `package.build` manifest key (e.g. `build = "build-aux/build.rs"`). In that
+/// case cargo metadata is the reliable source for the actual location.
+fn build_script_paths(targets: &[cargo_metadata::Target]) -> Vec<PathBuf> {
+    targets
+        .iter()
+        .filter(|target| target.is_custom_build())
+        .map(|target| target.src_path.clone().into_std_path_buf())
+        .collect()
+}
+
 /// The "package directory", unless specified with --project, is the closest
 /// bacon.toml or Cargo.toml directory, or the current directory if none is found.
 fn find_package_directory(args: &Args) -> Result<PathBuf> {
@@ -282,4 +308,40 @@ fn closest_bacon_or_cargo_dir(start_path: &Path) -> Option<PathBuf> {
         }
     }
     None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn targets(json: &str) -> Vec<cargo_metadata::Target> {
+        serde_json::from_str(json).unwrap()
+    }
+
+    /// A build script relocated with the `package.build` manifest key must be
+    /// reported at its real location, not at the conventional `build.rs` path.
+    #[test]
+    fn build_script_paths_finds_relocated_script() {
+        let targets = targets(
+            r#"[
+                {"name":"demo","kind":["lib"],"src_path":"/project/src/lib.rs"},
+                {"name":"build-script-build","kind":["custom-build"],"src_path":"/project/build-aux/build.rs"}
+            ]"#,
+        );
+        assert_eq!(
+            build_script_paths(&targets),
+            vec![PathBuf::from("/project/build-aux/build.rs")],
+        );
+    }
+
+    /// A package without a build script yields nothing.
+    #[test]
+    fn build_script_paths_empty_without_custom_build() {
+        let targets = targets(
+            r#"[
+                {"name":"demo","kind":["bin"],"src_path":"/project/src/main.rs"}
+            ]"#,
+        );
+        assert!(build_script_paths(&targets).is_empty());
+    }
 }

@@ -64,7 +64,7 @@ impl Pattern {
             previous_line = Some(line);
             for (string_idx, tstring) in line.content.strings.iter().enumerate() {
                 let mut offset = 0;
-                while offset + len < tstring.raw.len() {
+                while offset + len <= tstring.raw.len() {
                     let haystack = &tstring.raw[offset..];
                     let Some(pos) = haystack.find(pattern) else {
                         break;
@@ -102,4 +102,48 @@ fn find_cut_pattern(
             // this check is probably overkill, but let's be safe
             std::str::from_utf8(&pattern[..i]).is_ok() && std::str::from_utf8(&pattern[i..]).is_ok()
         })
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::*;
+
+    fn raw_line(raw: &str) -> Line {
+        Line {
+            item_idx: 0,
+            line_type: LineType::Raw(CommandStream::StdOut),
+            content: TLine::from_raw(raw.to_string()),
+        }
+    }
+
+    /// A match spanning a whole style-run (so ending exactly at the run's end)
+    /// must be found: this is the regression for the `<` vs `<=` off-by-one.
+    #[test]
+    fn find_match_equal_to_whole_string() {
+        let pattern = Pattern {
+            pattern: "error".to_string(),
+        };
+        let lines = [raw_line("error")];
+        let founds = pattern.search_lines(&lines, 0);
+        assert_eq!(founds.len(), 1);
+        assert_eq!(founds[0].line_idx, 0);
+        assert_eq!(founds[0].trange.string_idx, 0);
+        assert_eq!(founds[0].trange.start_byte_in_string, 0);
+        assert_eq!(founds[0].trange.end_byte_in_string, 5);
+    }
+
+    /// Two adjacent matches, the second ending at the string's end, must both
+    /// be found.
+    #[test]
+    fn find_adjacent_matches() {
+        let pattern = Pattern {
+            pattern: "ab".to_string(),
+        };
+        let lines = [raw_line("abab")];
+        let founds = pattern.search_lines(&lines, 0);
+        assert_eq!(founds.len(), 2);
+        assert_eq!(founds[0].trange.start_byte_in_string, 0);
+        assert_eq!(founds[1].trange.start_byte_in_string, 2);
+        assert_eq!(founds[1].trange.end_byte_in_string, 4);
+    }
 }

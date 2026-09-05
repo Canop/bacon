@@ -59,11 +59,12 @@ impl<I: Md + Clone> MenuState<I> {
             item.area = None;
         }
     }
+    /// Select an item, assuming the menu isn't empty
     pub fn select(
         &mut self,
         selection: usize,
     ) {
-        self.selection = selection.min(self.items.len());
+        self.selection = selection.min(self.items.len().saturating_sub(1));
     }
     pub(crate) fn fix_scroll(
         &mut self,
@@ -89,6 +90,12 @@ impl<I: Md + Clone> MenuState<I> {
         key: KeyCombination,
     ) -> (Option<I>, bool) {
         let items = &self.items;
+        if items.is_empty() {
+            // nothing to navigate or validate; don't consume the key (so Esc,
+            // etc. still work) and, crucially, avoid the `% 0` / out-of-bounds
+            // panics below
+            return (None, false);
+        }
         if key == key!(down) {
             self.selection = (self.selection + 1) % items.len();
             return (None, true);

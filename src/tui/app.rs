@@ -194,7 +194,7 @@ fn run_mission(
                     actions.push(Action::ReloadConfig);
                 }
             }
-            recv(executor.line_receiver) -> info => {
+            recv(task_executor.line_receiver) -> info => {
                 if let Ok(info) = info {
                     match info {
                         CommandExecInfo::Line(line) => {

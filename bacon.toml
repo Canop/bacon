@@ -86,52 +86,13 @@ need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 
 [jobs.clippy-all]
-command = [
-	"cargo", "clippy",
-	"--",
-	"-A", "clippy::bool_to_int_with_if",
-	"-A", "clippy::collapsible_else_if",
-	"-A", "clippy::collapsible_if",
-	"-A", "clippy::derive_partial_eq_without_eq",
-	"-A", "clippy::get_first",
-	"-A", "clippy::if_same_then_else",
-	"-A", "clippy::len_without_is_empty",
-	"-A", "clippy::map_entry",
-	"-A", "clippy::new_without_default",
-	"-A", "clippy::too_many_lines",
-	"-A", "clippy::while_let_on_iterator",
-]
+command = ["cargo", "clippy", "--all-features", "--all-targets"]
 need_stdout = false
 
 # Pedantic job refined for bacon's source code.
-# 
-# The goal of the Allow here isn't to have a warning free code
-# (a pedantic session can still dismiss items) but to exclude
-# the lints which are, for this project, considered as bad.
+# The lints excluded for this project are in Cargo.toml's [lints.clippy].
 [jobs.pedantic]
-command = [
-	"cargo", "clippy",
-	"--",
-	"-W", "clippy::pedantic",
-	"-A", "clippy::collapsible_else_if",
-	"-A", "clippy::collapsible_if",
-	"-A", "clippy::default_trait_access",
-	"-A", "clippy::get_first",
-	"-A", "clippy::if_not_else",
-	"-A", "clippy::items_after_statements",
-	"-A", "clippy::len_without_is_empty",
-	"-A", "clippy::map_entry",
-	"-A", "clippy::match_same_arms",
-	"-A", "clippy::missing_errors_doc",
-	"-A", "clippy::must_use_candidate",
-	"-A", "clippy::new_without_default",
-	"-A", "clippy::return_self_not_must_use",
-	"-A", "clippy::single_match_else",
-	"-A", "clippy::struct_excessive_bools",
-	"-A", "clippy::too_many_lines",
-	"-A", "clippy::unnecessary_debug_formatting",
-	"-A", "clippy::wildcard_imports",
-]
+command = ["cargo", "clippy", "--", "-W", "clippy::pedantic"]
 need_stdout = false
 
 [skin]
