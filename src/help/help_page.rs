@@ -50,10 +50,13 @@ pub struct HelpPage {
 }
 
 impl HelpPage {
-    pub fn new(settings: &Settings) -> Self {
+    pub fn new(
+        settings: &Settings,
+        bacon_skin: &BaconSkin,
+    ) -> Self {
         let mut skin = MadSkin::default();
         skin.paragraph.align = Alignment::Center;
-        let key_color = settings.all_jobs.skin.key_fg.color();
+        let key_color = bacon_skin.key_fg();
         skin.italic = CompoundStyle::new(Some(key_color), None, Attribute::Bold.into());
         skin.table.align = Alignment::Center;
         skin.bullet.set_fg(key_color);

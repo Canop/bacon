@@ -37,12 +37,23 @@ pub const CSI_BOLD_WHITE: &str = "\u{1b}[1m\u{1b}[38;5;15m";
 
 static TAB_REPLACEMENT: &str = "    ";
 
-use crate::ConfigColor;
-use crate::DisplayColor;
+use {
+    crate::W,
+    anyhow::Result,
+    std::io::Write,
+    termimad::crossterm::style::{
+        Color,
+        SetBackgroundColor,
+        SetForegroundColor,
+    },
+};
 
-use {crate::W, anyhow::Result, std::io::Write};
-
-pub use {tline::*, tline_builder::*, trange::*, tstring::*};
+pub use {
+    tline::*,
+    tline_builder::*,
+    trange::*,
+    tstring::*,
+};
 
 pub fn draw(
     w: &mut W,
@@ -56,9 +67,18 @@ pub fn draw(
     }
     Ok(())
 }
+/// CSI sequence for bold text with the given foreground and background colors
 pub fn csi(
-    fg: ConfigColor,
-    bg: ConfigColor,
+    fg: Color,
+    bg: Color,
 ) -> String {
-    format!("\u{1b}[1m{}{}", fg.display_fg(), bg.display_bg())
+    format!(
+        "{CSI_BOLD}{}{}",
+        SetForegroundColor(fg),
+        SetBackgroundColor(bg)
+    )
+}
+/// CSI sequence for bold text with the given foreground color
+pub fn csi_bold_fg(fg: Color) -> String {
+    format!("{CSI_BOLD}{}", SetForegroundColor(fg))
 }

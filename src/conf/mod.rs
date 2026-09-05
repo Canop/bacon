@@ -6,6 +6,7 @@ mod defaults;
 mod keybindings;
 mod settings;
 mod skin;
+mod skin_color;
 
 pub use {
     action::*,
@@ -16,6 +17,7 @@ pub use {
     keybindings::*,
     settings::*,
     skin::*,
+    skin_color::*,
 };
 
 use std::path::{

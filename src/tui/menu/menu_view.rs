@@ -80,14 +80,13 @@ impl MenuView {
         let mut md_skin = MadSkin::default();
         md_skin
             .paragraph
-            .set_fgbg(skin.menu_item_fg.color(), skin.menu_item_bg.color());
-        md_skin.italic.set_fg(skin.key_fg.color());
+            .set_fgbg(skin.menu_item_fg(), skin.menu_item_bg());
+        md_skin.italic.set_fg(skin.key_fg());
         let mut sel_md_skin = MadSkin::default();
-        sel_md_skin.paragraph.set_fgbg(
-            skin.menu_item_selected_fg.color(),
-            skin.menu_item_selected_bg.color(),
-        );
-        sel_md_skin.italic.set_fg(skin.key_fg.color());
+        sel_md_skin
+            .paragraph
+            .set_fgbg(skin.menu_item_selected_fg(), skin.menu_item_selected_bg());
+        sel_md_skin.italic.set_fg(skin.key_fg());
         let area_width = self.compute_area_width(Self::estimate_content_optimal_width(state));
         let mut intro_lines = Vec::new();
         let text_width = area_width.saturating_sub(2);
@@ -104,7 +103,7 @@ impl MenuView {
         state.fix_scroll(h);
         let mut rect = Rect::new(
             area.clone(),
-            CompoundStyle::with_fgbg(skin.menu_border.color(), skin.menu_bg.color()),
+            CompoundStyle::with_fgbg(skin.menu_border(), skin.menu_bg()),
         );
         rect.set_border_style(BORDER_STYLE_HALF_WIDTH_OUTSIDE);
         rect.set_fill(true);

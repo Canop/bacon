@@ -103,7 +103,7 @@
       "deprecated": true
     },
     "export_locations": {
-      "description": "Deprecated toggle for the legacy locations export; use `exports.locations.auto`.",
+      "description": "Deprecated toggle for the legacy locations export; use `exports.locations.auto`",
       "type": [
         "boolean",
         "null"
@@ -132,7 +132,7 @@
       ]
     },
     "help_line": {
-      "description": "Whether to display the contextual help line in the UI.",
+      "description": "Whether to display the contextual help line",
       "type": [
         "boolean",
         "null"
@@ -146,7 +146,7 @@
       ]
     },
     "ignore": {
-      "description": "A list of glob patterns to ignore",
+      "description": "A list of glob patterns to ignore.\nPatterns starting with `!` are negations that force-include\nmatching paths, overriding other ignore rules (including .gitignore).",
       "type": "array",
       "default": [],
       "items": {
@@ -164,14 +164,14 @@
       }
     },
     "jobs": {
-      "description": "Job definitions keyed by their identifier.",
+      "description": "Job definitions keyed by their identifier",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/Job"
       }
     },
     "keybindings": {
-      "description": "Custom keybindings layered on top of the defaults.",
+      "description": "Custom keybindings layered on top of the defaults",
       "anyOf": [
         {
           "$ref": "#/$defs/KeyBindings"
@@ -239,8 +239,22 @@
         "null"
       ]
     },
+    "scroll_anchor": {
+      "description": "Where to anchor the scroll when the output changes and the user didn't scroll up manually.\n\nWhen not specified, default will be 'first', as bacon usually displays the most important\nitem on top. Setting it to 'auto' will make bacon use 'first' when the command errored\n(eg compilation errors) and 'last' otherwise, which is useful for commands like `cargo run`\nwhere you want to see the last output when it runs successfully.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "show_changes_count": {
       "description": "Whether to display how many files triggered the current run.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "show_command_error_code": {
+      "description": "Whether to show the error code of commands.\nThis is normally automatic, depending on warnings and errors found by the analyzers, but\nsome commands may want to force it on (eg `cargo run` to show the error code of the binary\nbeing run even when there are rustc warnings).",
       "type": [
         "boolean",
         "null"
@@ -255,14 +269,14 @@
       "$ref": "#/$defs/SoundConfig"
     },
     "summary": {
-      "description": "Whether to show the condensed summary area by default.",
+      "description": "Whether to show diagnostics summarized instead of full",
       "type": [
         "boolean",
         "null"
       ]
     },
     "vim_keys": {
-      "description": "Deprecated toggle that enables a built-in set of Vim-style keybindings. Use `keybindings` instead.",
+      "description": "Deprecated toggle that enables a built-in set of Vim-style keybindings.\nUse `keybindings` instead",
       "type": [
         "boolean",
         "null"
@@ -287,7 +301,7 @@
       ]
     },
     "wrap": {
-      "description": "Whether to wrap long lines in the UI.",
+      "description": "Whether to wrap long lines",
       "type": [
         "boolean",
         "null"
@@ -300,17 +314,19 @@
       "type": "string",
       "enum": [
         "standard",
-        "cargo_json",
-        "nextest",
-        "eslint",
         "biome",
+        "cargo_json",
+        "cpp",
+        "cpp_doctest",
+        "eslint",
+        "go",
+        "nextest",
         "python_pytest",
         "python_ruff",
         "python_unittest",
-        "cpp",
-        "cpp_doctest",
         "swift_build",
-        "swift_lint"
+        "swift_lint",
+        "typescript"
       ]
     },
     "BaconSkin": {
@@ -318,618 +334,391 @@
       "type": "object",
       "properties": {
         "change_badge_bg": {
-          "description": "Background color of the change badge (default: 6).",
-          "$ref": "#/$defs/DefaultingChangeBadgeBg"
+          "description": "Background color of the change badge\n - default value: 6",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "change_badge_fg": {
-          "description": "Foreground color of the change badge (default: 235).",
-          "$ref": "#/$defs/DefaultingChangeBadgeFg"
+          "description": "Foreground color of the change badge\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "command_error_badge_bg": {
-          "description": "Background color of the command-error badge (default: 9).",
-          "$ref": "#/$defs/DefaultingCommandErrorBadgeBg"
+          "description": "Background color of the command-error badge\n - default value: 9",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "command_error_badge_fg": {
-          "description": "Foreground color of the command-error badge (default: 235).",
-          "$ref": "#/$defs/DefaultingCommandErrorBadgeFg"
+          "description": "Foreground color of the command-error badge\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "computing_bg": {
-          "description": "Background color of the \"computing...\" indicator (default: 204).",
-          "$ref": "#/$defs/DefaultingComputingBg"
+          "description": "Background color of the \"computing...\" indicator\n - default value: 204",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "computing_fg": {
-          "description": "Foreground color of the \"computing...\" indicator (default: 235).",
-          "$ref": "#/$defs/DefaultingComputingFg"
+          "description": "Foreground color of the \"computing...\" indicator\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "dismissed_badge_bg": {
-          "description": "Background color of the dismissed badge (default: 6).",
-          "$ref": "#/$defs/DefaultingDismissedBadgeBg"
+          "description": "Background color of the dismissed badge\n - default value: 6",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "dismissed_badge_fg": {
-          "description": "Foreground color of the dismissed badge (default: 235).",
-          "$ref": "#/$defs/DefaultingDismissedBadgeFg"
+          "description": "Foreground color of the dismissed badge\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "errors_badge_bg": {
-          "description": "Background color of the errors badge (default: 9).",
-          "$ref": "#/$defs/DefaultingErrorsBadgeBg"
+          "description": "Background color of the errors badge\n - default value: 9",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "errors_badge_fg": {
-          "description": "Foreground color of the errors badge (default: 235).",
-          "$ref": "#/$defs/DefaultingErrorsBadgeFg"
+          "description": "Foreground color of the errors badge\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "found_fg": {
-          "description": "Foreground color of search matches (default: 208).",
-          "$ref": "#/$defs/DefaultingFoundFg"
+          "description": "Foreground color of search matches\n - default value: 208",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "found_selected_bg": {
-          "description": "Background color of the selected search match (default: 208).",
-          "$ref": "#/$defs/DefaultingFoundSelectedBg"
+          "description": "Background color of the selected search match\n - default value: 208",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "found_selected_fg": {
+          "description": "Foreground color of the selected search match\n - default value: 0",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "job_label_badge_bg": {
-          "description": "Background color of the job label badge (default: 204).",
-          "$ref": "#/$defs/DefaultingJobLabelBadgeBg"
+          "description": "Background color of the job label badge\n - default value: 204",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "job_label_badge_fg": {
-          "description": "Foreground color of the job label badge (default: 235).",
-          "$ref": "#/$defs/DefaultingJobLabelBadgeFg"
+          "description": "Foreground color of the job label badge\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "key_fg": {
-          "description": "Foreground color used for key shortcuts in the UI (default: 204).",
-          "$ref": "#/$defs/DefaultingKeyFg"
+          "description": "Foreground color used for key shortcuts in the UI\n - default value: 204",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "menu_bg": {
-          "description": "Background color used for menus (default: 235).",
-          "$ref": "#/$defs/DefaultingMenuBg"
+          "description": "Background color used for menus\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "menu_border": {
-          "description": "Border color used for menus (default: 234).",
-          "$ref": "#/$defs/DefaultingMenuBorder"
+          "description": "Border color used for menus\n - default value: 234",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "menu_item_bg": {
-          "description": "Background color of individual menu items (default: 235).",
-          "$ref": "#/$defs/DefaultingMenuItemBg"
+          "description": "Background color of individual menu items\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "menu_item_fg": {
-          "description": "Foreground color of menu items (default: 250).",
-          "$ref": "#/$defs/DefaultingMenuItemFg"
+          "description": "Foreground color of menu items\n - default value: 250",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "menu_item_selected_bg": {
-          "description": "Background color of the selected menu item (default: 239).",
-          "$ref": "#/$defs/DefaultingMenuItemSelectedBg"
+          "description": "Background color of the selected menu item\n - default value: 239",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "menu_item_selected_fg": {
-          "description": "Foreground color of the selected menu item (default: 255).",
-          "$ref": "#/$defs/DefaultingMenuItemSelectedFg"
+          "description": "Foreground color of the selected menu item\n - default value: 255",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "project_name_badge_bg": {
-          "description": "Background color of the project name badge (default: 240).",
-          "$ref": "#/$defs/DefaultingProjectNameBadgeBg"
+          "description": "Background color of the project name badge\n - default value: 240",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "project_name_badge_fg": {
-          "description": "Foreground color of the project name badge (default: 255).",
-          "$ref": "#/$defs/DefaultingProjectNameBadgeFg"
+          "description": "Foreground color of the project name badge\n - default value: 255",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "search_input_prefix_fg": {
-          "description": "Foreground color of the '/' search prefix (default: 208).",
-          "$ref": "#/$defs/DefaultingSearchInputPrefixFg"
+          "description": "Foreground color of the '/' search prefix\n - default value: 208",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "search_summary_fg": {
-          "description": "Foreground color of the search summary (default: 208).",
-          "$ref": "#/$defs/DefaultingSearchSummaryFg"
+          "description": "Foreground color of the search summary\n - default value: 208",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "status_bg": {
-          "description": "Background color of the status line (default: 239).",
-          "$ref": "#/$defs/DefaultingStatusBg"
+          "description": "Background color of the status line\n - default value: 239",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "status_fg": {
-          "description": "Foreground color of the status line (default: 252).",
-          "$ref": "#/$defs/DefaultingStatusFg"
+          "description": "Foreground color of the status line\n - default value: 252",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "status_key_fg": {
-          "description": "Foreground color for key shortcuts displayed in the status line (default: 204).",
-          "$ref": "#/$defs/DefaultingStatusKeyFg"
+          "description": "Foreground color for key shortcuts displayed in the status line\n - default value: 204",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "test_fails_badge_bg": {
-          "description": "Background color of the failing-tests badge (default: 208).",
-          "$ref": "#/$defs/DefaultingTestFailsBadgeBg"
+          "description": "Background color of the failing-tests badge\n - default value: 208",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "test_fails_badge_fg": {
-          "description": "Foreground color of the failing-tests badge (default: 235).",
-          "$ref": "#/$defs/DefaultingTestFailsBadgeFg"
+          "description": "Foreground color of the failing-tests badge\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "test_pass_badge_bg": {
-          "description": "Background color of the passing-tests badge (default: 2).",
-          "$ref": "#/$defs/DefaultingTestPassBadgeBg"
+          "description": "Background color of the passing-tests badge\n - default value: 2",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "test_pass_badge_fg": {
-          "description": "Foreground color of the passing-tests badge (default: 254).",
-          "$ref": "#/$defs/DefaultingTestPassBadgeFg"
+          "description": "Foreground color of the passing-tests badge\n - default value: 254",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "warnings_badge_bg": {
-          "description": "Background color of the warnings badge (default: 11).",
-          "$ref": "#/$defs/DefaultingWarningsBadgeBg"
+          "description": "Background color of the warnings badge\n - default value: 11",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "warnings_badge_fg": {
-          "description": "Foreground color of the warnings badge (default: 235).",
-          "$ref": "#/$defs/DefaultingWarningsBadgeFg"
+          "description": "Foreground color of the warnings badge\n - default value: 235",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SkinColor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
-    },
-    "DefaultingChangeBadgeBg": {
-      "description": "Background color of the change badge (default: 6).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingChangeBadgeFg": {
-      "description": "Foreground color of the change badge (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingCommandErrorBadgeBg": {
-      "description": "Background color of the command-error badge (default: 9).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingCommandErrorBadgeFg": {
-      "description": "Foreground color of the command-error badge (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingComputingBg": {
-      "description": "Background color of the \"computing...\" indicator (default: 204).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingComputingFg": {
-      "description": "Foreground color of the \"computing...\" indicator (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingDismissedBadgeBg": {
-      "description": "Background color of the dismissed badge (default: 6).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingDismissedBadgeFg": {
-      "description": "Foreground color of the dismissed badge (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingErrorsBadgeBg": {
-      "description": "Background color of the errors badge (default: 9).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingErrorsBadgeFg": {
-      "description": "Foreground color of the errors badge (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingFoundFg": {
-      "description": "Foreground color of search matches (default: 208).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingFoundSelectedBg": {
-      "description": "Background color of the selected search match (default: 208).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingJobLabelBadgeBg": {
-      "description": "Background color of the job label badge (default: 204).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingJobLabelBadgeFg": {
-      "description": "Foreground color of the job label badge (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingKeyFg": {
-      "description": "Foreground color used for key shortcuts in the UI (default: 204).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingMenuBg": {
-      "description": "Background color used for menus (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingMenuBorder": {
-      "description": "Border color used for menus (default: 234).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingMenuItemBg": {
-      "description": "Background color of individual menu items (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingMenuItemFg": {
-      "description": "Foreground color of menu items (default: 250).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingMenuItemSelectedBg": {
-      "description": "Background color of the selected menu item (default: 239).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingMenuItemSelectedFg": {
-      "description": "Foreground color of the selected menu item (default: 255).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingProjectNameBadgeBg": {
-      "description": "Background color of the project name badge (default: 240).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingProjectNameBadgeFg": {
-      "description": "Foreground color of the project name badge (default: 255).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingSearchInputPrefixFg": {
-      "description": "Foreground color of the '/' search prefix (default: 208).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingSearchSummaryFg": {
-      "description": "Foreground color of the search summary (default: 208).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingStatusBg": {
-      "description": "Background color of the status line (default: 239).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingStatusFg": {
-      "description": "Foreground color of the status line (default: 252).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingStatusKeyFg": {
-      "description": "Foreground color for key shortcuts displayed in the status line (default: 204).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingTestFailsBadgeBg": {
-      "description": "Background color of the failing-tests badge (default: 208).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingTestFailsBadgeFg": {
-      "description": "Foreground color of the failing-tests badge (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingTestPassBadgeBg": {
-      "description": "Background color of the passing-tests badge (default: 2).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingTestPassBadgeFg": {
-      "description": "Foreground color of the passing-tests badge (default: 254).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingWarningsBadgeBg": {
-      "description": "Background color of the warnings badge (default: 11).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "DefaultingWarningsBadgeFg": {
-      "description": "Foreground color of the warnings badge (default: 235).",
-      "anyOf": [
-        {
-          "type": "integer",
-          "format": "uint8",
-          "maximum": 255,
-          "minimum": 0
-        },
-        {
-          "type": "null"
-        }
-      ]
     },
     "ExportConfig": {
       "description": "A generic configuration for all exports, whatever the exporter.",
@@ -975,7 +764,7 @@
         {
           "description": "The analyzer is tasked with doing an export while analyzing the\ncommand output",
           "type": "string",
-          "const": "analyser"
+          "const": "analyzer"
         },
         {
           "description": "This exporter doesn't exist at the moment",
@@ -1089,7 +878,7 @@
           ]
         },
         "ignore": {
-          "description": "A list of glob patterns to ignore",
+          "description": "A list of glob patterns to ignore.\nPatterns starting with `!` are negations that force-include\nmatching paths, overriding other ignore rules (including .gitignore).",
           "type": "array",
           "default": [],
           "items": {
@@ -1150,8 +939,22 @@
           ],
           "default": null
         },
+        "scroll_anchor": {
+          "description": "Where to anchor the scroll when the output changes and the user didn't scroll up manually.\n\nWhen not specified, default will be 'first', as bacon usually displays the most important\nitem on top. Setting it to 'auto' will make bacon use 'first' when the command errored\n(eg compilation errors) and 'last' otherwise, which is useful for commands like `cargo run`\nwhere you want to see the last output when it runs successfully.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "show_changes_count": {
           "description": "Whether to display how many files triggered the current run.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "show_command_error_code": {
+          "description": "Whether to show the error code of commands.\nThis is normally automatic, depending on warnings and errors found by the analyzers, but\nsome commands may want to force it on (eg `cargo run` to show the error code of the binary\nbeing run even when there are rustc warnings).",
           "type": [
             "boolean",
             "null"
@@ -1200,6 +1003,19 @@
           "description": "Let the running job finish before starting again.",
           "type": "string",
           "const": "wait_then_restart"
+        }
+      ]
+    },
+    "SkinColor": {
+      "description": "A color, either an 8-bit ANSI code or a string: \"rgb(255, 187, 0)\", \"#fb0\", \"gray(5)\", \"ansi(208)\", or a color name like \"darkred\".",
+      "anyOf": [
+        {
+          "type": "integer",
+          "maximum": 255,
+          "minimum": 0
+        },
+        {
+          "type": "string"
         }
       ]
     },

@@ -2,9 +2,18 @@ use {
     super::*,
     crate::*,
     anyhow::*,
-    serde::{Deserialize, Serialize},
-    std::{fmt::Write as _, io::Write},
-    termimad::StrFit,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    std::{
+        fmt::Write as _,
+        io::Write,
+    },
+    termimad::{
+        StrFit,
+        crossterm::style::Color,
+    },
 };
 
 /// a simple representation of a colored and styled string.
@@ -33,11 +42,11 @@ impl TString {
             raw: raw.into(),
         }
     }
-    /// colors are 8bits ansi values
+    /// Build a badge: the content, padded, in bold with the given colors
     pub fn badge(
         con: &str,
-        fg: ConfigColor,
-        bg: ConfigColor,
+        fg: Color,
+        bg: Color,
     ) -> Self {
         Self {
             csi: csi(fg, bg),
@@ -47,8 +56,8 @@ impl TString {
     pub fn num_badge(
         num: usize,
         cat: &str,
-        fg: ConfigColor,
-        bg: ConfigColor,
+        fg: Color,
+        bg: Color,
     ) -> Self {
         let raw = if num < 2 {
             format!(" {num} {cat} ")

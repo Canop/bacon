@@ -397,20 +397,29 @@ Sound name can be omitted. Possible values are `2`, `90s-game-ui-6`, `beep-6`, `
 
 ## Skin
 
-Most colors of the bacon application can be redefined in a `skin`, with colors being [8 bit ANSI values](https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit).
+Most colors of the bacon application can be redefined in a `skin`.
 
 You can set colors within a `[skin]` object in any configuration file:
 
 ```TOML
 [skin]
 status_fg = 251
-status_bg = 4
-key_fg = 11
+status_bg = "#204060"
+key_fg = "rgb(255, 187, 0)"
 status_key_fg = 11
-project_name_badge_fg = 11
-project_name_badge_bg = 69
+project_name_badge_fg = "gray(20)"
+project_name_badge_bg = "darkblue"
 ```
-and you can override colors in a job:
+
+A color given as an integer is an [8 bit ANSI value](https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit).
+A color may also be given as a string:
+
+* `"rgb(255, 187, 0)"` or `"#fb0"` for RGB colors (which need a terminal supporting them)
+* `"gray(5)"` for one of the 24 gray levels of the ANSI palette, from `gray(0)` (black) to `gray(23)` (white)
+* `"ansi(208)"` for an ANSI value
+* a color name among `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, `grey`, `darkred`, `darkgreen`, `darkyellow`, `darkblue`, `darkmagenta`, `darkcyan`
+
+You can override colors in a job:
 
 ```TOML
 [jobs.test]
@@ -419,6 +428,6 @@ need_stdout = true
 skin.status_bg = 6
 ```
 
-All available skin entries, with meaning and default values, are listed in [src/conf/skin.rs](https://github.com/Canop/bacon/blob/main/src/conf/skin.rs#62).
+All available skin entries, with meaning and default values, are listed in [src/conf/skin.rs](https://github.com/Canop/bacon/blob/main/src/conf/skin.rs#L47).
 Skin entries may be added or removed in minor versions of bacon. Unrecognized entries are just ignored.
 
