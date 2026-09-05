@@ -184,8 +184,12 @@ impl TLine {
         }
         Ok(cols)
     }
+    /// Tell whether the line displays nothing: only whitespace, none of it
+    /// styled (a background would make spaces visible)
     pub fn is_blank(&self) -> bool {
-        self.strings.iter().all(|s| s.raw.trim().is_empty())
+        self.strings
+            .iter()
+            .all(|s| s.raw.is_empty() || (s.is_unstyled() && s.is_blank()))
     }
     // if this line has no style, return its content
     pub fn if_unstyled(&self) -> Option<&str> {
@@ -204,4 +208,15 @@ impl TLine {
     ) -> bool {
         self.strings.iter().any(|s| s.raw.contains(part))
     }
+}
+
+#[test]
+fn test_tline_is_blank() {
+    assert!(TLine::from_tty("").is_blank());
+    assert!(TLine::from_tty("   ").is_blank());
+    assert!(TLine::from_tty("\u{1b}[1m\u{1b}[0m").is_blank());
+    assert!(!TLine::from_tty("x").is_blank());
+    assert!(!TLine::from_tty("\u{1b}[31m x\u{1b}[0m").is_blank());
+    // spaces with a background color are visible
+    assert!(!TLine::from_tty("\u{1b}[48;2;0;127;0m    \u{1b}[49m").is_blank());
 }

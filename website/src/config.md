@@ -110,6 +110,7 @@ need_stdout = true
 
 Note: Some tools detect that their output is piped and don't add style information unless you add a parameter which usually looks like `--color always`.
 This isn't normally necessary for cargo because bacon, by default, sets the `CARGO_TERM_COLOR` environment variable.
+Color libraries used by your tests may also drop colors when piped; several of them (eg `colored`) honor `env.CLICOLOR_FORCE = "1"` set on the job.
 
 ## Analyzers
 
