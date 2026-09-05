@@ -1,5 +1,5 @@
 ### next
-- skin colors can be given as RGB (eg `"#fb0"` or `"rgb(255, 187, 0)"`), gray level, or color name, in addition to ANSI codes - Fix #449 - Thanks @Axlefublr
+- skin colors can be given as RGB (eg `"#fb0"` or `"rgb(255, 187, 0)"`), gray level, or color name, in addition to ANSI codes - Fix #449
 - new `found_selected_fg` skin entry
 - the `search_summary_fg` skin entry is now applied
 - the help page uses the skin of the current job
