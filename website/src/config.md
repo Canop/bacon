@@ -354,6 +354,12 @@ You can use standard unix programs. For example run `socat - UNIX-CONNECT:bacon.
 
 Bacon can also be used to send those actions, eg `bacon --send 'scroll-lines(-2)'`.
 
+The `BACON_SOCKET` environment variable moves the socket elsewhere, which is necessary when the path of the package is too long for a unix socket, or when its directory can't hold one. It may start with `~` and a relative path is taken from the package directory. As it's read by both the listening bacon and the one sending the action, it must be defined for both:
+
+```bash
+export BACON_SOCKET=~/.cache/my-project.socket
+```
+
 ## summary, wrap, reverse
 
 You can change the `summary`, `wrapping`, and `reverse` mode at launch (see `bacon --help`), in the application using keys, and you may set the initial values in this preferences file:

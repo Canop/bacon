@@ -242,8 +242,14 @@ impl Context {
     pub fn package_dot_config_path(&self) -> PathBuf {
         self.package_directory.join(".config/bacon.toml")
     }
+    /// Path of the unix socket on which bacon listens for actions,
+    /// `.bacon.socket` in the package directory unless the `BACON_SOCKET`
+    /// environment variable gives another one
     pub fn unix_socket_path(&self) -> PathBuf {
-        self.package_directory.join(".bacon.socket")
+        match std::env::var_os("BACON_SOCKET") {
+            Some(path) => resolve_path(Path::new(&path), &self.package_directory),
+            None => self.package_directory.join(".bacon.socket"),
+        }
     }
 }
 

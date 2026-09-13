@@ -28,6 +28,20 @@ use std::{
     },
 };
 
+/// Expand the tilde and make the path absolute, a relative path
+/// being taken from the given directory
+pub fn resolve_path(
+    path: &Path,
+    base_dir: &Path,
+) -> PathBuf {
+    let expanded = expand_tilde(path);
+    if expanded.is_absolute() {
+        expanded.into_owned()
+    } else {
+        base_dir.join(expanded)
+    }
+}
+
 /// Replace a leading `~` with the path of the user's home directory
 pub fn expand_tilde(path: &Path) -> Cow<'_, Path> {
     let Ok(rest) = path.strip_prefix("~") else {

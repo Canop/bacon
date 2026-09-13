@@ -1,8 +1,7 @@
 ### next
-- a failure to open the action socket, eg when the path of the project is too long, no longer prevents bacon from running
-- a sound interrupts the one being played instead of waiting for its end
 - fewer redraws when the command outputs many lines
 - custom sounds, declared in a `sounds` map - Fix #337
+- a sound interrupts the one being played instead of waiting for its end
 - the `play-sound` action takes the sound name without the `name=` prefix, eg `play-sound(bepop)`
 - the precompiled macOS and Windows binaries now have sound enabled
 - fix lines of colored spaces missing in test output - Fix #382
@@ -11,6 +10,8 @@
 - the `search_summary_fg` skin entry is now applied
 - the help page uses the skin of the current job
 - smaller crate package: the website, CI and nix files are no longer published - Fix #460
+- the `BACON_SOCKET` environment variable tells where to open the action socket (if not defined, it's in the package dir)
+- a failure to open the action socket, eg when the path of the project is too long, no longer prevents bacon from running
 
 <a name="v3.25.0"></a>
 ### v3.25.0 - 2026/08/23

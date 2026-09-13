@@ -92,12 +92,7 @@ impl Sound {
         base_dir: &Path,
     ) {
         if let SoundSource::File(path) = &mut self.source {
-            let expanded = expand_tilde(path);
-            *path = if expanded.is_absolute() {
-                expanded.into_owned()
-            } else {
-                base_dir.join(expanded)
-            };
+            *path = resolve_path(path, base_dir);
         }
     }
 }
