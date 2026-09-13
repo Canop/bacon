@@ -1,4 +1,5 @@
 ### next
+- a failure to open the action socket, eg when the path of the project is too long, no longer prevents bacon from running
 - a sound interrupts the one being played instead of waiting for its end
 - fewer redraws when the command outputs many lines
 - custom sounds, declared in a `sounds` map - Fix #337

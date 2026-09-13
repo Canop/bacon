@@ -70,15 +70,22 @@ pub fn run(
     };
     #[allow(unused_variables)]
     let (action_tx, action_rx) = termimad::crossbeam::channel::unbounded();
+    let mut message = None;
     #[cfg(unix)]
     let _server = if settings.listen {
-        Some(Server::new(context, action_tx.clone())?)
+        match Server::new(context, action_tx.clone()) {
+            Ok(server) => Some(server),
+            Err(e) => {
+                warn!("Failed to listen on the bacon socket: {e}");
+                message = Some(Message::short(format!("Not listening for actions: `{e}`")));
+                None
+            }
+        }
     } else {
         None
     };
     let mut job_stack = JobStack::default();
     let mut next_job = JobRef::Initial;
-    let mut message = None;
     loop {
         let Some((concrete_job_ref, job)) = job_stack.pick_job(&next_job, &settings)? else {
             break;
