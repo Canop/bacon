@@ -40,6 +40,15 @@ Some features are disabled by default. You may enable them with
 
 Precompiled binaries are also available on the [download page](https://dystroy.org/bacon/download/): the macOS and Windows ones include `clipboard` and `sound`, the Linux ones only `clipboard`.
 
+### Shell completion
+
+Bacon completes its arguments and the jobs defined for the current project.
+Source the completion script once, for example in your `.profile`:
+
+    source <(COMPLETE=bash bacon)
+
+Replace `bash` with `zsh`, `fish`, `elvish` or `powershell` for other shells.
+
 ## check the current project
 
     bacon

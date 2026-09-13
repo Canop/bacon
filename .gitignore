@@ -8,3 +8,4 @@ bacon-analysis.json
 /.build-cache
 /build-scripts/_local.sh
 /bacon_*.zip
+/trav
