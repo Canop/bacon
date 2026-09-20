@@ -188,18 +188,18 @@ fn as_test_name(s: &str) -> Option<&str> {
 /// return Some when the line is the non detailed
 /// result of a test, for example
 ///
-///  "test str_fit::fitting_count_tests::test_count_fitting ... FAILED"
+///  `"test str_fit::fitting_count_tests::test_count_fitting ... FAILED"`
 /// or
-///  "test wrap::wrap_tests::check_space_removing ... ok"
+///  `"test wrap::wrap_tests::check_space_removing ... ok"`
 /// or
-///  "test src/lib.rs - (line 6) ... FAILED"
+///  `"test src/lib.rs - (line 6) ... FAILED"`
 /// or
-///  "test src/lib.rs - (line 10) ... ok"
+///  `"test src/lib.rs - (line 10) ... ok"`
 /// or
-///  "test src/mode.rs - mode::Mode::new (line 121) - compile ... FAILED"
+///  `"test src/mode.rs - mode::Mode::new (line 121) - compile ... FAILED"`
 /// (in this case, the " - compile" part isn't in the key, see #64)
 /// or
-///  "test tests::another - should panic ... FAILED"
+///  `"test tests::another - should panic ... FAILED"`
 /// (in this case, the " - should panic" part isn't in the key, see #95)
 fn as_test_result(s: &str) -> Option<(&str, bool)> {
     regex_captures!(

@@ -97,11 +97,9 @@ impl SearchState {
         &mut self,
         key: KeyCombination,
     ) -> bool {
-        if self.input.focused() {
-            if self.input.apply_key_combination(key) {
-                self.up_to_date = false;
-                return true;
-            }
+        if self.input.focused() && self.input.apply_key_combination(key) {
+            self.up_to_date = false;
+            return true;
         }
         false
     }

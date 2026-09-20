@@ -104,6 +104,8 @@ field_reassign_with_default = "allow"
 match_like_matches_macro = "allow"
 ```
 
+Beware that `lints.clippy` is overriden by the argument given to the command line, including ones dealing with whole categories.
+So if your job's command is `["cargo", "clippy", "--", "-W", "clippy::pedantic"]`, you need to add exceptions right in the job, as before rust 1.74.
 
 # Deal with pedantic
 

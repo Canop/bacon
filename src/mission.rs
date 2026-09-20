@@ -145,7 +145,7 @@ impl Mission<'_> {
             command.args(tokens);
             command.current_dir(&self.execution_directory);
             command.envs(envs);
-            debug!("command: {:#?}", command);
+            debug!("command: {command:#?}");
             return Ok(command);
         }
 
@@ -224,7 +224,7 @@ impl Mission<'_> {
         }
         command.current_dir(&self.execution_directory);
         command.envs(envs);
-        debug!("command builder: {:#?}", command);
+        debug!("command builder: {command:#?}");
         Ok(command)
     }
 

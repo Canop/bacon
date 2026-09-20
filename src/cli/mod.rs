@@ -46,7 +46,7 @@ pub fn run() -> anyhow::Result<()> {
 
     let mut args: Args = Args::parse();
     args.fix()?;
-    info!("args: {:#?}", args);
+    info!("args: {args:#?}");
     let headless = args.headless;
 
     if args.help {
@@ -86,7 +86,7 @@ pub fn run() -> anyhow::Result<()> {
     }
 
     let context = Context::new(&args)?;
-    debug!("mission context: {:#?}", context);
+    debug!("mission context: {context:#?}");
 
     if args.init {
         let package_config_path = context.package_config_path();

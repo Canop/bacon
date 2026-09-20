@@ -48,7 +48,7 @@ impl Server {
                         while line.ends_with('\n') || line.ends_with('\r') {
                             line.pop();
                         }
-                        debug!("line => {:?}", line);
+                        debug!("line => {line:?}");
                         if line.is_empty() {
                             debug!("empty line, closing connection");
                             break;

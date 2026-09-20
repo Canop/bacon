@@ -166,7 +166,9 @@ fn handle_exec_info(
                     actions.push(action.clone());
                 }
             }
-            if mission_state.changes_since_last_job_start > 0 && mission_state.auto_refresh.is_enabled() {
+            if mission_state.changes_since_last_job_start > 0
+                && mission_state.auto_refresh.is_enabled()
+            {
                 // will be ignored if a on_success or on_failures ends the mission
                 // or does a rerun already
                 actions.push(Action::ReRun);
@@ -254,10 +256,13 @@ fn run_mission(
                     continue;
                 }
                 mission_state.receive_watch_event();
-                if mission_state.auto_refresh.is_enabled() {
-                    if !mission_state.is_computing() || on_change_strategy == OnChangeStrategy::KillThenRestart {
+                if mission_state.auto_refresh.is_enabled()
+                    && (
+                        !mission_state.is_computing()
+                        || on_change_strategy == OnChangeStrategy::KillThenRestart
+                    )
+                {
                         actions.push(Action::ReRun);
-                    }
                 }
             }
             recv(config_watcher.receiver) -> _ => {
@@ -381,7 +386,7 @@ fn run_mission(
                         .do_named_export(&export_name, &mission_state);
                     mission_state
                         .messages
-                        .push(Message::short(format!("Export *{}* done", export_name)));
+                        .push(Message::short(format!("Export *{export_name}* done")));
                 }
                 Action::FocusFile(focus_file_command) => {
                     mission_state.focus_file(&focus_file_command);

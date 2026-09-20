@@ -75,7 +75,7 @@ impl NextestLineAnalyzer {
         }
         extract_key_after_crate_name_v1(strings)
     }
-    /// Return the key when the line is like "──── STD(OUT|ERR): cratename some::key"
+    /// Return the key when the line is like `"──── STD(OUT|ERR): cratename some::key"`
     #[allow(clippy::unused_self)]
     fn stdx_section_key_v2(
         &self,
@@ -93,8 +93,8 @@ impl NextestLineAnalyzer {
         extract_key_after_crate_name_v2(strings)
     }
     /// Return the last test key when the line is like either
-    ///  - "──── stderr"
-    ///  - "── stderr ──" (with --no-output-indent)
+    ///  - `"──── stderr"`
+    ///  - `"── stderr ──" (with --no-output-indent)`
     ///
     /// with stderr maybe replaced by stdout or output
     ///
@@ -211,7 +211,7 @@ fn is_canceling(content: &TLine) -> bool {
 }
 
 /// return the key and whether the tests passes, when the line is a test
-/// result (like "    PASS [   0.003s] bacon tests::failing_test3")
+/// result (like `"    PASS [   0.003s] bacon tests::failing_test3"`)
 ///
 /// In the future, we might want to return the duration too.
 fn as_test_result(content: &TLine) -> Option<(String, bool)> {
@@ -233,7 +233,7 @@ fn as_test_result_v1(content: &TLine) -> Option<(String, bool)> {
     Some((key, pass))
 }
 /// return the key and whether the tests passes, when the line is a test
-/// result (like "    PASS [   0.003s] bacon tests::failing_test3")
+/// result (like `"    PASS [   0.003s] bacon tests::failing_test3"`)
 ///
 /// In the future, we might want to return the duration too.
 fn as_test_result_v2(content: &TLine) -> Option<(String, bool)> {

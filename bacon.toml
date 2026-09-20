@@ -89,9 +89,23 @@ command = ["cargo", "clippy", "--all-features", "--all-targets"]
 need_stdout = false
 
 # Pedantic job refined for bacon's source code.
-# The lints excluded for this project are in Cargo.toml's [lints.clippy].
 [jobs.pedantic]
-command = ["cargo", "clippy", "--", "-W", "clippy::pedantic"]
+command = [
+	"cargo", "clippy", "--", "-W", "clippy::pedantic",
+	"-A", "clippy::wildcard_imports",
+	"-A", "clippy::must_use_candidate",
+	"-A", "clippy::missing_errors_doc",
+	"-A", "clippy::too_many_lines",
+	"-A", "clippy::default_trait_access",
+	"-A", "clippy::if_not_else",
+	"-A", "clippy::match_same_arms",
+	"-A", "clippy::struct_excessive_bools",
+	"-A", "clippy::unnecessary_debug_formatting",
+	"-A", "clippy::collapsible_else_if",
+	"-A", "clippy::return_self_not_must_use",
+	"-A", "clippy::single_match_else",
+	"-A", "clippy::items_after_statements",
+]
 need_stdout = false
 
 [skin]

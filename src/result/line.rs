@@ -65,7 +65,7 @@ impl Line {
         }
     }
 
-    /// Try to guess the kind of diagnostic (eg "unused_variable")
+    /// Try to guess the kind of diagnostic (eg `unused_variable`)
     ///
     /// Might be moved to the Analyzer trait in the future to support
     ///  tools expressing their diagnostics in a different way.

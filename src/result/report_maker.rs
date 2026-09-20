@@ -37,7 +37,7 @@ impl ReportMaker {
         if let Some(patterns) = self.ignored_lines_patterns.as_ref() {
             let raw_line = cmd_line.content.to_raw(); // FIXME could be made more efficient
             if patterns.iter().any(|p| p.raw_line_is_match(&raw_line)) {
-                debug!("ignoring line: {}", raw_line);
+                debug!("ignoring line: {raw_line}");
                 return;
             }
         }

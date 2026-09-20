@@ -88,13 +88,8 @@ impl CargoJsonAnalyzer {
         origin: CommandStream,
         command_output: &mut CommandOutput,
     ) {
-        match message {
-            Message::CompilerMessage(compiler_message) => {
-                self.receive_diagnostic(compiler_message.message, origin, command_output);
-            }
-            _ => {
-                // non exhaustive enum
-            }
+        if let Message::CompilerMessage(compiler_message) = message {
+            self.receive_diagnostic(compiler_message.message, origin, command_output);
         }
     }
     fn receive_diagnostic(

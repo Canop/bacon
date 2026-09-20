@@ -112,13 +112,13 @@ impl Settings {
 
         if let Some(toml) = &args.config_toml {
             let config = toml::from_str(toml)?;
-            info!("config loaded from --config-toml: {:#?}", config);
+            info!("config loaded from --config-toml: {config:#?}");
             settings.apply_config(&config);
         }
 
         settings.apply_args(args);
         settings.check()?;
-        info!("settings: {:#?}", settings);
+        info!("settings: {settings:#?}");
         Ok(settings)
     }
 

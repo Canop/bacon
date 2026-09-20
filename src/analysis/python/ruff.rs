@@ -84,7 +84,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
     let mut i = 0;
     for cmd_line in cmd_lines {
         if i < 5 {
-            info!("cmd_line: {:#?}", cmd_line);
+            info!("cmd_line: {cmd_line:#?}");
             i += 1;
         }
         let bline = recognize_line(&cmd_line.content);
