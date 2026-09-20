@@ -205,11 +205,17 @@ fn run_mission(
     let mut sound_not_enabled_message_already_displayed = false;
 
     // build the watcher detecting and transmitting mission file changes
+    let file_watch_strategy = mission.job.file_watch_strategy();
+    info!("file watch strategy: {file_watch_strategy:?}");
     let ignorer = time!(Info, mission.ignorer());
-    let mission_watcher = Watcher::new(&mission.paths_to_watch, ignorer)?;
+    let mission_watcher = Watcher::new(&mission.paths_to_watch, ignorer, file_watch_strategy)?;
 
     // create the watcher for config file changes
-    let config_watcher = Watcher::new(&mission.settings.config_files, IgnorerSet::default())?;
+    let config_watcher = Watcher::new(
+        &mission.settings.config_files,
+        IgnorerSet::default(),
+        file_watch_strategy,
+    )?;
 
     // create the executor, mission, and state
     let mut executor = MissionExecutor::new(&mission)?;

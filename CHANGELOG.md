@@ -1,4 +1,5 @@
 ### next
+- fix a file (eg `build.rs`) not being watched anymore after an editor saved it by replacement - Fix #243
 - fewer redraws when the command outputs many lines
 - custom sounds, declared in a `sounds` map - Fix #337
 - a sound interrupts the one being played instead of waiting for its end
@@ -13,6 +14,8 @@
 - the `BACON_SOCKET` environment variable tells where to open the action socket (if not defined, it's in the package dir)
 - a failure to open the action socket, eg when the path of the project is too long, no longer prevents bacon from running
 - `next-match` and `previous-match` (tab and backtab) go to the next and previous items when there's no search; the `next-item` and `previous-item` actions do it even during a search - Fix #466
+- fix changes missed when the system drops file events under heavy load
+- new `file_watch_strategy` job parameter (`parent_dir`, `file`, or `file_poll`) to change how watched files are followed when the platform default doesn't fit
 
 <a name="v3.25.0"></a>
 ### v3.25.0 - 2026/08/23

@@ -80,8 +80,9 @@ analyzer | command output parser, see below | `"standard"`
 apply_gitignore | if `true` the job isn't triggered when the modified file is excluded by gitignore rules | `true`
 background | compute in background and display only on end | `true`
 command | the tokens making the command to execute (first one is the executable) |
-default_watch | whether to watch default files (`src`, `tests`, `examples`, `build.rs`, and `benches`). When it's set to `false`, only the files in your `watch` parameter are watched | `true`
+default_watch | whether to watch default files (`Cargo.toml`, `src`, `tests`, `examples`, `build.rs`, and `benches`). When it's set to `false`, only the files in your `watch` parameter are watched | `true`
 env | a map of environment vars, for example `env.LOG_LEVEL="die"` |
+file_watch_strategy | how watched files (not directories) are followed: `parent_dir`, `file`, or `file_poll` | platform dependent
 hide_scrollbar | whether to hide the scrollbar (for easier select & copy) | `false`
 kill | a command replacing the default job interruption (platform dependent, `SIGKILL` on unix). For example `kill = ["kill", "-s", "INT"]` |
 ignore | list of glob patterns for files to ignore. Patterns starting with `!` are negations that force-include matching paths, overriding other ignore rules (including `.gitignore`) |
