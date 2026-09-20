@@ -60,6 +60,10 @@ pub struct Job {
     /// Eg: --all-features or anything after -- in bacon incantation
     pub extraneous_args: Option<bool>,
 
+    /// How the watched files (not the directories) are given to the
+    /// file system notifier, the default depending on the platform.
+    pub file_watch_strategy: Option<FileWatchStrategy>,
+
     /// Minimum delay to wait before restarting the job after a change is detected.
     pub grace_period: Option<Period>,
 
@@ -201,6 +205,9 @@ impl Job {
         self.on_change_strategy
             .unwrap_or(OnChangeStrategy::WaitThenRestart)
     }
+    pub fn file_watch_strategy(&self) -> FileWatchStrategy {
+        self.file_watch_strategy.unwrap_or_default()
+    }
     pub fn scroll_anchor(&self) -> ScrollAnchor {
         self.scroll_anchor.unwrap_or(ScrollAnchor::First)
     }
@@ -237,6 +244,9 @@ impl Job {
         }
         if let Some(b) = job.extraneous_args {
             self.extraneous_args = Some(b);
+        }
+        if let Some(v) = job.file_watch_strategy {
+            self.file_watch_strategy = Some(v);
         }
         if let Some(b) = job.hide_scrollbar {
             self.hide_scrollbar = Some(b);
@@ -305,6 +315,7 @@ fn test_job_apply() {
             .collect(),
         expand_env_vars: Some(false),
         extraneous_args: Some(false),
+        file_watch_strategy: Some(FileWatchStrategy::FilePoll),
         hide_scrollbar: Some(true),
         ignore: vec![
             "special-target".to_string(),

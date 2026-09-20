@@ -12,8 +12,9 @@
 - smaller crate package: the website, CI and nix files are no longer published - Fix #460
 - the `BACON_SOCKET` environment variable tells where to open the action socket (if not defined, it's in the package dir)
 - a failure to open the action socket, eg when the path of the project is too long, no longer prevents bacon from running
-- fix a file (eg `build.rs`) not being watched anymore, on Linux and the BSDs, after an editor saved it by replacement: the watch followed the inode, not the path - Fix #243
+- fix a file (eg `build.rs`) not being watched anymore after an editor saved it by replacement - Fix #243
 - fix changes missed when the system drops file events under heavy load
+- new `file_watch_strategy` job parameter (`parent_dir`, `file`, or `file_poll`) to change how watched files are followed when the platform default doesn't fit
 
 <a name="v3.25.0"></a>
 ### v3.25.0 - 2026/08/23

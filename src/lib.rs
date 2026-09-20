@@ -17,7 +17,7 @@ mod socket;
 mod sound;
 mod tty;
 mod tui;
-mod watcher;
+mod watch;
 
 pub use {
     analysis::*,
@@ -36,7 +36,7 @@ pub use {
     sound::*,
     tty::*,
     tui::*,
-    watcher::*,
+    watch::*,
 };
 
 #[cfg(unix)]
