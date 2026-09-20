@@ -181,14 +181,16 @@ focus-file(path) | | show this file's diagnostics first
 focus-search | <kbd>/</kbd> | focus the search input
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 job:job-reference | | execute the job with [job-reference](#job-references)
-next-match | <kbd>tab</kbd> | go to next search match
+next-item | | go to the next item, even during a search
+next-match | <kbd>tab</kbd> | go to the next search match, or to the next item when there's no search
 no-op |  | do nothing (may be used to disable a previously set binding)
 open-menu(*menu-definition*) |  | open a user defined menu. For example<br>` "open-menu(intro=a text,actions=[job:ch,export:mx,quit])"`
 open-undismiss-menu | <kbd>alt</kbd><kbd>t</kbd> | open a menu to [undismiss](../cookbook/#deal-with-pedantic) chosen items
 open-jobs-menu | <kbd>ctrl</kbd>-<kbd>j</kbd> | open a menu with all jobs
 pause |  | disable automatic job execution on change
 play-sound |  | play a [sound](#sound) with optional parameters, eg `play-sound(volume=100%)`
-previous-match | <kbd>backtab</kbd> | go to previous search match
+previous-item | | go to the previous item, even during a search
+previous-match | <kbd>backtab</kbd> | go to the previous search match, or to the previous item when there's no search
 quit | <kbd>q</kbd> or <kbd>ctrl</kbd><kbd>q</kbd> or <kbd>ctrl</kbd><kbd>c</kbd> | quit
 refresh | <kbd>F5</kbd> | clear output then run current job again
 reload-config | | reload all configuration files

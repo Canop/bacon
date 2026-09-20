@@ -38,6 +38,10 @@ pub enum Action {
     FocusSearch,
     Help,
     Job(JobRef),
+    /// Go to the next item. As `NextMatch` does the same when there's no
+    /// search, this is only useful to bind a key ignoring the search.
+    NextItem,
+    /// Go to the next search match, or to the next item when there's no search
     NextMatch,
     NoOp, // no operation, can be used to clear a binding
     OpenJobsMenu,
@@ -45,6 +49,10 @@ pub enum Action {
     OpenUndismissMenu,
     Pause,
     PlaySound(PlaySoundCommand),
+    /// Go to the previous item. As `PreviousMatch` does the same when
+    /// there's no search, this is only useful to bind a key ignoring the search.
+    PreviousItem,
+    /// Go to the previous search match, or to the previous item when there's no search
     PreviousMatch,
     Quit,
     ReRun,
@@ -84,12 +92,14 @@ impl Md for Action {
             Self::FocusSearch => "focus search".to_string(),
             Self::Help => "help".to_string(),
             Self::Job(job_name) => format!("*{job_name}* job"),
+            Self::NextItem => "next item".to_string(),
             Self::NextMatch => "next match".to_string(),
             Self::NoOp => "no operation".to_string(),
             Self::OpenMenu(_) => "open specific menu".to_string(),
             Self::OpenJobsMenu => "open jobs menu".to_string(),
             Self::Pause => "pause".to_string(),
             Self::PlaySound(_) => "play sound".to_string(),
+            Self::PreviousItem => "previous item".to_string(),
             Self::PreviousMatch => "previous match".to_string(),
             Self::Quit => "quit".to_string(),
             Self::ReRun => "run current job again".to_string(),
@@ -182,6 +192,7 @@ impl fmt::Display for Action {
             Self::FocusSearch => write!(f, "focus-search"),
             Self::Help => write!(f, "help"),
             Self::Job(job_ref) => write!(f, "job:{job_ref}"),
+            Self::NextItem => write!(f, "next-item"),
             Self::NextMatch => write!(f, "next-match"),
             Self::NoOp => write!(f, "no-op"),
             Self::OpenJobsMenu => write!(f, "open-jobs-menu"),
@@ -209,6 +220,7 @@ impl fmt::Display for Action {
                     (None, false) => write!(f, "play-sound(volume={volume})"),
                 }
             }
+            Self::PreviousItem => write!(f, "previous-item"),
             Self::PreviousMatch => write!(f, "previous-match"),
             Self::Quit => write!(f, "quit"),
             Self::ReRun => write!(f, "rerun"),
@@ -287,6 +299,8 @@ impl FromStr for Action {
             r"^(?:internal:)?validate$" => Self::Validate,
             r"^(?:internal:)?next-match$" => Self::NextMatch,
             r"^(?:internal:)?previous-match$" => Self::PreviousMatch,
+            r"^next-item$" => Self::NextItem,
+            r"^previous-item$" => Self::PreviousItem,
             r"^(?:internal:)?undismiss-all$" => Self::UndismissAll,
             r"^(?:internal:)?undismiss-location\((?<location>.+)\)$" => Self::UndismissLocation(location.to_string()),
             r"^(?:internal:)?undismiss-diag-type\((?<diag_type>.+)\)$" => Self::UndismissDiagType(diag_type.to_string()),
@@ -463,6 +477,8 @@ fn test_action_string_round_trip() {
         Action::Validate,
         Action::NextMatch,
         Action::PreviousMatch,
+        Action::NextItem,
+        Action::PreviousItem,
         Action::PlaySound(PlaySoundCommand::default()),
         Action::PlaySound(PlaySoundCommand {
             name: None,

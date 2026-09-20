@@ -320,13 +320,57 @@ impl<'a, 'm> MissionState<'a, 'm> {
         };
         self.messages.push(Message::short(message));
     }
+    /// Go to the next search match, or to the next item when there's no search
     pub fn next_match(&mut self) {
-        self.search.next_match();
-        self.show_selected_found();
+        if self.search.input_has_content() {
+            self.search.next_match();
+            self.show_selected_found();
+        } else {
+            self.next_item();
+        }
     }
+    /// Go to the previous search match, or to the previous item when there's no search
     pub fn previous_match(&mut self) {
-        self.search.previous_match();
-        self.show_selected_found();
+        if self.search.input_has_content() {
+            self.search.previous_match();
+            self.show_selected_found();
+        } else {
+            self.previous_item();
+        }
+    }
+    /// Scroll to the item following the one on top, if any.
+    ///
+    /// Items are taken in display order, which may not be the order of
+    /// their indexes. Lines which aren't part of an item have index 0.
+    pub fn next_item(&mut self) {
+        let Some(top_idx) = self.top_item_idx() else {
+            return;
+        };
+        let next = self
+            .lines_to_draw()
+            .skip(self.scroll)
+            .map(|line| line.item_idx)
+            .find(|&idx| idx != top_idx && idx != 0);
+        if let Some(idx) = next {
+            self.show_item(idx);
+            self.scrolled_to_top_item_idx = Some(idx);
+        }
+    }
+    /// Scroll to the item preceding the one on top, if any
+    pub fn previous_item(&mut self) {
+        let Some(top_idx) = self.top_item_idx() else {
+            return;
+        };
+        let previous = self
+            .lines_to_draw()
+            .take(self.scroll)
+            .map(|line| line.item_idx)
+            .filter(|&idx| idx != top_idx && idx != 0)
+            .last();
+        if let Some(idx) = previous {
+            self.show_item(idx);
+            self.scrolled_to_top_item_idx = Some(idx);
+        }
     }
     // Handle the "validate" operation, return true if it did (thus consuming the action)
     pub fn validate(&mut self) -> bool {

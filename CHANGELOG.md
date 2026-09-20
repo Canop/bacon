@@ -12,6 +12,7 @@
 - smaller crate package: the website, CI and nix files are no longer published - Fix #460
 - the `BACON_SOCKET` environment variable tells where to open the action socket (if not defined, it's in the package dir)
 - a failure to open the action socket, eg when the path of the project is too long, no longer prevents bacon from running
+- `next-match` and `previous-match` (tab and backtab) go to the next and previous items when there's no search; the `next-item` and `previous-item` actions do it even during a search - Fix #466
 
 <a name="v3.25.0"></a>
 ### v3.25.0 - 2026/08/23

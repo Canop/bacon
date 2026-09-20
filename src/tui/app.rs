@@ -399,6 +399,9 @@ fn run_mission(
                     mission_end = Some(job_ref.clone().into());
                     break;
                 }
+                Action::NextItem => {
+                    mission_state.next_item();
+                }
                 Action::NextMatch => {
                     mission_state.next_match();
                 }
@@ -435,6 +438,9 @@ fn run_mission(
                         sound_not_enabled_message_already_displayed = true;
                         mission_state.messages.push(Message::short(message));
                     }
+                }
+                Action::PreviousItem => {
+                    mission_state.previous_item();
                 }
                 Action::PreviousMatch => {
                     mission_state.previous_match();
