@@ -92,19 +92,20 @@ need_stdout = false
 [jobs.pedantic]
 command = [
 	"cargo", "clippy", "--", "-W", "clippy::pedantic",
-	"-A", "clippy::wildcard_imports",
-	"-A", "clippy::must_use_candidate",
-	"-A", "clippy::missing_errors_doc",
-	"-A", "clippy::too_many_lines",
+	"-A", "clippy::collapsible_else_if",
 	"-A", "clippy::default_trait_access",
 	"-A", "clippy::if_not_else",
+	"-A", "clippy::items_after_statements",
 	"-A", "clippy::match_same_arms",
-	"-A", "clippy::struct_excessive_bools",
-	"-A", "clippy::unnecessary_debug_formatting",
-	"-A", "clippy::collapsible_else_if",
+	"-A", "clippy::missing_errors_doc",
+	"-A", "clippy::must_use_candidate",
 	"-A", "clippy::return_self_not_must_use",
 	"-A", "clippy::single_match_else",
-	"-A", "clippy::items_after_statements",
+	"-A", "clippy::struct_excessive_bools",
+	"-A", "clippy::struct_field_names",
+	"-A", "clippy::too_many_lines",
+	"-A", "clippy::unnecessary_debug_formatting",
+	"-A", "clippy::wildcard_imports",
 ]
 need_stdout = false
 

@@ -28,6 +28,7 @@ use {
         sync::{
             Arc,
             Mutex,
+            PoisonError,
         },
         time::Duration,
     },
@@ -135,7 +136,7 @@ impl Handler {
             return; // a notification is already pending
         }
         if should_notify(&event, kind, &self.filter, &mut self.ignorer) {
-            if let Err(TrySendError::Disconnected(_)) = self.sender.try_send(()) {
+            if let Err(TrySendError::Disconnected(())) = self.sender.try_send(()) {
                 debug!("watch receiver disconnected");
             }
         }
@@ -169,7 +170,12 @@ impl Watcher {
         let mut notify_watcher = {
             let handler = Arc::clone(&handler);
             let kind = RecommendedWatcher::kind();
-            notify::recommended_watcher(move |res| handler.lock().unwrap().handle(res, kind))?
+            notify::recommended_watcher(move |res| {
+                handler
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .handle(res, kind);
+            })?
         };
         let mut poll_watcher = match strategy {
             FileWatchStrategy::FilePoll if !files.is_empty() => {
@@ -179,8 +185,8 @@ impl Watcher {
                     move |res| {
                         handler
                             .lock()
-                            .unwrap()
-                            .handle(res, WatcherKind::PollWatcher)
+                            .unwrap_or_else(PoisonError::into_inner)
+                            .handle(res, WatcherKind::PollWatcher);
                     },
                     config,
                 )?)
