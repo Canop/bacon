@@ -75,6 +75,72 @@ staging_configured() { [[ -n ${BACON_STAGE_HOST:-} ]]; }
 
 tree_is_clean() { git diff --quiet HEAD 2>/dev/null; }
 
+release_tag() { printf 'v%s\n' "$(bacon_version)"; }
+
+# The commit the tag points at on origin, peeled; empty when there's no such tag.
+remote_tag_commit() { # remote_tag_commit <tag>
+    local refs peeled
+    refs=$(git ls-remote --tags origin "refs/tags/$1" "refs/tags/$1^{}") \
+        || die "couldn't query the tags of origin"
+    peeled=$(sed -n 's/[[:space:]].*\^{}$//p' <<< "$refs")
+    if [[ -n $peeled ]]; then
+        printf '%s\n' "$peeled"
+    else
+        sed -n 's/[[:space:]].*//p' <<< "$refs"
+    fi
+}
+
+fetch_release_branch() { git fetch --quiet origin "$BACON_RELEASE_BRANCH"; }
+
+# Whether HEAD is exactly origin/<release branch> as last fetched: neither
+# unpushed nor behind.
+head_is_published() {
+    [[ $(git rev-parse HEAD) == $(git rev-parse "origin/$BACON_RELEASE_BRANCH") ]]
+}
+
+# Die unless the release can be tied to what's on origin: HEAD pushed and up to
+# date, and no release tag already pointing elsewhere.
+check_release_source() {
+    local head origin tag tagged
+    head=$(git rev-parse HEAD)
+    fetch_release_branch || die "couldn't fetch origin/$BACON_RELEASE_BRANCH"
+    if ! head_is_published; then
+        origin=$(git rev-parse "origin/$BACON_RELEASE_BRANCH")
+        if git merge-base --is-ancestor "$origin" HEAD; then
+            die "HEAD ${head:0:10} isn't pushed to origin/$BACON_RELEASE_BRANCH — push it first"
+        elif git merge-base --is-ancestor HEAD "$origin"; then
+            die "HEAD ${head:0:10} is behind origin/$BACON_RELEASE_BRANCH (${origin:0:10}) — pull first"
+        else
+            die "HEAD ${head:0:10} and origin/$BACON_RELEASE_BRANCH (${origin:0:10}) have diverged"
+        fi
+    fi
+    tag=$(release_tag)
+    tagged=$(remote_tag_commit "$tag")
+    if [[ -n $tagged && $tagged != "$head" ]]; then
+        die "tag $tag already exists on origin at ${tagged:0:10}, not at HEAD ${head:0:10}"
+    fi
+    ok "HEAD ${head:0:10} is origin/$BACON_RELEASE_BRANCH${tagged:+, already tagged $tag}"
+}
+
+# Create the release tag on HEAD and push it, unless origin already has it there.
+push_release_tag() {
+    local tag head local_tagged
+    tag=$(release_tag)
+    head=$(git rev-parse HEAD)
+    if [[ $(remote_tag_commit "$tag") == "$head" ]]; then
+        ok "tag $tag already on origin"
+        return 0
+    fi
+    local_tagged=$(git rev-parse -q --verify "refs/tags/$tag^{commit}" || true)
+    if [[ -z $local_tagged ]]; then
+        git tag "$tag" HEAD
+    elif [[ $local_tagged != "$head" ]]; then
+        die "local tag $tag points at ${local_tagged:0:10}, not at HEAD ${head:0:10}"
+    fi
+    git push --quiet origin "refs/tags/$tag"
+    ok "tag $tag created and pushed"
+}
+
 # Ask a yes/no question on the terminal, defaulting to no. With no terminal to
 # ask on (cron, CI) the answer is no, unless BACON_YES is set.
 confirm() { # confirm <question>
@@ -133,3 +199,4 @@ _bacon_common_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [[ -f "$_bacon_common_dir/_local.sh" ]] && source "$_bacon_common_dir/_local.sh"
 : "${BACON_STAGE_HOST:=}"
 : "${BACON_STAGE_DIR:=bacon-staging}"
+: "${BACON_RELEASE_BRANCH:=main}"

@@ -13,20 +13,23 @@ No single machine can build every target (the macOS binaries need a Mac), so a
 release is built on both a Mac and a Linux box and assembled through a staging
 server.
 
-1. Commit, then on **each** machine (Mac and Linux):
+1. Commit and push, then on **each** machine (Mac and Linux):
 
        ./build-scripts/build-all-targets.sh
 
    Builds this host's targets and pushes `build/` to the staging server, keyed by
    `<version>-<commit>`. Targets already staged under that key are skipped, so a
    re-run after a failure only builds what's missing; `--force` rebuilds them all.
-   Any new commit changes the key, so everything is rebuilt.
+   Any new commit changes the key, so everything is rebuilt. It warns when
+   HEAD isn't `origin/main`.
 
 2. On one machine, assemble and package:
 
        ./build-scripts/release.sh
 
-   Fetches the staged artifacts, checks every target is present, verifies each
+   Refuses to go on unless HEAD is exactly `origin/main` (not unpushed, not
+   behind) and no `v<version>` tag exists on origin at another commit. Then
+   fetches the staged artifacts, checks every target is present, verifies each
    binary, and produces `bacon_<version>.zip` (also the artifact to attach to the
    GitHub release).
 
@@ -40,8 +43,16 @@ server.
    copy of everything the other machines deployed. Previous zips are left in
    place, so old versions stay downloadable.
 
-   It then runs `website/deploy.sh`, last, so the site never describes a version
-   whose binaries aren't online yet.
+   It then creates and pushes the `v<version>` tag on HEAD, and runs
+   `website/deploy.sh`, last, so the site never describes a version whose
+   binaries aren't online yet.
+
+4. Create the GitHub release from that tag, not from a branch:
+
+       gh release create v<version> bacon_<version>.zip --verify-tag
+
+   With "target: main" in the GitHub form, the tag lands on whatever `main` is
+   on GitHub at that moment.
 
 Staging and deploy settings come from `build-scripts/_local.sh` (see below).
 Without it, `release.sh` builds locally on a single host and `deploy.sh` won't run.
@@ -93,6 +104,7 @@ It's sourced by `_common.sh`.
 |----------|---------|----------|---------|
 | `BACON_STAGE_HOST` | build-all-targets.sh, release.sh | for staged releases | ssh host every machine can reach; enables push/fetch of a multi-host release. Unset ⇒ single-host local builds. |
 | `BACON_STAGE_DIR` | build-all-targets.sh, release.sh | no — default `bacon-staging` | staging dir on the server, relative to your ssh login home (or absolute, with a leading `/`). |
+| `BACON_RELEASE_BRANCH` | build-all-targets.sh, release.sh | no — default `main` | branch of origin the released commit must be. |
 | `BACON_DEPLOY_TARGET` | deploy.sh | yes, to deploy | rsync destination of the download dir, e.g. `dys@dystroy.org:prod/www.dystroy.org/bacon/download`. Must end in `/bacon/download`. |
 
 A full example:

@@ -33,6 +33,9 @@ rsync -av build/ "$BACON_DEPLOY_TARGET/"
 rsync -av "bacon_$version.zip" "$BACON_DEPLOY_TARGET/"
 ok "deployed $version"
 
+h2 "Tagging the release"
+push_release_tag
+
 # Last: the site must never describe a version whose binaries aren't up yet.
 h2 "Deploying the website"
 "$here/../website/deploy.sh"

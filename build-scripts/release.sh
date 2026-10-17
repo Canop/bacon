@@ -16,6 +16,11 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 version=$(bacon_version)
 
+# The GitHub release and the source archives come from origin, so the binaries
+# must be built from the commit that's there.
+h2 "Checking the release source"
+check_release_source
+
 # Publishing a binary built from uncommitted work is worth a question, whether
 # or not the artifacts travelled through a staging server.
 if ! tree_is_clean; then
@@ -80,3 +85,5 @@ rm -f bacon_*.zip
 ok "created bacon_$version.zip"
 
 h1 "Release $version ready: bacon_$version.zip"
+info "deploy.sh publishes it and tags $(release_tag); then create the GitHub release with"
+info "    gh release create $(release_tag) bacon_$version.zip --verify-tag"
