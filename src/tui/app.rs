@@ -90,6 +90,7 @@ pub fn run(
         let Some((concrete_job_ref, job)) = job_stack.pick_job(&next_job, &settings)? else {
             break;
         };
+        next_job = JobRef::Concrete(concrete_job_ref.clone());
         let mission = context.mission(concrete_job_ref, &job, &settings)?;
         let do_after = app::run_mission(
             w,
