@@ -90,6 +90,14 @@ or `bacon nextest` if you're a nextest user.
 When there's a failure, hit <kbd>f</kbd> to restrict the job to the failing test.
 Hit <kbd>esc</kbd> to get back to all tests.
 
+## run a server with hot reload
+
+If your program is designed to run indefinitely (like a web server), you can use the `run-long` job:
+
+    bacon run-long
+
+You can also add the `--headless` option to run it in a docker container.
+
 ## define your own jobs
 
 First create a `bacon.toml` file by running
