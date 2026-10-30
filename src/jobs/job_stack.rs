@@ -21,6 +21,7 @@ impl JobStack {
         &mut self,
         job_ref: &JobRef,
         settings: &Settings,
+        job_stack_push: bool,
     ) -> Result<Option<(ConcreteJobRef, Job)>> {
         debug!("picking job {job_ref:?}");
         let concrete = match job_ref {
@@ -79,7 +80,7 @@ impl JobStack {
                 .ok_or_else(|| anyhow!("job not found: {name:?}"))?
                 .clone(),
         };
-        if self.entries.last() != Some(&concrete) {
+        if self.entries.last() != Some(&concrete) && job_stack_push {
             self.entries.push(concrete.clone());
         }
         Ok(Some((concrete, job)))
