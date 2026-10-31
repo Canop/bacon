@@ -58,8 +58,8 @@ pub enum Action {
     ReRun,
     Refresh, // clear and rerun
     ReloadConfig,
-    /// Change job without affecting job stack
-    ReplaceJob(JobRef),
+    /// Run a job, removing the current one from the job stack
+    ReplaceJobWith(JobRef),
     ScopeToFailures,
     Scroll(ScrollCommand),
     ShowItem(ShowItemCommand),
@@ -107,7 +107,7 @@ impl Md for Action {
             Self::ReRun => "run current job again".to_string(),
             Self::Refresh => "clear then run current job again".to_string(),
             Self::ReloadConfig => "reload configuration files".to_string(),
-            Self::ReplaceJob(job_name) => format!("*{job_name}* job (preserves job stack)"),
+            Self::ReplaceJobWith(job_ref) => format!("replace job with *{job_ref}*"),
             Self::ScopeToFailures => "scope to failures".to_string(),
             Self::Scroll(scroll_command) => scroll_command.doc(),
             Self::ShowItem(sic) => sic.doc(),
@@ -229,7 +229,7 @@ impl fmt::Display for Action {
             Self::ReRun => write!(f, "rerun"),
             Self::Refresh => write!(f, "refresh"),
             Self::ReloadConfig => write!(f, "reload-config"),
-            Self::ReplaceJob(job_ref) => write!(f, "replace-job:{job_ref}"),
+            Self::ReplaceJobWith(job_ref) => write!(f, "replace-job-with:{job_ref}"),
             Self::ScopeToFailures => write!(f, "scope-to-failures"),
             Self::Scroll(scroll_command) => scroll_command.fmt(f),
             Self::ShowItem(ShowItemCommand { item_idx }) => {
@@ -254,7 +254,7 @@ impl FromStr for Action {
         regex_switch!(s,
             r"^export:(?<name>.+)$" => Self::Export(name.to_string()),
             r"^job:(?<job_ref>.+)$" => Self::Job(job_ref.into()),
-            r"^replace-job:(?<job_ref>.+)$" => Self::ReplaceJob(job_ref.into()),
+            r"^replace-job-with:(?<job_ref>.+)$" => Self::ReplaceJobWith(job_ref.into()),
             r"^(?:internal:)?back$" => Self::Back,
             r"^(?:internal:)?back-or-quit$" => Self::BackOrQuit,
             r"^(?:internal:)?clear-output$" => Self::ClearOutput,
@@ -435,32 +435,11 @@ fn test_action_string_round_trip() {
                 tests: vec!["abc".to_string()],
             },
         })),
-        Action::ReplaceJob(JobRef::Concrete(ConcreteJobRef {
-            name_or_alias: NameOrAlias::Name("run".to_string()),
+        Action::ReplaceJobWith(JobRef::Concrete(ConcreteJobRef {
+            name_or_alias: NameOrAlias::Name("doc".to_string()),
             scope: Scope::default(),
         })),
-        Action::ReplaceJob(JobRef::Concrete(ConcreteJobRef {
-            name_or_alias: NameOrAlias::Name("nextest".to_string()),
-            scope: Scope {
-                tests: vec!["first::test".to_string(), "second_test".to_string()],
-            },
-        })),
-        Action::ReplaceJob(JobRef::Concrete(ConcreteJobRef {
-            name_or_alias: NameOrAlias::Alias("my-check".to_string()),
-            scope: Scope::default(),
-        })),
-        Action::ReplaceJob(JobRef::Concrete(ConcreteJobRef {
-            name_or_alias: NameOrAlias::Alias("my-test".to_string()),
-            scope: Scope {
-                tests: vec!["abc".to_string()],
-            },
-        })),
-        Action::ReplaceJob(JobRef::Concrete(ConcreteJobRef {
-            name_or_alias: NameOrAlias::Alias("a forbidden name!".to_string()),
-            scope: Scope {
-                tests: vec!["abc".to_string()],
-            },
-        })),
+        Action::ReplaceJobWith(JobRef::Previous),
         Action::Help,
         Action::Scroll(ScrollCommand::MilliPages(1500)),
         Action::Scroll(ScrollCommand::MilliPages(-500)),

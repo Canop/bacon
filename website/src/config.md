@@ -182,6 +182,7 @@ focus-file(path) | | show this file's diagnostics first
 focus-search | <kbd>/</kbd> | focus the search input
 help | <kbd>h</kbd> or <kbd>?</kbd> | open the help page
 job:job-reference | | execute the job with [job-reference](#job-references)
+replace-job-with:job-reference | | execute the job with [job-reference](#job-references), removing the current one from the history so that `back` skips it
 next-item | | go to the next item, even during a search
 next-match | <kbd>tab</kbd> | go to the next search match, or to the next item when there's no search
 no-op |  | do nothing (may be used to disable a previously set binding)
