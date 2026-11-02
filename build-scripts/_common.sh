@@ -77,6 +77,15 @@ tree_is_clean() { git diff --quiet HEAD 2>/dev/null; }
 
 release_tag() { printf 'v%s\n' "$(bacon_version)"; }
 
+BACON_GITHUB_REPO=Canop/bacon
+
+# Die unless gh is installed and logged in to github.com.
+need_gh() {
+    need gh "see https://cli.github.com"
+    gh auth status --hostname github.com >/dev/null 2>&1 \
+        || die "gh isn't logged in to github.com — run 'gh auth login'"
+}
+
 # The commit the tag points at on origin, peeled; empty when there's no such tag.
 remote_tag_commit() { # remote_tag_commit <tag>
     local refs peeled
@@ -137,8 +146,30 @@ push_release_tag() {
     elif [[ $local_tagged != "$head" ]]; then
         die "local tag $tag points at ${local_tagged:0:10}, not at HEAD ${head:0:10}"
     fi
-    git push --quiet origin "refs/tags/$tag"
-    ok "tag $tag created and pushed"
+    local attempt
+    for attempt in 1 2 3; do
+        if git push --quiet origin "refs/tags/$tag"; then
+            ok "tag $tag created and pushed"
+            return 0
+        fi
+        if [[ $(remote_tag_commit "$tag") == "$head" ]]; then
+            ok "tag $tag is on origin despite the push error"
+            return 0
+        fi
+        [[ $attempt -lt 3 ]] || break
+        warn "pushing tag $tag failed, retrying in $((attempt * 10))s"
+        sleep $((attempt * 10))
+    done
+    die "couldn't push tag $tag — once GitHub is fine, re-run deploy.sh or push it by hand"
+}
+
+# The body of the CHANGELOG.md section of a version, without its heading.
+changelog_notes() { # changelog_notes <version>
+    awk -v h="### v$1" '
+        $0 == h || index($0, h " ") == 1 { on = 1; next }
+        on && (/^### / || /^<a name=/) { exit }
+        on { print }
+    ' CHANGELOG.md
 }
 
 # Ask a yes/no question on the terminal, defaulting to no. With no terminal to
@@ -169,6 +200,12 @@ stage_push() { # stage_push <local-dir>  -> pushes its contents into <dir>/<id>/
     dest="$BACON_STAGE_DIR/$id"
     ssh "$BACON_STAGE_HOST" "mkdir -p '$dest'"
     rsync -az "$dir"/ "$BACON_STAGE_HOST:$dest/"
+}
+
+# Prints yes or no; fails when the server can't be reached.
+stage_has_release() {
+    ssh "$BACON_STAGE_HOST" \
+        "if test -d '$BACON_STAGE_DIR/$(release_id)'; then echo yes; else echo no; fi"
 }
 
 stage_fetch() { # stage_fetch <local-dir>  <- pulls <dir>/<id>/ into it

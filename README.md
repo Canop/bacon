@@ -40,6 +40,8 @@ Some features are disabled by default. You may enable them with
 
 Precompiled binaries are also available on the [download page](https://dystroy.org/bacon/download/): the macOS and Windows ones include `clipboard` and `sound`, the Linux ones only `clipboard`.
 
+[GitHub releases](https://github.com/Canop/bacon/releases) also hold one archive per target (eg `bacon-v<version>-x86_64-unknown-linux-musl.tar.gz`), with a `sha256sums` file.
+
 ### Shell completion
 
 Bacon completes its arguments and the jobs defined for the current project.

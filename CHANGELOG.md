@@ -1,4 +1,5 @@
 ### next
+- GitHub releases come with one archive per target, and checksums
 - quiet exit instead of a panic when stdout is closed, eg `bacon --help | head -1`
 #### Revamp of the doc-open/doc sequence
 The `replace-job-with:` action replaces the current job with another one, the replaced job being skipped by `back`.

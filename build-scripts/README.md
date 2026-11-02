@@ -9,19 +9,24 @@ They may be run from anywhere; each resolves paths against the repo root.
 
 ## Building a release
 
-No single machine can build every target (the macOS binaries need a Mac), so a
-release is built on both a Mac and a Linux box and assembled through a staging
-server.
+A Mac builds every target on its own: zig cross-builds the Linux and Windows
+binaries, and the Apple ones are native. Elsewhere the Apple binaries are
+missing, and the release has to be assembled from two machines through a staging
+server (`BACON_STAGE_HOST`, see below).
 
-1. Commit and push, then on **each** machine (Mac and Linux):
+1. Commit and push, then on **each** machine that builds (just the Mac, unless
+   you've set up staging):
 
        ./build-scripts/build-all-targets.sh
 
-   Builds this host's targets and pushes `build/` to the staging server, keyed by
-   `<version>-<commit>`. Targets already staged under that key are skipped, so a
-   re-run after a failure only builds what's missing; `--force` rebuilds them all.
-   Any new commit changes the key, so everything is rebuilt. It warns when
-   HEAD isn't `origin/main`.
+   Builds this host's targets. With staging configured it also pushes `build/` to
+   the staging server, keyed by `<version>-<commit>`; targets already staged under
+   that key are skipped, so a re-run after a failure only builds what's missing,
+   and `--force` rebuilds them all. Any new commit changes the key, so everything
+   is rebuilt. It warns when HEAD isn't `origin/main`.
+
+   Without staging, `release.sh` runs it itself, so on a lone Mac this step can
+   be skipped.
 
 2. On one machine, assemble and package:
 
@@ -29,9 +34,14 @@ server.
 
    Refuses to go on unless HEAD is exactly `origin/main` (not unpushed, not
    behind) and no `v<version>` tag exists on origin at another commit. Then
-   fetches the staged artifacts, checks every target is present, verifies each
-   binary, and produces `bacon_<version>.zip` (also the artifact to attach to the
-   GitHub release).
+   fetches the staged artifacts (or, without staging, builds locally, which only
+   a Mac can do completely), checks every target is present, verifies each
+   binary, and produces `bacon_<version>.zip` and `dist/`, the files of the
+   GitHub release (see [The archives](#the-archives)).
+
+   `--dry-run` packages without committing to a release, to inspect `dist/`:
+   it neither stops nor asks, but lists at the end everything a real release
+   would stop on or ask about (exiting with 1 if it would stop).
 
 3. Publish:
 
@@ -43,25 +53,52 @@ server.
    copy of everything the other machines deployed. Previous zips are left in
    place, so old versions stay downloadable.
 
-   It then creates and pushes the `v<version>` tag on HEAD, and runs
-   `website/deploy.sh`, last, so the site never describes a version whose
-   binaries aren't online yet.
+   It then creates and pushes the `v<version>` tag on HEAD (retrying when GitHub
+   fails transiently), runs `github-release.sh`, and runs `website/deploy.sh`,
+   last, so the site never describes a version whose binaries aren't online yet.
 
-4. Create the GitHub release from that tag, not from a branch:
+   `github-release.sh` creates the GitHub release from that tag as a **draft**,
+   with the files of `dist/` and the version's `CHANGELOG.md` section as notes;
+   when the release already exists, its files are replaced instead. If it fails,
+   `deploy.sh` warns and goes on with the website: fix the cause, then run
+   `./build-scripts/github-release.sh` alone. It refuses a dry run's `dist/`.
 
-       gh release create v<version> bacon_<version>.zip --verify-tag
+   Both need `gh`, logged in to github.com (`gh auth login`); `deploy.sh` checks
+   it before building.
 
-   With "target: main" in the GitHub form, the tag lands on whatever `main` is
-   on GitHub at that moment.
+4. Review the draft on GitHub, edit its notes if needed, and publish it.
 
 Staging and deploy settings come from `build-scripts/_local.sh` (see below).
-Without it, `release.sh` builds locally on a single host and `deploy.sh` won't run.
+Without it, `release.sh` builds locally on a single host, which must be a Mac,
+and `deploy.sh` won't run.
 
 A dirty tree doesn't block either step, but both ask first: `build-all-targets.sh`
 offers to stage it anyway (recorded in a `<version>-<commit>.dirty` marker beside
 the staging dir, and already-staged targets are then rebuilt rather than reused),
 and `release.sh` reports every host that staged uncommitted work before packaging.
 Set `BACON_YES=1` to answer yes to all of it without a terminal.
+
+## The archives
+
+`bacon_<version>.zip` holds the contents of `build/`, with no wrapping directory:
+
+    aarch64-apple-darwin/bacon       one directory per triple
+    x86_64-pc-windows-gnu/bacon.exe
+    ...
+    CHANGELOG.md
+    README.md
+    install.md
+    version                          read by the website to show the current version
+
+`dist/` holds exactly the files of the GitHub release: that zip, one archive per
+target, and `sha256sums`. Each per-target archive is a `.tar.gz` (a `.zip` for
+Windows) unpacking to a single directory:
+
+    bacon-v<version>-<triple>/
+        bacon                        bacon.exe on Windows
+        CHANGELOG.md
+        LICENSE
+        README.md
 
 ## Targets
 
@@ -112,7 +149,7 @@ A full example:
 ```bash
 # build-scripts/_local.sh  — per machine, gitignored
 
-# Staged multi-host release builds (set on both the Mac and the Linux box):
+# Staged multi-host release builds (only when several machines build):
 BACON_STAGE_HOST=dystroy.org
 BACON_STAGE_DIR=staging/bacon-staging        # relative to ssh home, or absolute
 
@@ -124,4 +161,6 @@ BACON_DEPLOY_TARGET="dys@dystroy.org:prod/www.dystroy.org/bacon/download"
 
 - `build-target.sh <filter>` — build one target (`--list` to see them), e.g.
   `./build-scripts/build-target.sh aarch64-apple-darwin`
+- `github-release.sh` — create or update the draft GitHub release from `dist/`;
+  run by `deploy.sh`, run it alone after fixing a failure there
 - `_common.sh`, `_targets.sh` — sourced libraries, not run directly

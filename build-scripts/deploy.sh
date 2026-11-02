@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
-# Build the release and rsync it into the download directory on the server, then
-# deploy the website.
+# Build the release, rsync it into the download directory on the server, tag it,
+# create the GitHub release as a draft (github-release.sh), then deploy the
+# website.
 #
 # Nothing goes through ~/dev/www/dystroy: that tree is a per-machine mirror of
 # the whole site, so pushing it from one machine republishes stale copies of
@@ -17,8 +18,9 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # A mistyped destination would spray the binaries over the site itself.
 [[ $BACON_DEPLOY_TARGET == *:*/bacon/download ]] \
     || die "BACON_DEPLOY_TARGET should end in /bacon/download, got '$BACON_DEPLOY_TARGET'"
+need_gh
 
-# build the release zip (and the build/ directory)
+# build the release zip, the build/ directory, and dist/
 "$here/release.sh"
 
 version=$(bacon_version)
@@ -35,6 +37,12 @@ ok "deployed $version"
 
 h2 "Tagging the release"
 push_release_tag
+
+# A draft, to be reviewed and published in GitHub's interface. A failure there
+# doesn't hold back the website.
+if ! "$here/github-release.sh"; then
+    warn "the GitHub release failed — once fixed, run ./build-scripts/github-release.sh"
+fi
 
 # Last: the site must never describe a version whose binaries aren't up yet.
 h2 "Deploying the website"
