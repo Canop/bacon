@@ -1,5 +1,11 @@
 ### next
 - quiet exit instead of a panic when stdout is closed, eg `bacon --help | head -1`
+#### Revamp of the doc-open/doc sequence
+The `replace-job-with:` action replaces the current job with another one, the replaced job being skipped by `back`.
+The `doc-open` job now has `on_success = "replace-job-with:doc"`, so that, once the doc is opened in your browser, bacon stays on the `doc` job which keeps it updated on changes.
+If you do a `back`, you properly go to the job you had before opening the doc.
+If your bacon.toml defines `doc-open`, you may update it with this line.
+Fix #128 - Thanks @ralrhona
 
 <a name="v3.26.0"></a>
 ### v3.26.0 - 2026/09/26

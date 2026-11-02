@@ -65,16 +65,16 @@ command = [
 need_stdout = true
 analyzer = "nextest"
 
-[jobs.doc]
-command = ["cargo", "doc", "--no-deps"]
-need_stdout = false
-
 # If the doc compiles, then it opens in your browser and bacon switches
-# to the previous job
+# to the doc job, which rebuilds it on changes
 [jobs.doc-open]
 command = ["cargo", "doc", "--no-deps", "--open"]
 need_stdout = false
-on_success = "back" # so that we don't open the browser at each change
+on_success = "replace-job-with:doc" # so that we don't open the browser at each change
+
+[jobs.doc]
+command = ["cargo", "doc", "--no-deps"]
+need_stdout = false
 
 # You can run your application and have the result displayed in bacon,
 # if it makes sense for this crate.

@@ -29,6 +29,7 @@ use {
 
 enum DoAfterMission {
     NextJob(JobRef),
+    ReplaceJob(JobRef),
     ReloadConfig,
     Quit,
 }
@@ -86,11 +87,15 @@ pub fn run(
     };
     let mut job_stack = JobStack::default();
     let mut next_job = JobRef::Initial;
+    let mut replace_current = false;
     loop {
-        let Some((concrete_job_ref, job)) = job_stack.pick_job(&next_job, &settings)? else {
+        let Some((concrete_job_ref, job)) =
+            job_stack.pick_job(&next_job, replace_current, &settings)?
+        else {
             break;
         };
         next_job = JobRef::Concrete(concrete_job_ref.clone());
+        replace_current = false;
         let mission = context.mission(concrete_job_ref, &job, &settings)?;
         let do_after = app::run_mission(
             w,
@@ -103,6 +108,10 @@ pub fn run(
         match do_after {
             DoAfterMission::NextJob(job_ref) => {
                 next_job = job_ref;
+            }
+            DoAfterMission::ReplaceJob(job_ref) => {
+                next_job = job_ref;
+                replace_current = true;
             }
             DoAfterMission::ReloadConfig => match Settings::read(args, context) {
                 Ok(new_settings) => {
@@ -470,6 +479,10 @@ fn run_mission(
                 }
                 Action::ReloadConfig => {
                     mission_end = Some(DoAfterMission::ReloadConfig);
+                    break;
+                }
+                Action::ReplaceJobWith(job_ref) => {
+                    mission_end = Some(DoAfterMission::ReplaceJob(job_ref.clone()));
                     break;
                 }
                 Action::ScopeToFailures => {
