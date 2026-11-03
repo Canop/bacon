@@ -83,5 +83,7 @@ pub fn build_report(cmd_lines: &[CommandOutputLine]) -> Report {
             last_is_blank = is_blank;
         }
     }
-    items.report()
+    let mut report = items.report();
+    report.has_passed_tests = report.stats.test_fails == 0 && report.stats.errors == 0;
+    report
 }
